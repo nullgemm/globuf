@@ -85,7 +85,7 @@ display system before compiling. This is done through environment variables:
 Set `EXAMPLE` to
  - `swr`, for software rendering
  - `willis`, for software rendering and event handling with
-   [willis](https://github.com/cylgom/willis)
+   [willis](https://github.com/nullgemm/willis)
  - `ogl`, for OpenGL (at the moment, only X11 is supported)
  - `vlk`, for Vulkan (at the moment, only X11 is supported)
 
