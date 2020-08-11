@@ -373,7 +373,22 @@ void wl_output_geometry(
 	const char *model,
 	int32_t output_transform)
 {
+	struct globox* globox = data;
 
+	if (globox->wl_callback_geometry != NULL)
+	{
+		globox->wl_callback_geometry(
+			globox->wl_output_data,
+			wl_output,
+			x,
+			y,
+			physical_width,
+			physical_height,
+			subpixel,
+			make,
+			model,
+			output_transform);
+	}
 }
 
 void wl_output_mode(
@@ -391,6 +406,17 @@ void wl_output_mode(
 		globox->wl_screen_width = width;
 		globox->wl_screen_height = height;
 	}
+
+	if (globox->wl_callback_mode != NULL)
+	{
+		globox->wl_callback_mode(
+			globox->wl_output_data,
+			wl_output,
+			flags,
+			width,
+			height,
+			refresh);
+	}
 }
 
 void wl_output_done(void *data, struct wl_output *wl_output)
@@ -400,7 +426,12 @@ void wl_output_done(void *data, struct wl_output *wl_output)
 
 void wl_output_scale(void *data, struct wl_output *wl_output, int32_t scale)
 {
+	struct globox* globox = data;
 
+	if (globox->wl_callback_scale != NULL)
+	{
+		globox->wl_callback_scale(globox->wl_output_data, wl_output, scale);
+	}
 }
 
 #endif

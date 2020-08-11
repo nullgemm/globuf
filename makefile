@@ -19,7 +19,7 @@ SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 LINK =
 
 EXAMPLE ?= willis
-BACKEND ?= quartz
+BACKEND ?= wayland
 
 # rendering backends
 ## software
@@ -54,6 +54,8 @@ LINK+= -lxcb-xkb
 LINK+= -lxcb-xinput
 LINK+= -lxcb-xfixes
 LINK+= -lxcb-cursor
+LINK+= -lxcb-randr
+LINK+= -lxcb-xrm
 endif
 ifeq ($(BACKEND), wayland)
 LINK+= -lxkbcommon
@@ -76,12 +78,16 @@ ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG
 FLAGS+= -DWILLIS_X11
 FLAGS+= -DCURSORYX_X11
+FLAGS+= -DDPISHIT_X11
 SRCS+= $(SUBD)/willis/src/x11.c
 SRCS+= $(SUBD)/willis/src/xkb.c
 SRCS+= $(SUBD)/willis/src/debug.c
 SRCS+= $(SUBD)/cursoryx/src/x11.c
+SRCS+= $(SUBD)/dpishit/src/x11.c
+SRCS+= $(SUBD)/dpishit/src/nix.c
 INCL+= -I$(SUBD)/willis/src
 INCL+= -I$(SUBD)/cursoryx/src
+INCL+= -I$(SUBD)/dpishit/src
 endif
 endif
 
@@ -102,12 +108,17 @@ ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG
 FLAGS+= -DWILLIS_WAYLAND
 FLAGS+= -DCURSORYX_WAYLAND
+FLAGS+= -DDPISHIT_WAYLAND
 SRCS+= $(SUBD)/willis/src/wayland.c
 SRCS+= $(SUBD)/willis/src/xkb.c
 SRCS+= $(SUBD)/willis/src/debug.c
 SRCS+= $(SUBD)/cursoryx/src/wayland.c
+SRCS+= $(SUBD)/dpishit/src/wayland.c
+SRCS+= $(SUBD)/dpishit/src/nix.c
 INCL+= -I$(SUBD)/willis/src
 INCL+= -I$(SUBD)/cursoryx/src
+INCL+= -I$(SUBD)/dpishit/src
+LINK+= -lpthread
 endif
 endif
 
@@ -126,11 +137,16 @@ ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG
 FLAGS+= -DWILLIS_WIN
 FLAGS+= -DCURSORYX_WIN
+FLAGS+= -DDPISHIT_WIN
+FLAGS+= -DNTDDI_VERSION=NTDDI_WINBLUE
 SRCS+= $(SUBD)/willis/src/win.c
 SRCS+= $(SUBD)/willis/src/debug.c
 SRCS+= $(SUBD)/cursoryx/src/win.c
+SRCS+= $(SUBD)/dpishit/src/win.c
 INCL+= -I$(SUBD)/willis/src
 INCL+= -I$(SUBD)/cursoryx/src
+INCL+= -I$(SUBD)/dpishit/src
+LINK+= -lshcore
 endif
 endif
 
@@ -151,11 +167,14 @@ ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG
 FLAGS+= -DWILLIS_QUARTZ
 FLAGS+= -DCURSORYX_QUARTZ
+FLAGS+= -DDPISHIT_OSX
 SRCS+= $(SUBD)/willis/src/quartz.c
 SRCS+= $(SUBD)/willis/src/debug.c
 SRCS+= $(SUBD)/cursoryx/src/quartz.c
+SRCS+= $(SUBD)/dpishit/src/osx.c
 INCL+= -I$(SUBD)/willis/src
 INCL+= -I$(SUBD)/cursoryx/src
+INCL+= -I$(SUBD)/dpishit/src
 endif
 endif
 

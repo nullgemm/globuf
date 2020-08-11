@@ -167,6 +167,30 @@ struct globox
 	struct xdg_wm_base_listener xdg_wm_base_listener;
 	struct wl_registry_listener wl_registry_listener;
 
+	void (*wl_callback_geometry)(
+		void*,
+		struct wl_output*,
+		int32_t,
+		int32_t,
+		int32_t,
+		int32_t,
+		int32_t,
+		const char*,
+		const char*,
+		int32_t);
+	void (*wl_callback_mode)(
+		void*,
+		struct wl_output*,
+		uint32_t,
+		int32_t,
+		int32_t,
+		int32_t);
+	void (*wl_callback_scale)(
+		void*,
+		struct wl_output*,
+		int32_t);
+	void* wl_output_data;
+
 	uint32_t* wl_icon;
 	uint32_t wl_icon_len;
 #endif

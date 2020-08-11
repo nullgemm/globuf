@@ -56,6 +56,11 @@ inline bool globox_open(
 	globox->wl_registry_listener.global = registry_global;
 	globox->wl_registry_listener.global_remove = registry_global_remove;
 
+#if 0
+	globox->wl_callback_geometry = NULL;
+	globox->wl_callback_scale = NULL;
+#endif
+
 	// surface callbacks
 	globox->wl_surface_frame_listener.done = wl_surface_frame_done;
 	globox->xdg_toplevel_listener.configure = xdg_toplevel_configure;

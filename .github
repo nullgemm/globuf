@@ -4,3 +4,6 @@
 [submodule "sub/cursoryx"]
 	path = sub/cursoryx
 	url = https://github.com/nullgemm/cursoryx.git
+[submodule "sub/dpishit"]
+	path = sub/dpishit
+	url = https://github.com/nullgemm/dpishit.git

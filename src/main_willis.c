@@ -1,6 +1,7 @@
 #include "globox.h"
 #include "willis.h"
 #include "cursoryx.h"
+#include "dpishit.h"
 
 #include <stdio.h>
 
@@ -92,8 +93,22 @@ void callback(
 int main()
 {
 	struct willis willis;
+	struct dpishit dpishit;
 	void* willis_backend_link;
 	void* cursoryx_backend_link;
+
+	// init dpishit
+#if defined (DPISHIT_WAYLAND)
+	struct dpishit_wayland_info dpishit_data = {0};
+
+	pthread_mutex_init(&dpishit.wl_info.wayland_info_mutex, NULL);
+
+	// use dpishit's callbacks
+	ctx.wl_callback_geometry = dpishit_wl_geometry;
+	ctx.wl_callback_scale = dpishit_wl_scale;
+	ctx.wl_callback_mode = dpishit_wl_mode;
+	ctx.wl_output_data = &dpishit;
+#endif
 
 	// create window
 	bool ok = globox_open(
@@ -183,6 +198,35 @@ int main()
 			&cursoryx,
 			cursoryx_backend_link);
 
+		// init dpishit
+#if defined (DPISHIT_X11)
+		struct dpishit_x11_info dpishit_data =
+		{
+			.x11_conn = ctx.x11_conn,
+			.x11_win = ctx.x11_win,
+		};
+#elif defined (DPISHIT_WIN)
+		struct dpishit_win_info dpishit_data =
+		{
+			.win_hdc = GetDC(ctx.win_handle),
+			.win_hwnd = ctx.win_handle,
+		};
+#elif defined (DPISHIT_OSX)
+		struct dpishit_osx_info dpishit_data =
+		{
+			.osx_win = ctx.quartz_window_obj,
+		};
+#endif
+
+		dpishit_init(
+			&dpishit,
+			&dpishit_data);
+
+		struct dpishit_display_info* display_info;
+		bool dpishit_real;
+		bool dpishit_logic;
+		bool dpishit_scale;
+
 		while (!ctx.closed)
 		{
 			globox_prepoll(&ctx);
@@ -201,10 +245,32 @@ int main()
 			}
 
 			handler();
+
+			dpishit_real = dpishit_refresh_real_density(&dpishit);
+			dpishit_logic = dpishit_refresh_logic_density(&dpishit);
+			dpishit_scale = dpishit_refresh_scale(&dpishit);
+
+			display_info =
+				dpishit_get_display_info(
+					&dpishit);
+
+			printf(
+				"%u %u %u %u %lf %lf %d %d %d\n",
+				display_info->px_width,
+				display_info->px_height,
+				display_info->mm_width,
+				display_info->mm_height,
+				display_info->dpi_logic,
+				display_info->scale,
+				dpishit_real,
+				dpishit_logic,
+				dpishit_scale);
 		}
 
 		willis_free(&willis);
-
+#ifdef DPISHIT_WAYLAND
+		pthread_mutex_destroy(&dpishit.wl_info.wayland_info_mutex);
+#endif
 		globox_close(&ctx);
 	}
 
