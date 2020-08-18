@@ -3,6 +3,12 @@
 #include "cursoryx.h"
 #include "dpishit.h"
 
+#if defined(GLOBOX_RENDER_OGL)
+#include <GL/gl.h>
+#elif defined(GLOBOX_RENDER_VLK)
+#else
+#endif
+
 #include <stdio.h>
 
 extern unsigned char iconpix_beg;
@@ -18,6 +24,17 @@ void handler()
 
 	if (ctx.redraw)
 	{
+#if defined(GLOBOX_RENDER_OGL)
+	eglMakeCurrent(
+		ctx.wl_egl_display,
+		ctx.wl_egl_surface,
+		ctx.wl_egl_surface,
+		ctx.wl_egl_context);
+
+		glClearColor(0.2f, 0.4f, 0.9f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+#elif defined(GLOBOX_RENDER_VLK)
+#else
 		// background
 		for (uint32_t i = 0; i < ctx.height * ctx.width; ++i)
 		{
@@ -34,6 +51,17 @@ void handler()
 
 			ctx.argb[pos] = 0x00FFFFFF;
 		}
+#endif
+
+#if defined(GLOBOX_RENDER_OGL)
+	eglSwapInterval(ctx.wl_egl_display, 0);
+
+		ctx.wl_frame_callback = wl_surface_frame(ctx.wl_surface);
+		wl_callback_add_listener(
+			ctx.wl_frame_callback,
+			&(ctx.wl_surface_frame_listener),
+			&ctx);
+#endif
 
 		globox_copy(&ctx, 0, 0, ctx.width, ctx.height);
 	}
@@ -92,7 +120,7 @@ void callback(
 
 int main()
 {
-	struct willis willis;
+	struct willis willis = {0};
 	struct dpishit dpishit;
 	void* willis_backend_link;
 	void* cursoryx_backend_link;
@@ -119,7 +147,11 @@ int main()
 		0,
 		100,
 		100,
-		false, // true for frame event
+#if defined (GLOBOX_RENDER_OGL)
+		true, // true for frame event
+#else
+		false,
+#endif
 		willis_handle_events,
 		&willis);
 
@@ -222,10 +254,16 @@ int main()
 			&dpishit,
 			&dpishit_data);
 
+#ifndef GLOBOX_RENDER_OGL
 		struct dpishit_display_info* display_info;
 		bool dpishit_real;
 		bool dpishit_logic;
 		bool dpishit_scale;
+#endif
+
+		//ctx.wl_wait_dispatch = true;
+		ctx.redraw = true;
+		handler();
 
 		while (!ctx.closed)
 		{
@@ -246,6 +284,7 @@ int main()
 
 			handler();
 
+#ifndef GLOBOX_RENDER_OGL
 			dpishit_real = dpishit_refresh_real_density(&dpishit);
 			dpishit_logic = dpishit_refresh_logic_density(&dpishit);
 			dpishit_scale = dpishit_refresh_scale(&dpishit);
@@ -265,6 +304,7 @@ int main()
 				dpishit_real,
 				dpishit_logic,
 				dpishit_scale);
+#endif
 		}
 
 		willis_free(&willis);

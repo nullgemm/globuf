@@ -19,21 +19,18 @@
 #include "zwp-pointer-constraints-protocol.h"
 #include "globox.h"
 
+#ifdef GLOBOX_RENDER_OGL
+#include <EGL/egl.h>
+#endif
+
 inline bool surface_init(struct globox* globox)
 {
-	// surface init
-	bool err;
-
 	globox->wl_surface = wl_compositor_create_surface(globox->wl_compositor);
+
+	// register window events (resize, close, etc)
 	globox->xdg_surface = xdg_wm_base_get_xdg_surface(
 		globox->xdg_wm_base,
 		globox->wl_surface);
-	err = allocate_buffer(globox);
-
-	if (!err)
-	{
-		return false;
-	}
 
 	xdg_surface_add_listener(
 		globox->xdg_surface,
@@ -42,23 +39,46 @@ inline bool surface_init(struct globox* globox)
 
 	globox->xdg_toplevel = xdg_surface_get_toplevel(globox->xdg_surface);
 
-	wl_surface_commit(globox->wl_surface);
-
-	// register surface events
-	globox->wl_frame_callback = wl_surface_frame(globox->wl_surface);
-	wl_callback_add_listener(
-		globox->wl_frame_callback,
-		&(globox->wl_surface_frame_listener),
-		globox);
-
-	wl_display_dispatch(globox->wl_display);
-	globox_copy(globox, 0, 0, globox->width, globox->height);
-
-	// register window events (resize, close, etc)
 	xdg_toplevel_add_listener(
 		globox->xdg_toplevel,
 		&(globox->xdg_toplevel_listener),
 		globox);
+
+#ifdef GLOBOX_RENDER_OGL
+	globox->wl_egl_window =
+		wl_egl_window_create(
+			globox->wl_surface,
+			globox->width,
+			globox->height);
+
+	globox->wl_egl_surface =
+		eglCreateWindowSurface(
+			globox->wl_egl_display,
+			globox->wl_egl_config,
+			(EGLNativeWindowType) globox->wl_egl_window,
+			NULL);
+#else
+	// surface init
+	bool err = allocate_buffer(globox);
+
+	if (!err)
+	{
+		return false;
+	}
+#endif
+
+	wl_surface_commit(globox->wl_surface);
+	wl_display_roundtrip(globox->wl_display);
+
+#ifdef GLOBOX_RENDER_OGL
+	eglMakeCurrent(
+		globox->wl_egl_display,
+		globox->wl_egl_surface,
+		globox->wl_egl_surface,
+		globox->wl_egl_context);
+
+	eglSwapInterval(globox->wl_egl_display, 0);
+#endif
 
 	return true;
 }
@@ -183,9 +203,12 @@ void xdg_surface_configure(
 	struct xdg_surface *xdg_surface,
 	uint32_t serial)
 {
-    struct globox* globox = data;
     xdg_surface_ack_configure(xdg_surface, serial);
+    struct globox* globox = data;
+	globox->wl_wait_dispatch = false;
+#ifndef GLOBOX_RENDER_OGL
     wl_surface_attach(globox->wl_surface, globox->wl_buffer, 0, 0);
+#endif
 }
 
 void xdg_wm_base_ping(
@@ -298,11 +321,7 @@ void wl_surface_frame_done(
 	struct globox* globox = data;
 
 	wl_callback_destroy(frame_callback);
-	globox->wl_frame_callback = wl_surface_frame(globox->wl_surface);
-	wl_callback_add_listener(
-		globox->wl_frame_callback,
-		&(globox->wl_surface_frame_listener),
-		globox);
+	globox->redraw = true;
 
 	write(globox->fd_frame, &one, 8);
 	fsync(globox->fd_frame);
@@ -326,6 +345,9 @@ void xdg_toplevel_configure(
 	globox->height = height;
 	globox->redraw = true;
 
+#ifdef GLOBOX_RENDER_OGL
+	wl_egl_window_resize(globox->wl_egl_window, width, height, 0, 0);
+#else
 	if ((globox->buf_width * globox->buf_height) < (uint32_t) (width * height))
 	{
 		wl_shm_pool_destroy(globox->wl_pool);
@@ -351,6 +373,7 @@ void xdg_toplevel_configure(
 			globox->width * 4,
 			WL_SHM_FORMAT_XRGB8888);
 	}
+#endif
 }
 
 void xdg_toplevel_close(

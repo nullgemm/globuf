@@ -13,6 +13,11 @@
 #include "wayland.h"
 #include "nix.h"
 
+#ifdef GLOBOX_RENDER_OGL
+#include <wayland-egl.h>
+#include <EGL/egl.h>
+#endif
+
 inline bool globox_open(
 	struct globox* globox,
 	enum globox_state state,
@@ -65,8 +70,20 @@ inline bool globox_open(
 	globox->wl_surface_frame_listener.done = wl_surface_frame_done;
 	globox->xdg_toplevel_listener.configure = xdg_toplevel_configure;
 	globox->xdg_toplevel_listener.close = xdg_toplevel_close;
+	globox->wl_wait_dispatch = true;
+
+#ifdef GLOBOX_RENDER_OGL
+	globox->wl_egl_display = EGL_NO_DISPLAY;
+	globox->wl_egl_context = EGL_NO_CONTEXT;
+	globox->wl_egl_surface = EGL_NO_SURFACE;
+#if 0
+	globox->wl_egl_window;
+	globox->wl_egl_config;
+#endif
+#endif
 
 	// init
+	globox->wl_display = NULL;
 	globox->wl_display = wl_display_connect(NULL);
 
 	if (globox->wl_display == NULL)
@@ -80,7 +97,77 @@ inline bool globox_open(
 		globox->wl_registry,
 		&(globox->wl_registry_listener),
 		globox);
+	wl_display_dispatch(globox->wl_display);
 	wl_display_roundtrip(globox->wl_display);
+
+#ifdef GLOBOX_RENDER_OGL
+	globox->wl_egl_display = eglGetDisplay((EGLNativeDisplayType) globox->wl_display);
+
+	if (globox->wl_egl_display == EGL_NO_DISPLAY)
+	{
+		return false;
+	}
+
+	EGLint egl_major;
+	EGLint egl_minor;
+	EGLBoolean egl_ret;
+
+	egl_ret = eglInitialize(globox->wl_egl_display, &egl_major, &egl_minor);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	egl_ret = eglBindAPI(EGL_OPENGL_API);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	EGLint egl_cfg;
+	static EGLint egl_cfg_attr[] =
+	{
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_RED_SIZE, 8,
+		EGL_GREEN_SIZE, 8,
+		EGL_BLUE_SIZE, 8,
+		EGL_ALPHA_SIZE, 8,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+		EGL_NONE,
+	};
+
+	egl_ret = eglChooseConfig(
+		globox->wl_egl_display,
+		egl_cfg_attr,
+		&(globox->wl_egl_config),
+		1,
+		&egl_cfg);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	static EGLint egl_ctx_attr[] =
+	{
+		EGL_CONTEXT_CLIENT_VERSION, 2,
+		EGL_NONE,
+	};
+
+	globox->wl_egl_context =
+		eglCreateContext(
+			globox->wl_egl_display,
+			globox->wl_egl_config,
+			EGL_NO_CONTEXT,
+			egl_ctx_attr);
+
+	if (globox->wl_egl_context == EGL_NO_CONTEXT)
+	{
+		return false;
+	}
+#endif
 
 	// surface init
 	err = surface_init(globox);
@@ -136,6 +223,7 @@ inline bool globox_handle_events(struct globox* globox)
 
 inline bool globox_shrink(struct globox* globox)
 {
+#ifndef GLOBOX_RENDER_OGL
 	wl_shm_pool_destroy(globox->wl_pool);
 	close(globox->wl_buffer_fd);
 	munmap(globox->argb, globox->buf_width * globox->buf_height * 4);
@@ -144,6 +232,7 @@ inline bool globox_shrink(struct globox* globox)
 	globox->buf_height = globox->height;
 
 	allocate_buffer(globox);
+#endif
 
 	return true;
 }
@@ -155,8 +244,14 @@ inline void globox_copy(
 	uint32_t width,
 	uint32_t height)
 {
+#ifdef GLOBOX_RENDER_OGL
+	eglSwapBuffers(globox->wl_egl_display, globox->wl_egl_surface);
+#else
 	wl_surface_damage_buffer(globox->wl_surface, x, y, width, height);
+#endif
+
 	globox_commit(globox);
+
 	globox->redraw = false;
 }
 
@@ -220,13 +315,15 @@ inline void globox_set_state(struct globox* globox, enum globox_state state)
 			// ladies and gentlemen
 			if (globox->state == GLOBOX_STATE_MINIMIZED)
 			{
-				int size = globox->width * globox->height * 4;
 				char* title = globox->title;
 
+#ifndef GLOBOX_RENDER_OGL
+				int size = globox->width * globox->height * 4;
 				wl_shm_pool_destroy(globox->wl_pool);
 				close(globox->wl_buffer_fd);
 				munmap(globox->argb, size);
 				wl_buffer_destroy(globox->wl_buffer);
+#endif
 
 				wl_surface_destroy(globox->wl_surface);
 				xdg_surface_destroy(globox->xdg_surface);

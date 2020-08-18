@@ -63,4 +63,11 @@ void wl_output_mode(
 void wl_output_done(void *data, struct wl_output *wl_output);
 void wl_output_scale(void *data, struct wl_output *wl_output, int32_t scale);
 
+void wl_shell_surface_configure(
+	void *data,
+	struct wl_shell_surface *surface,
+	uint32_t edges,
+	int32_t width,
+	int32_t height);
+
 #endif

@@ -16,36 +16,33 @@ INCL = -I$(SRCD)
 INCL+= -I$(INCD)
 SRCS =
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
-LINK =
+LINK = `pkg-config wayland-client wayland-egl --cflags --libs`
+LINK+= `pkg-config egl glesv2 --cflags --libs`
 
+
+RENDER ?= ogl
 EXAMPLE ?= willis
 BACKEND ?= wayland
 
 # rendering backends
 ## software
-ifeq ($(EXAMPLE), swr)
+ifeq ($(RENDER), swr)
 FLAGS+= -DGLOBOX_RENDER_SWR
-SRCS = $(SRCD)/main.c
 endif
 
 ## vulkan
-ifeq ($(EXAMPLE), vlk)
+ifeq ($(RENDER), vlk)
 FLAGS+= -DGLOBOX_RENDER_VLK
-LINK+= -lvulkan
-LINK+= -lVkLayer_khronos_validation
-SRCS = $(SRCD)/main_vulkan.c
+LINK+= -lvulkan -lVkLayer_khronos_validation
 endif
 
 ## opengl
-ifeq ($(EXAMPLE), ogl)
+ifeq ($(RENDER), ogl)
 FLAGS+= -DGLOBOX_RENDER_OGL
-LINK+= -lX11 -lX11-xcb -lGL
-SRCS = $(SRCD)/main_opengl.c
 endif
 
 ## willis
 ifeq ($(EXAMPLE), willis)
-FLAGS+= -DGLOBOX_RENDER_SWR
 SRCS = $(SRCD)/main_willis.c
 ifeq ($(BACKEND), x11)
 LINK+= -lxkbcommon-x11
@@ -73,6 +70,10 @@ SRCS+= $(SRCD)/globox_x11.c
 LINK+= -lxcb -lxcb-shm -lxcb-randr -lrt
 .PHONY: final
 final: $(BIND)/$(NAME)
+
+ifeq ($(RENDER), ogl)
+LINK+= -lX11 -lX11-xcb -lGL
+endif
 
 ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG
@@ -103,6 +104,10 @@ SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
 LINK+= -lwayland-client -lrt
 .PHONY: final
 final: | $(INCD) $(BIND)/$(NAME)
+
+ifeq ($(RENDER), ogl)
+LINK+= -lwayland-egl -lEGL -lGL
+endif
 
 ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG

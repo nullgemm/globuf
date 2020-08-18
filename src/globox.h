@@ -25,6 +25,11 @@
 #endif
 
 #ifdef GLOBOX_WAYLAND
+	#ifdef GLOBOX_RENDER_OGL
+#include <wayland-egl.h>
+#include <EGL/egl.h>
+	#endif
+
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #endif
@@ -142,6 +147,15 @@ struct globox
     struct wl_compositor *wl_compositor;
     struct xdg_wm_base *xdg_wm_base;
 
+#ifdef GLOBOX_RENDER_OGL
+	struct wl_egl_window* wl_egl_window;
+	EGLDisplay wl_egl_display;
+	EGLContext wl_egl_context;
+	EGLConfig  wl_egl_config;
+	EGLSurface wl_egl_surface;
+#endif
+
+	bool wl_wait_dispatch;
     struct wl_surface *wl_surface;
 	struct wl_callback *wl_frame_callback;
 	struct wl_callback_listener wl_surface_frame_listener;
