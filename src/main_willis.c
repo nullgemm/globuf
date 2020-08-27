@@ -4,6 +4,7 @@
 #include "dpishit.h"
 
 #if defined(GLOBOX_RENDER_OGL)
+#include <EGL/egl.h>
 #include <GL/gl.h>
 #elif defined(GLOBOX_RENDER_VLK)
 #else
@@ -26,10 +27,10 @@ void handler()
 	{
 #if defined(GLOBOX_RENDER_OGL)
 	eglMakeCurrent(
-		ctx.wl_egl_display,
-		ctx.wl_egl_surface,
-		ctx.wl_egl_surface,
-		ctx.wl_egl_context);
+		ctx.egl_display,
+		ctx.egl_surface,
+		ctx.egl_surface,
+		ctx.egl_context);
 
 		glClearColor(0.2f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -54,13 +55,15 @@ void handler()
 #endif
 
 #if defined(GLOBOX_RENDER_OGL)
-	eglSwapInterval(ctx.wl_egl_display, 0);
+	eglSwapInterval(ctx.egl_display, 0);
 
+#if defined(GLOBOX_WAYLAND)
 		ctx.wl_frame_callback = wl_surface_frame(ctx.wl_surface);
 		wl_callback_add_listener(
 			ctx.wl_frame_callback,
 			&(ctx.wl_surface_frame_listener),
 			&ctx);
+#endif
 #endif
 
 		globox_copy(&ctx, 0, 0, ctx.width, ctx.height);

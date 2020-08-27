@@ -51,10 +51,10 @@ inline bool surface_init(struct globox* globox)
 			globox->width,
 			globox->height);
 
-	globox->wl_egl_surface =
+	globox->egl_surface =
 		eglCreateWindowSurface(
-			globox->wl_egl_display,
-			globox->wl_egl_config,
+			globox->egl_display,
+			globox->egl_config,
 			(EGLNativeWindowType) globox->wl_egl_window,
 			NULL);
 #else
@@ -72,12 +72,12 @@ inline bool surface_init(struct globox* globox)
 
 #ifdef GLOBOX_RENDER_OGL
 	eglMakeCurrent(
-		globox->wl_egl_display,
-		globox->wl_egl_surface,
-		globox->wl_egl_surface,
-		globox->wl_egl_context);
+		globox->egl_display,
+		globox->egl_surface,
+		globox->egl_surface,
+		globox->egl_context);
 
-	eglSwapInterval(globox->wl_egl_display, 0);
+	eglSwapInterval(globox->egl_display, 0);
 #endif
 
 	return true;

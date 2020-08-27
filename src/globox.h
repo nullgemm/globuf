@@ -11,7 +11,7 @@
 	#endif
 
 	#ifdef GLOBOX_RENDER_OGL
-#include <GL/glx.h>
+#include <EGL/egl.h>
 	#endif
 
 	#ifdef GLOBOX_RENDER_VLK
@@ -117,14 +117,6 @@ struct globox
 	bool x11_pixmap_update;
 	#endif
 
-	#ifdef GLOBOX_RENDER_OGL
-	Display *xlib_display;
-	int xlib_screen;
-	GLXFBConfig xlib_fb_config;
-	GLXContext xlib_context;
-	GLXWindow xlib_glx;
-	#endif
-
 	#ifdef GLOBOX_RENDER_VLK
 	VkInstance vlk_instance;
 	VkSurfaceKHR vlk_surface;
@@ -140,6 +132,13 @@ struct globox
 	#endif
 #endif
 
+	#ifdef GLOBOX_RENDER_OGL
+	EGLDisplay egl_display;
+	EGLContext egl_context;
+	EGLConfig  egl_config;
+	EGLSurface egl_surface;
+	#endif
+
 #ifdef GLOBOX_WAYLAND
     struct wl_display *wl_display;
     struct wl_registry *wl_registry;
@@ -149,10 +148,6 @@ struct globox
 
 #ifdef GLOBOX_RENDER_OGL
 	struct wl_egl_window* wl_egl_window;
-	EGLDisplay wl_egl_display;
-	EGLContext wl_egl_context;
-	EGLConfig  wl_egl_config;
-	EGLSurface wl_egl_surface;
 #endif
 
 	bool wl_wait_dispatch;

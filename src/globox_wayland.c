@@ -73,12 +73,12 @@ inline bool globox_open(
 	globox->wl_wait_dispatch = true;
 
 #ifdef GLOBOX_RENDER_OGL
-	globox->wl_egl_display = EGL_NO_DISPLAY;
-	globox->wl_egl_context = EGL_NO_CONTEXT;
-	globox->wl_egl_surface = EGL_NO_SURFACE;
+	globox->egl_display = EGL_NO_DISPLAY;
+	globox->egl_context = EGL_NO_CONTEXT;
+	globox->egl_surface = EGL_NO_SURFACE;
 #if 0
-	globox->wl_egl_window;
-	globox->wl_egl_config;
+	globox->egl_window;
+	globox->egl_config;
 #endif
 #endif
 
@@ -101,9 +101,9 @@ inline bool globox_open(
 	wl_display_roundtrip(globox->wl_display);
 
 #ifdef GLOBOX_RENDER_OGL
-	globox->wl_egl_display = eglGetDisplay((EGLNativeDisplayType) globox->wl_display);
+	globox->egl_display = eglGetDisplay((EGLNativeDisplayType) globox->wl_display);
 
-	if (globox->wl_egl_display == EGL_NO_DISPLAY)
+	if (globox->egl_display == EGL_NO_DISPLAY)
 	{
 		return false;
 	}
@@ -112,7 +112,7 @@ inline bool globox_open(
 	EGLint egl_minor;
 	EGLBoolean egl_ret;
 
-	egl_ret = eglInitialize(globox->wl_egl_display, &egl_major, &egl_minor);
+	egl_ret = eglInitialize(globox->egl_display, &egl_major, &egl_minor);
 
 	if (egl_ret != EGL_TRUE)
 	{
@@ -139,9 +139,9 @@ inline bool globox_open(
 	};
 
 	egl_ret = eglChooseConfig(
-		globox->wl_egl_display,
+		globox->egl_display,
 		egl_cfg_attr,
-		&(globox->wl_egl_config),
+		&(globox->egl_config),
 		1,
 		&egl_cfg);
 
@@ -156,14 +156,14 @@ inline bool globox_open(
 		EGL_NONE,
 	};
 
-	globox->wl_egl_context =
+	globox->egl_context =
 		eglCreateContext(
-			globox->wl_egl_display,
-			globox->wl_egl_config,
+			globox->egl_display,
+			globox->egl_config,
 			EGL_NO_CONTEXT,
 			egl_ctx_attr);
 
-	if (globox->wl_egl_context == EGL_NO_CONTEXT)
+	if (globox->egl_context == EGL_NO_CONTEXT)
 	{
 		return false;
 	}
@@ -245,7 +245,7 @@ inline void globox_copy(
 	uint32_t height)
 {
 #ifdef GLOBOX_RENDER_OGL
-	eglSwapBuffers(globox->wl_egl_display, globox->wl_egl_surface);
+	eglSwapBuffers(globox->egl_display, globox->egl_surface);
 #else
 	wl_surface_damage_buffer(globox->wl_surface, x, y, width, height);
 #endif

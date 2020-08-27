@@ -17,9 +17,7 @@
 #endif
 
 #ifdef GLOBOX_RENDER_OGL
-#include <X11/Xlib.h>
-#include <X11/Xlib-xcb.h>
-#include <GL/glx.h>
+#include <EGL/egl.h>
 #endif
 
 #ifdef GLOBOX_RENDER_VLK
@@ -63,33 +61,80 @@ inline bool globox_open(
 	}
 
 	// connect to server
-#if defined(GLOBOX_RENDER_SWR) || defined(GLOBOX_RENDER_VLK)
 	globox->x11_conn = xcb_connect(NULL, &(globox->x11_screen));
-#endif
-
-#ifdef GLOBOX_RENDER_OGL
-	globox->xlib_display = XOpenDisplay(NULL);
-
-	if (globox->xlib_display == NULL)
-	{
-		return false;
-	}
-
-	globox->x11_screen = DefaultScreen(globox->xlib_display);
-	globox->x11_conn = XGetXCBConnection(globox->xlib_display);
-
-	if (globox->x11_conn == NULL)
-	{
-		XCloseDisplay(globox->xlib_display);
-		return false;
-	}
-
-	XSetEventQueueOwner(globox->xlib_display, XCBOwnsEventQueue);
-#endif
 
 	globox->fd.descriptor = xcb_get_file_descriptor(globox->x11_conn);
 	globox->x11_screen_obj = get_screen(globox);
 	globox->x11_root = globox->x11_screen_obj->root;
+
+#ifdef GLOBOX_RENDER_OGL
+	globox->egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+
+	if (globox->egl_display == EGL_NO_DISPLAY)
+	{
+		return false;
+	}
+
+	EGLint egl_major;
+	EGLint egl_minor;
+	EGLBoolean egl_ret;
+
+	egl_ret = eglInitialize(globox->egl_display, &egl_major, &egl_minor);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	egl_ret = eglBindAPI(EGL_OPENGL_API);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	EGLint egl_cfg;
+	static EGLint egl_cfg_attr[] =
+	{
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_RED_SIZE, 8,
+		EGL_GREEN_SIZE, 8,
+		EGL_BLUE_SIZE, 8,
+		EGL_ALPHA_SIZE, 8,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+		EGL_NONE,
+	};
+
+	egl_ret = eglChooseConfig(
+		globox->egl_display,
+		egl_cfg_attr,
+		&(globox->egl_config),
+		1,
+		&egl_cfg);
+
+	if (egl_ret != EGL_TRUE)
+	{
+		return false;
+	}
+
+	static EGLint egl_ctx_attr[] =
+	{
+		EGL_CONTEXT_CLIENT_VERSION, 2,
+		EGL_NONE,
+	};
+
+	globox->egl_context =
+		eglCreateContext(
+			globox->egl_display,
+			globox->egl_config,
+			EGL_NO_CONTEXT,
+			egl_ctx_attr);
+
+	if (globox->egl_context == EGL_NO_CONTEXT)
+	{
+		return false;
+	}
+#endif
 
 	// create the window
 	create_window(globox, globox->x11_screen_obj);
@@ -100,6 +145,7 @@ inline bool globox_open(
 #endif
 
 	xcb_map_window(globox->x11_conn, globox->x11_win);
+	xcb_flush(globox->x11_conn);
 
 #ifdef GLOBOX_RENDER_OGL
 	create_glx(globox);
@@ -235,9 +281,6 @@ inline void globox_close(struct globox* globox)
 #endif
 
 #ifdef GLOBOX_RENDER_OGL
-	glXDestroyWindow(globox->xlib_display, globox->xlib_glx);
-	xcb_destroy_window(globox->x11_conn, globox->x11_win);
-	glXDestroyContext(globox->xlib_display, globox->xlib_context);
 #endif
 
 #ifdef GLOBOX_RENDER_VLK
@@ -250,10 +293,6 @@ inline void globox_close(struct globox* globox)
 
 #ifdef GLOBOX_RENDER_SWR
 	xcb_disconnect(globox->x11_conn);
-#endif
-
-#ifdef GLOBOX_RENDER_OGL
-	XCloseDisplay(globox->xlib_display);
 #endif
 
 #ifdef GLOBOX_RENDER_VLK
@@ -536,7 +575,7 @@ inline void globox_copy(
 #endif
 
 #ifdef GLOBOX_RENDER_OGL
-	glXSwapBuffers(globox->xlib_display, globox->xlib_glx);
+	eglSwapBuffers(globox->egl_display, globox->egl_surface);
 #endif
 
 	globox->redraw = false;

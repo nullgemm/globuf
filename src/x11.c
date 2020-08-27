@@ -109,24 +109,6 @@ inline xcb_screen_t* get_screen(struct globox* globox)
 	return iter.data;
 }
 
-#ifdef GLOBOX_RENDER_OGL
-static int visual_attribs[] =
-{
-	GLX_X_RENDERABLE, True,
-	GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-	GLX_RENDER_TYPE, GLX_RGBA_BIT,
-	GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
-	GLX_RED_SIZE, 8,
-	GLX_GREEN_SIZE, 8,
-	GLX_BLUE_SIZE, 8,
-	GLX_ALPHA_SIZE, 8,
-	GLX_DEPTH_SIZE, 24,
-	GLX_STENCIL_SIZE, 8,
-	GLX_DOUBLEBUFFER, True,
-	None
-};
-#endif
-
 // we use a pixmap background instead of a plain color
 // to work around resizing artifacts on some desktop environments
 //
@@ -136,8 +118,19 @@ static int visual_attribs[] =
 // it is probably better left as-is.
 inline void create_window(struct globox* globox, xcb_screen_t* screen)
 {
-#if defined(GLOBOX_RENDER_SWR) || defined(GLOBOX_RENDER_VLK)
+#ifdef GLOBOX_RENDER_OGL
+	EGLint eglConfAttrVisualID;
+
+	eglGetConfigAttrib(
+		globox->egl_display,
+		globox->egl_config,
+		EGL_NATIVE_VISUAL_ID,
+		&eglConfAttrVisualID);
+
+	xcb_visualid_t visual_id = eglConfAttrVisualID;
+#else
 	xcb_visualid_t visual_id = screen->root_visual;
+#endif
 
 	globox->x11_attr_mask = 
 		XCB_CW_BACK_PIXMAP
@@ -148,68 +141,6 @@ inline void create_window(struct globox* globox, xcb_screen_t* screen)
 		XCB_EVENT_MASK_EXPOSURE
 		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
-#endif
-
-#ifdef GLOBOX_RENDER_OGL
-	// get available framebuffer configurations
-	int fb_config_count;
-	GLXFBConfig *fb_config_list = glXChooseFBConfig(
-		globox->xlib_display,
-		globox->x11_screen,
-		visual_attribs,
-		&fb_config_count);
-
-	if ((fb_config_list == NULL) || (fb_config_count == 0))
-	{
-		// TODO: error
-		return;
-	}
-
-	// query visual ID
-	int visual_id;
-	globox->xlib_fb_config = fb_config_list[0];
-
-	glXGetFBConfigAttrib(
-		globox->xlib_display,
-		globox->xlib_fb_config,
-		GLX_VISUAL_ID,
-		&visual_id);
-
-	// create OGL context
-	globox->xlib_context = glXCreateNewContext(
-		globox->xlib_display,
-		globox->xlib_fb_config,
-		GLX_RGBA_TYPE,
-		NULL,
-		True);
-
-	if (globox->xlib_context == NULL)
-	{
-		// TODO: error
-		return;
-	}
-
-	xcb_colormap_t colormap = xcb_generate_id(globox->x11_conn);
-	xcb_create_colormap(
-		globox->x11_conn,
-		XCB_COLORMAP_ALLOC_NONE,
-		colormap,
-		screen->root,
-		visual_id);
-
-	globox->x11_attr_mask = 
-		XCB_CW_BACK_PIXMAP
-		| XCB_CW_EVENT_MASK
-		| XCB_CW_COLORMAP;
-	globox->x11_attr_val[0] =
-		XCB_BACK_PIXMAP_NONE;
-	globox->x11_attr_val[1] =
-		XCB_EVENT_MASK_EXPOSURE
-		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
-		| XCB_EVENT_MASK_PROPERTY_CHANGE;
-	globox->x11_attr_val[2] =
-		colormap;
-#endif
 
 	globox->x11_win = xcb_generate_id(globox->x11_conn);
 
@@ -252,33 +183,19 @@ inline void create_gfx(struct globox* globox, xcb_screen_t* screen)
 inline void create_glx(struct globox* globox)
 {
 #ifdef GLOBOX_RENDER_OGL
-	globox->xlib_glx = glXCreateWindow(
-		globox->xlib_display,
-		globox->xlib_fb_config,
-		globox->x11_win,
+	globox->egl_surface = eglCreateWindowSurface(
+		globox->egl_display,
+		globox->egl_config,
+		(EGLNativeWindowType) globox->x11_win,
 		NULL);
 
-	if (globox->x11_win == 0)
-	{
-		xcb_destroy_window(globox->x11_conn, globox->x11_win);
-		glXDestroyContext(globox->xlib_display, globox->xlib_context);
+	eglMakeCurrent(
+		globox->egl_display,
+		globox->egl_surface,
+		globox->egl_surface,
+		globox->egl_context);
 
-		// TODO: error
-		return;
-	}
-
-	if (glXMakeContextCurrent(
-		globox->xlib_display,
-		globox->xlib_glx,
-		globox->xlib_glx,
-		globox->xlib_context) == False)
-	{
-		xcb_destroy_window(globox->x11_conn, globox->x11_win);
-		glXDestroyContext(globox->xlib_display, globox->xlib_context);
-
-		// TODO:error
-		return;
-	}
+	eglSwapInterval(globox->egl_display, 0);
 #endif
 }
 
@@ -604,10 +521,9 @@ inline void handle_expose(struct globox* globox, uint32_t* arr, uint8_t cur)
 			arr[(4 * i) + 2],
 			arr[(4 * i) + 3]);
 	}
-#endif
 
-#ifdef GLOBOX_RENDER_OGL
-	glXSwapBuffers(globox->xlib_display, globox->xlib_glx);
+#elif defined(GLOBOX_RENDER_OGL)
+	eglSwapBuffers(globox->egl_display, globox->egl_surface);
 #endif
 }
 

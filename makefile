@@ -22,7 +22,7 @@ LINK+= `pkg-config egl glesv2 --cflags --libs`
 
 RENDER ?= ogl
 EXAMPLE ?= willis
-BACKEND ?= wayland
+BACKEND ?= x11
 
 # rendering backends
 ## software
@@ -72,7 +72,7 @@ LINK+= -lxcb -lxcb-shm -lxcb-randr -lrt
 final: $(BIND)/$(NAME)
 
 ifeq ($(RENDER), ogl)
-LINK+= -lX11 -lX11-xcb -lGL
+LINK+= -lGL -lEGL
 endif
 
 ifeq ($(EXAMPLE), willis)
