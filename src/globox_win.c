@@ -63,6 +63,7 @@ void resize(struct globox* globox)
 	}
 
 	// re-create buffer
+#ifndef GLOBOX_RENDER_OGL
 	HDC hdc = GetDC(globox->win_handle);
 
 	globox->hbm = CreateDIBSection(
@@ -74,6 +75,39 @@ void resize(struct globox* globox)
 		0); // buffer offset
 
 	ReleaseDC(globox->win_handle, hdc);
+#else
+	globox->hdc = GetDC(globox->win_handle);
+	    int nPixelFormat;
+ 
+        static PIXELFORMATDESCRIPTOR pfd = {
+                sizeof(PIXELFORMATDESCRIPTOR),          //size of structure
+                1,                                      //default version
+                PFD_DRAW_TO_WINDOW |                    //window drawing support
+                PFD_SUPPORT_OPENGL |                    //opengl support
+                PFD_DOUBLEBUFFER,                       //double buffering support
+                PFD_TYPE_RGBA,                          //RGBA color mode
+                32,                                     //32 bit color mode
+                0, 0, 0, 0, 0, 0,                       //ignore color bits
+                0,                                      //no alpha buffer
+                0,                                      //ignore shift bit
+                0,                                      //no accumulation buffer
+                0, 0, 0, 0,                             //ignore accumulation bits
+                16,                                     //16 bit z-buffer size
+                0,                                      //no stencil buffer
+                0,                                      //no aux buffer
+                PFD_MAIN_PLANE,                         //main drawing plane
+                0,                                      //reserved
+                0, 0, 0 };                              //layer masks ignored
+ 
+                /*      Choose best matching format*/
+                nPixelFormat = ChoosePixelFormat(globox->hdc, &pfd);
+ 
+                /*      Set the pixel format to the device context*/
+                SetPixelFormat(globox->hdc, nPixelFormat, &pfd);
+
+	globox->hglrc = wglCreateContext(globox->hdc);
+	wglMakeCurrent(globox->hdc, globox->hglrc);
+#endif
 }
 
 HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
@@ -324,6 +358,7 @@ inline void globox_copy(
 	uint32_t width,
 	uint32_t height)
 {
+#ifndef GLOBOX_RENDER_OGL
 	// damage region
 	RECT update =
 	{
@@ -356,6 +391,9 @@ inline void globox_copy(
 	SelectObject(hdc_compatible, hbm_compatible_old);
 	DeleteDC(hdc_compatible);
 	EndPaint(globox->win_handle, &paint);
+#else
+	wglSwapLayerBuffers(globox->hdc, WGL_SWAP_MAIN_PLANE);
+#endif
 
 	// done
 	globox->redraw = false;

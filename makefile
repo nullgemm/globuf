@@ -16,13 +16,11 @@ INCL = -I$(SRCD)
 INCL+= -I$(INCD)
 SRCS =
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
-LINK = `pkg-config wayland-client wayland-egl --cflags --libs`
-LINK+= `pkg-config egl glesv2 --cflags --libs`
 
 
 RENDER ?= ogl
 EXAMPLE ?= willis
-BACKEND ?= x11
+BACKEND ?= win
 
 # rendering backends
 ## software
@@ -106,7 +104,8 @@ LINK+= -lwayland-client -lrt
 final: | $(INCD) $(BIND)/$(NAME)
 
 ifeq ($(RENDER), ogl)
-LINK+= -lwayland-egl -lEGL -lGL
+LINK+= `pkg-config wayland-client wayland-egl --cflags --libs`
+LINK+= `pkg-config egl glesv2 --cflags --libs`
 endif
 
 ifeq ($(EXAMPLE), willis)
@@ -134,9 +133,13 @@ FLAGS+= -DGLOBOX_WIN -DUNICODE -D_UNICODE
 SRCS+= $(SRCD)/win.c
 SRCS+= $(SRCD)/globox_win.c
 LINK+= -lgdi32 -mwindows
-CMD = wine ./$(NAME)
+CMD = wine64 ./$(NAME)
 .PHONY: final
 final: $(BIND)/$(NAME)
+
+ifeq ($(RENDER), ogl)
+LINK+= -lopengl32
+endif
 
 ifeq ($(EXAMPLE), willis)
 FLAGS+= -DWILLIS_DEBUG

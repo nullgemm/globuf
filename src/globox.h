@@ -132,12 +132,14 @@ struct globox
 	#endif
 #endif
 
+#if 0
 	#ifdef GLOBOX_RENDER_OGL
 	EGLDisplay egl_display;
 	EGLContext egl_context;
 	EGLConfig  egl_config;
 	EGLSurface egl_surface;
 	#endif
+#endif
 
 #ifdef GLOBOX_WAYLAND
     struct wl_display *wl_display;
@@ -217,6 +219,10 @@ struct globox
 	WINDOWPLACEMENT win_fullscreen_pos_backup;
 	LONG win_style_backup;
 	LONG win_style_ex_backup;
+#ifdef GLOBOX_RENDER_OGL
+	HGLRC hglrc;
+	HDC hdc;
+#endif
 #endif
 
 #ifdef GLOBOX_QUARTZ
