@@ -8,6 +8,9 @@
 #include <windows.h>
 #include <stdio.h>
 #include "win.h"
+#ifdef GLOBOX_RENDER_OGL
+//#include <EGL/egl.h>
+#endif
 
 // dummy event callback we exceptionally put here to avoid pointless complexity
 LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -76,7 +79,7 @@ void resize(struct globox* globox)
 
 	ReleaseDC(globox->win_handle, hdc);
 #else
-	globox->hdc = GetDC(globox->win_handle);
+	HDC hdc = GetDC(globox->win_handle);
 	    int nPixelFormat;
  
         static PIXELFORMATDESCRIPTOR pfd = {
@@ -100,13 +103,14 @@ void resize(struct globox* globox)
                 0, 0, 0 };                              //layer masks ignored
  
                 /*      Choose best matching format*/
-                nPixelFormat = ChoosePixelFormat(globox->hdc, &pfd);
+                nPixelFormat = ChoosePixelFormat(hdc, &pfd);
  
                 /*      Set the pixel format to the device context*/
-                SetPixelFormat(globox->hdc, nPixelFormat, &pfd);
+                SetPixelFormat(hdc, nPixelFormat, &pfd);
 
-	globox->hglrc = wglCreateContext(globox->hdc);
-	wglMakeCurrent(globox->hdc, globox->hglrc);
+	globox->hglrc = wglCreateContext(hdc);
+	wglMakeCurrent(hdc, globox->hglrc);
+	ReleaseDC(globox->win_handle, hdc);
 #endif
 }
 
@@ -392,7 +396,9 @@ inline void globox_copy(
 	DeleteDC(hdc_compatible);
 	EndPaint(globox->win_handle, &paint);
 #else
-	wglSwapLayerBuffers(globox->hdc, WGL_SWAP_MAIN_PLANE);
+	HDC hdc = GetDC(globox->win_handle);
+	wglSwapLayerBuffers(hdc, WGL_SWAP_MAIN_PLANE);
+	ReleaseDC(globox->win_handle, hdc);
 #endif
 
 	// done

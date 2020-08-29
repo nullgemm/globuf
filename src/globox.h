@@ -221,7 +221,6 @@ struct globox
 	LONG win_style_ex_backup;
 #ifdef GLOBOX_RENDER_OGL
 	HGLRC hglrc;
-	HDC hdc;
 #endif
 #endif
 

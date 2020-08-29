@@ -4,9 +4,7 @@
 #include "dpishit.h"
 
 #if defined(GLOBOX_RENDER_OGL)
-#if 0
-#include <EGL/egl.h>
-#endif
+//#include <EGL/egl.h>
 #include <GL/gl.h>
 #elif defined(GLOBOX_RENDER_VLK)
 #else
