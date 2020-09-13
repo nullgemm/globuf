@@ -1,5 +1,6 @@
 bin
-obj
 inc
+obj
+res/icon/iconpix.bin
 .gitmodules
 valgrind.log

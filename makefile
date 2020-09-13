@@ -4,7 +4,7 @@ NAME = globox
 ## program execution command
 CMD = ./$(NAME)
 ## valgrind execution arguments
-VALGRIND = --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
+VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
 
 # compiler
 ## compiler name
@@ -27,9 +27,50 @@ INCL = -I$(SRCD)
 INCL+= -I$(INCD)
 ## main code files
 SRCS = $(SRCD)/globox.c
+SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
-## object files list
+
+# targets
+SRCS+= example/main.c
+SRCS+= $(SRCD)/x11/globox_x11.c
+SRCS+= $(SRCD)/x11/software/globox_x11_software.c
+LINK+= -lxcb
+LINK+= -lxcb-shm
+LINK+= -lxcb-randr
+FLAGS+= -DGLOBOX_PLATFORM_X11
+FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+#LINK+= -lrt
+
+# object files list
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
+
+# bin
+.PHONY: final
+final: $(BIND)/$(NAME)
+
+## icon
+$(RESD)/icon/iconpix.bin:
+	@echo "generating icons pixmap"
+	@cd $(RESD)/icon && ./makepix.sh
+
+$(OBJD)/$(RESD)/icon/iconpix.o: $(RESD)/icon/iconpix.bin
+	@echo "building icon object"
+	@mkdir -p $(@D)
+	@objcopy -I binary -O elf64-x86-64 -B i386:x86-64 \
+	--redefine-syms=$(RESD)/icon/syms.map \
+	--rename-section .data=.iconpix \
+	$< $@
+
+## compilation
+$(OBJD)/%.o: %.c
+	@echo "building object $@"
+	@mkdir -p $(@D)
+	@$(CC) $(INCL) $(FLAGS) -c -o $@ $<
+
+$(BIND)/$(NAME): $(SRCS_OBJS)
+	@echo "compiling executable $@"
+	@mkdir -p $(@D)
+	@$(CC) -o $@ $^ $(LINK)
 
 # tools
 ## valgrind memory leak detection
@@ -42,6 +83,9 @@ leak: $(BIND)/$(NAME)
 clean:
 	@echo "# cleaning"
 	rm -rf $(BIND) $(OBJD) valgrind.log
+## running
+run:
+	@cd $(BIND) && $(CMD)
 ## remotes edition
 remotes:
 	@echo "# registering remotes"
