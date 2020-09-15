@@ -634,21 +634,11 @@ void globox_platform_events_handle(
 		{
 			globox->globox_width = resize->width;
 			globox->globox_height = resize->height;
-			globox->globox_redraw = true;
 			reserve(globox);
+			globox->globox_redraw = true;
 		}
 
 		free(resize);
-	}
-
-	if (i > 0)
-	{
-		expose(globox, i);
-
-		if (globox_error_catch(globox))
-		{
-			return;
-		}
 	}
 
 	if (state != NULL)
@@ -657,6 +647,11 @@ void globox_platform_events_handle(
 		handle_state(globox);
 
 		free(state);
+	}
+
+	if (i > 0)
+	{
+		expose(globox, i);
 	}
 }
 
@@ -1019,4 +1014,70 @@ void globox_platform_set_state(
 	}
 
 	globox->globox_state = state;
+}
+
+// getters
+uint32_t* globox_platform_get_argb(struct globox* globox)
+{
+	return globox->globox_platform.globox_platform_argb;
+}
+
+xcb_connection_t* globox_x11_get_conn(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_conn;
+}
+
+xcb_atom_t* globox_x11_get_atom_list(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_atom_list;
+}
+
+xcb_window_t globox_x11_get_win(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_win;
+}
+
+xcb_window_t globox_x11_get_root_win(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_root_win;
+}
+
+int globox_x11_get_screen_id(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_screen_id;
+}
+
+xcb_screen_t* globox_x11_get_screen_obj(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_screen_obj;
+}
+
+xcb_visualid_t globox_x11_get_visual_id(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_visual_id;
+}
+
+uint32_t globox_x11_get_attr_mask(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_attr_mask;
+}
+
+uint32_t* globox_x11_get_attr_val(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_attr_val;
+}
+
+int globox_x11_get_epoll(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_epoll;
+}
+
+struct epoll_event* globox_x11_get_epoll_event(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_epoll_event;
+}
+
+uint32_t* globox_x11_get_expose_queue(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_expose_queue;
 }

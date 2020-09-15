@@ -15,7 +15,7 @@
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>
 
-void globox_context_x11_software_init(struct globox* globox)
+void globox_context_software_init(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -97,7 +97,7 @@ void shm_create(struct globox* globox)
 		(uint32_t*) platform->globox_x11_software.globox_x11_software_shm.shmaddr;
 }
 
-void globox_context_x11_software_create(struct globox* globox)
+void globox_context_software_create(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -361,7 +361,7 @@ void globox_context_x11_software_create(struct globox* globox)
 	}
 }
 
-void globox_context_x11_software_shrink(struct globox* globox)
+void globox_context_software_shrink(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -492,7 +492,7 @@ void globox_context_x11_software_shrink(struct globox* globox)
 	}
 }
 
-void globox_context_x11_software_free(struct globox* globox)
+void globox_context_software_free(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -539,7 +539,7 @@ void globox_context_x11_software_free(struct globox* globox)
 	}
 }
 
-void globox_context_x11_software_copy(
+void globox_context_software_copy(
 	struct globox* globox,
 	int32_t x,
 	int32_t y,
@@ -722,7 +722,7 @@ void globox_context_x11_software_copy(
 	globox_platform_commit(globox);
 }
 
-void globox_context_x11_software_reserve(struct globox* globox)
+void globox_context_software_reserve(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -852,23 +852,103 @@ void globox_context_x11_software_reserve(struct globox* globox)
 	platform->globox_x11_software.globox_x11_software_pixmap_update = true;
 }
 
-void globox_context_x11_software_expose(struct globox* globox, int len)
+void globox_context_software_expose(struct globox* globox, int len)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
-	for (int i = 0; i < len; ++i)
+	int i = 0;
+
+	uint32_t x_old = 0xFFFFFFFF;
+	uint32_t y_old = 0xFFFFFFFF;
+	uint32_t width_old = 0;
+	uint32_t height_old = 0;
+
+	uint32_t x;
+	uint32_t y;
+	uint32_t width;
+	uint32_t height;
+
+	while (i < len)
 	{
-		globox_context_x11_software_copy(
+		x = platform->globox_x11_expose_queue[(4 * i) + 0];
+		y = platform->globox_x11_expose_queue[(4 * i) + 1];
+		width = platform->globox_x11_expose_queue[(4 * i) + 2];
+		height = platform->globox_x11_expose_queue[(4 * i) + 3];
+
+		if ((x <= x_old) && (y <= y_old) && (width >= (x_old - x + width_old)) && (height >= (y_old - y + height_old)))
+		{
+			x_old = x;
+			y_old = y;
+			width_old = width;
+			height_old = height;
+
+			++i;
+
+			continue;
+		}
+
+		globox_context_software_copy(
 			globox,
-			platform->globox_x11_expose_queue[(4 * i) + 0],
-			platform->globox_x11_expose_queue[(4 * i) + 1],
-			platform->globox_x11_expose_queue[(4 * i) + 2],
-			platform->globox_x11_expose_queue[(4 * i) + 3]);
+			x_old,
+			y_old,
+			width_old,
+			height_old);
+
+		x_old = x;
+		y_old = y;
+		width_old = width;
+		height_old = height;
 
 		if (globox_error_catch(globox))
 		{
 			return;
 		}
+
+		++i;
 	}
+
+	globox_context_software_copy(
+		globox,
+		x_old,
+		y_old,
+		width_old,
+		height_old);
+}
+
+// getters
+
+xcb_shm_segment_info_t globox_x11_software_get_shm(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_shm;
+}
+
+xcb_gcontext_t globox_x11_software_get_gfx(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_gfx;
+}
+
+xcb_pixmap_t globox_x11_software_get_pixmap(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_pixmap;
+}
+
+bool globox_x11_software_get_pixmap_update(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_pixmap_update;
+}
+
+bool globox_x11_software_get_shared_pixmaps(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_shared_pixmaps;
+}
+
+uint32_t globox_x11_software_get_buffer_width(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_buffer_width;
+}
+
+uint32_t globox_x11_software_get_buffer_height(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_software.globox_x11_software_buffer_height;
 }

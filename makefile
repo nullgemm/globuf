@@ -13,6 +13,12 @@ CC = gcc
 FLAGS = -std=c99 -pedantic -g
 ## warning settings
 FLAGS+= -Wall -Wextra -Werror=vla -Werror -Wno-unused-parameter -Wno-address-of-packed-member
+## error settings
+FLAGS+= -DGLOBOX_ERROR_LOG_BASIC
+FLAGS+= -DGLOBOX_ERROR_LOG_THROW
+FLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
+#FLAGS+= -DGLOBOX_ERROR_SKIP
+#FLAGS+= -DGLOBOX_ERROR_ABORT
 
 # source
 ## folders

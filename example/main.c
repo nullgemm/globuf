@@ -20,38 +20,40 @@ void render(struct globox* globox)
 {
 	globox_platform_events_handle(
 		globox,
-		globox_context_x11_software_expose,
-		globox_context_x11_software_reserve);
+		globox_context_software_expose,
+		globox_context_software_reserve);
 
 	if (globox_error_catch(globox))
 	{
 		return;
 	}
 
-	// TODO fucking getters
-	if (globox->globox_redraw == true)
+	uint32_t* argb = globox_platform_get_argb(globox);
+	uint32_t height = globox_get_height(globox);
+	uint32_t width = globox_get_width(globox);
+
+	if (globox_get_redraw(globox) == true)
 	{
-		for (uint32_t i = 0; i < globox->globox_height * globox->globox_width; ++i)
+		for (uint32_t i = 0; i < height * width; ++i)
 		{
-			globox->globox_platform.globox_platform_argb[i] = 0x00888888;
+			argb[i] = 0x00888888;
 		}
 
 		uint32_t pos;
 
 		for (uint32_t i = 0; i < (100*100); ++i)
 		{
-			pos = ((globox->globox_height / 2) - 50 + (i / 100)) * globox->globox_width
-				+ (globox->globox_width / 2) - 50 + (i % 100);
+			pos = ((height / 2) - 50 + (i / 100)) * width + (width / 2) - 50 + (i % 100);
 
-			globox->globox_platform.globox_platform_argb[pos] = 0x00FFFFFF;
+			argb[pos] = 0x00FFFFFF;
 		}
 
-		globox_context_x11_software_copy(
+		globox_context_software_copy(
 			globox,
 			0,
 			0,
-			globox->globox_width,
-			globox->globox_height);
+			width,
+			height);
 	}
 }
 
@@ -92,7 +94,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_context_x11_software_init(&globox);
+	globox_context_software_init(&globox);
 
 	if (globox_error_catch(&globox))
 	{
@@ -101,11 +103,11 @@ int main(void)
 		return 1;
 	}
 
-	globox_context_x11_software_create(&globox);
+	globox_context_software_create(&globox);
 
 	if (globox_error_catch(&globox))
 	{
-		globox_context_x11_software_free(&globox);
+		globox_context_software_free(&globox);
 		globox_platform_free(&globox);
 		globox_close(&globox);
 		return 1;
@@ -115,7 +117,7 @@ int main(void)
 
 	if (globox_error_catch(&globox))
 	{
-		globox_context_x11_software_free(&globox);
+		globox_context_software_free(&globox);
 		globox_platform_free(&globox);
 		globox_close(&globox);
 		return 1;
@@ -128,34 +130,40 @@ int main(void)
 
 	globox_platform_commit(&globox);
 
-	globox.globox_redraw = true;
-
-	// TODO replace with getter
-	while (globox.globox_closed == false)
+	while (globox_get_closed(&globox) == false)
 	{
 		globox_platform_prepoll(&globox);
 
 		if (globox_error_catch(&globox))
 		{
-			break;
+			globox_context_software_free(&globox);
+			globox_platform_free(&globox);
+			globox_close(&globox);
+			return 1;
 		}
 
 		globox_platform_events_wait(&globox); // TODO compatible with windows bullshit?
 
 		if (globox_error_catch(&globox))
 		{
-			break;
+			globox_context_software_free(&globox);
+			globox_platform_free(&globox);
+			globox_close(&globox);
+			return 1;
 		}
 
 		render(&globox);
 
 		if (globox_error_catch(&globox))
 		{
-			break;
+			globox_context_software_free(&globox);
+			globox_platform_free(&globox);
+			globox_close(&globox);
+			return 1;
 		}
 	}
 
-	globox_context_x11_software_free(&globox);
+	globox_context_software_free(&globox);
 	globox_platform_free(&globox);
 	globox_close(&globox);
 

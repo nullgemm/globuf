@@ -18,13 +18,6 @@
 	#include "osx/globox_osx.h"
 #endif
 
-// defines
-#define GLOBOX_ERROR_LOG_BASIC
-#define GLOBOX_ERROR_LOG_THROW
-#define GLOBOX_ERROR_LOG_DEBUG
-// #define GLOBOX_ERROR_SKIP
-// #define GLOBOX_ERROR_ABORT
-
 // helper structures
 enum globox_state
 {
@@ -120,25 +113,70 @@ void globox_platform_set_state(
 	enum globox_state state); 
 
 // context-dependent functions
-void globox_context_x11_software_init(struct globox* globox);
-void globox_context_x11_software_free(struct globox* globox);
-void globox_context_x11_software_create(struct globox* globox);
-void globox_context_x11_software_shrink(struct globox* globox);
-void globox_context_x11_software_reserve(struct globox* globox);
-void globox_context_x11_software_expose(struct globox* globox, int len);
-
-void globox_context_x11_software_copy(
+#if defined(GLOBOX_CONTEXT_SOFTWARE)
+void globox_context_software_init(struct globox* globox);
+void globox_context_software_free(struct globox* globox);
+void globox_context_software_create(struct globox* globox);
+void globox_context_software_shrink(struct globox* globox);
+void globox_context_software_reserve(struct globox* globox);
+void globox_context_software_expose(struct globox* globox, int len);
+void globox_context_software_copy(
 	struct globox* globox,
 	int32_t x,
 	int32_t y,
 	uint32_t width,
 	uint32_t height);
+#elif defined(GLOBOX_CONTEXT_VULKAN)
+#elif defined(GLOBOX_CONTEXT_EGL)
+#endif
 
 // generic getters 
-// TODO
+int32_t globox_get_x(struct globox* globox);
+int32_t globox_get_y(struct globox* globox);
+uint32_t globox_get_width(struct globox* globox);
+uint32_t globox_get_height(struct globox* globox);
+char* globox_get_title(struct globox* globox);
+bool globox_get_closed(struct globox* globox);
+bool globox_get_redraw(struct globox* globox);
+enum globox_state globox_get_state(struct globox* globox);
+void* globox_get_event_callback_data(struct globox* globox);
+// the syntax reaches its limits when it's time to return a function pointer
+// here is what is returned: void (*globox_event_callback)(void* event, void* data)
+void (*globox_get_event_callback(struct globox* globox))(void* event, void* data);
+
 // platform getters 
-// TODO
-// context getters
-// TODO
+int globox_platform_get_event_handle(struct globox* globox);
+uint32_t* globox_platform_get_argb(struct globox* globox);
+#if defined(GLOBOX_PLATFORM_WAYLAND)
+#elif defined(GLOBOX_PLATFORM_X11)
+	xcb_connection_t* globox_x11_get_conn(struct globox* globox);
+	xcb_atom_t* globox_x11_get_atom_list(struct globox* globox);
+	xcb_window_t globox_x11_get_win(struct globox* globox);
+	xcb_window_t globox_x11_get_root_win(struct globox* globox);
+	int globox_x11_get_screen_id(struct globox* globox);
+	xcb_screen_t* globox_x11_get_screen_obj(struct globox* globox);
+	xcb_visualid_t globox_x11_get_visual_id(struct globox* globox);
+	uint32_t globox_x11_get_attr_mask(struct globox* globox);
+	uint32_t* globox_x11_get_attr_val(struct globox* globox);
+	int globox_x11_get_epoll(struct globox* globox);
+	struct epoll_event* globox_x11_get_epoll_event(struct globox* globox);
+	uint32_t* globox_x11_get_expose_queue(struct globox* globox);
+	#if defined(GLOBOX_CONTEXT_SOFTWARE)
+		xcb_shm_segment_info_t globox_x11_software_get_shm(struct globox* globox);
+		xcb_gcontext_t globox_x11_software_get_gfx(struct globox* globox);
+		xcb_pixmap_t globox_x11_software_get_pixmap(struct globox* globox);
+		bool globox_x11_software_get_pixmap_update(struct globox* globox);
+		bool globox_x11_software_get_shared_pixmaps(struct globox* globox);
+		uint32_t globox_x11_software_get_buffer_width(struct globox* globox);
+		uint32_t globox_x11_software_get_buffer_height(struct globox* globox);
+	#endif
+#elif defined(GLOBOX_PLATFORM_WINDOWS)
+#elif defined(GLOBOX_PLATFORM_OSX)
+#endif
+
+// platform-independent context getters
+#if defined(GLOBOX_CONTEXT_VULKAN)
+#elif defined(GLOBOX_CONTEXT_EGL)
+#endif
 
 #endif
