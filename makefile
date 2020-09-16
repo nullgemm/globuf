@@ -37,15 +37,20 @@ SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
-SRCS+= example/main.c
 SRCS+= $(SRCD)/x11/globox_x11.c
-SRCS+= $(SRCD)/x11/software/globox_x11_software.c
 LINK+= -lxcb
-LINK+= -lxcb-shm
-LINK+= -lxcb-randr
 FLAGS+= -DGLOBOX_PLATFORM_X11
-FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
-#LINK+= -lrt
+
+#SRCS+= example/software.c
+#SRCS+= $(SRCD)/x11/software/globox_x11_software.c
+#FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+#LINK+= -lxcb-shm
+#LINK+= -lxcb-randr
+
+SRCS+= example/egl.c
+SRCS+= $(SRCD)/x11/egl/globox_x11_egl.c
+FLAGS+= -DGLOBOX_CONTEXT_EGL
+LINK+= -lEGL -lGL
 
 # object files list
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))

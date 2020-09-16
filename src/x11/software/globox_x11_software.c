@@ -719,6 +719,8 @@ void globox_context_software_copy(
 		return;
 	}
 
+	globox->globox_redraw = false;
+
 	globox_platform_commit(globox);
 }
 

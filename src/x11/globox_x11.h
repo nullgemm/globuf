@@ -144,6 +144,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_SCREEN_INFO,
 	GLOBOX_ERROR_X11_WIN_INFO,
 	GLOBOX_ERROR_X11_STATE,
+	GLOBOX_ERROR_X11_EGL_FAIL,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,

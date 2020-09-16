@@ -128,6 +128,18 @@ void globox_context_software_copy(
 	uint32_t height);
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 #elif defined(GLOBOX_CONTEXT_EGL)
+void globox_context_egl_init(struct globox* globox);
+void globox_context_egl_free(struct globox* globox);
+void globox_context_egl_create(struct globox* globox);
+void globox_context_egl_shrink(struct globox* globox);
+void globox_context_egl_reserve(struct globox* globox);
+void globox_context_egl_expose(struct globox* globox, int len);
+void globox_context_egl_copy(
+	struct globox* globox,
+	int32_t x,
+	int32_t y,
+	uint32_t width,
+	uint32_t height);
 #endif
 
 // generic getters 
