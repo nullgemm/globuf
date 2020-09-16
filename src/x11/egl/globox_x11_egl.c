@@ -184,7 +184,47 @@ void globox_context_egl_shrink(struct globox* globox)
 
 void globox_context_egl_free(struct globox* globox)
 {
-	// TODO
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	EGLBoolean status_egl;
+
+	status_egl =
+		eglDestroySurface(
+			platform->globox_x11_egl.globox_egl_display,
+			platform->globox_x11_egl.globox_egl_surface);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_EGL_FAIL);
+		return;
+	}
+
+	status_egl =
+		eglDestroyContext(
+			platform->globox_x11_egl.globox_egl_display,
+			platform->globox_x11_egl.globox_egl_context);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_EGL_FAIL);
+		return;
+	}
+
+	status_egl =
+		eglTerminate(
+			platform->globox_x11_egl.globox_egl_display);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_EGL_FAIL);
+		return;
+	}
 }
 
 void globox_context_egl_copy(
