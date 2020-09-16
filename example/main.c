@@ -130,18 +130,10 @@ int main(void)
 
 	globox_platform_commit(&globox);
 
+	render(&globox);
+
 	while (globox_get_closed(&globox) == false)
 	{
-		render(&globox);
-
-		if (globox_error_catch(&globox))
-		{
-			globox_context_software_free(&globox);
-			globox_platform_free(&globox);
-			globox_close(&globox);
-			return 1;
-		}
-
 		globox_platform_prepoll(&globox);
 
 		if (globox_error_catch(&globox))
@@ -153,6 +145,16 @@ int main(void)
 		}
 
 		globox_platform_events_wait(&globox); // TODO compatible with windows bullshit?
+
+		if (globox_error_catch(&globox))
+		{
+			globox_context_software_free(&globox);
+			globox_platform_free(&globox);
+			globox_close(&globox);
+			return 1;
+		}
+
+		render(&globox);
 
 		if (globox_error_catch(&globox))
 		{

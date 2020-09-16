@@ -517,7 +517,7 @@ void globox_context_software_free(struct globox* globox)
 				platform->globox_x11_conn,
 				cookie_shm);
 
-		if (error_shm == NULL)
+		if (error_shm != NULL)
 		{
 			globox_error_throw(
 				globox,
