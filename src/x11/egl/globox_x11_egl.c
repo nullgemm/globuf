@@ -3,7 +3,7 @@
 #include "x11/globox_x11.h"
 #include <EGL/egl.h>
 
-void globox_context_egl_init(struct globox* globox)
+void globox_context_egl_init(struct globox* globox, int opengl_version)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -82,7 +82,7 @@ void globox_context_egl_init(struct globox* globox)
 	// use OpenGL 1 for demo
 	EGLint egl_context_attrib[] =
 	{
-		EGL_CONTEXT_CLIENT_VERSION, 1,
+		EGL_CONTEXT_CLIENT_VERSION, opengl_version,
 		EGL_NONE,
 	};
 

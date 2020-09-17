@@ -1,5 +1,5 @@
 # Todo
- - use egl config callback to delegate some of the work to the developer
+ - support dpishit in windows window creation to be dpi-aware
 
 # Cleanup
  o x11_sw (uses XCB to access a raw buffer on CPU or GPU)

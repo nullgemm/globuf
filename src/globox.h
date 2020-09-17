@@ -128,7 +128,7 @@ void globox_context_software_copy(
 	uint32_t height);
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 #elif defined(GLOBOX_CONTEXT_EGL)
-void globox_context_egl_init(struct globox* globox);
+void globox_context_egl_init(struct globox* globox, int opengl_version);
 void globox_context_egl_free(struct globox* globox);
 void globox_context_egl_create(struct globox* globox);
 void globox_context_egl_shrink(struct globox* globox);
