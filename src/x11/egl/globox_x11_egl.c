@@ -279,3 +279,27 @@ void globox_context_egl_expose(struct globox* globox, int len)
 
 // getters
 
+EGLDisplay globox_egl_get_display(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_egl.globox_egl_display;
+}
+
+EGLContext globox_egl_get_context(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_egl.globox_egl_context;
+}
+
+EGLSurface globox_egl_get_surface(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_egl.globox_egl_surface;
+}
+
+EGLConfig globox_egl_get_config(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_egl.globox_egl_config;
+}
+
+EGLint globox_egl_config_get_config_size(struct globox* globox)
+{
+	return globox->globox_platform.globox_x11_egl.globox_egl_config_size;
+}
