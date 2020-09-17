@@ -9,7 +9,6 @@ void globox_context_egl_init(struct globox* globox)
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	// get display
-	// TODO: get active display?
 	platform->globox_x11_egl.globox_egl_display =
 		eglGetDisplay(EGL_DEFAULT_DISPLAY);
 

@@ -1,6 +1,9 @@
+# Todo
+ - use egl config callback to delegate some of the work to the developer
+
 # Cleanup
- - x11_sw (uses XCB to access a raw buffer on CPU or GPU)
- - x11_gl (uses EGL for OpenGL and glES)
+ o x11_sw (uses XCB to access a raw buffer on CPU or GPU)
+ o x11_gl (uses EGL for OpenGL and glES)
  - x11_vk (uses Vulkan's API)
 
  - way_sw (uses libwayland-client to access an abstract buffer)
