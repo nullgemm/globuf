@@ -29,14 +29,24 @@ void render(struct globox* globox)
 		return;
 	}
 
-	uint32_t height = globox_get_height(globox);
-	uint32_t width = globox_get_width(globox);
-
 	if (globox_get_redraw(globox) == true)
 	{
+		uint32_t width = globox_get_width(globox);
+		uint32_t height = globox_get_height(globox);
+
 		// we can make OpenGL 1 calls without any loader
+		glViewport(0, 0, width, height);
+
 		glClearColor(0.2f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glBegin(GL_TRIANGLE_FAN);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glVertex3f(-100.0f / width, +100.0f / height, 0.0f);
+		glVertex3f(-100.0f / width, -100.0f / height, 0.0f);
+		glVertex3f(+100.0f / width, -100.0f / height, 0.0f);
+		glVertex3f(+100.0f / width, +100.0f / height, 0.0f);
+		glEnd();
 
 		globox_context_egl_copy(
 			globox,

@@ -28,15 +28,15 @@ void render(struct globox* globox)
 		return;
 	}
 
-	uint32_t* argb = globox_platform_get_argb(globox);
-	uint32_t height = globox_get_height(globox);
-	uint32_t width = globox_get_width(globox);
-
 	if (globox_get_redraw(globox) == true)
 	{
+		uint32_t width = globox_get_width(globox);
+		uint32_t height = globox_get_height(globox);
+		uint32_t* argb = globox_platform_get_argb(globox);
+
 		for (uint32_t i = 0; i < height * width; ++i)
 		{
-			argb[i] = 0x00888888;
+			argb[i] = 0x00000000;
 		}
 
 		uint32_t pos;
