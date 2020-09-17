@@ -31,11 +31,17 @@ void render(struct globox* globox)
 
 	if (globox_get_redraw(globox) == true)
 	{
-		uint32_t width = globox_get_width(globox);
-		uint32_t height = globox_get_height(globox);
+		int32_t width = globox_get_width(globox);
+		int32_t height = globox_get_height(globox);
+		GLint viewport_rect[4];
 
 		// we can make OpenGL 1 calls without any loader
-		glViewport(0, 0, width, height);
+		glGetIntegerv(GL_VIEWPORT, viewport_rect);
+
+		if ((viewport_rect[2] != width) || (viewport_rect[3] != height))
+		{
+			glViewport(0, 0, width, height);
+		}
 
 		glClearColor(0.2f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
