@@ -41,9 +41,26 @@ void render(struct globox* globox)
 
 		uint32_t pos;
 
-		for (uint32_t i = 0; i < (100*100); ++i)
+		unsigned int square_width = 100;
+		unsigned int square_height = 100;
+
+		if (width < square_width)
 		{
-			pos = ((height / 2) - 50 + (i / 100)) * width + (width / 2) - 50 + (i % 100);
+			square_width = width;
+		}
+
+		if (height < square_height)
+		{
+			square_height = height;
+		}
+
+		for (uint32_t i = 0; i < (square_width * square_height); ++i)
+		{
+			pos =
+				((height - square_height) / 2
+				+ (i / square_width)) * width
+				+ (width - square_width) / 2
+				+ (i % square_width);
 
 			argb[pos] = 0x00FFFFFF;
 		}
