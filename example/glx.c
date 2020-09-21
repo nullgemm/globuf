@@ -65,10 +65,7 @@ void render(struct globox* globox)
 
 int main(void)
 {
-	struct globox globox =
-	{
-		0
-	};
+	struct globox globox = {0};
 
 	globox_open(
 		&globox,
