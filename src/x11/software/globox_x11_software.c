@@ -1,4 +1,3 @@
-
 #define _XOPEN_SOURCE 700
 
 #include "globox.h"
@@ -22,6 +21,60 @@ void globox_context_software_init(struct globox* globox)
 	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
 	platform->globox_x11_software.globox_x11_software_buffer_width = globox->globox_width;
 	platform->globox_x11_software.globox_x11_software_buffer_height = globox->globox_height;
+
+	// check display server settings compatibility
+	xcb_visualtype_t* visual = NULL;
+	xcb_visualid_t visual_root = platform->globox_x11_visual_id;
+
+	xcb_depth_iterator_t depth_iter =
+		xcb_screen_allowed_depths_iterator(
+			platform->globox_x11_screen_obj);
+
+	xcb_visualtype_iterator_t visual_iter;
+
+	while (depth_iter.rem)
+	{
+		visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
+
+		while (visual_iter.rem)
+		{
+			if (visual_root == visual_iter.data->visual_id)
+			{
+				visual = visual_iter.data;
+				break;
+			}
+
+			xcb_visualtype_next(&visual_iter);
+		}
+
+		if (visual != NULL)
+		{
+			if ((visual->_class != XCB_VISUAL_CLASS_TRUE_COLOR)
+				&& (visual->_class != XCB_VISUAL_CLASS_DIRECT_COLOR))
+			{
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
+				return;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		xcb_depth_next(&depth_iter);
+	}
+
+	if (!depth_iter.rem)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_VISUAL_NOT_FOUND);
+	}
+
+	// save depth
+	platform->globox_x11_visual_depth = depth_iter.data->depth;
 }
 
 void shm_create(struct globox* globox)
@@ -133,57 +186,6 @@ void globox_context_software_create(struct globox* globox)
 			globox,
 			GLOBOX_ERROR_X11_GC);
 		return;
-	}
-
-	// check display server settings compatibility
-	xcb_visualtype_t* visual = NULL;
-	xcb_visualid_t visual_root = platform->globox_x11_visual_id;
-
-	xcb_depth_iterator_t depth_iter =
-		xcb_screen_allowed_depths_iterator(
-			platform->globox_x11_screen_obj);
-
-	xcb_visualtype_iterator_t visual_iter;
-
-	while (depth_iter.rem)
-	{
-		visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
-
-		while (visual_iter.rem)
-		{
-			if (visual_root == visual_iter.data->visual_id)
-			{
-				visual = visual_iter.data;
-				break;
-			}
-
-			xcb_visualtype_next(&visual_iter);
-		}
-
-		if (visual != NULL)
-		{
-			if ((visual->_class != XCB_VISUAL_CLASS_TRUE_COLOR)
-				&& (visual->_class != XCB_VISUAL_CLASS_DIRECT_COLOR))
-			{
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
-				return;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		xcb_depth_next(&depth_iter);
-	}
-
-	if (!depth_iter.rem)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_VISUAL_NOT_FOUND);
 	}
 
 	// we are not done yet as we wish to bypass the xcb drawing API to

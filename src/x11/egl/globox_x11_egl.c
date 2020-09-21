@@ -3,7 +3,10 @@
 #include "x11/globox_x11.h"
 #include <EGL/egl.h>
 
-void globox_context_egl_init(struct globox* globox, int opengl_version)
+bool globox_context_egl_init(
+	struct globox* globox,
+	int opengl_version,
+	bool transparent)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -17,7 +20,7 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
 
 	// init
@@ -36,7 +39,7 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
 
 	// use OpenGL
@@ -48,7 +51,7 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
 
 	// use 8-bit RGBA
@@ -76,7 +79,7 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
 
 	// use OpenGL 1 for demo
@@ -98,7 +101,7 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
 
 	// get visual id from EGL
@@ -113,13 +116,27 @@ void globox_context_egl_init(struct globox* globox, int opengl_version)
 
 	platform->globox_x11_visual_id = visual_id;
 
+	// get visual depth from EGL
+	EGLint visual_depth;
+
+	status_egl =
+		eglGetConfigAttrib(
+			platform->globox_x11_egl.globox_egl_display,
+			platform->globox_x11_egl.globox_egl_config,
+			EGL_DEPTH_SIZE,
+			&visual_depth);
+
+	platform->globox_x11_visual_depth = visual_depth;
+
 	if (status_egl == EGL_FALSE)
 	{
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
+		return false;
 	}
+
+	return false;
 }
 
 void globox_context_egl_create(struct globox* globox)
@@ -259,21 +276,7 @@ void globox_context_egl_reserve(struct globox* globox)
 
 void globox_context_egl_expose(struct globox* globox, int len)
 {
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
 
-	EGLBoolean status_egl =
-		eglSwapBuffers(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_surface);
-
-	if (status_egl == EGL_FALSE)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_EGL_FAIL);
-		return;
-	}
 }
 
 // getters

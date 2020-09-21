@@ -21,8 +21,8 @@ void render(struct globox* globox)
 {
 	globox_platform_events_handle(
 		globox,
-		globox_context_egl_expose,
-		globox_context_egl_reserve);
+		globox_context_glx_expose,
+		globox_context_glx_reserve);
 
 	if (globox_error_catch(globox))
 	{
@@ -54,7 +54,7 @@ void render(struct globox* globox)
 		glVertex3f(+100.0f / width, +100.0f / height, 0.0f);
 		glEnd();
 
-		globox_context_egl_copy(
+		globox_context_glx_copy(
 			globox,
 			0,
 			0,
@@ -65,7 +65,10 @@ void render(struct globox* globox)
 
 int main(void)
 {
-	struct globox globox;
+	struct globox globox =
+	{
+		0
+	};
 
 	globox_open(
 		&globox,
@@ -92,7 +95,7 @@ int main(void)
 	}
 
 	// use OpenGL 1
-	globox_context_egl_init(&globox, 1, true);
+	globox_context_glx_init(&globox, 1, true);
 
 	if (globox_error_catch(&globox))
 	{
@@ -110,11 +113,11 @@ int main(void)
 		return 1;
 	}
 
-	globox_context_egl_create(&globox);
+	globox_context_glx_create(&globox);
 
 	if (globox_error_catch(&globox))
 	{
-		globox_context_egl_free(&globox);
+		globox_context_glx_free(&globox);
 		globox_platform_free(&globox);
 		globox_close(&globox);
 		return 1;
@@ -124,7 +127,7 @@ int main(void)
 
 	if (globox_error_catch(&globox))
 	{
-		globox_context_egl_free(&globox);
+		globox_context_glx_free(&globox);
 		globox_platform_free(&globox);
 		globox_close(&globox);
 		return 1;
@@ -145,7 +148,7 @@ int main(void)
 
 		if (globox_error_catch(&globox))
 		{
-			globox_context_egl_free(&globox);
+			globox_context_glx_free(&globox);
 			globox_platform_free(&globox);
 			globox_close(&globox);
 			return 1;
@@ -155,7 +158,7 @@ int main(void)
 
 		if (globox_error_catch(&globox))
 		{
-			globox_context_egl_free(&globox);
+			globox_context_glx_free(&globox);
 			globox_platform_free(&globox);
 			globox_close(&globox);
 			return 1;
@@ -165,14 +168,14 @@ int main(void)
 
 		if (globox_error_catch(&globox))
 		{
-			globox_context_egl_free(&globox);
+			globox_context_glx_free(&globox);
 			globox_platform_free(&globox);
 			globox_close(&globox);
 			return 1;
 		}
 	}
 
-	globox_context_egl_free(&globox);
+	globox_context_glx_free(&globox);
 	globox_platform_free(&globox);
 	globox_close(&globox);
 

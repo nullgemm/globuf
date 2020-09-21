@@ -128,13 +128,32 @@ void globox_context_software_copy(
 	uint32_t height);
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 #elif defined(GLOBOX_CONTEXT_EGL)
-void globox_context_egl_init(struct globox* globox, int opengl_version);
 void globox_context_egl_free(struct globox* globox);
 void globox_context_egl_create(struct globox* globox);
 void globox_context_egl_shrink(struct globox* globox);
 void globox_context_egl_reserve(struct globox* globox);
 void globox_context_egl_expose(struct globox* globox, int len);
+bool globox_context_egl_init(
+	struct globox* globox,
+	int opengl_version,
+	bool transparent);
 void globox_context_egl_copy(
+	struct globox* globox,
+	int32_t x,
+	int32_t y,
+	uint32_t width,
+	uint32_t height);
+#elif defined(GLOBOX_CONTEXT_GLX)
+void globox_context_glx_free(struct globox* globox);
+void globox_context_glx_create(struct globox* globox);
+void globox_context_glx_shrink(struct globox* globox);
+void globox_context_glx_reserve(struct globox* globox);
+void globox_context_glx_expose(struct globox* globox, int len);
+bool globox_context_glx_init(
+	struct globox* globox,
+	int opengl_version,
+	bool transparent);
+void globox_context_glx_copy(
 	struct globox* globox,
 	int32_t x,
 	int32_t y,
@@ -195,6 +214,11 @@ EGLContext globox_egl_get_context(struct globox* globox);
 EGLSurface globox_egl_get_surface(struct globox* globox);
 EGLConfig globox_egl_get_config(struct globox* globox);
 EGLint globox_egl_config_get_config_size(struct globox* globox);
+#elif defined(GLOBOX_CONTEXT_GLX)
+Display* globox_glx_get_display(struct globox* globox);
+GLXFBConfig globox_glx_get_fb_config(struct globox* globox);
+GLXContext globox_glx_get_context(struct globox* globox);
+GLXWindow globox_glx_get_win(struct globox* globox);
 #endif
 
 #endif

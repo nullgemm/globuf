@@ -13,6 +13,12 @@
 // x11 includes
 #include <xcb/xcb.h>
 
+#if defined(GLOBOX_CONTEXT_GLX)
+#include <X11/Xlib.h>
+#include <X11/Xlib-xcb.h>
+#include "x11/glx/globox_x11_glx.h"
+#endif
+
 // include platform structures
 #include "x11/globox_x11.h"
 
@@ -54,11 +60,48 @@ void globox_platform_init(struct globox* globox)
 	log[GLOBOX_ERROR_X11_SCREEN_INFO] = "";
 	log[GLOBOX_ERROR_X11_WIN_INFO] = "";
 
-	// connect to the server
+#if defined(GLOBOX_CONTEXT_GLX)
+	struct globox_x11_glx* context = &(globox->globox_platform.globox_x11_glx);
+
+	context->globox_glx_display =
+		XOpenDisplay(
+			NULL);
+
+	if (context->globox_glx_display == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_GLX_FAIL);
+		return;
+	}
+
+	platform->globox_x11_conn =
+		XGetXCBConnection(
+			context->globox_glx_display);
+
+	if (platform->globox_x11_conn == NULL)
+	{
+		XCloseDisplay(context->globox_glx_display);
+
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_CONN);
+		return;
+	}
+
+	XSetEventQueueOwner(
+		context->globox_glx_display,
+		XCBOwnsEventQueue);
+
+	globox->globox_redraw = true;
+#else
 	platform->globox_x11_conn =
 		xcb_connect(
 			NULL,
 			&(platform->globox_x11_screen_id));
+
+	globox->globox_redraw = false;
+#endif
 
 	// check if the connection was successful
 	int error_conn =
@@ -101,15 +144,21 @@ void globox_platform_init(struct globox* globox)
 
 	// get the root window from the screen object
 	platform->globox_x11_root_win = platform->globox_x11_screen_obj->root;
-}
 
-// create the window
-void globox_platform_create_window(struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+#if defined(GLOBOX_CONTEXT_GLX)
+	platform->globox_x11_attr_mask =
+		XCB_CW_BORDER_PIXEL
+		| XCB_CW_EVENT_MASK
+		| XCB_CW_COLORMAP;
 
-	// create the window
+	platform->globox_x11_attr_val[0] =
+		0;
+
+	platform->globox_x11_attr_val[1] =
+		XCB_EVENT_MASK_EXPOSURE
+		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
+		| XCB_EVENT_MASK_PROPERTY_CHANGE;
+#else
 	platform->globox_x11_attr_mask =
 		XCB_CW_BACK_PIXMAP
 		| XCB_CW_EVENT_MASK;
@@ -122,6 +171,16 @@ void globox_platform_create_window(struct globox* globox)
 		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
 
+#endif
+}
+
+// create the window
+void globox_platform_create_window(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	// create the window
 	platform->globox_x11_win =
 		xcb_generate_id(
 			platform->globox_x11_conn);
@@ -129,7 +188,7 @@ void globox_platform_create_window(struct globox* globox)
 	xcb_void_cookie_t cookie_win =
 		xcb_create_window(
 			platform->globox_x11_conn,
-			24, // force 24bpp instead of XCB_COPY_FROM_PARENT
+			platform->globox_x11_visual_depth, // force instead of XCB_COPY_FROM_PARENT
 			platform->globox_x11_win,
 			platform->globox_x11_root_win,
 			globox->globox_x,
@@ -661,7 +720,12 @@ void globox_platform_free(struct globox* globox)
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	xcb_destroy_window(platform->globox_x11_conn, platform->globox_x11_win);
+
+#if defined(GLOBOX_CONTEXT_GLX)
+	XCloseDisplay(globox->globox_platform.globox_x11_glx.globox_glx_display);
+#else
 	xcb_disconnect(platform->globox_x11_conn);
+#endif
 }
 
 void globox_platform_set_icon(

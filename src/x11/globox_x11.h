@@ -17,6 +17,8 @@
 	#include "vulkan/globox_x11_vulkan.h"
 #elif defined(GLOBOX_CONTEXT_EGL)
 	#include "egl/globox_x11_egl.h"
+#elif defined(GLOBOX_CONTEXT_GLX)
+	#include "glx/globox_x11_glx.h"
 #endif
 
 // constants
@@ -53,6 +55,8 @@ struct globox_platform
 	struct globox_x11_vulkan globox_x11_vulkan;
 #elif defined(GLOBOX_CONTEXT_EGL)
 	struct globox_x11_egl globox_x11_egl;
+#elif defined(GLOBOX_CONTEXT_GLX)
+	struct globox_x11_glx globox_x11_glx;
 #endif
 
 	// setup
@@ -66,6 +70,7 @@ struct globox_platform
 	// screens
 	int globox_x11_screen_id;
 	xcb_screen_t* globox_x11_screen_obj;
+	int globox_x11_visual_depth;
 	xcb_visualid_t globox_x11_visual_id;
 
 	uint32_t globox_x11_attr_mask;
@@ -145,6 +150,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_WIN_INFO,
 	GLOBOX_ERROR_X11_STATE,
 	GLOBOX_ERROR_X11_EGL_FAIL,
+	GLOBOX_ERROR_X11_GLX_FAIL,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,
