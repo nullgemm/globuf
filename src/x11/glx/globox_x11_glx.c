@@ -137,15 +137,22 @@ bool globox_context_glx_init(
 			GLX_DEPTH_SIZE,
 			&visual_depth);
 
-	if (visual_depth != 24)
+	if (transparent == true)
 	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_GLX_FAIL);
-		return false;
-	}
+		if (visual_depth != 24)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_X11_GLX_FAIL);
+			return false;
+		}
 
-	platform->globox_x11_visual_depth = 32;
+		platform->globox_x11_visual_depth = 32;
+	}
+	else
+	{
+		platform->globox_x11_visual_depth = visual_depth;
+	}
 
 	if (error_fb != 0)
 	{
