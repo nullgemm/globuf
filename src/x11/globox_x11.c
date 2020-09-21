@@ -153,11 +153,6 @@ void globox_platform_init(struct globox* globox)
 
 	platform->globox_x11_attr_val[0] =
 		0;
-
-	platform->globox_x11_attr_val[1] =
-		XCB_EVENT_MASK_EXPOSURE
-		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
-		| XCB_EVENT_MASK_PROPERTY_CHANGE;
 #else
 	platform->globox_x11_attr_mask =
 		XCB_CW_BACK_PIXMAP
@@ -165,13 +160,12 @@ void globox_platform_init(struct globox* globox)
 
 	platform->globox_x11_attr_val[0] =
 		XCB_BACK_PIXMAP_NONE;
+#endif
 
 	platform->globox_x11_attr_val[1] =
 		XCB_EVENT_MASK_EXPOSURE
 		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
-
-#endif
 }
 
 // create the window
@@ -547,6 +541,7 @@ static void handle_state(struct globox* globox)
 		return;
 	}
 
+	// TODO fix invalid read here
 	if (*value == platform->globox_x11_atom_list[GLOBOX_X11_ATOM_STATE_FULLSCREEN])
 	{
 		globox->globox_state = GLOBOX_STATE_FULLSCREEN;
