@@ -18,9 +18,11 @@ void globox_context_software_init(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
+
 	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
-	platform->globox_x11_software.globox_x11_software_buffer_width = globox->globox_width;
-	platform->globox_x11_software.globox_x11_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
 
 	// check display server settings compatibility
 	xcb_visualtype_t* visual = NULL;
@@ -81,6 +83,7 @@ void shm_create(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	int shmid =
 		shmget(
@@ -96,15 +99,15 @@ void shm_create(struct globox* globox)
 		return;
 	}
 
-	platform->globox_x11_software.globox_x11_software_shm.shmid = shmid;
+	context->globox_software_shm.shmid = shmid;
 
-	platform->globox_x11_software.globox_x11_software_shm.shmaddr =
+	context->globox_software_shm.shmaddr =
 		shmat(
-			platform->globox_x11_software.globox_x11_software_shm.shmid,
+			context->globox_software_shm.shmid,
 			0,
 			0);
 
-	if (platform->globox_x11_software.globox_x11_software_shm.shmaddr == ((void*) -1))
+	if (context->globox_software_shm.shmaddr == ((void*) -1))
 	{
 		globox_error_throw(
 			globox,
@@ -115,8 +118,8 @@ void shm_create(struct globox* globox)
 	xcb_void_cookie_t cookie_attach =
 		xcb_shm_attach(
 			platform->globox_x11_conn,
-			platform->globox_x11_software.globox_x11_software_shm.shmseg,
-			platform->globox_x11_software.globox_x11_software_shm.shmid,
+			context->globox_software_shm.shmseg,
+			context->globox_software_shm.shmid,
 			0);
 
 	xcb_generic_error_t* error_attach =
@@ -134,7 +137,7 @@ void shm_create(struct globox* globox)
 
 	int error_shmctl =
 		shmctl(
-			platform->globox_x11_software.globox_x11_software_shm.shmid,
+			context->globox_software_shm.shmid,
 			IPC_RMID,
 			0);
 
@@ -147,13 +150,14 @@ void shm_create(struct globox* globox)
 	}
 
 	platform->globox_platform_argb =
-		(uint32_t*) platform->globox_x11_software.globox_x11_software_shm.shmaddr;
+		(uint32_t*) context->globox_software_shm.shmaddr;
 }
 
 void globox_context_software_create(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	// create XCB graphics context
 	uint32_t values[2] =
@@ -162,14 +166,14 @@ void globox_context_software_create(struct globox* globox)
 		0,
 	};
 
-	platform->globox_x11_software.globox_x11_software_gfx =
+	context->globox_software_gfx =
 		xcb_generate_id(
 			platform->globox_x11_conn);
 
 	xcb_void_cookie_t cookie_gc =
 		xcb_create_gc_checked(
 			platform->globox_x11_conn,
-			platform->globox_x11_software.globox_x11_software_gfx,
+			context->globox_software_gfx,
 			platform->globox_x11_win,
 			XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES,
 			values);
@@ -211,7 +215,7 @@ void globox_context_software_create(struct globox* globox)
 		return;
 	}
 
-	platform->globox_x11_software.globox_x11_software_shared_pixmaps = reply_shm->shared_pixmaps;
+	context->globox_software_shared_pixmaps = reply_shm->shared_pixmaps;
 	free(reply_shm);
 
 	xcb_void_cookie_t cookie_pixmap;
@@ -220,7 +224,7 @@ void globox_context_software_create(struct globox* globox)
 	// unlike wayland, X can't automatically copy buffers from cpu to gpu
 	// so if the display server is running in DRM we need to do it manually
 	// for this we can use xcb_put_image() to transfer the data using a socket
-	if (platform->globox_x11_software.globox_x11_software_shared_pixmaps == false)
+	if (context->globox_software_shared_pixmaps == false)
 	{
 		platform->globox_platform_argb = malloc(4 * globox->globox_width * globox->globox_height);
 
@@ -231,13 +235,13 @@ void globox_context_software_create(struct globox* globox)
 				GLOBOX_ERROR_ALLOC);
 		}
 
-		platform->globox_x11_software.globox_x11_software_pixmap = xcb_generate_id(platform->globox_x11_conn);
+		context->globox_software_pixmap = xcb_generate_id(platform->globox_x11_conn);
 		
 		cookie_pixmap =
 			xcb_create_pixmap_checked(
 				platform->globox_x11_conn,
-				24, // force 24bpp instead of geometry->depth
-				platform->globox_x11_software.globox_x11_software_pixmap,
+				platform->globox_x11_visual_depth, // force instead of geometry->depth
+				context->globox_software_pixmap,
 				platform->globox_x11_win,
 				globox->globox_width,
 				globox->globox_height);
@@ -257,11 +261,11 @@ void globox_context_software_create(struct globox* globox)
 	}
 	else
 	{
-		platform->globox_x11_software.globox_x11_software_shm.shmseg =
+		context->globox_software_shm.shmseg =
 			xcb_generate_id(
 				platform->globox_x11_conn);
 
-		platform->globox_x11_software.globox_x11_software_pixmap =
+		context->globox_software_pixmap =
 			xcb_generate_id(
 				platform->globox_x11_conn);
 
@@ -271,81 +275,15 @@ void globox_context_software_create(struct globox* globox)
 		{
 			return;
 		}
-#if 0
-		platform->globox_x11_software.globox_x11_software_shm.shmid =
-			shmget(
-				IPC_PRIVATE,
-				4 * globox->globox_width * globox->globox_height,
-				IPC_CREAT | 0600);
-
-		if (platform->globox_x11_software.globox_x11_software_shm.shmid == -1)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_X11_SHMID);
-			return;
-		}
-
-		platform->globox_x11_software.globox_x11_software_shm.shmaddr =
-			shmat(
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
-				0,
-				0);
-
-		if (platform->globox_x11_software.globox_x11_software_shm.shmaddr == ((void*) -1))
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_X11_SHMADDR);
-			return;
-		}
-
-		xcb_void_cookie_t cookie_attach =
-			xcb_shm_attach(
-				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_shm.shmseg,
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
-				0);
-
-		xcb_generic_error_t* error_attach =
-			xcb_request_check(
-				platform->globox_x11_conn,
-				cookie_attach);
-
-		if (error_attach != NULL)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_X11_SHM_ATTACH);
-			return;
-		}
-
-		int error_shmctl =
-			shmctl(
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
-				IPC_RMID,
-				0);
-
-		if (shmctl == -1)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_X11_SHMCTL);
-			return;
-		}
-
-		platform->globox_platform_argb =
-			(uint32_t*) platform->globox_x11_software.globox_x11_software_shm.shmaddr;
-#endif
 
 		cookie_pixmap = xcb_shm_create_pixmap_checked(
 			platform->globox_x11_conn,
-			platform->globox_x11_software.globox_x11_software_pixmap,
+			context->globox_software_pixmap,
 			platform->globox_x11_win,
 			globox->globox_width,
 			globox->globox_height,
-			24, // force 24bpp instead of geometry->depth
-			platform->globox_x11_software.globox_x11_software_shm.shmseg,
+			platform->globox_x11_visual_depth, // force instead of geometry->depth
+			context->globox_software_shm.shmseg,
 			0);
 
 		error_pixmap =
@@ -367,11 +305,12 @@ void globox_context_software_shrink(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	platform->globox_x11_software.globox_x11_software_buffer_width = globox->globox_width;
-	platform->globox_x11_software.globox_x11_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
 
-	if (platform->globox_x11_software.globox_x11_software_shared_pixmaps == false)
+	if (context->globox_software_shared_pixmaps == false)
 	{
 		platform->globox_platform_argb =
 			realloc(
@@ -401,11 +340,11 @@ void globox_context_software_shrink(struct globox* globox)
 			return;
 		}
 
-		platform->globox_x11_software.globox_x11_software_shm.shmid = shmid;
+		context->globox_software_shm.shmid = shmid;
 
 		uint8_t* tmpaddr =
 			shmat(
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
+				context->globox_software_shm.shmid,
 				0,
 				0);
 
@@ -423,7 +362,7 @@ void globox_context_software_shrink(struct globox* globox)
 		cookie_shm =
 			xcb_shm_detach_checked(
 				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_shm.shmseg);
+				context->globox_software_shm.shmseg);
 
 		error_shm =
 			xcb_request_check(
@@ -441,8 +380,8 @@ void globox_context_software_shrink(struct globox* globox)
 		cookie_shm =
 			xcb_shm_attach_checked(
 				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_shm.shmseg,
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
+				context->globox_software_shm.shmseg,
+				context->globox_software_shm.shmid,
 				0);
 
 		error_shm =
@@ -460,7 +399,7 @@ void globox_context_software_shrink(struct globox* globox)
 
 		int error_shmctl =
 			shmctl(
-				platform->globox_x11_software.globox_x11_software_shm.shmid,
+				context->globox_software_shm.shmid,
 				IPC_RMID,
 				0);
 
@@ -479,7 +418,7 @@ void globox_context_software_shrink(struct globox* globox)
 
 		int error_shmdt =
 			shmdt(
-				platform->globox_x11_software.globox_x11_software_shm.shmaddr);
+				context->globox_software_shm.shmaddr);
 
 		if (error_shmdt == -1)
 		{
@@ -489,7 +428,7 @@ void globox_context_software_shrink(struct globox* globox)
 			return;
 		}
 
-		platform->globox_x11_software.globox_x11_software_shm.shmaddr = tmpaddr;
+		context->globox_software_shm.shmaddr = tmpaddr;
 		platform->globox_platform_argb = (uint32_t*) tmpaddr;
 	}
 }
@@ -498,12 +437,13 @@ void globox_context_software_free(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	xcb_free_pixmap(
 		platform->globox_x11_conn,
-		platform->globox_x11_software.globox_x11_software_pixmap);
+		context->globox_software_pixmap);
 
-	if (platform->globox_x11_software.globox_x11_software_shared_pixmaps == false)
+	if (context->globox_software_shared_pixmaps == false)
 	{
 		free(platform->globox_platform_argb);
 	}
@@ -512,7 +452,7 @@ void globox_context_software_free(struct globox* globox)
 		xcb_void_cookie_t cookie_shm =
 			xcb_shm_detach_checked(
 				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_shm.shmseg);
+				context->globox_software_shm.shmseg);
 
 		xcb_generic_error_t* error_shm =
 			xcb_request_check(
@@ -529,7 +469,7 @@ void globox_context_software_free(struct globox* globox)
 
 		int error_shmdt =
 			shmdt(
-				platform->globox_x11_software.globox_x11_software_shm.shmaddr);
+				context->globox_software_shm.shmaddr);
 
 		if (error_shmdt == -1)
 		{
@@ -550,8 +490,9 @@ void globox_context_software_copy(
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	if (platform->globox_x11_software.globox_x11_software_shared_pixmaps == false)
+	if (context->globox_software_shared_pixmaps == false)
 	{
 		int32_t y2 = y;
 		uint32_t height2 = height;
@@ -563,17 +504,17 @@ void globox_context_software_copy(
 			xcb_get_maximum_request_length(
 				platform->globox_x11_conn);
 
-		if (platform->globox_x11_software.globox_x11_software_pixmap_update == true)
+		if (context->globox_software_pixmap_update == true)
 		{
 			xcb_free_pixmap(
 				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_pixmap);
+				context->globox_software_pixmap);
 
 			xcb_void_cookie_t cookie_pixmap =
 				xcb_create_pixmap_checked(
 					platform->globox_x11_conn,
-					24, // force 24bpp instead of geometry->depth
-					platform->globox_x11_software.globox_x11_software_pixmap,
+					platform->globox_x11_visual_depth, // force instead of geometry->depth
+					context->globox_software_pixmap,
 					platform->globox_x11_win,
 					globox->globox_width,
 					globox->globox_height);
@@ -591,7 +532,7 @@ void globox_context_software_copy(
 				return;
 			}
 
-			platform->globox_x11_software.globox_x11_software_pixmap_update = false;
+			context->globox_software_pixmap_update = false;
 		}
 
 		xcb_void_cookie_t cookie_image;
@@ -606,14 +547,14 @@ void globox_context_software_copy(
 				cookie_image = xcb_put_image_checked(
 					platform->globox_x11_conn,
 					XCB_IMAGE_FORMAT_Z_PIXMAP,
-					platform->globox_x11_software.globox_x11_software_pixmap,
-					platform->globox_x11_software.globox_x11_software_gfx,
+					context->globox_software_pixmap,
+					context->globox_software_gfx,
 					globox->globox_width,
 					rows_batch,
 					0,
 					y2,
 					0,
-					24,
+					platform->globox_x11_visual_depth,
 					4 * globox->globox_width * rows_batch,
 					(void*) (platform->globox_platform_argb + (y2 * globox->globox_width)));
 
@@ -638,14 +579,14 @@ void globox_context_software_copy(
 		cookie_image = xcb_put_image_checked(
 			platform->globox_x11_conn,
 			XCB_IMAGE_FORMAT_Z_PIXMAP,
-			platform->globox_x11_software.globox_x11_software_pixmap,
-			platform->globox_x11_software.globox_x11_software_gfx,
+			context->globox_software_pixmap,
+			context->globox_software_gfx,
 			globox->globox_width,
 			height2,
 			0,
 			y2,
 			0,
-			24,
+			platform->globox_x11_visual_depth,
 			4 * globox->globox_width * height2,
 			(void*) (platform->globox_platform_argb + (y2 * globox->globox_width)));
 
@@ -662,21 +603,21 @@ void globox_context_software_copy(
 			return;
 		}
 	}
-	else if (platform->globox_x11_software.globox_x11_software_pixmap_update == true)
+	else if (context->globox_software_pixmap_update == true)
 	{
 		xcb_free_pixmap(
 			platform->globox_x11_conn,
-			platform->globox_x11_software.globox_x11_software_pixmap);
+			context->globox_software_pixmap);
 
 		xcb_void_cookie_t cookie_pixmap =
 			xcb_shm_create_pixmap_checked(
 				platform->globox_x11_conn,
-				platform->globox_x11_software.globox_x11_software_pixmap,
+				context->globox_software_pixmap,
 				platform->globox_x11_win,
 				globox->globox_width,
 				globox->globox_height,
-				24, // force 24bpp instead of geometry->depth
-				platform->globox_x11_software.globox_x11_software_shm.shmseg,
+				platform->globox_x11_visual_depth, // force instead of geometry->depth
+				context->globox_software_shm.shmseg,
 				0);
 
 		xcb_generic_error_t* error_pixmap =
@@ -692,15 +633,15 @@ void globox_context_software_copy(
 			return;
 		}
 
-		platform->globox_x11_software.globox_x11_software_pixmap_update = false;
+		context->globox_software_pixmap_update = false;
 	}
 
 	xcb_void_cookie_t cookie_copy =
 		xcb_copy_area_checked(
 			platform->globox_x11_conn,
-			platform->globox_x11_software.globox_x11_software_pixmap,
+			context->globox_software_pixmap,
 			platform->globox_x11_win,
-			platform->globox_x11_software.globox_x11_software_gfx,
+			context->globox_software_gfx,
 			x,
 			y,
 			x,
@@ -730,11 +671,12 @@ void globox_context_software_reserve(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	uint32_t buf_width = platform->globox_x11_software.globox_x11_software_buffer_width;
-	uint32_t buf_height = platform->globox_x11_software.globox_x11_software_buffer_height;
+	uint32_t buf_width = context->globox_software_buffer_width;
+	uint32_t buf_height = context->globox_software_buffer_height;
 
-	if (platform->globox_x11_software.globox_x11_software_shared_pixmaps == false)
+	if (context->globox_software_shared_pixmaps == false)
 	{
 		if ((buf_width * buf_height) < (globox->globox_width * globox->globox_height))
 		{
@@ -791,12 +733,12 @@ void globox_context_software_reserve(struct globox* globox)
 				return;
 			}
 
-			platform->globox_x11_software.globox_x11_software_buffer_width =
-				(1 + (platform->globox_x11_software.globox_x11_software_buffer_width / win_reply->width))
+			context->globox_software_buffer_width =
+				(1 + (context->globox_software_buffer_width / win_reply->width))
 					* win_reply->width;
 
-			platform->globox_x11_software.globox_x11_software_buffer_height =
-				(1 + (platform->globox_x11_software.globox_x11_software_buffer_height / win_reply->height))
+			context->globox_software_buffer_height =
+				(1 + (context->globox_software_buffer_height / win_reply->height))
 					* win_reply->height;
 
 			free(win_reply);
@@ -805,8 +747,8 @@ void globox_context_software_reserve(struct globox* globox)
 			platform->globox_platform_argb =
 				malloc(
 					4
-					* platform->globox_x11_software.globox_x11_software_buffer_width
-					* platform->globox_x11_software.globox_x11_software_buffer_height);
+					* context->globox_software_buffer_width
+					* context->globox_software_buffer_height);
 		}
 	}
 	else
@@ -819,7 +761,7 @@ void globox_context_software_reserve(struct globox* globox)
 			cookie_shm =
 				xcb_shm_detach_checked(
 					platform->globox_x11_conn,
-					platform->globox_x11_software.globox_x11_software_shm.shmseg);
+					context->globox_software_shm.shmseg);
 
 			error_shm =
 				xcb_request_check(
@@ -836,7 +778,7 @@ void globox_context_software_reserve(struct globox* globox)
 
 			int error_shmdt =
 				shmdt(
-					platform->globox_x11_software.globox_x11_software_shm.shmaddr);
+					context->globox_software_shm.shmaddr);
 
 			if (error_shmdt == -1)
 			{
@@ -849,11 +791,11 @@ void globox_context_software_reserve(struct globox* globox)
 			shm_create(globox);
 		}
 
-		platform->globox_x11_software.globox_x11_software_buffer_width = globox->globox_width;
-		platform->globox_x11_software.globox_x11_software_buffer_height = globox->globox_height;
+		context->globox_software_buffer_width = globox->globox_width;
+		context->globox_software_buffer_height = globox->globox_height;
 	}
 
-	platform->globox_x11_software.globox_x11_software_pixmap_update = true;
+	context->globox_software_pixmap_update = true;
 }
 
 void globox_context_software_expose(struct globox* globox, int len)
@@ -922,37 +864,37 @@ void globox_context_software_expose(struct globox* globox, int len)
 
 // getters
 
-xcb_shm_segment_info_t globox_x11_software_get_shm(struct globox* globox)
+xcb_shm_segment_info_t globox_software_get_shm(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_shm;
+	return globox->globox_platform.globox_x11_software.globox_software_shm;
 }
 
-xcb_gcontext_t globox_x11_software_get_gfx(struct globox* globox)
+xcb_gcontext_t globox_software_get_gfx(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_gfx;
+	return globox->globox_platform.globox_x11_software.globox_software_gfx;
 }
 
-xcb_pixmap_t globox_x11_software_get_pixmap(struct globox* globox)
+xcb_pixmap_t globox_software_get_pixmap(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_pixmap;
+	return globox->globox_platform.globox_x11_software.globox_software_pixmap;
 }
 
-bool globox_x11_software_get_pixmap_update(struct globox* globox)
+bool globox_software_get_pixmap_update(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_pixmap_update;
+	return globox->globox_platform.globox_x11_software.globox_software_pixmap_update;
 }
 
-bool globox_x11_software_get_shared_pixmaps(struct globox* globox)
+bool globox_software_get_shared_pixmaps(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_shared_pixmaps;
+	return globox->globox_platform.globox_x11_software.globox_software_shared_pixmaps;
 }
 
-uint32_t globox_x11_software_get_buffer_width(struct globox* globox)
+uint32_t globox_software_get_buffer_width(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_buffer_width;
+	return globox->globox_platform.globox_x11_software.globox_software_buffer_width;
 }
 
-uint32_t globox_x11_software_get_buffer_height(struct globox* globox)
+uint32_t globox_software_get_buffer_height(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_x11_software_buffer_height;
+	return globox->globox_platform.globox_x11_software.globox_software_buffer_height;
 }

@@ -193,14 +193,18 @@ uint32_t* globox_platform_get_argb(struct globox* globox);
 	struct epoll_event* globox_x11_get_epoll_event(struct globox* globox);
 	uint32_t* globox_x11_get_expose_queue(struct globox* globox);
 	#if defined(GLOBOX_CONTEXT_SOFTWARE)
-		// TODO remove x11 in name it is useless
-		xcb_shm_segment_info_t globox_x11_software_get_shm(struct globox* globox);
-		xcb_gcontext_t globox_x11_software_get_gfx(struct globox* globox);
-		xcb_pixmap_t globox_x11_software_get_pixmap(struct globox* globox);
-		bool globox_x11_software_get_pixmap_update(struct globox* globox);
-		bool globox_x11_software_get_shared_pixmaps(struct globox* globox);
-		uint32_t globox_x11_software_get_buffer_width(struct globox* globox);
-		uint32_t globox_x11_software_get_buffer_height(struct globox* globox);
+		xcb_shm_segment_info_t globox_software_get_shm(struct globox* globox);
+		xcb_gcontext_t globox_software_get_gfx(struct globox* globox);
+		xcb_pixmap_t globox_software_get_pixmap(struct globox* globox);
+		bool globox_software_get_pixmap_update(struct globox* globox);
+		bool globox_software_get_shared_pixmaps(struct globox* globox);
+		uint32_t globox_software_get_buffer_width(struct globox* globox);
+		uint32_t globox_software_get_buffer_height(struct globox* globox);
+	#elif defined(GLOBOX_CONTEXT_GLX)
+		Display* globox_glx_get_display(struct globox* globox);
+		GLXFBConfig globox_glx_get_fb_config(struct globox* globox);
+		GLXContext globox_glx_get_context(struct globox* globox);
+		GLXWindow globox_glx_get_win(struct globox* globox);
 	#endif
 #elif defined(GLOBOX_PLATFORM_WINDOWS)
 #elif defined(GLOBOX_PLATFORM_OSX)
@@ -214,11 +218,6 @@ EGLContext globox_egl_get_context(struct globox* globox);
 EGLSurface globox_egl_get_surface(struct globox* globox);
 EGLConfig globox_egl_get_config(struct globox* globox);
 EGLint globox_egl_config_get_config_size(struct globox* globox);
-#elif defined(GLOBOX_CONTEXT_GLX)
-Display* globox_glx_get_display(struct globox* globox);
-GLXFBConfig globox_glx_get_fb_config(struct globox* globox);
-GLXContext globox_glx_get_context(struct globox* globox);
-GLXWindow globox_glx_get_win(struct globox* globox);
 #endif
 
 #endif
