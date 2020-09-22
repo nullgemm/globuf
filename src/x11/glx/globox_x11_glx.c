@@ -10,7 +10,8 @@
 
 bool globox_context_glx_init(
 	struct globox* globox,
-	int opengl_version,
+	int version_major,
+	int version_minor,
 	bool transparent)
 {
 	// alias for readability

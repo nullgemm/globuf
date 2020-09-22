@@ -14,7 +14,11 @@
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>
 
-void globox_context_software_init(struct globox* globox)
+void globox_context_software_init(
+	struct globox* globox,
+	int version_major,
+	int version_minor,
+	bool transparent)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);

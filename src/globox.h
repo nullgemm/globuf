@@ -114,12 +114,16 @@ void globox_platform_set_state(
 
 // context-dependent functions
 #if defined(GLOBOX_CONTEXT_SOFTWARE)
-void globox_context_software_init(struct globox* globox);
 void globox_context_software_free(struct globox* globox);
 void globox_context_software_create(struct globox* globox);
 void globox_context_software_shrink(struct globox* globox);
 void globox_context_software_reserve(struct globox* globox);
 void globox_context_software_expose(struct globox* globox, int len);
+void globox_context_software_init(
+	struct globox* globox,
+	int version_major,
+	int version_minor,
+	bool transparent);
 void globox_context_software_copy(
 	struct globox* globox,
 	int32_t x,
@@ -135,7 +139,8 @@ void globox_context_egl_reserve(struct globox* globox);
 void globox_context_egl_expose(struct globox* globox, int len);
 bool globox_context_egl_init(
 	struct globox* globox,
-	int opengl_version,
+	int version_major,
+	int version_minor,
 	bool transparent);
 void globox_context_egl_copy(
 	struct globox* globox,
@@ -151,7 +156,8 @@ void globox_context_glx_reserve(struct globox* globox);
 void globox_context_glx_expose(struct globox* globox, int len);
 bool globox_context_glx_init(
 	struct globox* globox,
-	int opengl_version,
+	int version_major,
+	int version_minor,
 	bool transparent);
 void globox_context_glx_copy(
 	struct globox* globox,

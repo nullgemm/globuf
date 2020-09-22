@@ -102,7 +102,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_context_software_init(&globox);
+	globox_context_software_init(&globox, 0, 0, true);
 
 	if (globox_error_catch(&globox))
 	{

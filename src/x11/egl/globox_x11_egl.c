@@ -5,7 +5,8 @@
 
 bool globox_context_egl_init(
 	struct globox* globox,
-	int opengl_version,
+	int version_major,
+	int version_minor,
 	bool transparent)
 {
 	// alias for readability
@@ -26,14 +27,14 @@ bool globox_context_egl_init(
 
 	// init
 	EGLBoolean status_egl;
-	EGLint version_major;
-	EGLint version_minor;
+	EGLint display_version_major;
+	EGLint display_version_minor;
 
 	status_egl =
 		eglInitialize(
 			context->globox_egl_display,
-			&version_major,
-			&version_minor);
+			&display_version_major,
+			&display_version_minor);
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -83,10 +84,10 @@ bool globox_context_egl_init(
 		return false;
 	}
 
-	// use OpenGL 1 for demo
 	EGLint egl_context_attrib[] =
 	{
-		EGL_CONTEXT_CLIENT_VERSION, opengl_version,
+		EGL_CONTEXT_MAJOR_VERSION, version_major,
+		EGL_CONTEXT_MINOR_VERSION, version_minor,
 		EGL_NONE,
 	};
 
