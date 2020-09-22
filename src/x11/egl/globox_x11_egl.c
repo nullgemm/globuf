@@ -10,12 +10,13 @@ bool globox_context_egl_init(
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_egl* context = &(platform->globox_x11_egl);
 
 	// get display
-	platform->globox_x11_egl.globox_egl_display =
+	context->globox_egl_display =
 		eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-	if (platform->globox_x11_egl.globox_egl_display == EGL_NO_DISPLAY)
+	if (context->globox_egl_display == EGL_NO_DISPLAY)
 	{
 		globox_error_throw(
 			globox,
@@ -30,7 +31,7 @@ bool globox_context_egl_init(
 
 	status_egl =
 		eglInitialize(
-			platform->globox_x11_egl.globox_egl_display,
+			context->globox_egl_display,
 			&version_major,
 			&version_minor);
 
@@ -68,11 +69,11 @@ bool globox_context_egl_init(
 
 	status_egl =
 		eglChooseConfig(
-			platform->globox_x11_egl.globox_egl_display,
+			context->globox_egl_display,
 			egl_config_attrib,
-			&(platform->globox_x11_egl.globox_egl_config),
+			&(context->globox_egl_config),
 			1,
-			&(platform->globox_x11_egl.globox_egl_config_size));
+			&(context->globox_egl_config_size));
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -89,14 +90,14 @@ bool globox_context_egl_init(
 		EGL_NONE,
 	};
 
-	platform->globox_x11_egl.globox_egl_context =
+	context->globox_egl_context =
 		eglCreateContext(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_config,
+			context->globox_egl_display,
+			context->globox_egl_config,
 			EGL_NO_CONTEXT,
 			egl_context_attrib);
 
-	if (platform->globox_x11_egl.globox_egl_context == EGL_NO_CONTEXT)
+	if (context->globox_egl_context == EGL_NO_CONTEXT)
 	{
 		globox_error_throw(
 			globox,
@@ -109,8 +110,8 @@ bool globox_context_egl_init(
 
 	status_egl =
 		eglGetConfigAttrib(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_config,
+			context->globox_egl_display,
+			context->globox_egl_config,
 			EGL_NATIVE_VISUAL_ID,
 			&visual_id);
 
@@ -121,8 +122,8 @@ bool globox_context_egl_init(
 
 	status_egl =
 		eglGetConfigAttrib(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_config,
+			context->globox_egl_display,
+			context->globox_egl_config,
 			EGL_DEPTH_SIZE,
 			&visual_depth);
 
@@ -143,16 +144,17 @@ void globox_context_egl_create(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_egl* context = &(platform->globox_x11_egl);
 
 	// create EGL surface
-	platform->globox_x11_egl.globox_egl_surface =
+	context->globox_egl_surface =
 		eglCreateWindowSurface(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_config,
+			context->globox_egl_display,
+			context->globox_egl_config,
 			(EGLNativeWindowType) platform->globox_x11_win,
 			NULL);
 
-	if (platform->globox_x11_egl.globox_egl_surface == EGL_NO_SURFACE)
+	if (context->globox_egl_surface == EGL_NO_SURFACE)
 	{
 		globox_error_throw(
 			globox,
@@ -165,10 +167,10 @@ void globox_context_egl_create(struct globox* globox)
 
 	status_egl =
 		eglMakeCurrent(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_surface,
-			platform->globox_x11_egl.globox_egl_surface,
-			platform->globox_x11_egl.globox_egl_context);
+			context->globox_egl_display,
+			context->globox_egl_surface,
+			context->globox_egl_surface,
+			context->globox_egl_context);
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -181,7 +183,7 @@ void globox_context_egl_create(struct globox* globox)
 	// set swap interval
 	status_egl =
 		eglSwapInterval(
-			platform->globox_x11_egl.globox_egl_display,
+			context->globox_egl_display,
 			0);
 
 	if (status_egl == EGL_FALSE)
@@ -202,12 +204,14 @@ void globox_context_egl_free(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_egl* context = &(platform->globox_x11_egl);
+
 	EGLBoolean status_egl;
 
 	status_egl =
 		eglDestroySurface(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_surface);
+			context->globox_egl_display,
+			context->globox_egl_surface);
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -219,8 +223,8 @@ void globox_context_egl_free(struct globox* globox)
 
 	status_egl =
 		eglDestroyContext(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_context);
+			context->globox_egl_display,
+			context->globox_egl_context);
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -232,7 +236,7 @@ void globox_context_egl_free(struct globox* globox)
 
 	status_egl =
 		eglTerminate(
-			platform->globox_x11_egl.globox_egl_display);
+			context->globox_egl_display);
 
 	if (status_egl == EGL_FALSE)
 	{
@@ -252,11 +256,12 @@ void globox_context_egl_copy(
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_egl* context = &(platform->globox_x11_egl);
 
 	EGLBoolean status_egl =
 		eglSwapBuffers(
-			platform->globox_x11_egl.globox_egl_display,
-			platform->globox_x11_egl.globox_egl_surface);
+			context->globox_egl_display,
+			context->globox_egl_surface);
 
 	if (status_egl == EGL_FALSE)
 	{
