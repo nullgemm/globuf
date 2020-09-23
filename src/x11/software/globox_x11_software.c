@@ -18,7 +18,8 @@ void globox_context_software_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent)
+	bool transparent,
+	bool blur)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -81,6 +82,8 @@ void globox_context_software_init(
 
 	// save depth
 	platform->globox_x11_visual_depth = depth_iter.data->depth;
+	globox->globox_transparent = transparent;
+	globox->globox_blur = blur;
 }
 
 void shm_create(struct globox* globox)

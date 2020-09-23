@@ -92,7 +92,7 @@ int main(void)
 	}
 
 	// use OpenGL 1
-	globox_context_egl_init(&globox, 1, 0, true);
+	globox_context_egl_init(&globox, 1, 0, true, true);
 
 	if (globox_error_catch(&globox))
 	{

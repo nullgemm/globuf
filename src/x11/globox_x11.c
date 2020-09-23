@@ -269,6 +269,8 @@ void globox_platform_hooks(struct globox* globox)
 		[GLOBOX_X11_ATOM_STATE_HIDDEN              ] = "_NET_WM_STATE_HIDDEN",
 		[GLOBOX_X11_ATOM_STATE                     ] = "_NET_WM_STATE",
 		[GLOBOX_X11_ATOM_ICON                      ] = "_NET_WM_ICON",
+		[GLOBOX_X11_ATOM_BLUR_KDE                  ] = "_KDE_NET_WM_BLUR_BEHIND_REGION",
+		[GLOBOX_X11_ATOM_BLUR_DEEPIN               ] = "_NET_WM_DEEPIN_BLUR_REGION_ROUNDED",
 		[GLOBOX_X11_ATOM_PROTOCOLS                 ] = "WM_PROTOCOLS",
 		[GLOBOX_X11_ATOM_DELETE_WINDOW             ] = "WM_DELETE_WINDOW",
 	};
@@ -310,6 +312,7 @@ void globox_platform_hooks(struct globox* globox)
 		free(reply_atom);
 	}
 
+	// window deletion protocol
 	xcb_void_cookie_t cookie_prop =
 		xcb_change_property_checked(
 			platform->globox_x11_conn,
@@ -331,6 +334,57 @@ void globox_platform_hooks(struct globox* globox)
 			globox,
 			GLOBOX_ERROR_X11_ATOMS);
 		return;
+	}
+
+	if (globox->globox_blur == true)
+	{
+		// kde blur
+		cookie_prop =
+			xcb_change_property(
+				platform->globox_x11_conn,
+				XCB_PROP_MODE_REPLACE,
+				platform->globox_x11_win,
+				platform->globox_x11_atom_list[GLOBOX_X11_ATOM_BLUR_KDE],
+				XCB_ATOM_CARDINAL,
+				32,
+				0,
+				NULL);
+
+		error_atom = xcb_request_check(
+			platform->globox_x11_conn,
+			cookie_prop);
+
+		if (error_atom != NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_X11_ATOMS);
+			return;
+		}
+
+		// deeping blur
+		cookie_prop =
+			xcb_change_property(
+				platform->globox_x11_conn,
+				XCB_PROP_MODE_REPLACE,
+				platform->globox_x11_win,
+				platform->globox_x11_atom_list[GLOBOX_X11_ATOM_BLUR_DEEPIN],
+				XCB_ATOM_CARDINAL,
+				32,
+				0,
+				NULL);
+
+		error_atom = xcb_request_check(
+			platform->globox_x11_conn,
+			cookie_prop);
+
+		if (error_atom != NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_X11_ATOMS);
+			return;
+		}
 	}
 
 	// epoll initialization

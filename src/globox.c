@@ -56,6 +56,9 @@ void globox_open(
 	globox->globox_event_callback = callback;
 	globox->globox_event_callback_data = callback_data;
 	globox->globox_closed = false;
+
+	globox->globox_transparent = false;
+	globox->globox_blur = false;
 }
 
 void globox_close(struct globox* globox)
@@ -98,6 +101,16 @@ inline bool globox_get_closed(struct globox* globox)
 inline bool globox_get_redraw(struct globox* globox)
 {
 	return globox->globox_redraw;
+}
+
+inline bool globox_get_transparent(struct globox* globox)
+{
+	return globox->globox_transparent;
+}
+
+inline bool globox_get_blur(struct globox* globox)
+{
+	return globox->globox_blur;
 }
 
 inline enum globox_state globox_get_state(struct globox* globox)

@@ -41,6 +41,9 @@ struct globox
 	bool globox_closed;
 	bool globox_redraw;
 
+	bool globox_transparent;
+	bool globox_blur;
+
 	// window state (regular, minimized, maximized, fullscreen)
 	enum globox_state globox_state;
 	// window events callback (resize, hover, click, type)
@@ -123,7 +126,8 @@ void globox_context_software_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent);
+	bool transparent,
+	bool blur);
 void globox_context_software_copy(
 	struct globox* globox,
 	int32_t x,
@@ -141,7 +145,8 @@ bool globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent);
+	bool transparent,
+	bool blur);
 void globox_context_egl_copy(
 	struct globox* globox,
 	int32_t x,
@@ -158,7 +163,8 @@ bool globox_context_glx_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent);
+	bool transparent,
+	bool blur);
 void globox_context_glx_copy(
 	struct globox* globox,
 	int32_t x,
@@ -175,6 +181,10 @@ uint32_t globox_get_height(struct globox* globox);
 char* globox_get_title(struct globox* globox);
 bool globox_get_closed(struct globox* globox);
 bool globox_get_redraw(struct globox* globox);
+
+bool globox_get_transparent(struct globox* globox);
+bool globox_get_blur(struct globox* globox);
+
 enum globox_state globox_get_state(struct globox* globox);
 void* globox_get_event_callback_data(struct globox* globox);
 // the syntax reaches its limits when it's time to return a function pointer

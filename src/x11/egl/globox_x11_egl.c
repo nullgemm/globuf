@@ -7,7 +7,8 @@ bool globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent)
+	bool transparent,
+	bool blur)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -137,6 +138,9 @@ bool globox_context_egl_init(
 			GLOBOX_ERROR_X11_EGL_FAIL);
 		return false;
 	}
+
+	globox->globox_transparent = transparent;
+	globox->globox_blur = blur;
 
 	return false;
 }

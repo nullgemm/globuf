@@ -12,7 +12,8 @@ bool globox_context_glx_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
-	bool transparent)
+	bool transparent,
+	bool blur)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -178,6 +179,9 @@ bool globox_context_glx_init(
 	// add colormap to XCB
 	platform->globox_x11_attr_val[2] =
 		colormap;
+
+	globox->globox_transparent = transparent;
+	globox->globox_blur = blur;
 
 	return fb_alpha;
 }
