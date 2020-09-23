@@ -122,7 +122,7 @@ void globox_context_software_create(struct globox* globox);
 void globox_context_software_shrink(struct globox* globox);
 void globox_context_software_reserve(struct globox* globox);
 void globox_context_software_expose(struct globox* globox, int len);
-void globox_context_software_init(
+bool globox_context_software_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,

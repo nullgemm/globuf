@@ -145,7 +145,6 @@ void globox_platform_init(struct globox* globox)
 	// get the root window from the screen object
 	platform->globox_x11_root_win = platform->globox_x11_screen_obj->root;
 
-#if defined(GLOBOX_CONTEXT_GLX)
 	platform->globox_x11_attr_mask =
 		XCB_CW_BORDER_PIXEL
 		| XCB_CW_EVENT_MASK
@@ -153,14 +152,6 @@ void globox_platform_init(struct globox* globox)
 
 	platform->globox_x11_attr_val[0] =
 		0;
-#else
-	platform->globox_x11_attr_mask =
-		XCB_CW_BACK_PIXMAP
-		| XCB_CW_EVENT_MASK;
-
-	platform->globox_x11_attr_val[0] =
-		XCB_BACK_PIXMAP_NONE;
-#endif
 
 	platform->globox_x11_attr_val[1] =
 		XCB_EVENT_MASK_EXPOSURE

@@ -38,7 +38,7 @@ SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
 PLATFORM ?= X11
-CONTEXT ?= GLX
+CONTEXT ?= SOFTWARE
 
 ifeq ($(PLATFORM), X11)
 SRCS+= $(SRCD)/x11/globox_x11.c
@@ -51,6 +51,7 @@ SRCS+= example/software.c
 SRCS+= $(SRCD)/x11/software/globox_x11_software.c
 LINK+= -lxcb-shm
 LINK+= -lxcb-randr
+LINK+= -lxcb-render
 endif
 
 ifeq ($(CONTEXT), EGL)

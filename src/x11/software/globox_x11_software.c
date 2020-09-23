@@ -11,10 +11,11 @@
 // x11 includes
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
+#include <xcb/render.h>
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>
 
-void globox_context_software_init(
+bool globox_context_software_init(
 	struct globox* globox,
 	int version_major,
 	int version_minor,
@@ -25,13 +26,17 @@ void globox_context_software_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
 	context->globox_software_buffer_width = globox->globox_width;
 	context->globox_software_buffer_height = globox->globox_height;
+	globox->globox_transparent = transparent;
+	globox->globox_blur = blur;
 
+if (transparent == false)
+{
 	// check display server settings compatibility
-	xcb_visualtype_t* visual = NULL;
+	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
 	xcb_visualid_t visual_root = platform->globox_x11_visual_id;
+	xcb_visualtype_t* visual = NULL;
 
 	xcb_depth_iterator_t depth_iter =
 		xcb_screen_allowed_depths_iterator(
@@ -62,7 +67,7 @@ void globox_context_software_init(
 				globox_error_throw(
 					globox,
 					GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
-				return;
+				return false;
 			}
 			else
 			{
@@ -80,10 +85,146 @@ void globox_context_software_init(
 			GLOBOX_ERROR_X11_VISUAL_NOT_FOUND);
 	}
 
-	// save depth
 	platform->globox_x11_visual_depth = depth_iter.data->depth;
-	globox->globox_transparent = transparent;
-	globox->globox_blur = blur;
+}
+else
+{
+	// find visual for transparency with XRender
+	xcb_render_query_pict_formats_cookie_t cookie_pict;
+	xcb_render_query_pict_formats_reply_t* reply_pict;
+	xcb_generic_error_t* error_pict;
+
+	cookie_pict=
+		xcb_render_query_pict_formats(
+			platform->globox_x11_conn);
+
+	reply_pict =
+		xcb_render_query_pict_formats_reply(
+			platform->globox_x11_conn,
+			cookie_pict,
+			&error_pict);
+
+	if (error_pict != NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_SHM_ATTACH);
+		return false;
+	}
+
+	// loop over all formats
+	xcb_render_pictforminfo_iterator_t iter_pict;
+	xcb_render_pictforminfo_t* pictforminfo;
+	xcb_render_pictformat_t pictformat;
+	bool found_format;
+
+	iter_pict =
+		xcb_render_query_pict_formats_formats_iterator(
+			reply_pict);
+
+	found_format = false;
+
+	while (iter_pict.rem)
+	{
+		pictforminfo = iter_pict.data;
+
+		if ((pictforminfo->direct.alpha_mask == 255)
+			&& (pictforminfo->direct.red_mask == 255)
+			&& (pictforminfo->direct.green_mask == 255)
+			&& (pictforminfo->direct.blue_mask == 255)
+			&& (pictforminfo->direct.alpha_shift == 24)
+			&& (pictforminfo->direct.red_shift == 16)
+			&& (pictforminfo->direct.green_shift == 8)
+			&& (pictforminfo->direct.blue_shift == 0)
+			&& (pictforminfo->depth == 32))
+		{
+			platform->globox_x11_visual_depth = 32;
+			pictformat = pictforminfo->id;
+			found_format = true;
+			break;
+		}
+
+		xcb_render_pictforminfo_next(
+			&iter_pict);
+	}
+
+	if (found_format == false)
+	{
+		free(reply_pict);
+		return false;
+	}
+
+	// loop over all visuals to match the format with a visual id
+	xcb_render_pictscreen_iterator_t iter_screens;
+	xcb_render_pictdepth_iterator_t iter_depths;
+	xcb_render_pictvisual_iterator_t iter_visuals;
+	xcb_colormap_t colormap;
+	bool found_visual;
+
+	iter_screens =
+		xcb_render_query_pict_formats_screens_iterator(
+			reply_pict);
+
+	found_visual = false;
+
+	while (iter_screens.rem && (found_visual == false))
+	{
+		iter_depths =
+			xcb_render_pictscreen_depths_iterator(
+				iter_screens.data);
+
+		while (iter_depths.rem && (found_visual == false))
+		{
+			iter_visuals =
+				xcb_render_pictdepth_visuals_iterator(
+					iter_depths.data);
+
+			while (iter_visuals.rem && (found_visual == false))
+			{
+				if (iter_visuals.data->format == pictformat)
+				{
+					platform->globox_x11_visual_id = iter_visuals.data->visual;
+					found_visual = true;
+					break;
+				}
+
+				xcb_render_pictvisual_next(
+					&iter_visuals);
+			}
+
+			xcb_render_pictdepth_next(
+				&iter_depths);
+		}
+
+		xcb_render_pictscreen_next(
+			&iter_screens);
+	}
+
+	if (found_visual == false)
+	{
+		free(reply_pict);
+		return false;
+	}
+
+	// generate colormap
+	colormap =
+		xcb_generate_id(
+			platform->globox_x11_conn);
+
+	xcb_create_colormap(
+		platform->globox_x11_conn,
+		XCB_COLORMAP_ALLOC_NONE,
+		colormap,
+		platform->globox_x11_screen_obj->root,
+		platform->globox_x11_visual_id);
+
+	platform->globox_x11_attr_val[2] =
+		colormap;
+
+	free(reply_pict);
+}
+
+	return true;
 }
 
 void shm_create(struct globox* globox)
