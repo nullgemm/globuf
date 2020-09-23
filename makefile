@@ -38,7 +38,7 @@ SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
 PLATFORM ?= X11
-CONTEXT ?= SOFTWARE
+CONTEXT ?= GLX
 
 ifeq ($(PLATFORM), X11)
 SRCS+= $(SRCD)/x11/globox_x11.c

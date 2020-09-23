@@ -43,7 +43,7 @@ void render(struct globox* globox)
 			glViewport(0, 0, width, height);
 		}
 
-		glClearColor(0.2f, 0.4f, 0.9f, 0.1f);
+		glClearColor(0.2f, 0.4f, 0.9f, (0xEE / 255.0f));
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBegin(GL_TRIANGLE_FAN);
