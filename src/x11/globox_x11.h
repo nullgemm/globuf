@@ -35,6 +35,7 @@ enum globox_x11_atom_types
 	GLOBOX_X11_ATOM_STATE,
 	GLOBOX_X11_ATOM_ICON,
 	GLOBOX_X11_ATOM_PROTOCOLS,
+	GLOBOX_X11_ATOM_FRAMELESS,
 	GLOBOX_X11_ATOM_BLUR_KDE,
 	GLOBOX_X11_ATOM_BLUR_DEEPIN,
 	GLOBOX_X11_ATOM_DELETE_WINDOW,
@@ -68,6 +69,8 @@ struct globox_platform
 	// windows
 	xcb_window_t globox_x11_win;
 	xcb_window_t globox_x11_root_win;
+	int16_t globox_x11_interactive_x;
+	int16_t globox_x11_interactive_y;
 
 	// screens
 	int globox_x11_screen_id;
@@ -153,6 +156,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_STATE,
 	GLOBOX_ERROR_X11_EGL_FAIL,
 	GLOBOX_ERROR_X11_GLX_FAIL,
+	GLOBOX_ERROR_X11_INTERACTIVE,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,

@@ -57,6 +57,9 @@ void globox_open(
 	globox->globox_event_callback_data = callback_data;
 	globox->globox_closed = false;
 
+	globox->globox_interactive_move = false;
+	globox->globox_interactive_resize = GLOBOX_RESIZE_STOP;
+
 	globox->globox_transparent = false;
 	globox->globox_frameless = false;
 	globox->globox_blurred = false;

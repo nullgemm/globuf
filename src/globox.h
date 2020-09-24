@@ -27,6 +27,19 @@ enum globox_state
 	GLOBOX_STATE_FULLSCREEN,
 };
 
+enum globox_resize_direction
+{
+	GLOBOX_RESIZE_STOP = 0,
+	GLOBOX_RESIZE_N,  // North
+	GLOBOX_RESIZE_NW, // North-West
+	GLOBOX_RESIZE_W,  // West
+	GLOBOX_RESIZE_SW, // South-West
+	GLOBOX_RESIZE_S,  // South
+	GLOBOX_RESIZE_SE, // South-East
+	GLOBOX_RESIZE_E,  // East
+	GLOBOX_RESIZE_NE, // North-East
+};
+
 // globox
 struct globox
 {
@@ -40,6 +53,9 @@ struct globox
 	char* globox_title;
 	bool globox_closed;
 	bool globox_redraw;
+
+	bool globox_interactive_move;
+	enum globox_resize_direction globox_interactive_resize;
 
 	bool globox_transparent;
 	bool globox_frameless;
@@ -96,6 +112,8 @@ void globox_platform_commit(struct globox* globox);
 void globox_platform_prepoll(struct globox* globox);
 void globox_platform_events_poll(struct globox* globox);
 void globox_platform_events_wait(struct globox* globox);
+void globox_platform_interactive_move(struct globox* globox, bool active);
+void globox_platform_interactive_resize(struct globox* globox, enum globox_resize_direction direction);
 
 void globox_platform_init(
 	struct globox* globox,
