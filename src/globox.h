@@ -42,7 +42,8 @@ struct globox
 	bool globox_redraw;
 
 	bool globox_transparent;
-	bool globox_blur;
+	bool globox_frameless;
+	bool globox_blurred;
 
 	// window state (regular, minimized, maximized, fullscreen)
 	enum globox_state globox_state;
@@ -88,7 +89,6 @@ void globox_open(
 void globox_close(struct globox* globox);
 
 // platform-dependent functions
-void globox_platform_init(struct globox* globox);
 void globox_platform_free(struct globox* globox);
 void globox_platform_create_window(struct globox* globox);
 void globox_platform_hooks(struct globox* globox);
@@ -96,6 +96,12 @@ void globox_platform_commit(struct globox* globox);
 void globox_platform_prepoll(struct globox* globox);
 void globox_platform_events_poll(struct globox* globox);
 void globox_platform_events_wait(struct globox* globox);
+
+void globox_platform_init(
+	struct globox* globox,
+	bool transparent,
+	bool frameless,
+	bool blurred);
 
 void globox_platform_events_handle(
 	struct globox* globox,
@@ -122,12 +128,10 @@ void globox_context_software_create(struct globox* globox);
 void globox_context_software_shrink(struct globox* globox);
 void globox_context_software_reserve(struct globox* globox);
 void globox_context_software_expose(struct globox* globox, int len);
-bool globox_context_software_init(
+void globox_context_software_init(
 	struct globox* globox,
 	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur);
+	int version_minor);
 void globox_context_software_copy(
 	struct globox* globox,
 	int32_t x,
@@ -141,12 +145,10 @@ void globox_context_egl_create(struct globox* globox);
 void globox_context_egl_shrink(struct globox* globox);
 void globox_context_egl_reserve(struct globox* globox);
 void globox_context_egl_expose(struct globox* globox, int len);
-bool globox_context_egl_init(
+void globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur);
+	int version_minor);
 void globox_context_egl_copy(
 	struct globox* globox,
 	int32_t x,
@@ -159,12 +161,10 @@ void globox_context_glx_create(struct globox* globox);
 void globox_context_glx_shrink(struct globox* globox);
 void globox_context_glx_reserve(struct globox* globox);
 void globox_context_glx_expose(struct globox* globox, int len);
-bool globox_context_glx_init(
+void globox_context_glx_init(
 	struct globox* globox,
 	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur);
+	int version_minor);
 void globox_context_glx_copy(
 	struct globox* globox,
 	int32_t x,
@@ -183,7 +183,8 @@ bool globox_get_closed(struct globox* globox);
 bool globox_get_redraw(struct globox* globox);
 
 bool globox_get_transparent(struct globox* globox);
-bool globox_get_blur(struct globox* globox);
+bool globox_get_frameless(struct globox* globox);
+bool globox_get_blurred(struct globox* globox);
 
 enum globox_state globox_get_state(struct globox* globox);
 void* globox_get_event_callback_data(struct globox* globox);

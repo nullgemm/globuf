@@ -3,12 +3,10 @@
 #include "x11/globox_x11.h"
 #include <EGL/egl.h>
 
-bool globox_context_egl_init(
+void globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur)
+	int version_minor)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -23,7 +21,7 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
 	// init
@@ -42,7 +40,7 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
 	// use OpenGL
@@ -54,7 +52,7 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
 	// use 8-bit RGBA
@@ -82,7 +80,7 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
 	EGLint egl_context_attrib[] =
@@ -104,7 +102,7 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
 	// get visual id from EGL
@@ -136,13 +134,10 @@ bool globox_context_egl_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_EGL_FAIL);
-		return false;
+		return;
 	}
 
-	globox->globox_transparent = transparent;
-	globox->globox_blur = blur;
-
-	return false;
+	return;
 }
 
 void globox_context_egl_create(struct globox* globox)

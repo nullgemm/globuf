@@ -94,7 +94,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_platform_init(&globox);
+	globox_platform_init(&globox, true, true, true);
 
 	if (globox_error_catch(&globox))
 	{
@@ -102,7 +102,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_context_software_init(&globox, 0, 0, true, true);
+	globox_context_software_init(&globox, 0, 0);
 
 	if (globox_error_catch(&globox))
 	{

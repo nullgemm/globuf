@@ -8,12 +8,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool globox_context_glx_init(
+void globox_context_glx_init(
 	struct globox* globox,
 	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur)
+	int version_minor)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -48,13 +46,12 @@ bool globox_context_glx_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_GLX_FAIL);
-		return false;
+		return;
 	}
 
 	// find compatible framebuffer configuration
 	int i = 0;
 	bool fb_valid = false;
-	bool fb_alpha = false;
 
 	XVisualInfo* visual_info;
 	XRenderPictFormat* pict_format;
@@ -84,14 +81,14 @@ bool globox_context_glx_init(
 		fb_valid = true;
 		context->globox_glx_fb_config = fb_config_list[i];
 
-		if (transparent == false)
+		if (globox->globox_transparent == false)
 		{
 			break;
 		}
 
 		if (pict_format->direct.alphaMask > 0)
 		{
-			fb_alpha = true;
+			// found an alpha-compatible configuration
 			break;
 		}
 
@@ -105,7 +102,7 @@ bool globox_context_glx_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_GLX_FAIL);
-		return false;
+		return;
 	}
 
 	// query visual ID
@@ -126,7 +123,7 @@ bool globox_context_glx_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_GLX_FAIL);
-		return false;
+		return;
 	}
 
 	// query visual depth
@@ -139,14 +136,14 @@ bool globox_context_glx_init(
 			GLX_DEPTH_SIZE,
 			&visual_depth);
 
-	if (transparent == true)
+	if (globox->globox_transparent == true)
 	{
 		if (visual_depth != 24)
 		{
 			globox_error_throw(
 				globox,
 				GLOBOX_ERROR_X11_GLX_FAIL);
-			return false;
+			return;
 		}
 
 		platform->globox_x11_visual_depth = 32;
@@ -161,7 +158,7 @@ bool globox_context_glx_init(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_X11_GLX_FAIL);
-		return false;
+		return;
 	}
 
 	// create colormap
@@ -180,10 +177,7 @@ bool globox_context_glx_init(
 	platform->globox_x11_attr_val[2] =
 		colormap;
 
-	globox->globox_transparent = transparent;
-	globox->globox_blur = blur;
-
-	return fb_alpha;
+	return;
 }
 
 void globox_context_glx_create(struct globox* globox)

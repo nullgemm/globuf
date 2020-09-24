@@ -58,7 +58,8 @@ void globox_open(
 	globox->globox_closed = false;
 
 	globox->globox_transparent = false;
-	globox->globox_blur = false;
+	globox->globox_frameless = false;
+	globox->globox_blurred = false;
 }
 
 void globox_close(struct globox* globox)
@@ -108,9 +109,14 @@ inline bool globox_get_transparent(struct globox* globox)
 	return globox->globox_transparent;
 }
 
-inline bool globox_get_blur(struct globox* globox)
+inline bool globox_get_frameless(struct globox* globox)
 {
-	return globox->globox_blur;
+	return globox->globox_frameless;
+}
+
+inline bool globox_get_blurred(struct globox* globox)
+{
+	return globox->globox_blurred;
 }
 
 inline enum globox_state globox_get_state(struct globox* globox)

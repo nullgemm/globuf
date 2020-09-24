@@ -8,6 +8,8 @@
 #include <sys/shm.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 // x11 includes
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -15,24 +17,11 @@
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>
 
-bool globox_context_software_init(
-	struct globox* globox,
-	int version_major,
-	int version_minor,
-	bool transparent,
-	bool blur)
+static inline void visual_opaque(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
-	globox->globox_transparent = transparent;
-	globox->globox_blur = blur;
-
-if (transparent == false)
-{
 	// check display server settings compatibility
 	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
 	xcb_visualid_t visual_root = platform->globox_x11_visual_id;
@@ -67,7 +56,7 @@ if (transparent == false)
 				globox_error_throw(
 					globox,
 					GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
-				return false;
+				return;
 			}
 			else
 			{
@@ -86,10 +75,15 @@ if (transparent == false)
 	}
 
 	platform->globox_x11_visual_depth = depth_iter.data->depth;
+
+	return;
 }
-else
+
+static inline void visual_transparent(struct globox* globox)
 {
-	// find visual for transparency with XRender
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
 	xcb_render_query_pict_formats_cookie_t cookie_pict;
 	xcb_render_query_pict_formats_reply_t* reply_pict;
 	xcb_generic_error_t* error_pict;
@@ -108,11 +102,11 @@ else
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_X11_SHM_ATTACH);
-		return false;
+			GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
+		return;
 	}
 
-	// loop over all formats
+	// loop over all buffer formats to find ARGB8888
 	xcb_render_pictforminfo_iterator_t iter_pict;
 	xcb_render_pictforminfo_t* pictforminfo;
 	xcb_render_pictformat_t pictformat;
@@ -151,10 +145,13 @@ else
 	if (found_format == false)
 	{
 		free(reply_pict);
-		return false;
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
+		return;
 	}
 
-	// loop over all visuals to match the format with a visual id
+	// match the buffer format with a visual id
 	xcb_render_pictscreen_iterator_t iter_screens;
 	xcb_render_pictdepth_iterator_t iter_depths;
 	xcb_render_pictvisual_iterator_t iter_visuals;
@@ -203,10 +200,13 @@ else
 	if (found_visual == false)
 	{
 		free(reply_pict);
-		return false;
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE);
+		return;
 	}
 
-	// generate colormap
+	// generate a compatible colormap for the chosen visual id
 	colormap =
 		xcb_generate_id(
 			platform->globox_x11_conn);
@@ -222,9 +222,39 @@ else
 		colormap;
 
 	free(reply_pict);
+
+	return;
 }
 
-	return true;
+void globox_context_software_init(
+	struct globox* globox,
+	int version_major,
+	int version_minor)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
+
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
+
+	if (globox->globox_transparent == true)
+	{
+		visual_transparent(globox);
+
+		if (globox_error_catch(globox)
+			&& (globox_error_output_code(globox) == GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE))
+		{
+			globox_error_reset(globox);
+			visual_opaque(globox);
+		}
+	}
+	else
+	{
+		visual_opaque(globox);
+	}
+
+	return;
 }
 
 void shm_create(struct globox* globox)

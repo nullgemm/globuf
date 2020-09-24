@@ -23,13 +23,20 @@
 #include "x11/globox_x11.h"
 
 // initalize the display system
-void globox_platform_init(struct globox* globox)
+void globox_platform_init(
+	struct globox* globox,
+	bool transparent,
+	bool frameless,
+	bool blurred)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
 
 	globox->globox_redraw = false;
+	globox->globox_transparent = transparent;
+	globox->globox_frameless = frameless;
+	globox->globox_blurred = blurred;
 
 	log[GLOBOX_ERROR_X11_CONN] = "";
 	log[GLOBOX_ERROR_X11_MAP] = "";
@@ -145,13 +152,26 @@ void globox_platform_init(struct globox* globox)
 	// get the root window from the screen object
 	platform->globox_x11_root_win = platform->globox_x11_screen_obj->root;
 
-	platform->globox_x11_attr_mask =
-		XCB_CW_BORDER_PIXEL
-		| XCB_CW_EVENT_MASK
-		| XCB_CW_COLORMAP;
+	if (globox->globox_transparent == true)
+	{
+		platform->globox_x11_attr_mask =
+			XCB_CW_BORDER_PIXEL
+			| XCB_CW_EVENT_MASK
+			| XCB_CW_COLORMAP;
 
-	platform->globox_x11_attr_val[0] =
-		0;
+		platform->globox_x11_attr_val[0] =
+			0;
+	}
+	else
+	{
+		platform->globox_x11_attr_mask =
+			XCB_CW_BACK_PIXMAP
+			| XCB_CW_EVENT_MASK
+			| XCB_CW_COLORMAP;
+
+		platform->globox_x11_attr_val[0] =
+			XCB_BACK_PIXMAP_NONE;
+	}
 
 	platform->globox_x11_attr_val[1] =
 		XCB_EVENT_MASK_EXPOSURE
@@ -327,7 +347,7 @@ void globox_platform_hooks(struct globox* globox)
 		return;
 	}
 
-	if (globox->globox_blur == true)
+	if (globox->globox_blurred == true)
 	{
 		// kde blur
 		cookie_prop =
