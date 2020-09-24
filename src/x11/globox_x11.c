@@ -594,6 +594,12 @@ void globox_platform_interactive_move(struct globox* globox, bool active)
 			&& (globox->globox_interactive_move == false))
 		{
 			query_pointer(globox);
+
+			if (globox_error_catch(globox))
+			{
+				return;
+			}
+
 			globox->globox_interactive_move = true;
 		}
 	}
@@ -611,6 +617,12 @@ void globox_platform_interactive_resize(struct globox* globox, enum globox_resiz
 			&& (globox->globox_interactive_resize != direction))
 		{
 			query_pointer(globox);
+
+			if (globox_error_catch(globox))
+			{
+				return;
+			}
+
 			globox->globox_interactive_resize = direction;
 		}
 	}
@@ -635,6 +647,11 @@ static void handle_interactive_move(struct globox* globox)
 
 	xcb_generic_error_t* error;
 	query_pointer(globox);
+
+	if (globox_error_catch(globox))
+	{
+		return;
+	}
 
 	// get window position
 	xcb_get_geometry_cookie_t cookie_geom =
@@ -730,6 +747,11 @@ static void handle_interactive_resize(struct globox* globox)
 
 	xcb_generic_error_t* error;
 	query_pointer(globox);
+
+	if (globox_error_catch(globox))
+	{
+		return;
+	}
 
 	// get window position
 	xcb_get_geometry_cookie_t cookie_geom =
