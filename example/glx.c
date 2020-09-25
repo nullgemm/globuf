@@ -139,9 +139,8 @@ int main(void)
 
 	render(&globox);
 
-#if 0
-	globox_platform_interactive_move(&globox, true);
-	globox_platform_interactive_resize(&globox, GLOBOX_RESIZE_N);
+#if 1
+	globox_platform_interactive_mode(&globox, GLOBOX_INTERACTIVE_N);
 #endif
 
 	while (globox_get_closed(&globox) == false)
@@ -156,7 +155,7 @@ int main(void)
 			return 1;
 		}
 
-#if 1
+#if 0
 		globox_platform_events_wait(&globox); // TODO compatible with windows bullshit?
 
 		if (globox_error_catch(&globox))
@@ -179,9 +178,8 @@ int main(void)
 		}
 	}
 
-#if 0
-	globox_platform_interactive_move(&globox, false);
-	globox_platform_interactive_resize(&globox, GLOBOX_RESIZE_STOP);
+#if 1
+	globox_platform_interactive_mode(&globox, GLOBOX_INTERACTIVE_STOP);
 #endif
 
 	globox_context_glx_free(&globox);
