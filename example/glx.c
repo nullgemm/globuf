@@ -139,7 +139,7 @@ int main(void)
 
 	render(&globox);
 
-#if 1
+#if 0
 	globox_platform_interactive_mode(&globox, GLOBOX_INTERACTIVE_N);
 #endif
 
@@ -155,7 +155,7 @@ int main(void)
 			return 1;
 		}
 
-#if 0
+#if 1
 		globox_platform_events_wait(&globox); // TODO compatible with windows bullshit?
 
 		if (globox_error_catch(&globox))
@@ -178,7 +178,7 @@ int main(void)
 		}
 	}
 
-#if 1
+#if 0
 	globox_platform_interactive_mode(&globox, GLOBOX_INTERACTIVE_STOP);
 #endif
 
