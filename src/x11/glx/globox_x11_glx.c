@@ -6,7 +6,35 @@
 #include <X11/extensions/Xrender.h>
 #include <GL/glx.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
+
+int glx_extension_support(const char *list, const char *extension)
+{
+	const char* beg = list;
+	const char* end;
+	const char* cur;
+
+	cur = strstr(beg, extension);
+
+	while (cur != NULL)
+	{
+		end = cur + strlen(extension);
+
+		// the extension name might be a subset of another one so
+		// we must check the surrouding characters to make sure
+		if (((cur == beg) || (cur[-1] == ' '))
+			&& ((end[0] == '\0') || (end[0] == ' ')))
+		{
+			return 1;
+		}
+
+		beg = end;
+		cur = strstr(beg, extension);
+	}
+
+	return 0;
+}
 
 void globox_context_glx_init(
 	struct globox* globox,
@@ -16,6 +44,9 @@ void globox_context_glx_init(
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_x11_glx* context = &(platform->globox_x11_glx);
+
+	context->globox_glx_version_major = version_major;
+	context->globox_glx_version_minor = version_minor;
 
 	// get available framebuffer configurations
 	int glx_config_attrib[] =
@@ -187,14 +218,57 @@ void globox_context_glx_create(struct globox* globox)
 	struct globox_x11_glx* context = &(platform->globox_x11_glx);
 
 	// create GLX context
-	// TODO support OpenGL3 using glXCreateContextAttribsARBProc
-	context->globox_glx_context =
-		glXCreateNewContext(
+	const char* list =
+		glXQueryExtensionsString(
 			context->globox_glx_display,
-			context->globox_glx_fb_config,
-			GLX_RGBA_TYPE,
-			NULL,
-			True);
+			platform->globox_x11_screen_id);
+
+	int attribs_support =
+		glx_extension_support(
+			list,
+			"GLX_ARB_create_context");
+
+	if (attribs_support != 0)
+	{
+		// get function pointer
+		GLXContext (*glXCreateContextAttribsARB)() =
+			(GLXContext (*)())
+				glXGetProcAddressARB(
+					(const GLubyte*) "glXCreateContextAttribsARB");
+
+		if (glXCreateContextAttribsARB == NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_X11_GLX_FAIL);
+			return;
+		}
+
+		int attr[] =
+		{
+			GLX_CONTEXT_MAJOR_VERSION_ARB, context->globox_glx_version_major,
+			GLX_CONTEXT_MINOR_VERSION_ARB, context->globox_glx_version_minor,
+			None
+		};
+
+		context->globox_glx_context =
+			glXCreateContextAttribsARB(
+				context->globox_glx_display,
+				context->globox_glx_fb_config,
+				0,
+				True,
+				attr);
+	}
+	else
+	{
+		context->globox_glx_context =
+			glXCreateNewContext(
+				context->globox_glx_display,
+				context->globox_glx_fb_config,
+				GLX_RGBA_TYPE,
+				NULL,
+				True);
+	}
 
 	if (context->globox_glx_context == NULL)
 	{

@@ -14,6 +14,8 @@ struct globox_x11_glx
 	GLXFBConfig globox_glx_fb_config;
 	GLXContext globox_glx_context;
 	GLXWindow globox_glx_win;
+	int globox_glx_version_major;
+	int globox_glx_version_minor;
 };
 
 #endif
