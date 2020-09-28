@@ -882,7 +882,9 @@ static void handle_state(struct globox* globox)
 
 	globox->globox_redraw = true;
 
-	// TODO fix invalid read here
+	// when GLX it is possible valgrind mistakes `value` for an invalid pointer
+	// this is normal and stems from the spurious XCB/GLX/libX11 black magic
+
 	if (*value == platform->globox_x11_atom_list[GLOBOX_X11_ATOM_STATE_FULLSCREEN])
 	{
 		globox->globox_state = GLOBOX_STATE_FULLSCREEN;
