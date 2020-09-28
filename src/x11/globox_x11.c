@@ -880,6 +880,8 @@ static void handle_state(struct globox* globox)
 		return;
 	}
 
+	globox->globox_redraw = true;
+
 	// TODO fix invalid read here
 	if (*value == platform->globox_x11_atom_list[GLOBOX_X11_ATOM_STATE_FULLSCREEN])
 	{
@@ -893,6 +895,7 @@ static void handle_state(struct globox* globox)
 	else if (*value == platform->globox_x11_atom_list[GLOBOX_X11_ATOM_STATE_HIDDEN])
 	{
 		globox->globox_state = GLOBOX_STATE_MINIMIZED;
+		globox->globox_redraw = false;
 	}
 	else
 	{
