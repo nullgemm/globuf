@@ -908,9 +908,7 @@ static void handle_state(struct globox* globox)
 }
 
 void globox_platform_events_handle(
-	struct globox* globox,
-	void (*expose)(struct globox*, int),
-	void (*reserve)(struct globox*))
+	struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -937,7 +935,7 @@ void globox_platform_events_handle(
 				{
 					if (i >= GLOBOX_CONST_MAX_X11_EXPOSE_QUEUE)
 					{
-						expose(globox, i);
+						platform->globox_x11_expose(globox, i);
 
 						if (globox_error_catch(globox))
 						{
@@ -1032,7 +1030,7 @@ void globox_platform_events_handle(
 		{
 			globox->globox_width = resize->width;
 			globox->globox_height = resize->height;
-			reserve(globox);
+			platform->globox_x11_reserve(globox);
 			globox->globox_redraw = true;
 		}
 
@@ -1049,7 +1047,7 @@ void globox_platform_events_handle(
 
 	if (i > 0)
 	{
-		expose(globox, i);
+		platform->globox_x11_expose(globox, i);
 	}
 
 	handle_interactive_mode(globox);

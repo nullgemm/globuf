@@ -20,9 +20,7 @@ extern unsigned char iconpix_len;
 void render(struct globox* globox)
 {
 	globox_platform_events_handle(
-		globox,
-		globox_context_egl_expose,
-		globox_context_egl_reserve);
+		globox);
 
 	if (globox_error_catch(globox))
 	{

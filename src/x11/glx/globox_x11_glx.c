@@ -36,6 +36,16 @@ int glx_extension_support(const char *list, const char *extension)
 	return 0;
 }
 
+void expose(struct globox* globox, int len)
+{
+
+}
+
+void reserve(struct globox* globox)
+{
+
+}
+
 void globox_context_glx_init(
 	struct globox* globox,
 	int version_major,
@@ -47,6 +57,9 @@ void globox_context_glx_init(
 
 	context->globox_glx_version_major = version_major;
 	context->globox_glx_version_minor = version_minor;
+
+	platform->globox_x11_reserve = reserve;
+	platform->globox_x11_expose = expose;
 
 	// get available framebuffer configurations
 	int glx_config_attrib[] =
@@ -338,16 +351,6 @@ void globox_context_glx_copy(
 }
 
 void globox_context_glx_shrink(struct globox* globox)
-{
-
-}
-
-void globox_context_glx_reserve(struct globox* globox)
-{
-
-}
-
-void globox_context_glx_expose(struct globox* globox, int len)
 {
 
 }

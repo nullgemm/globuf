@@ -25,6 +25,9 @@
 #define GLOBOX_CONST_MAX_X11_EVENTS 1000
 #define GLOBOX_CONST_MAX_X11_EXPOSE_QUEUE 1000
 
+// forward-declaration
+struct globox;
+
 // atoms
 enum globox_x11_atom_types
 {
@@ -61,6 +64,10 @@ struct globox_platform
 #elif defined(GLOBOX_CONTEXT_GLX)
 	struct globox_x11_glx globox_x11_glx;
 #endif
+
+	// function pointers
+	void (*globox_x11_expose)(struct globox* globox, int len);
+	void (*globox_x11_reserve)(struct globox* globox);
 
 	// setup
 	xcb_connection_t* globox_x11_conn;

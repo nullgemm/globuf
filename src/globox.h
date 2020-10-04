@@ -123,9 +123,7 @@ void globox_platform_init(
 	bool blurred);
 
 void globox_platform_events_handle(
-	struct globox* globox,
-	void (*expose)(struct globox*, int),
-	void (*redraw)(struct globox*));
+	struct globox* globox);
 
 void globox_platform_set_icon(
 	struct globox* globox,
@@ -145,8 +143,6 @@ void globox_platform_set_state(
 void globox_context_software_free(struct globox* globox);
 void globox_context_software_create(struct globox* globox);
 void globox_context_software_shrink(struct globox* globox);
-void globox_context_software_reserve(struct globox* globox);
-void globox_context_software_expose(struct globox* globox, int len);
 void globox_context_software_init(
 	struct globox* globox,
 	int version_major,
@@ -162,8 +158,6 @@ void globox_context_software_copy(
 void globox_context_egl_free(struct globox* globox);
 void globox_context_egl_create(struct globox* globox);
 void globox_context_egl_shrink(struct globox* globox);
-void globox_context_egl_reserve(struct globox* globox);
-void globox_context_egl_expose(struct globox* globox, int len);
 void globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
@@ -178,8 +172,6 @@ void globox_context_egl_copy(
 void globox_context_glx_free(struct globox* globox);
 void globox_context_glx_create(struct globox* globox);
 void globox_context_glx_shrink(struct globox* globox);
-void globox_context_glx_reserve(struct globox* globox);
-void globox_context_glx_expose(struct globox* globox, int len);
 void globox_context_glx_init(
 	struct globox* globox,
 	int version_major,

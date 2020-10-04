@@ -3,6 +3,16 @@
 #include "x11/globox_x11.h"
 #include <EGL/egl.h>
 
+static void expose(struct globox* globox, int len)
+{
+
+}
+
+static void reserve(struct globox* globox)
+{
+
+}
+
 void globox_context_egl_init(
 	struct globox* globox,
 	int version_major,
@@ -11,6 +21,9 @@ void globox_context_egl_init(
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_x11_egl* context = &(platform->globox_x11_egl);
+
+	platform->globox_x11_reserve = reserve;
+	platform->globox_x11_expose = expose;
 
 	// get display
 	context->globox_egl_display =
@@ -272,16 +285,6 @@ void globox_context_egl_copy(
 	}
 
 	globox->globox_redraw = false;
-}
-
-void globox_context_egl_reserve(struct globox* globox)
-{
-
-}
-
-void globox_context_egl_expose(struct globox* globox, int len)
-{
-
 }
 
 // getters

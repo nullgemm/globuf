@@ -226,38 +226,7 @@ static inline void visual_transparent(struct globox* globox)
 	return;
 }
 
-void globox_context_software_init(
-	struct globox* globox,
-	int version_major,
-	int version_minor)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_x11_software* context = &(platform->globox_x11_software);
-
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
-
-	if (globox->globox_transparent == true)
-	{
-		visual_transparent(globox);
-
-		if (globox_error_catch(globox)
-			&& (globox_error_output_code(globox) == GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE))
-		{
-			globox_error_reset(globox);
-			visual_opaque(globox);
-		}
-	}
-	else
-	{
-		visual_opaque(globox);
-	}
-
-	return;
-}
-
-void shm_create(struct globox* globox)
+static void shm_create(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -329,6 +298,235 @@ void shm_create(struct globox* globox)
 
 	platform->globox_platform_argb =
 		(uint32_t*) context->globox_software_shm.shmaddr;
+}
+
+static void expose(struct globox* globox, int len)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	int i = 0;
+
+	uint32_t x_old = 0xFFFFFFFF;
+	uint32_t y_old = 0xFFFFFFFF;
+	uint32_t width_old = 0;
+	uint32_t height_old = 0;
+
+	uint32_t x;
+	uint32_t y;
+	uint32_t width;
+	uint32_t height;
+
+	while (i < len)
+	{
+		x = platform->globox_x11_expose_queue[(4 * i) + 0];
+		y = platform->globox_x11_expose_queue[(4 * i) + 1];
+		width = platform->globox_x11_expose_queue[(4 * i) + 2];
+		height = platform->globox_x11_expose_queue[(4 * i) + 3];
+
+		if ((x <= x_old) && (y <= y_old) && (width >= (x_old - x + width_old)) && (height >= (y_old - y + height_old)))
+		{
+			x_old = x;
+			y_old = y;
+			width_old = width;
+			height_old = height;
+
+			++i;
+
+			continue;
+		}
+
+		globox_context_software_copy(
+			globox,
+			x_old,
+			y_old,
+			width_old,
+			height_old);
+
+		x_old = x;
+		y_old = y;
+		width_old = width;
+		height_old = height;
+
+		if (globox_error_catch(globox))
+		{
+			return;
+		}
+
+		++i;
+	}
+
+	globox_context_software_copy(
+		globox,
+		x_old,
+		y_old,
+		width_old,
+		height_old);
+}
+
+static void reserve(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
+
+	uint32_t buf_width = context->globox_software_buffer_width;
+	uint32_t buf_height = context->globox_software_buffer_height;
+
+	if (context->globox_software_shared_pixmaps == false)
+	{
+		if ((buf_width * buf_height) < (globox->globox_width * globox->globox_height))
+		{
+			xcb_generic_error_t* error;
+
+			// screen info
+			xcb_randr_get_screen_info_cookie_t screen_cookie;
+			xcb_randr_get_screen_info_reply_t* screen_reply;
+
+			screen_cookie =
+				xcb_randr_get_screen_info(
+					platform->globox_x11_conn,
+					platform->globox_x11_win);
+
+			screen_reply =
+				xcb_randr_get_screen_info_reply(
+					platform->globox_x11_conn,
+					screen_cookie,
+					&error);
+
+			if (error != NULL)
+			{
+				free(screen_reply);
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_X11_SCREEN_INFO);
+				return;
+			}
+
+			xcb_window_t root = screen_reply->root;
+			free(screen_reply);
+
+			// window geometry info
+			xcb_get_geometry_cookie_t win_cookie;
+			xcb_get_geometry_reply_t* win_reply;
+
+			win_cookie =
+				xcb_get_geometry(
+					platform->globox_x11_conn,
+					root);
+
+			win_reply =
+				xcb_get_geometry_reply(
+					platform->globox_x11_conn,
+					win_cookie,
+					&error);
+
+			if (error != NULL)
+			{
+				free(win_reply);
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_X11_WIN_INFO);
+				return;
+			}
+
+			context->globox_software_buffer_width =
+				(1 + (context->globox_software_buffer_width / win_reply->width))
+					* win_reply->width;
+
+			context->globox_software_buffer_height =
+				(1 + (context->globox_software_buffer_height / win_reply->height))
+					* win_reply->height;
+
+			free(win_reply);
+			free(platform->globox_platform_argb);
+
+			platform->globox_platform_argb =
+				malloc(
+					4
+					* context->globox_software_buffer_width
+					* context->globox_software_buffer_height);
+		}
+	}
+	else
+	{
+		if ((buf_width * buf_height) != (globox->globox_width * globox->globox_height))
+		{
+			xcb_void_cookie_t cookie_shm;
+			xcb_generic_error_t* error_shm;
+
+			cookie_shm =
+				xcb_shm_detach_checked(
+					platform->globox_x11_conn,
+					context->globox_software_shm.shmseg);
+
+			error_shm =
+				xcb_request_check(
+					platform->globox_x11_conn,
+					cookie_shm);
+
+			if (error_shm != NULL)
+			{
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_X11_SHM_DETACH);
+				return;
+			}
+
+			int error_shmdt =
+				shmdt(
+					context->globox_software_shm.shmaddr);
+
+			if (error_shmdt == -1)
+			{
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_X11_SHMDT);
+				return;
+			}
+
+			shm_create(globox);
+		}
+
+		context->globox_software_buffer_width = globox->globox_width;
+		context->globox_software_buffer_height = globox->globox_height;
+	}
+
+	context->globox_software_pixmap_update = true;
+}
+
+void globox_context_software_init(
+	struct globox* globox,
+	int version_major,
+	int version_minor)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_x11_software* context = &(platform->globox_x11_software);
+
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
+
+	platform->globox_x11_reserve = reserve;
+	platform->globox_x11_expose = expose;
+
+	if (globox->globox_transparent == true)
+	{
+		visual_transparent(globox);
+
+		if (globox_error_catch(globox)
+			&& (globox_error_output_code(globox) == GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE))
+		{
+			globox_error_reset(globox);
+			visual_opaque(globox);
+		}
+	}
+	else
+	{
+		visual_opaque(globox);
+	}
+
+	return;
 }
 
 void globox_context_software_create(struct globox* globox)
@@ -843,201 +1041,6 @@ void globox_context_software_copy(
 	globox->globox_redraw = false;
 
 	globox_platform_commit(globox);
-}
-
-void globox_context_software_reserve(struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_x11_software* context = &(platform->globox_x11_software);
-
-	uint32_t buf_width = context->globox_software_buffer_width;
-	uint32_t buf_height = context->globox_software_buffer_height;
-
-	if (context->globox_software_shared_pixmaps == false)
-	{
-		if ((buf_width * buf_height) < (globox->globox_width * globox->globox_height))
-		{
-			xcb_generic_error_t* error;
-
-			// screen info
-			xcb_randr_get_screen_info_cookie_t screen_cookie;
-			xcb_randr_get_screen_info_reply_t* screen_reply;
-
-			screen_cookie =
-				xcb_randr_get_screen_info(
-					platform->globox_x11_conn,
-					platform->globox_x11_win);
-
-			screen_reply =
-				xcb_randr_get_screen_info_reply(
-					platform->globox_x11_conn,
-					screen_cookie,
-					&error);
-
-			if (error != NULL)
-			{
-				free(screen_reply);
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_SCREEN_INFO);
-				return;
-			}
-
-			xcb_window_t root = screen_reply->root;
-			free(screen_reply);
-
-			// window geometry info
-			xcb_get_geometry_cookie_t win_cookie;
-			xcb_get_geometry_reply_t* win_reply;
-
-			win_cookie =
-				xcb_get_geometry(
-					platform->globox_x11_conn,
-					root);
-
-			win_reply =
-				xcb_get_geometry_reply(
-					platform->globox_x11_conn,
-					win_cookie,
-					&error);
-
-			if (error != NULL)
-			{
-				free(win_reply);
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_WIN_INFO);
-				return;
-			}
-
-			context->globox_software_buffer_width =
-				(1 + (context->globox_software_buffer_width / win_reply->width))
-					* win_reply->width;
-
-			context->globox_software_buffer_height =
-				(1 + (context->globox_software_buffer_height / win_reply->height))
-					* win_reply->height;
-
-			free(win_reply);
-			free(platform->globox_platform_argb);
-
-			platform->globox_platform_argb =
-				malloc(
-					4
-					* context->globox_software_buffer_width
-					* context->globox_software_buffer_height);
-		}
-	}
-	else
-	{
-		if ((buf_width * buf_height) != (globox->globox_width * globox->globox_height))
-		{
-			xcb_void_cookie_t cookie_shm;
-			xcb_generic_error_t* error_shm;
-
-			cookie_shm =
-				xcb_shm_detach_checked(
-					platform->globox_x11_conn,
-					context->globox_software_shm.shmseg);
-
-			error_shm =
-				xcb_request_check(
-					platform->globox_x11_conn,
-					cookie_shm);
-
-			if (error_shm != NULL)
-			{
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_SHM_DETACH);
-				return;
-			}
-
-			int error_shmdt =
-				shmdt(
-					context->globox_software_shm.shmaddr);
-
-			if (error_shmdt == -1)
-			{
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_SHMDT);
-				return;
-			}
-
-			shm_create(globox);
-		}
-
-		context->globox_software_buffer_width = globox->globox_width;
-		context->globox_software_buffer_height = globox->globox_height;
-	}
-
-	context->globox_software_pixmap_update = true;
-}
-
-void globox_context_software_expose(struct globox* globox, int len)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
-	int i = 0;
-
-	uint32_t x_old = 0xFFFFFFFF;
-	uint32_t y_old = 0xFFFFFFFF;
-	uint32_t width_old = 0;
-	uint32_t height_old = 0;
-
-	uint32_t x;
-	uint32_t y;
-	uint32_t width;
-	uint32_t height;
-
-	while (i < len)
-	{
-		x = platform->globox_x11_expose_queue[(4 * i) + 0];
-		y = platform->globox_x11_expose_queue[(4 * i) + 1];
-		width = platform->globox_x11_expose_queue[(4 * i) + 2];
-		height = platform->globox_x11_expose_queue[(4 * i) + 3];
-
-		if ((x <= x_old) && (y <= y_old) && (width >= (x_old - x + width_old)) && (height >= (y_old - y + height_old)))
-		{
-			x_old = x;
-			y_old = y;
-			width_old = width;
-			height_old = height;
-
-			++i;
-
-			continue;
-		}
-
-		globox_context_software_copy(
-			globox,
-			x_old,
-			y_old,
-			width_old,
-			height_old);
-
-		x_old = x;
-		y_old = y;
-		width_old = width;
-		height_old = height;
-
-		if (globox_error_catch(globox))
-		{
-			return;
-		}
-
-		++i;
-	}
-
-	globox_context_software_copy(
-		globox,
-		x_old,
-		y_old,
-		width_old,
-		height_old);
 }
 
 // getters
