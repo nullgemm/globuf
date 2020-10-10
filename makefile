@@ -95,6 +95,8 @@ ifeq ($(CONTEXT), EGL)
 FLAGS+= -DGLOBOX_CONTEXT_EGL
 SRCS+= example/egl.c
 SRCS+= $(SRCD)/wayland/egl/globox_wayland_egl.c
+SRCS+= $(SRCD)/wayland/egl/globox_wayland_egl_helpers.c
+LINK+= -lGL
 LINK+= `pkg-config wayland-client wayland-egl --cflags --libs`
 LINK+= `pkg-config egl glesv2 --cflags --libs`
 endif

@@ -18,6 +18,10 @@
 	#include "osx/globox_osx.h"
 #endif
 
+#if defined(GLOBOX_CONTEXT_EGL)
+	#include <EGL/egl.h>
+#endif
+
 // helper structures
 enum globox_state
 {
