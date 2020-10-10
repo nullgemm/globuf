@@ -166,8 +166,22 @@ void callback_registry_global(
 				GLOBOX_ERROR_WAYLAND_LISTENER);
 		}
 	}
+	else if ((strcmp(interface, wl_seat_interface.name) == 0)
+		&& (globox->globox_event_callback != NULL))
+	{
+		platform->globox_wayland_seat =
+			wl_registry_bind(
+				wl_registry,
+				name,
+				&wl_seat_interface,
+				7);
+
+		// add listener
+		globox->globox_event_callback(
+			platform->globox_wayland_seat,
+			globox->globox_event_callback_data);
+	}
 #if 0
-	else if (strcmp(interface, wl_seat_interface.name) == 0)
 	else if (strcmp(interface, zwp_relative_pointer_manager_v1_interface.name) == 0)
 	else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0)
 	else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0)

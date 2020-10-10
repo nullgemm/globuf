@@ -37,6 +37,8 @@ void globox_platform_init(
 	platform->globox_wayland_screen_width = 1920;
 	platform->globox_wayland_screen_height = 1080;
 
+	platform->globox_wayland_saved_serial = 0;
+
 	// base
 	platform->globox_wayland_xdg_wm_base_listener.ping =
 		callback_xdg_wm_base_ping;
@@ -278,54 +280,104 @@ void globox_platform_events_poll(struct globox* globox)
 
 void globox_platform_events_wait(struct globox* globox)
 {
-	// not needed
-}
-
+	// TODO
 #if 0
-static void query_pointer(struct globox* globox)
-{
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
-	xcb_query_pointer_cookie_t cookie =
-		xcb_query_pointer(
-			platform->globox_x11_conn,
-			platform->globox_x11_win);
+	int error_epoll =
+		epoll_wait(
+			platform->globox_wayland_epoll,
+			platform->globox_wayland_epoll_event,
+			GLOBOX_CONST_MAX_WAYLAND_EVENTS,
+			-1);
 
-	xcb_generic_error_t* error;
-
-	xcb_query_pointer_reply_t* reply =
-		xcb_query_pointer_reply(
-			platform->globox_x11_conn,
-			cookie,
-			&error);
-
-	if (error != NULL)
+	if (error_epoll == -1)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_X11_INTERACTIVE);
+			GLOBOX_ERROR_WAYLAND_EPOLL_WAIT);
 		return;
 	}
-
-	platform->globox_x11_interactive_x = reply->root_x;
-	platform->globox_x11_interactive_y = reply->root_y;
-
-	free(reply);
-}
 #endif
+}
 
-#if 0
+// TODO not tested
 void globox_platform_interactive_mode(struct globox* globox, enum globox_interactive_mode mode)
 {
+	struct globox_platform* platform = &(globox->globox_platform);
+
 	if ((mode != GLOBOX_INTERACTIVE_STOP)
 		&& (globox->globox_interactive_mode != mode))
 	{
-		query_pointer(globox);
+		uint32_t edge;
+		uint32_t serial = platform->globox_wayland_saved_serial;
 
-		if (globox_error_catch(globox))
+		switch (mode)
 		{
-			return;
+			case GLOBOX_INTERACTIVE_MOVE:
+			{
+				xdg_toplevel_move(
+					platform->globox_wayland_xdg_toplevel,
+					platform->globox_wayland_seat,
+					serial);
+
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_N:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_NW:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_W:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_SW:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_S:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_SE:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_E:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
+				break;
+			}
+			case GLOBOX_INTERACTIVE_NE:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
+				break;
+			}
+			default:
+			{
+				edge = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+				break;
+			}
+		}
+
+		if (edge != XDG_TOPLEVEL_RESIZE_EDGE_NONE)
+		{
+			xdg_toplevel_resize(
+				platform->globox_wayland_xdg_toplevel,
+				platform->globox_wayland_seat,
+				serial,
+				edge);
 		}
 
 		globox->globox_interactive_mode = mode;
@@ -335,188 +387,6 @@ void globox_platform_interactive_mode(struct globox* globox, enum globox_interac
 		globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 	}
 }
-
-static void handle_interactive_mode(struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
-	if (globox->globox_interactive_mode == GLOBOX_INTERACTIVE_STOP)
-	{
-		return;
-	}
-
-	int16_t old_x = platform->globox_x11_interactive_x;
-	int16_t old_y = platform->globox_x11_interactive_y;
-
-	xcb_generic_error_t* error;
-	query_pointer(globox);
-
-	if (globox_error_catch(globox))
-	{
-		return;
-	}
-
-	// get window position
-	xcb_get_geometry_cookie_t cookie_geom =
-		xcb_get_geometry(
-			platform->globox_x11_conn,
-			platform->globox_x11_win);
-
-	xcb_get_geometry_reply_t* reply_geom =
-		xcb_get_geometry_reply(
-			platform->globox_x11_conn,
-			cookie_geom,
-			&error);
-
-	if (error != NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_INTERACTIVE);
-		return;
-	}
-
-	// translate position in screen coordinates
-	xcb_translate_coordinates_cookie_t cookie_translate =
-		xcb_translate_coordinates(
-			platform->globox_x11_conn,
-			platform->globox_x11_win,
-			platform->globox_x11_root_win,
-			reply_geom->x,
-			reply_geom->y);
-
-	xcb_translate_coordinates_reply_t* reply_translate =
-		xcb_translate_coordinates_reply(
-			platform->globox_x11_conn,
-			cookie_translate,
-			&error);
-
-	if (error != NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_INTERACTIVE);
-		return;
-	}
-
-	// compute window changes
-	uint32_t values[4];
-
-	switch (globox->globox_interactive_mode)
-	{
-		case GLOBOX_INTERACTIVE_MOVE:
-		{
-			values[0] = reply_translate->dst_x + platform->globox_x11_interactive_x - old_x;
-			values[1] = reply_translate->dst_y + platform->globox_x11_interactive_y - old_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_N:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y + platform->globox_x11_interactive_y - old_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height + old_y - platform->globox_x11_interactive_y;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_NW:
-		{
-			values[0] = reply_translate->dst_x + platform->globox_x11_interactive_x - old_x;
-			values[1] = reply_translate->dst_y + platform->globox_x11_interactive_y - old_y;
-			values[2] = reply_geom->width + old_x - platform->globox_x11_interactive_x;
-			values[3] = reply_geom->height + old_y - platform->globox_x11_interactive_y;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_W:
-		{
-			values[0] = reply_translate->dst_x + platform->globox_x11_interactive_x - old_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + old_x - platform->globox_x11_interactive_x;
-			values[3] = reply_geom->height;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_SW:
-		{
-			values[0] = reply_translate->dst_x + platform->globox_x11_interactive_x - old_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + old_x - platform->globox_x11_interactive_x;
-			values[3] = reply_geom->height + platform->globox_x11_interactive_y - old_y ;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_S:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height + platform->globox_x11_interactive_y - old_y;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_SE:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->globox_x11_interactive_x - old_x;
-			values[3] = reply_geom->height + platform->globox_x11_interactive_y - old_y;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_E:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->globox_x11_interactive_x - old_x;
-			values[3] = reply_geom->height;
-			break;
-		}
-		case GLOBOX_INTERACTIVE_NE:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y + platform->globox_x11_interactive_y - old_y;
-			values[2] = reply_geom->width + platform->globox_x11_interactive_x - old_x;
-			values[3] = reply_geom->height + old_y - platform->globox_x11_interactive_y;
-			break;
-		}
-		default:
-		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height;
-			break;
-		}
-	}
-
-	free(reply_translate);
-	free(reply_geom);
-
-	// set window position
-	xcb_void_cookie_t cookie_configure =
-		xcb_configure_window_checked(
-			platform->globox_x11_conn,
-			platform->globox_x11_win,
-			XCB_CONFIG_WINDOW_X
-			| XCB_CONFIG_WINDOW_Y
-			| XCB_CONFIG_WINDOW_WIDTH
-			| XCB_CONFIG_WINDOW_HEIGHT,
-			values);
-
-	error =
-		xcb_request_check(
-			platform->globox_x11_conn,
-			cookie_configure);
-
-	if (error != NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_X11_INTERACTIVE);
-			return;
-	}
-
-	xcb_flush(platform->globox_x11_conn);
-}
-#endif
 
 void globox_platform_events_handle(
 	struct globox* globox)
@@ -657,6 +527,15 @@ void globox_platform_set_state(
 	}
 
 	globox->globox_state = state;
+}
+
+// setters
+
+void globox_wayland_save_serial(struct globox* globox, uint32_t serial)
+{
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	platform->globox_wayland_saved_serial = serial;
 }
 
 // getters

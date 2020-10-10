@@ -70,6 +70,7 @@ struct globox_platform
 	struct wl_shm* globox_wayland_shm;
 	struct wl_compositor* globox_wayland_compositor;
 	struct wl_output* globox_wayland_output;
+	struct wl_seat* globox_wayland_seat;
 
 	struct xdg_wm_base* globox_wayland_xdg_wm_base;
 	struct xdg_toplevel* globox_wayland_xdg_toplevel;
@@ -81,6 +82,8 @@ struct globox_platform
 	struct xdg_wm_base_listener globox_wayland_xdg_wm_base_listener;
 	struct xdg_toplevel_listener globox_wayland_xdg_toplevel_listener;
 	struct xdg_surface_listener globox_wayland_xdg_surface_listener;
+
+	uint32_t globox_wayland_saved_serial;
 };
 
 enum globox_error
@@ -126,6 +129,7 @@ enum globox_error
 	GLOBOX_ERROR_WAYLAND_EGL_FAIL,
 	GLOBOX_ERROR_WAYLAND_EPOLL_CREATE,
 	GLOBOX_ERROR_WAYLAND_EPOLL_CTL,
+	GLOBOX_ERROR_WAYLAND_EPOLL_WAIT,
 	GLOBOX_ERROR_WAYLAND_DISPLAY,
 	GLOBOX_ERROR_WAYLAND_ROUNDTRIP,
 	GLOBOX_ERROR_WAYLAND_DISPATCH,

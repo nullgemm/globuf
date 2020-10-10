@@ -207,6 +207,11 @@ void* globox_get_event_callback_data(struct globox* globox);
 // here is what is returned: void (*globox_event_callback)(void* event, void* data)
 void (*globox_get_event_callback(struct globox* globox))(void* event, void* data);
 
+// platform setters
+#if defined(GLOBOX_PLATFORM_WAYLAND)
+void globox_wayland_save_serial(struct globox* globox, uint32_t serial);
+#endif
+
 // platform getters 
 int globox_platform_get_event_handle(struct globox* globox);
 uint32_t* globox_platform_get_argb(struct globox* globox);
