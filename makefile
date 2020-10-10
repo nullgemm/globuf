@@ -37,9 +37,10 @@ SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
-PLATFORM ?= X11
-CONTEXT ?= GLX
+PLATFORM ?= WAYLAND
+CONTEXT ?= SOFTWARE
 
+# X11
 ifeq ($(PLATFORM), X11)
 SRCS+= $(SRCD)/x11/globox_x11.c
 LINK+= -lxcb
@@ -73,12 +74,63 @@ LINK+= -lXrender
 endif
 endif
 
+# WAYLAND
+ifeq ($(PLATFORM), WAYLAND)
+SRCS+= $(SRCD)/wayland/globox_wayland.c
+SRCS+= $(SRCD)/wayland/globox_wayland_callbacks.c
+SRCS+= $(INCD)/xdg-shell-protocol.c
+SRCS+= $(INCD)/zwp-relative-pointer-protocol.c
+SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
+LINK+= -lwayland-client -lrt
+FLAGS+= -DGLOBOX_PLATFORM_WAYLAND
+
+ifeq ($(CONTEXT), SOFTWARE)
+FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+SRCS+= example/software.c
+SRCS+= $(SRCD)/wayland/software/globox_wayland_software.c
+SRCS+= $(SRCD)/wayland/software/globox_wayland_software_helpers.c
+endif
+
+ifeq ($(CONTEXT), EGL)
+FLAGS+= -DGLOBOX_CONTEXT_EGL
+SRCS+= example/egl.c
+SRCS+= $(SRCD)/wayland/egl/globox_wayland_egl.c
+LINK+= `pkg-config wayland-client wayland-egl --cflags --libs`
+LINK+= `pkg-config egl glesv2 --cflags --libs`
+endif
+endif
+
 # object files list
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
 
 # bin
 .PHONY: final
 final: $(BIND)/$(NAME)
+
+## wayland protocols
+ifeq ($(PLATFORM), WAYLAND)
+$(INCD):
+	@echo "generating wayland protocol extensions source files"
+	@mkdir $@
+	@wayland-scanner private-code \
+	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+	> $@/xdg-shell-protocol.c
+	@wayland-scanner client-header \
+	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+	> $@/xdg-shell-client-protocol.h
+	@wayland-scanner private-code \
+	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
+	> $@/zwp-pointer-constraints-protocol.c
+	@wayland-scanner client-header \
+	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
+	> $@/zwp-pointer-constraints-protocol.h
+	@wayland-scanner private-code \
+	< /usr/share/wayland-protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml \
+	> $@/zwp-relative-pointer-protocol.c
+	@wayland-scanner client-header \
+	< /usr/share/wayland-protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml \
+	> $@/zwp-relative-pointer-protocol.h
+endif
 
 ## icon
 $(RESD)/icon/iconpix.bin:
