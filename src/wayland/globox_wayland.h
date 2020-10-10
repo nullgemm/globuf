@@ -10,6 +10,7 @@
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include "xdg-decoration-client-protocol.h"
+#include "kde-blur-client-protocol.h"
 #include "zwp-relative-pointer-protocol.h"
 #include "zwp-pointer-constraints-protocol.h"
 
@@ -87,6 +88,9 @@ struct globox_platform
 	struct zxdg_decoration_manager_v1* globox_wayland_xdg_decoration_manager;
 	struct zxdg_toplevel_decoration_v1* globox_wayland_xdg_decoration;
 	struct zxdg_toplevel_decoration_v1_listener globox_wayland_xdg_decoration_listener;
+
+	struct org_kde_kwin_blur_manager* globox_wayland_kde_blur_manager;
+	struct org_kde_kwin_blur* globox_wayland_kde_blur;
 
 	uint32_t globox_wayland_saved_serial;
 };

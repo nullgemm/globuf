@@ -10,6 +10,7 @@
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include "xdg-decoration-client-protocol.h"
+#include "kde-blur-client-protocol.h"
 #include "zwp-relative-pointer-protocol.h"
 #include "zwp-pointer-constraints-protocol.h"
 
@@ -271,6 +272,26 @@ void globox_platform_hooks(struct globox* globox)
 	globox_platform_set_title(globox, globox->globox_title);
 	globox_platform_set_state(globox, globox->globox_state);
 
+	// blur
+	if (globox->globox_blurred == true)
+	{
+		platform->globox_wayland_kde_blur =
+			org_kde_kwin_blur_manager_create(
+				platform->globox_wayland_kde_blur_manager,
+				platform->globox_wayland_surface);
+
+		if (platform->globox_wayland_kde_blur == NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+
+		org_kde_kwin_blur_commit(
+			platform->globox_wayland_kde_blur);
+	}
+
 	// epoll initialization
 	platform->globox_wayland_epoll = epoll_create(1);
 
@@ -449,11 +470,17 @@ void globox_platform_events_handle(
 	// not needed
 }
 
+// TODO initialize destroyed variables to NULL and check if destruction is needed here!
 void globox_platform_free(struct globox* globox)
 {
 	struct globox_platform* platform = &(globox->globox_platform);
 
+	free(platform->globox_wayland_kde_blur_manager);
+	org_kde_kwin_blur_destroy(platform->globox_wayland_kde_blur);
+
 	free(platform->globox_wayland_xdg_decoration);
+	zxdg_decoration_manager_v1_destroy(platform->globox_wayland_xdg_decoration_manager);
+
 	free(platform->globox_wayland_output);
 	free(platform->globox_wayland_xdg_wm_base);
 	free(platform->globox_wayland_compositor);
@@ -461,7 +488,6 @@ void globox_platform_free(struct globox* globox)
 
 	close(platform->globox_wayland_epoll);
 
-	zxdg_decoration_manager_v1_destroy(platform->globox_wayland_xdg_decoration_manager);
 	xdg_toplevel_destroy(platform->globox_wayland_xdg_toplevel);
 	xdg_surface_destroy(platform->globox_wayland_xdg_surface);
 	wl_surface_destroy(platform->globox_wayland_surface);

@@ -123,6 +123,24 @@ void callback_registry_global(
 			return;
 		}
 	}
+	else if ((strcmp(interface, org_kde_kwin_blur_manager_interface.name) == 0)
+		&& (globox->globox_blurred == true))
+	{
+		platform->globox_wayland_kde_blur_manager =
+			wl_registry_bind(
+				wl_registry,
+				name,
+				&org_kde_kwin_blur_manager_interface,
+				1);
+
+		if (platform->globox_wayland_kde_blur_manager == NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+	}
 	else if (strcmp(interface, xdg_wm_base_interface.name) == 0)
 	{
 		platform->globox_wayland_xdg_wm_base =

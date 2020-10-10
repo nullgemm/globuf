@@ -80,6 +80,7 @@ SRCS+= $(SRCD)/wayland/globox_wayland.c
 SRCS+= $(SRCD)/wayland/globox_wayland_callbacks.c
 SRCS+= $(INCD)/xdg-shell-protocol.c
 SRCS+= $(INCD)/xdg-decoration-protocol.c
+SRCS+= $(INCD)/kde-blur-protocol.c
 SRCS+= $(INCD)/zwp-relative-pointer-protocol.c
 SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
 LINK+= -lwayland-client -lrt
@@ -127,6 +128,12 @@ $(INCD):
 	@wayland-scanner client-header \
 	< /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml \
 	> $@/xdg-decoration-client-protocol.h
+	@wayland-scanner private-code \
+	< /usr/share/plasma-wayland-protocols/blur.xml \
+	> $@/kde-blur-protocol.c
+	@wayland-scanner client-header \
+	< /usr/share/plasma-wayland-protocols/blur.xml \
+	> $@/kde-blur-client-protocol.h
 	@wayland-scanner private-code \
 	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
 	> $@/zwp-pointer-constraints-protocol.c
