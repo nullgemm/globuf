@@ -38,7 +38,7 @@ SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
 PLATFORM ?= WAYLAND
-CONTEXT ?= EGL
+CONTEXT ?= SOFTWARE
 
 # X11
 ifeq ($(PLATFORM), X11)
@@ -79,6 +79,7 @@ ifeq ($(PLATFORM), WAYLAND)
 SRCS+= $(SRCD)/wayland/globox_wayland.c
 SRCS+= $(SRCD)/wayland/globox_wayland_callbacks.c
 SRCS+= $(INCD)/xdg-shell-protocol.c
+SRCS+= $(INCD)/xdg-decoration-protocol.c
 SRCS+= $(INCD)/zwp-relative-pointer-protocol.c
 SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
 LINK+= -lwayland-client -lrt
@@ -120,6 +121,12 @@ $(INCD):
 	@wayland-scanner client-header \
 	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
 	> $@/xdg-shell-client-protocol.h
+	@wayland-scanner private-code \
+	< /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml \
+	> $@/xdg-decoration-protocol.c
+	@wayland-scanner client-header \
+	< /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml \
+	> $@/xdg-decoration-client-protocol.h
 	@wayland-scanner private-code \
 	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
 	> $@/zwp-pointer-constraints-protocol.c
