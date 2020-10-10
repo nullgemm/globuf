@@ -556,7 +556,7 @@ void globox_platform_set_title(
 
 	xdg_toplevel_set_title(
 		platform->globox_wayland_xdg_toplevel,
-		title);
+		tmp);
 }
 
 void globox_platform_set_state(
