@@ -208,7 +208,52 @@ void globox_context_egl_shrink(struct globox* globox)
 
 void globox_context_egl_free(struct globox* globox)
 {
-	// TODO
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
+
+	EGLBoolean status_egl;
+
+	status_egl =
+		eglDestroySurface(
+			context->globox_egl_display,
+			context->globox_egl_surface);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_EGL_FAIL);
+		return;
+	}
+
+	status_egl =
+		eglDestroyContext(
+			context->globox_egl_display,
+			context->globox_egl_context);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_EGL_FAIL);
+		return;
+	}
+
+	status_egl =
+		eglTerminate(
+			context->globox_egl_display);
+
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_EGL_FAIL);
+		return;
+	}
+
+	free(context->globox_egl_window);
+
+	free(context->globox_egl_config);
 
 	return;
 }

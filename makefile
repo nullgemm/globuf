@@ -38,7 +38,7 @@ SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
 PLATFORM ?= WAYLAND
-CONTEXT ?= SOFTWARE
+CONTEXT ?= EGL
 
 # X11
 ifeq ($(PLATFORM), X11)
