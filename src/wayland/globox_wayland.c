@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <unistd.h>
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include "zwp-relative-pointer-protocol.h"
@@ -525,7 +526,21 @@ void globox_platform_events_handle(
 
 void globox_platform_free(struct globox* globox)
 {
-	// TODO
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	free(platform->globox_wayland_output);
+	free(platform->globox_wayland_xdg_wm_base);
+	free(platform->globox_wayland_compositor);
+	free(platform->globox_wayland_shm);
+
+	close(platform->globox_wayland_epoll);
+
+	xdg_toplevel_destroy(platform->globox_wayland_xdg_toplevel);
+	xdg_surface_destroy(platform->globox_wayland_xdg_surface);
+	wl_surface_destroy(platform->globox_wayland_surface);
+
+	wl_registry_destroy(platform->globox_wayland_registry);
+	wl_display_disconnect(platform->globox_wayland_display);
 }
 
 void globox_platform_set_icon(
