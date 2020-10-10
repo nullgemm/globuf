@@ -26,9 +26,6 @@ void globox_context_egl_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
 
-	// extremely important for the window to work!
-	globox->globox_redraw = true;
-
 	// set buffer real size
 	context->globox_egl_buffer_width = globox->globox_width;
 	context->globox_egl_buffer_height = globox->globox_height;

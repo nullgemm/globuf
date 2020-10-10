@@ -21,6 +21,7 @@ void globox_platform_init(
 	bool frameless,
 	bool blurred)
 {
+	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;

@@ -23,9 +23,6 @@ void globox_context_software_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	// extremely important for the window to work!
-	globox->globox_redraw = false;
-
 	// set buffer real size
 	context->globox_software_buffer_width = globox->globox_width;
 	context->globox_software_buffer_height = globox->globox_height;
@@ -67,14 +64,6 @@ void globox_context_software_init(
 		return;
 	}
 
-	// create shm, allocate buffer
-	globox_software_callback_allocate(globox);
-
-	if (globox_error_catch(globox))
-	{
-		return;
-	}
-
 	// add surface listener
 	error =
 		xdg_surface_add_listener(
@@ -103,28 +92,6 @@ void globox_context_software_init(
 		return;
 	}
 
-	// commit and dispatch
-	globox_platform_commit(globox);
-
-	error =
-		wl_display_dispatch(
-			platform->globox_wayland_display);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_DISPATCH);
-	}
-
-	// copy
-	globox_context_software_copy(
-		globox,
-		0,
-		0,
-		context->globox_software_buffer_width,
-		context->globox_software_buffer_height);
-
 	// add toplevel listener
 	error =
 		xdg_toplevel_add_listener(
@@ -139,6 +106,28 @@ void globox_context_software_init(
 			GLOBOX_ERROR_WAYLAND_LISTENER);
 
 		return;
+	}
+
+	// create shm, allocate buffer
+	globox_software_callback_allocate(globox);
+
+	if (globox_error_catch(globox))
+	{
+		return;
+	}
+
+	// commit and dispatch
+	globox_platform_commit(globox);
+
+	error =
+		wl_display_roundtrip(
+			platform->globox_wayland_display);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_ROUNDTRIP);
 	}
 
 	return;
