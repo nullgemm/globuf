@@ -19,7 +19,6 @@ void globox_context_software_init(
 	int version_major,
 	int version_minor)
 {
-	int error;
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
@@ -37,76 +36,13 @@ void globox_context_software_init(
 	platform->globox_wayland_callback_xdg_surface_configure =
 		globox_software_callback_attach;
 
-	// wayland surface
-	platform->globox_wayland_surface =
-		wl_compositor_create_surface(
-			platform->globox_wayland_compositor);
+	return;
+}
 
-	if (platform->globox_wayland_surface == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	// get xdg surface
-	platform->globox_wayland_xdg_surface =
-		xdg_wm_base_get_xdg_surface(
-			platform->globox_wayland_xdg_wm_base,
-			platform->globox_wayland_surface);
-
-	if (platform->globox_wayland_xdg_surface == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	// add surface listener
-	error =
-		xdg_surface_add_listener(
-			platform->globox_wayland_xdg_surface,
-			&(platform->globox_wayland_xdg_surface_listener),
-			globox);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_LISTENER);
-		return;
-	}
-
-	// get toplevel surface
-	platform->globox_wayland_xdg_toplevel =
-		xdg_surface_get_toplevel(
-			platform->globox_wayland_xdg_surface);
-
-	if (platform->globox_wayland_xdg_toplevel == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	// add toplevel listener
-	error =
-		xdg_toplevel_add_listener(
-			platform->globox_wayland_xdg_toplevel,
-			&(platform->globox_wayland_xdg_toplevel_listener),
-			globox);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_LISTENER);
-
-		return;
-	}
+void globox_context_software_create(struct globox* globox)
+{
+	int error;
+	struct globox_platform* platform = &(globox->globox_platform);
 
 	// create shm, allocate buffer
 	globox_software_callback_allocate(globox);
@@ -131,11 +67,6 @@ void globox_context_software_init(
 	}
 
 	return;
-}
-
-void globox_context_software_create(struct globox* globox)
-{
-	// not needed
 }
 
 void globox_context_software_shrink(struct globox* globox)

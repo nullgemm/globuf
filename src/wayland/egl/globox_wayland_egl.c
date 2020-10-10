@@ -22,7 +22,6 @@ void globox_context_egl_init(
 	int version_major,
 	int version_minor)
 {
-	int error;
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
 
@@ -116,9 +115,8 @@ void globox_context_egl_init(
 
 	EGLint egl_context_attrib[] =
 	{
-		EGL_CONTEXT_CLIENT_VERSION, 2,
-		//EGL_CONTEXT_MAJOR_VERSION, version_major,
-		//EGL_CONTEXT_MINOR_VERSION, version_minor,
+		EGL_CONTEXT_MAJOR_VERSION, version_major,
+		EGL_CONTEXT_MINOR_VERSION, version_minor,
 		EGL_NONE,
 	};
 
@@ -137,86 +135,15 @@ void globox_context_egl_init(
 		return;
 	}
 
-	// wayland surface
-	platform->globox_wayland_surface =
-		wl_compositor_create_surface(
-			platform->globox_wayland_compositor);
+	return;
+}
 
-	if (platform->globox_wayland_surface == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
+void globox_context_egl_create(struct globox* globox)
+{
+	int error;
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
 
-	// get xdg surface
-	platform->globox_wayland_xdg_surface =
-		xdg_wm_base_get_xdg_surface(
-			platform->globox_wayland_xdg_wm_base,
-			platform->globox_wayland_surface);
-
-	if (platform->globox_wayland_xdg_surface == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	// add surface listener
-	error =
-		xdg_surface_add_listener(
-			platform->globox_wayland_xdg_surface,
-			&(platform->globox_wayland_xdg_surface_listener),
-			globox);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_LISTENER);
-		return;
-	}
-
-	// get toplevel surface
-	platform->globox_wayland_xdg_toplevel =
-		xdg_surface_get_toplevel(
-			platform->globox_wayland_xdg_surface);
-
-	if (platform->globox_wayland_xdg_toplevel == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	// add toplevel listener
-	error =
-		xdg_toplevel_add_listener(
-			platform->globox_wayland_xdg_toplevel,
-			&(platform->globox_wayland_xdg_toplevel_listener),
-			globox);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_LISTENER);
-
-		return;
-	}
-
-#if 0
-	// create shm, allocate buffer
-	globox_egl_callback_allocate(globox);
-
-	if (globox_error_catch(globox))
-	{
-		return;
-	}
-#else
 	context->globox_egl_window =
 		wl_egl_window_create(
 			platform->globox_wayland_surface,
@@ -245,7 +172,6 @@ void globox_context_egl_init(
 			GLOBOX_ERROR_WAYLAND_EGL_FAIL);
 		return;
 	}
-#endif
 
 	// commit and roundtrip
 	globox_platform_commit(globox);
@@ -273,11 +199,6 @@ void globox_context_egl_init(
 		0);
 
 	return;
-}
-
-void globox_context_egl_create(struct globox* globox)
-{
-	// not needed
 }
 
 void globox_context_egl_shrink(struct globox* globox)

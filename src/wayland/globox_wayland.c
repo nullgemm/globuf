@@ -128,7 +128,81 @@ void globox_platform_init(
 // create the window
 void globox_platform_create_window(struct globox* globox)
 {
-	// not needed
+	int error;
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	// wayland surface
+	platform->globox_wayland_surface =
+		wl_compositor_create_surface(
+			platform->globox_wayland_compositor);
+
+	if (platform->globox_wayland_surface == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_REQUEST);
+		return;
+	}
+
+	// get xdg surface
+	platform->globox_wayland_xdg_surface =
+		xdg_wm_base_get_xdg_surface(
+			platform->globox_wayland_xdg_wm_base,
+			platform->globox_wayland_surface);
+
+	if (platform->globox_wayland_xdg_surface == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_REQUEST);
+		return;
+	}
+
+	// add surface listener
+	error =
+		xdg_surface_add_listener(
+			platform->globox_wayland_xdg_surface,
+			&(platform->globox_wayland_xdg_surface_listener),
+			globox);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_LISTENER);
+		return;
+	}
+
+	// get toplevel surface
+	platform->globox_wayland_xdg_toplevel =
+		xdg_surface_get_toplevel(
+			platform->globox_wayland_xdg_surface);
+
+	if (platform->globox_wayland_xdg_toplevel == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_REQUEST);
+		return;
+	}
+
+	// add toplevel listener
+	error =
+		xdg_toplevel_add_listener(
+			platform->globox_wayland_xdg_toplevel,
+			&(platform->globox_wayland_xdg_toplevel_listener),
+			globox);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_LISTENER);
+
+		return;
+	}
+
+	return;
 }
 
 void globox_platform_hooks(struct globox* globox)
