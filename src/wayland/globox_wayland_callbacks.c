@@ -215,7 +215,6 @@ void callback_xdg_toplevel_configure(
 	globox->globox_height = height;
 	globox->globox_redraw = true;
 
-	// TODO check this is the same as resizing
 	platform->globox_wayland_callback_xdg_toplevel_configure(
 		globox,
 		width,
