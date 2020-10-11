@@ -33,3 +33,18 @@ Mac OS
  - `vk` provides Vulkan contexts using MoltenVK
    (which implements Vulkan on top of metal)
    It is not yet implemented.
+
+## Compiling
+### Wayland
+Globox supports Plasma's background blur Wayland protocol, and although we will
+obviously stay compatible with compositors which do not support this protocol,
+it is required to install its .xml files in order to compile.
+
+By making this mandatory we make sure the feature is available to Plasma users,
+without having to build a specific binary for that purpose.
+
+Under ArchLinux, Plasma's protocols can be installed using the 
+`plasma-wayland-protocols` package found in the `Extra` repo.
+
+The official protocols repository can be found on
+[invent.kde.org](https://invent.kde.org/libraries/plasma-wayland-protocols).
