@@ -105,11 +105,18 @@ void globox_platform_init(
 	platform->globox_wayland_saved_serial = 0;
 	platform->globox_wayland_shm = NULL;
 	platform->globox_wayland_compositor = NULL;
-	platform->globox_wayland_xdg_decoration_manager = NULL;
+	platform->globox_wayland_xdg_decoration = NULL;
 	platform->globox_wayland_kde_blur_manager = NULL;
 	platform->globox_wayland_xdg_wm_base = NULL;
 	platform->globox_wayland_output = NULL;
 	platform->globox_wayland_seat = NULL;
+
+	platform->globox_wayland_registry = NULL;
+	platform->globox_wayland_xdg_toplevel = NULL;
+	platform->globox_wayland_xdg_surface = NULL;
+	platform->globox_wayland_surface = NULL;
+	platform->globox_wayland_xdg_decoration_manager = NULL;
+	platform->globox_wayland_kde_blur = NULL;
 
 	// base
 	platform->globox_wayland_xdg_wm_base_listener.ping =
@@ -492,7 +499,6 @@ void globox_platform_events_handle(
 	// not needed
 }
 
-// TODO initialize destroyed variables to NULL and check if destruction is needed here!
 void globox_platform_free(struct globox* globox)
 {
 	struct globox_platform* platform = &(globox->globox_platform);
@@ -517,11 +523,26 @@ void globox_platform_free(struct globox* globox)
 
 	close(platform->globox_wayland_epoll);
 
-	xdg_toplevel_destroy(platform->globox_wayland_xdg_toplevel);
-	xdg_surface_destroy(platform->globox_wayland_xdg_surface);
-	wl_surface_destroy(platform->globox_wayland_surface);
+	if (platform->globox_wayland_xdg_toplevel != NULL)
+	{
+		xdg_toplevel_destroy(platform->globox_wayland_xdg_toplevel);
+	}
 
-	wl_registry_destroy(platform->globox_wayland_registry);
+	if (platform->globox_wayland_xdg_surface != NULL)
+	{
+		xdg_surface_destroy(platform->globox_wayland_xdg_surface);
+	}
+
+	if (platform->globox_wayland_surface != NULL)
+	{
+		wl_surface_destroy(platform->globox_wayland_surface);
+	}
+
+	if (platform->globox_wayland_registry != NULL)
+	{
+		wl_registry_destroy(platform->globox_wayland_registry);
+	}
+
 	wl_display_disconnect(platform->globox_wayland_display);
 }
 
