@@ -282,7 +282,6 @@ void callback_xdg_surface_configure(
 		globox);
 }
 
-// TODO signal frame requirements to the user directly with a callback?
 void callback_xdg_decoration_configure(
 	void* data,
 	struct zxdg_toplevel_decoration_v1* xdg_decoration,
