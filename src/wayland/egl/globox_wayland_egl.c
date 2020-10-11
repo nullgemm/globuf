@@ -25,10 +25,6 @@ void globox_context_egl_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
 
-	// set buffer real size
-	context->globox_egl_buffer_width = globox->globox_width;
-	context->globox_egl_buffer_height = globox->globox_height;
-
 	// set callbacks function pointers
 	platform->globox_wayland_unminimize_start =
 		globox_egl_callback_unminimize_start;
@@ -147,8 +143,8 @@ void globox_context_egl_create(struct globox* globox)
 	context->globox_egl_window =
 		wl_egl_window_create(
 			platform->globox_wayland_surface,
-			context->globox_egl_buffer_width,
-			context->globox_egl_buffer_height);
+			globox->globox_width,
+			globox->globox_height);
 
 	if (context->globox_egl_window == NULL)
 	{
@@ -290,7 +286,10 @@ void globox_context_egl_copy(
 
 // getters
 
-// TODO
+struct wl_egl_window* globox_egl_get_window(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_egl.globox_egl_window;
+}
 
 EGLDisplay globox_egl_get_display(struct globox* globox)
 {

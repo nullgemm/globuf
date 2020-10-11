@@ -164,5 +164,27 @@ void globox_context_software_copy(
 }
 
 // getters
+int globox_software_get_shm_fd(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_software.globox_software_fd;
+}
 
-// TODO
+struct wl_shm_pool* globox_software_get_shm_pool(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_software.globox_software_pool;
+}
+
+struct wl_buffer* globox_software_get_buffer(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_software.globox_software_buffer;
+}
+
+uint32_t globox_software_get_buffer_width(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_software.globox_software_buffer_width;
+}
+
+uint32_t globox_software_get_buffer_height(struct globox* globox)
+{
+	return globox->globox_platform.globox_wayland_software.globox_software_buffer_height;
+}

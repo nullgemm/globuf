@@ -216,6 +216,35 @@ void globox_wayland_save_serial(struct globox* globox, uint32_t serial);
 int globox_platform_get_event_handle(struct globox* globox);
 uint32_t* globox_platform_get_argb(struct globox* globox);
 #if defined(GLOBOX_PLATFORM_WAYLAND)
+	int globox_wayland_get_epoll(struct globox* globox);
+	struct epoll_event* globox_wayland_get_epoll_event(struct globox* globox);
+	uint32_t* globox_wayland_get_icon(struct globox* globox);
+	uint32_t globox_wayland_get_icon_len(struct globox* globox);
+	uint32_t globox_wayland_get_screen_width(struct globox* globox);
+	uint32_t globox_wayland_get_screen_height(struct globox* globox);
+	struct wl_display* globox_wayland_get_display(struct globox* globox);
+	struct wl_registry* globox_wayland_get_registry(struct globox* globox);
+	struct wl_shm* globox_wayland_get_shm(struct globox* globox);
+	struct wl_compositor* globox_wayland_get_compositor(struct globox* globox);
+	struct wl_output* globox_wayland_get_output(struct globox* globox);
+	struct wl_seat* globox_wayland_get_seat(struct globox* globox);
+	struct xdg_wm_base* globox_wayland_get_xdg_wm_base(struct globox* globox);
+	struct xdg_toplevel* globox_wayland_get_xdg_toplevel(struct globox* globox);
+	struct xdg_surface* globox_wayland_get_xdg_surface(struct globox* globox);
+	struct wl_surface* globox_wayland_get_surface(struct globox* globox);
+	// listeners are not needed
+	struct zxdg_decoration_manager_v1* globox_wayland_get_xdg_decoration_manager(struct globox* globox);
+	struct zxdg_toplevel_decoration_v1* globox_wayland_get_xdg_decoration(struct globox* globox);
+	struct org_kde_kwin_blur_manager* globox_wayland_get_kde_blur_manager(struct globox* globox);
+	struct org_kde_kwin_blur* globox_wayland_get_kde_blur(struct globox* globox);
+	uint32_t globox_wayland_saved_get_serial(struct globox* globox);
+	#if defined(GLOBOX_CONTEXT_SOFTWARE)
+		int globox_software_get_shm_fd(struct globox* globox);
+		struct wl_shm_pool* globox_software_get_shm_pool(struct globox* globox);
+		struct wl_buffer* globox_software_get_buffer(struct globox* globox);
+	#elif defined(GLOBOX_CONTEXT_EGL)
+		struct wl_egl_window* globox_egl_get_window(struct globox* globox);
+	#endif
 #elif defined(GLOBOX_PLATFORM_X11)
 	xcb_connection_t* globox_x11_get_conn(struct globox* globox);
 	xcb_atom_t* globox_x11_get_atom_list(struct globox* globox);
@@ -235,8 +264,6 @@ uint32_t* globox_platform_get_argb(struct globox* globox);
 		xcb_pixmap_t globox_software_get_pixmap(struct globox* globox);
 		bool globox_software_get_pixmap_update(struct globox* globox);
 		bool globox_software_get_shared_pixmaps(struct globox* globox);
-		uint32_t globox_software_get_buffer_width(struct globox* globox);
-		uint32_t globox_software_get_buffer_height(struct globox* globox);
 	#elif defined(GLOBOX_CONTEXT_GLX)
 		Display* globox_glx_get_display(struct globox* globox);
 		GLXFBConfig globox_glx_get_fb_config(struct globox* globox);
@@ -249,6 +276,9 @@ uint32_t* globox_platform_get_argb(struct globox* globox);
 
 // platform-independent context getters
 #if defined(GLOBOX_CONTEXT_VULKAN)
+#elif defined(GLOBOX_CONTEXT_SOFTWARE)
+uint32_t globox_software_get_buffer_width(struct globox* globox);
+uint32_t globox_software_get_buffer_height(struct globox* globox);
 #elif defined(GLOBOX_CONTEXT_EGL)
 EGLDisplay globox_egl_get_display(struct globox* globox);
 EGLContext globox_egl_get_context(struct globox* globox);

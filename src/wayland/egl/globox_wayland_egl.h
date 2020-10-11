@@ -8,9 +8,6 @@
 
 struct globox_wayland_egl
 {
-	uint32_t globox_egl_buffer_width;
-	uint32_t globox_egl_buffer_height;
-
 	EGLDisplay globox_egl_display;
 	EGLContext globox_egl_context;
 	EGLSurface globox_egl_surface;

@@ -1425,6 +1425,11 @@ uint32_t* globox_platform_get_argb(struct globox* globox)
 	return globox->globox_platform.globox_platform_argb;
 }
 
+int globox_platform_get_event_handle(struct globox* globox)
+{
+	return globox->globox_platform.globox_platform_event_handle;
+}
+
 xcb_connection_t* globox_x11_get_conn(struct globox* globox)
 {
 	return globox->globox_platform.globox_x11_conn;
