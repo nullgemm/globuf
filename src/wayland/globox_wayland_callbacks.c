@@ -124,6 +124,7 @@ void callback_registry_global(
 		}
 	}
 	else if ((strcmp(interface, org_kde_kwin_blur_manager_interface.name) == 0)
+		&& (globox->globox_transparent == true)
 		&& (globox->globox_blurred == true))
 	{
 		platform->globox_wayland_kde_blur_manager =

@@ -17,10 +17,23 @@
 #include "wayland/globox_wayland.h"
 #include "wayland/globox_wayland_callbacks.h"
 
+void null_or_free(void* var)
+{
+	if (var != NULL)
+	{
+		free(var);
+	}
+}
+
 void update_decorations(struct globox* globox)
 {
 	int error;
 	struct globox_platform* platform = &(globox->globox_platform);
+
+	if (platform->globox_wayland_xdg_decoration_manager == NULL)
+	{
+		return;
+	}
 
 	// create decoration listener
 	platform->globox_wayland_xdg_decoration =
@@ -90,6 +103,13 @@ void globox_platform_init(
 	platform->globox_wayland_screen_height = 1080;
 
 	platform->globox_wayland_saved_serial = 0;
+	platform->globox_wayland_shm = NULL;
+	platform->globox_wayland_compositor = NULL;
+	platform->globox_wayland_xdg_decoration_manager = NULL;
+	platform->globox_wayland_kde_blur_manager = NULL;
+	platform->globox_wayland_xdg_wm_base = NULL;
+	platform->globox_wayland_output = NULL;
+	platform->globox_wayland_seat = NULL;
 
 	// base
 	platform->globox_wayland_xdg_wm_base_listener.ping =
@@ -273,7 +293,9 @@ void globox_platform_hooks(struct globox* globox)
 	globox_platform_set_state(globox, globox->globox_state);
 
 	// blur
-	if (globox->globox_blurred == true)
+	if ((platform->globox_wayland_kde_blur_manager != NULL)
+		&& (globox->globox_transparent == true)
+		&& (globox->globox_blurred == true))
 	{
 		platform->globox_wayland_kde_blur =
 			org_kde_kwin_blur_manager_create(
@@ -475,16 +497,23 @@ void globox_platform_free(struct globox* globox)
 {
 	struct globox_platform* platform = &(globox->globox_platform);
 
-	free(platform->globox_wayland_kde_blur_manager);
-	org_kde_kwin_blur_destroy(platform->globox_wayland_kde_blur);
+	if (platform->globox_wayland_kde_blur_manager != NULL)
+	{
+		free(platform->globox_wayland_kde_blur_manager);
+		org_kde_kwin_blur_destroy(platform->globox_wayland_kde_blur);
+	}
 
-	free(platform->globox_wayland_xdg_decoration);
-	zxdg_decoration_manager_v1_destroy(platform->globox_wayland_xdg_decoration_manager);
+	if (platform->globox_wayland_xdg_decoration != NULL)
+	{
+		free(platform->globox_wayland_xdg_decoration);
+		zxdg_decoration_manager_v1_destroy(platform->globox_wayland_xdg_decoration_manager);
+	}
 
-	free(platform->globox_wayland_output);
-	free(platform->globox_wayland_xdg_wm_base);
-	free(platform->globox_wayland_compositor);
-	free(platform->globox_wayland_shm);
+	null_or_free(platform->globox_wayland_seat);
+	null_or_free(platform->globox_wayland_output);
+	null_or_free(platform->globox_wayland_xdg_wm_base);
+	null_or_free(platform->globox_wayland_compositor);
+	null_or_free(platform->globox_wayland_shm);
 
 	close(platform->globox_wayland_epoll);
 
