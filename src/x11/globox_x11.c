@@ -533,6 +533,7 @@ void globox_platform_events_poll(struct globox* globox)
 	// not needed
 }
 
+// TODO remove this from the API and externalize it into a library
 void globox_platform_events_wait(struct globox* globox)
 {
 	// alias for readability

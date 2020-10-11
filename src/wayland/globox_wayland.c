@@ -383,9 +383,10 @@ void globox_platform_events_poll(struct globox* globox)
 	// not needed
 }
 
+// TODO remove this from the API and externalize it into a library,
+// along with the frame callback mechanism that should fix stuttering
 void globox_platform_events_wait(struct globox* globox)
 {
-	// TODO
 #if 0
 	struct globox_platform* platform = &(globox->globox_platform);
 
