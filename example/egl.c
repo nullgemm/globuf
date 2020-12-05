@@ -1,5 +1,5 @@
 #include "globox.h"
-#include <GL/gl.h>
+#include <GLES2/gl2.h>
 
 #if 0
 // we try to avoid ifdefs here by relying on helper files
@@ -16,6 +16,8 @@
 extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
+
+#define VERTEX_ATTR_POSITION 0
 
 void render(struct globox* globox)
 {
@@ -41,16 +43,31 @@ void render(struct globox* globox)
 			glViewport(0, 0, width, height);
 		}
 
-		glClearColor(0.2f, 0.4f, 0.9f, (0xEE / 255.0f));
+		glClearColor(0.2f, 0.4f, 0.9f, (0x22 / 255.0f));
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBegin(GL_TRIANGLE_FAN);
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glVertex3f(-100.0f / width, +100.0f / height, 0.0f);
-		glVertex3f(-100.0f / width, -100.0f / height, 0.0f);
-		glVertex3f(+100.0f / width, -100.0f / height, 0.0f);
-		glVertex3f(+100.0f / width, +100.0f / height, 0.0f);
-		glEnd();
+		GLfloat vertices[] =
+		{
+			-100.0f / width, +100.0f / height, 1.0f,
+			-100.0f / width, -100.0f / height, 1.0f,
+			+100.0f / width, -100.0f / height, 1.0f,
+			+100.0f / width, +100.0f / height, 1.0f,
+		};
+
+		glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
+
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			vertices);
+
+		glDrawArrays(
+			GL_TRIANGLE_FAN,
+			0,
+			4);
 
 		globox_context_egl_copy(
 			globox,
@@ -81,7 +98,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_platform_init(&globox, true, true, true);
+	globox_platform_init(&globox, true, false, true);
 
 	if (globox_error_catch(&globox))
 	{
@@ -89,8 +106,8 @@ int main(void)
 		return 1;
 	}
 
-	// use OpenGL 1
-	globox_context_egl_init(&globox, 1, 0);
+	// use OpenGL 2 or glES 2
+	globox_context_egl_init(&globox, 2, 0);
 
 	if (globox_error_catch(&globox))
 	{
@@ -133,6 +150,38 @@ int main(void)
 		(uint32_t*) &iconpix_beg,
 		2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64));
 
+	// prepare OpenGL or glES
+	const char* vertex_shader_src =
+		"attribute vec4 vPosition;"
+		"void main()"
+		"{"
+		"\tgl_Position = vPosition;"
+		"}";
+
+	const char* fragment_shader_src =
+		"precision mediump float;"
+		"void main()"
+		"{"
+		"\tgl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
+		"}";
+
+	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex_shader, 1, &vertex_shader_src, 0);
+	glCompileShader(vertex_shader);
+
+	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader, 1, &fragment_shader_src, 0);
+	glCompileShader(fragment_shader);
+
+	GLuint shader_program = glCreateProgram();
+	glAttachShader(shader_program, vertex_shader);
+	glAttachShader(shader_program, fragment_shader);
+	glDeleteShader(vertex_shader);
+	glDeleteShader(fragment_shader);
+	glLinkProgram(shader_program);
+	glUseProgram(shader_program);
+
+	// continue initializing globox
 	globox_platform_commit(&globox);
 
 	render(&globox);

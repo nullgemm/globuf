@@ -43,34 +43,29 @@ CONTEXT ?= SOFTWARE
 # X11
 ifeq ($(PLATFORM), X11)
 SRCS+= $(SRCD)/x11/globox_x11.c
-LINK+= -lxcb
+LINK+= `pkg-config xcb --cflags --libs`
 FLAGS+= -DGLOBOX_PLATFORM_X11
 
 ifeq ($(CONTEXT), SOFTWARE)
 FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
 SRCS+= example/software.c
 SRCS+= $(SRCD)/x11/software/globox_x11_software.c
-LINK+= -lxcb-shm
-LINK+= -lxcb-randr
-LINK+= -lxcb-render
+LINK+= `pkg-config xcb-shm xcb-randr xcb-render --cflags --libs`
 endif
 
 ifeq ($(CONTEXT), EGL)
 FLAGS+= -DGLOBOX_CONTEXT_EGL
 SRCS+= example/egl.c
 SRCS+= $(SRCD)/x11/egl/globox_x11_egl.c
-LINK+= -lGL
-LINK+= -lEGL
+LINK+= `pkg-config egl glesv2 --cflags --libs`
 endif
 
 ifeq ($(CONTEXT), GLX)
 FLAGS+= -DGLOBOX_CONTEXT_GLX
 SRCS+= example/glx.c
 SRCS+= $(SRCD)/x11/glx/globox_x11_glx.c
-LINK+= -lGL
-LINK+= -lX11
-LINK+= -lX11-xcb
-LINK+= -lXrender
+LINK+= `pkg-config glx glesv2 --cflags --libs`
+LINK+= `pkg-config x11 x11-xcb xrender --cflags --libs`
 endif
 endif
 
@@ -83,7 +78,8 @@ SRCS+= $(INCD)/xdg-decoration-protocol.c
 SRCS+= $(INCD)/kde-blur-protocol.c
 SRCS+= $(INCD)/zwp-relative-pointer-protocol.c
 SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
-LINK+= -lwayland-client -lrt
+LINK+= `pkg-config wayland-client --cflags --libs`
+LINK+= -lrt
 FLAGS+= -DGLOBOX_PLATFORM_WAYLAND
 
 ifeq ($(CONTEXT), SOFTWARE)
@@ -98,9 +94,7 @@ FLAGS+= -DGLOBOX_CONTEXT_EGL
 SRCS+= example/egl.c
 SRCS+= $(SRCD)/wayland/egl/globox_wayland_egl.c
 SRCS+= $(SRCD)/wayland/egl/globox_wayland_egl_helpers.c
-LINK+= -lGL
-LINK+= `pkg-config wayland-client wayland-egl --cflags --libs`
-LINK+= `pkg-config egl glesv2 --cflags --libs`
+LINK+= `pkg-config wayland-egl egl glesv2 --cflags --libs`
 endif
 endif
 
