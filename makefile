@@ -37,7 +37,7 @@ SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
 
 # targets
-PLATFORM ?= WAYLAND
+PLATFORM ?= MACOS
 CONTEXT ?= SOFTWARE
 
 # X11
@@ -154,6 +154,16 @@ $(OBJD)/$(RESD)/icon/iconpix.o: $(RESD)/icon/iconpix.bin
 	--redefine-syms=$(RESD)/icon/syms.map \
 	--rename-section .data=.iconpix \
 	$< $@
+
+## macOS icon
+$(RESD)/objconv/objconv:
+	@echo "making objconv"
+	@cd ./$(RESD)/objconv && ./makeobjconv.sh
+
+## macOS ANGLE
+$(RESD)/angle/libs:
+	@echo "getting ANGLE"
+	@cd ./$(RESD)/angle && ./getmetalangle.sh
 
 ## compilation
 $(OBJD)/%.o: %.c
