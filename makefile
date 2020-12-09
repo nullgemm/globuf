@@ -9,6 +9,7 @@ VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --lea
 # compiler
 ## compiler name
 CC = gcc
+OBJCOPY = objcopy
 ## compiler options
 FLAGS = -std=c99 -pedantic -g
 ## warning settings
@@ -34,15 +35,17 @@ INCL+= -I$(INCD)
 ## main code files
 SRCS = $(SRCD)/globox.c
 SRCS+= $(SRCD)/globox_error.c
-SRCS_OBJS = $(OBJD)/$(RESD)/icon/iconpix.o
+SRCS_OBJS =
 
 # targets
 PLATFORM ?= MACOS
 CONTEXT ?= SOFTWARE
+NATIVE ?= FALSE
 
-# X11
+## X11
 ifeq ($(PLATFORM), X11)
 SRCS+= $(SRCD)/x11/globox_x11.c
+SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix.o
 LINK+= `pkg-config xcb --cflags --libs`
 FLAGS+= -DGLOBOX_PLATFORM_X11
 
@@ -69,7 +72,7 @@ LINK+= `pkg-config x11 x11-xcb xrender --cflags --libs`
 endif
 endif
 
-# WAYLAND
+## WAYLAND
 ifeq ($(PLATFORM), WAYLAND)
 SRCS+= $(SRCD)/wayland/globox_wayland.c
 SRCS+= $(SRCD)/wayland/globox_wayland_callbacks.c
@@ -78,6 +81,7 @@ SRCS+= $(INCD)/xdg-decoration-protocol.c
 SRCS+= $(INCD)/kde-blur-protocol.c
 SRCS+= $(INCD)/zwp-relative-pointer-protocol.c
 SRCS+= $(INCD)/zwp-pointer-constraints-protocol.c
+SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix.o
 LINK+= `pkg-config wayland-client --cflags --libs`
 LINK+= -lrt
 FLAGS+= -DGLOBOX_PLATFORM_WAYLAND
@@ -98,12 +102,48 @@ LINK+= `pkg-config wayland-egl egl glesv2 --cflags --libs`
 endif
 endif
 
+## MACOS
+ifeq ($(PLATFORM), MACOS)
+CMD = ./$(NAME).app
+SRCS+= $(SRCD)/macos/globox_macos.c
+SRCS+= $(SRCD)/macos/globox_macos_symbols.c
+SRCS+= $(SRCD)/macos/globox_macos_callbacks.c
+SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix_mach.o
+LINK+= -framework AppKit
+FLAGS+= -DGLOBOX_PLATFORM_MACOS
+
+ifeq ($(NATIVE), FALSE)
+CC = o64-clang
+else
+OBJCOPY = /usr/local/Cellar/binutils/*/bin/objcopy
+endif
+
+ifeq ($(CONTEXT), SOFTWARE)
+FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+SRCS+= example/software.c
+SRCS+= $(SRCD)/macos/software/globox_macos_software.c
+endif
+
+ifeq ($(CONTEXT), EGL)
+FLAGS+= -DGLOBOX_CONTEXT_EGL
+SRCS+= example/egl.c
+SRCS+= $(SRCD)/macos/egl/globox_macos_egl.c
+INCL+= -I$(RESD)/angle/include
+LINK+= -L$(RESD)/angle/libs
+LINK+= -lEGL -lGLESv2
+endif
+endif
+
 # object files list
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
 
 # bin
 .PHONY: final
+ifeq ($(PLATFORM), MACOS)
+final: $(BIND)/$(NAME).app
+else
 final: $(BIND)/$(NAME)
+endif
 
 ## wayland protocols
 ifeq ($(PLATFORM), WAYLAND)
@@ -160,6 +200,18 @@ $(RESD)/objconv/objconv:
 	@echo "making objconv"
 	@cd ./$(RESD)/objconv && ./makeobjconv.sh
 
+$(OBJD)/$(RESD)/icon/iconpix_mach.o: $(RESD)/icon/iconpix.bin $(RESD)/objconv/objconv
+	@echo "building icon object object and converting to mach-o (bug workaround)"
+	@mkdir -p $(@D)
+	@$(OBJCOPY) \
+	-I binary \
+	-O elf64-x86-64 \
+	-B i386:x86-64 \
+	--redefine-syms=$(RESD)/icon/syms.map \
+	--rename-section .data=.iconpix \
+	$< $(OBJD)/$(RESD)/icon/iconpix.o
+	@./$(RESD)/objconv/objconv -fmac64 -nu+ -v0 $(OBJD)/$(RESD)/icon/iconpix.o $@
+
 ## macOS ANGLE
 $(RESD)/angle/libs:
 	@echo "getting ANGLE"
@@ -175,6 +227,17 @@ $(BIND)/$(NAME): $(SRCS_OBJS)
 	@echo "compiling executable $@"
 	@mkdir -p $(@D)
 	@$(CC) -o $@ $^ $(LINK)
+
+ifeq ($(CONTEXT), EGL)
+$(BIND)/$(NAME).app: $(RESD)/angle/libs $(BIND)/$(NAME)
+	@echo "renaming binary to $@"
+	@cp $(RESD)/angle/libs/* $(BIND)/
+	@mv $(BIND)/$(NAME) $(BIND)/$(NAME).app
+else
+$(BIND)/$(NAME).app: $(BIND)/$(NAME)
+	@echo "renaming binary to $@"
+	@mv $^ $@
+endif
 
 # tools
 ## valgrind memory leak detection
