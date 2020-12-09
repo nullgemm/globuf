@@ -106,6 +106,7 @@ extern id* (*macos_msg_event)(
 extern id* NSDefaultRunLoopMode;
 extern id CGColorSpaceCreateDeviceRGB();
 extern id CGBitmapContextCreate(void*, size_t, size_t, size_t, size_t, id, uint32_t);
+extern void CGImageRelease(id);
 extern id CGBitmapContextCreateImage(id);
 
 #endif

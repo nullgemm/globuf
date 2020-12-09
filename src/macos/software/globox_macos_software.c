@@ -274,6 +274,8 @@ void globox_context_software_copy(
 		bitmap,
 		sel_getUid("dealloc"));
 
+	CGImageRelease(image);
+
 	// commit
 	globox_platform_commit(globox);
 }
