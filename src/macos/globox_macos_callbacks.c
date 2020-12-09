@@ -686,6 +686,11 @@ BOOL callback_application_did_finish_launching(
 		| NSWindowCollectionBehaviorFullScreenPrimary
 		| NSWindowCollectionBehaviorFullScreenAllowsTiling);
 
+	if (globox->globox_frameless == true)
+	{
+		return YES;
+	}
+
 	id* button;
 	int k = 0;
 
