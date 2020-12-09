@@ -50,6 +50,8 @@ void (*macos_msgptr_void_bool)(id*, SEL, BOOL) =
 	(void (*)(id*, SEL, BOOL)) objc_msgSend;
 id (*macos_msg_id_rect)(id, SEL, struct macos_rect) =
 	(id (*)(id, SEL, struct macos_rect)) objc_msgSend;
+void (*macos_msg_subview)(id, SEL, id, int, id) =
+	(void (*)(id, SEL, id, int, id)) objc_msgSend;
 id* (*macos_msg_event)(
 	id, SEL, unsigned long, struct macos_point, unsigned long,
 	double, long, id, short, long, long) =

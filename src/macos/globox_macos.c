@@ -52,12 +52,19 @@ void globox_platform_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
 
-	globox->globox_redraw = false; // TODO true ?
+	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
-	// TODO init ?
+	platform->globox_macos_interactive_x = 0;
+	platform->globox_macos_interactive_y = 0;
+	platform->globox_macos_fullscreen = false;
+	platform->globox_macos_inhibit_resize = false;
+	platform->globox_macos_state_old = GLOBOX_STATE_REGULAR;
+	platform->globox_macos_cursor_use_a = false;
+	platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
+	platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
 
 	// error messages
 	log[GLOBOX_ERROR_MACOS_CLASS_GET] = "could not get class definition";
@@ -397,6 +404,18 @@ void globox_platform_create_window(struct globox* globox)
 		platform->globox_platform_event_handle,
 		sel_getUid("setActivationPolicy:"),
 		1);
+
+	macos_msg_void_id(
+		platform->globox_macos_obj_masterview,
+		sel_getUid("addSubview:"),
+		platform->globox_macos_obj_view);
+
+	macos_msg_subview(
+		platform->globox_macos_obj_masterview,
+		sel_getUid("addSubview:positioned:relativeTo:"),
+		platform->globox_macos_obj_blur,
+		-1,
+		platform->globox_macos_obj_view);
 }
 
 void globox_platform_hooks(struct globox* globox)
@@ -633,10 +652,6 @@ static void handle_interactive_mode(struct globox* globox)
 	platform->globox_macos_interactive_x += frame_old.origin.x - frame.origin.x;
 	platform->globox_macos_interactive_y += frame_old.origin.y - frame.origin.y;
 
-	// TODO semaphore ?
-
-	// TODO force realloc ?
-
 	macos_msg_resize(
 		platform->globox_macos_obj_window,
 		sel_getUid("setFrame:display:"),
@@ -653,9 +668,7 @@ static void handle_interactive_mode(struct globox* globox)
 		sel_getUid("setFrameSize:"),
 		size_view);
 
-	// TODO force redraw ?
-
-	// TODO semaphore ?
+	globox->globox_redraw = true;
 }
 
 static void cursor_hover_update(

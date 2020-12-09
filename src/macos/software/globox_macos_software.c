@@ -42,6 +42,8 @@ void appdelegate_software_callback(
 		.size.height = globox->globox_height,
 	};
 
+	platform->globox_macos_old_window_frame = frame;
+
 	tmp =
 		macos_msg_id_rect(
 			platform->globox_macos_obj_masterview,
@@ -215,11 +217,6 @@ void globox_context_software_copy(
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_MACOS_OBJ_NIL);
-
-		macos_msg_void_none(
-			colorspace,
-			sel_getUid("dealloc"));
-
 		return;
 	}
 
@@ -234,10 +231,6 @@ void globox_context_software_copy(
 
 		macos_msg_void_none(
 			bitmap,
-			sel_getUid("dealloc"));
-
-		macos_msg_void_none(
-			colorspace,
 			sel_getUid("dealloc"));
 
 		return;
@@ -278,15 +271,7 @@ void globox_context_software_copy(
 
 	// free memory
 	macos_msg_void_none(
-		image,
-		sel_getUid("dealloc"));
-
-	macos_msg_void_none(
 		bitmap,
-		sel_getUid("dealloc"));
-
-	macos_msg_void_none(
-		colorspace,
 		sel_getUid("dealloc"));
 
 	// commit

@@ -97,6 +97,7 @@ extern void (*macos_msg_void_ulong)(id, SEL, unsigned long);
 extern id* (*macos_msg_idptr_int)(id, SEL, int);
 extern void (*macos_msgptr_void_bool)(id*, SEL, BOOL);
 extern id (*macos_msg_id_rect)(id, SEL, struct macos_rect);
+extern void (*macos_msg_subview)(id, SEL, id, int, id);
 extern id* (*macos_msg_event)(
 	id, SEL, unsigned long, struct macos_point, unsigned long,
 	double, long, id, short, long, long);
