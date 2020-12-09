@@ -1,12 +1,12 @@
-#ifndef H_GLOBOX_WAYLAND_EGL
-#define H_GLOBOX_WAYLAND_EGL
+#ifndef H_GLOBOX_MACOS_EGL
+#define H_GLOBOX_MACOS_EGL
 
 #include "globox.h"
-#include "wayland/globox_wayland.h"
+#include "macos/globox_macos.h"
 
 #include <EGL/egl.h>
 
-struct globox_wayland_egl
+struct globox_macos_egl
 {
 	EGLDisplay globox_egl_display;
 	EGLContext globox_egl_context;
@@ -14,7 +14,7 @@ struct globox_wayland_egl
 	EGLConfig globox_egl_config;
 	EGLint globox_egl_config_size;
 
-	struct wl_egl_window* globox_egl_window;
+	id globox_egl_layer;
 };
 
 #endif

@@ -116,6 +116,7 @@ enum globox_error
 	GLOBOX_ERROR_MACOS_CLASS_ADDMETHOD,
 	GLOBOX_ERROR_MACOS_OBJ_INIT,
 	GLOBOX_ERROR_MACOS_OBJ_NIL,
+	GLOBOX_ERROR_MACOS_EGL_FAIL,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,

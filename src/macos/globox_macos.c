@@ -73,6 +73,7 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_MACOS_CLASS_ADDMETHOD] = "could not add method to class";
 	log[GLOBOX_ERROR_MACOS_OBJ_INIT] = "could not initialize object instance";
 	log[GLOBOX_ERROR_MACOS_OBJ_NIL] = "the object returned is Nil";
+	log[GLOBOX_ERROR_MACOS_EGL_FAIL] = "EGL error";
 
 	// re-used variables
 	Class class;

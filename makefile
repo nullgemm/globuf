@@ -39,7 +39,7 @@ SRCS_OBJS =
 
 # targets
 PLATFORM ?= MACOS
-CONTEXT ?= SOFTWARE
+CONTEXT ?= EGL
 NATIVE ?= FALSE
 
 ## X11
@@ -231,7 +231,7 @@ $(BIND)/$(NAME): $(SRCS_OBJS)
 ifeq ($(CONTEXT), EGL)
 $(BIND)/$(NAME).app: $(RESD)/angle/libs $(BIND)/$(NAME)
 	@echo "renaming binary to $@"
-	@cp $(RESD)/angle/libs/* $(BIND)/
+	@cp $(RESD)/angle/libs/*.dylib $(BIND)/
 	@mv $(BIND)/$(NAME) $(BIND)/$(NAME).app
 else
 $(BIND)/$(NAME).app: $(BIND)/$(NAME)
