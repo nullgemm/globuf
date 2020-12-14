@@ -38,9 +38,9 @@ SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS =
 
 # targets
-PLATFORM ?= MACOS
+PLATFORM ?= WAYLAND
 CONTEXT ?= EGL
-NATIVE ?= FALSE
+NATIVE ?= TRUE
 
 ## X11
 ifeq ($(PLATFORM), X11)

@@ -1,4 +1,18 @@
 # Globox
+Globox is a cross-platform windowing library for Linux, Windows and macOS.
+It was built as a lightweight and modular alternative to similar libraries.
+
+Only window management is taken care of, for more interactivity you will have
+to set the user input callback. Inside you can write a simple event handler or
+call another cross-platform library implementing advanced input mechanisms, like
+[Willis](https://github.com/nullgemm/willis).
+Willis handles the keyboad and mouse and should support any keymap wizardry.
+Its main function can be used directly as a Globox input callback if the
+keyboard and mouse combo is all you care about.
+
+The modularity of Globox is key to its architecture: even window handling and
+context handling were carefully separated, making it possible to implement a
+custom context type very easily without looking at the window creation code.
 
 ## Contexts backends details
 X11
@@ -18,9 +32,11 @@ Wayland
 
 Windows
  - `software` provides an abstract buffer using GDI
+   It is not yet implemented.
  - `egl` provides OpenGL contexts using an internal WGL wrapper
    It is not yet implemented.
  - `wgl` provides OpenGL contexts using only WGL
+   It is not yet implemented.
  - `vk` provides Vulkan contexts using Vulkan's WSI
    It is not yet implemented.
 
@@ -29,24 +45,41 @@ mac OS
    (which relies on gallium3D software OpenGL rendering)
  - `egl` provides OpenGL ES contexts using ANGLE
    (which implements OpenGL ES on top of metal)
-   It is not yet implemented.
  - `vk` provides Vulkan contexts using MoltenVK
    (which implements Vulkan on top of metal)
    It is not yet implemented.
 
 ## Compiling
+First configure your test build using the variables in the makefile.
+You can also set the corresponding environment variables if you prefer.
+
+`PLATFORM` must be set to one of the following
+ - `WAYLAND`
+ - `X11`
+ - `WINDOWS`
+ - `MACOS`
+
+`CONTEXT` must be set to one of the following
+ - `SOFTWARE`
+ - `EGL`
+ - `GLX` (X11 only, see previous section)
+ - `WGL` (Windows only, see previous section)
+ - `VULKAN`
+
+`NATIVE` must be set to one of the following
+ - `TRUE` when compiling for your native OS
+ - `FALSE` when cross-compiling
+
 ### Wayland
 Globox supports Plasma's background blur Wayland protocol, and although we will
 obviously stay compatible with compositors which do not support this protocol,
-it is required to install its .xml files in order to compile.
-
-By making this mandatory we make sure the feature is available to Plasma users,
-without having to build a specific binary for that purpose.
+it is required to install its .xml files in order to compile. By making this
+mandatory we make sure the feature is available to Plasma users, without having
+to build a specific binary for that purpose.
 
 Under ArchLinux, Plasma's protocols can be installed using the 
-`plasma-wayland-protocols` package found in the `Extra` repo.
-
-The official protocols repository can be found on
+`plasma-wayland-protocols` package found in the `Extra` repo. The official
+protocols repository can be found on
 [invent.kde.org](https://invent.kde.org/libraries/plasma-wayland-protocols).
 
 ### macOS
