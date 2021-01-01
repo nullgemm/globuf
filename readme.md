@@ -125,3 +125,25 @@ An extra script is available in the `res/angle` folder in case you want to use
 the original `ANGLE`: it suffers from small visual glitches but is the official
 version of the library, in which `metalANGLE` changes are eventually integrated.
 The `ANGLE` binaries are extracted from the latest `chromium` release.
+
+### Windows
+#### Cross-compiling from Linux
+#### Compiling from Windows
+The Windows backend can also be compiled from Windows for easier testing.
+*Do not download Visual Studio just for globox, it would be completely overkill!*
+You only need builds of the POSIX `rm`, `mv` and `cp` and GNU's `make` and `objcopy`.
+
+We recommend using the
+[Git for Windows SDK](https://github.com/git-for-windows/build-extra/releases/latest)
+to get a basic POSIX environment without cluttering your Windows installation:
+it will create an isolated MSYS2 installation accessible from a Bash Shell.
+
+Make sure to get the "SDK" version from the link above as the releases from
+[git-scm.com](https://git-scm.com)
+do not include all the make-dependencies and come without a package manager.
+We also recommend that you replace the command-line font with a
+[decent one](https://dejavu-fonts.github.io/Download.html).
+
+This will provide you with gcc and gdb but you can get Microsoft's stuff from the
+[Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+Remember to edit the makefile and add the MSVC folder to PATH if you do this.
