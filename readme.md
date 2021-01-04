@@ -144,6 +144,14 @@ do not include all the make-dependencies and come without a package manager.
 We also recommend that you replace the command-line font with a
 [decent one](https://dejavu-fonts.github.io/Download.html).
 
-This will provide you with gcc and gdb but you can get Microsoft's stuff from the
-[Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
-Remember to edit the makefile and add the MSVC folder to PATH if you do this.
+The Git for Windows SDK provides you with gcc, which can be used to compile.
+When going that way set `NATIVE` to false (the Linux make-path will be used).
+
+Alternatively, you can find Microsoft's *stuff* in the [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+The setup is done through the Visual Studio Installer and starts automatically.
+If you miss some components just start it again and click "Modify" to add them.
+Nothing is installed by default, you need to open the "individual components" tab
+and select those you want. In our case, this will be a compiler and SDK:
+ - `Windows 10 SDK`
+ - `MSVC - VS C++ x64/x86 build tools`
+ - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`

@@ -3,6 +3,10 @@
 NAME = globox
 ## program execution command
 CMD = ./$(NAME)
+# targets
+PLATFORM ?= WAYLAND
+CONTEXT ?= EGL
+NATIVE ?= TRUE
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
 
@@ -14,6 +18,32 @@ OBJCOPY = objcopy
 FLAGS = -std=c99 -pedantic -g
 ## warning settings
 FLAGS+= -Wall -Wextra -Werror=vla -Werror -Wno-unused-parameter -Wno-address-of-packed-member
+## windows-specific
+WINDOWS_VERSION = 10
+WINDOWS_VERSION_SDK = 10.0.19041.0
+WINDOWS_VERSION_MSVC = 14.28.29333
+WINDOWS_VERSION_VISUAL_STUDIO = 2019
+
+ifeq ($(PLATFORM), WINDOWS)
+ifeq ($(NATIVE), TRUE)
+## remove gcc flags
+FLAGS =
+## include SDK directories
+INCL+= -I"/c/Program Files (x86)/Windows Kits/$\
+$(WINDOWS_VERSION)/Include/$\
+$(WINDOWS_VERSION_SDK)/ucrt"
+INCL+= -I"/c/Program Files (x86)/Windows Kits/$\
+$(WINDOWS_VERSION)/Include/$\
+$(WINDOWS_VERSION_SDK)/um"
+INCL+= -I"/c/Program Files (x86)/Windows Kits/$\
+$(WINDOWS_VERSION)/Include/$\
+$(WINDOWS_VERSION_SDK)/shared"
+INCL+= -I"/c/Program Files (x86)/Microsoft Visual Studio/$\
+$(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
+$(WINDOWS_VERSION_MSVC)/include"
+endif
+endif
+
 ## error settings
 FLAGS+= -DGLOBOX_ERROR_LOG_BASIC
 FLAGS+= -DGLOBOX_ERROR_LOG_THROW
@@ -36,11 +66,6 @@ INCL+= -I$(INCD)
 SRCS = $(SRCD)/globox.c
 SRCS+= $(SRCD)/globox_error.c
 SRCS_OBJS =
-
-# targets
-PLATFORM ?= WAYLAND
-CONTEXT ?= EGL
-NATIVE ?= TRUE
 
 ## X11
 ifeq ($(PLATFORM), X11)
@@ -102,6 +127,59 @@ LINK+= `pkg-config wayland-egl egl glesv2 --cflags --libs`
 endif
 endif
 
+## WINDOWS
+ifeq ($(PLATFORM), WINDOWS)
+SRCS+= $(SRCD)/windows/globox_windows.c
+SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix.obj
+FLAGS+= -DGLOBOX_PLATFORM_WINDOWS -DUNICODE -D_UNICODE
+
+ifeq ($(NATIVE), FALSE)
+CMD = ./$(NAME).exe
+else
+CMD = ./$(NAME)_msvc.exe
+endif
+
+ifeq ($(NATIVE), FALSE)
+CC = x86_64-w64-mingw32-gcc
+LINK+= -mwindows
+else
+CC = "/c/Program Files (x86)/Microsoft Visual Studio/$\
+$(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
+$(WINDOWS_VERSION_MSVC)/bin/Hostx64/x64/cl.exe"
+LINK_WINDOWS+= -LIBPATH:"/c/Program Files (x86)/Windows Kits/$\
+$(WINDOWS_VERSION)/Lib/$\
+$(WINDOWS_VERSION_SDK)/um/x64"
+LINK_WINDOWS+= -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/$\
+$(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
+$(WINDOWS_VERSION_MSVC)/lib/spectre/x64"
+LINK_WINDOWS+= -LIBPATH:"/c/Program Files (x86)/Windows Kits/$\
+$(WINDOWS_VERSION)/Lib/$\
+$(WINDOWS_VERSION_SDK)/ucrt/x64"
+endif
+
+ifeq ($(CONTEXT), SOFTWARE)
+FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+SRCS+= example/software.c
+SRCS+= $(SRCD)/windows/software/globox_windows_software.c
+ifeq ($(NATIVE), FALSE)
+LINK+= -lgdi32
+else
+LINK = -l Gdi32.lib User32.lib shcore.lib
+endif
+endif
+
+ifeq ($(CONTEXT), WGL)
+FLAGS+= -DGLOBOX_CONTEXT_WGL
+SRCS+= example/wgl.c
+SRCS+= $(SRCD)/windows/software/globox_windows_wgl.c
+ifeq ($(NATIVE), FALSE)
+LINK+= -lopengl32
+else
+LINK = -l Gdi32.lib User32.lib shcore.lib
+endif
+endif
+endif
+
 ## MACOS
 ifeq ($(PLATFORM), MACOS)
 CMD = ./$(NAME).app
@@ -135,14 +213,33 @@ endif
 endif
 
 # object files list
+ifeq ($(PLATFORM), WINDOWS)
+SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.obj,$(SRCS))
+else
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
+endif
 
 # bin
 .PHONY: final
+
+ifeq ($(PLATFORM), WAYLAND)
+final: $(BIND)/$(NAME)
+endif
+
+ifeq ($(PLATFORM), X11)
+final: $(BIND)/$(NAME)
+endif
+
+ifeq ($(PLATFORM), WINDOWS)
+ifeq ($(NATIVE), FALSE)
+final: $(BIND)/$(NAME).exe
+else
+final: $(BIND)/$(NAME)_msvc.exe
+endif
+endif
+
 ifeq ($(PLATFORM), MACOS)
 final: $(BIND)/$(NAME).app
-else
-final: $(BIND)/$(NAME)
 endif
 
 ## wayland protocols
@@ -195,6 +292,15 @@ $(OBJD)/$(RESD)/icon/iconpix.o: $(RESD)/icon/iconpix.bin
 	--rename-section .data=.iconpix \
 	$< $@
 
+## windows icon
+$(OBJD)/$(RESD)/icon/iconpix.obj: $(RESD)/icon/iconpix.bin
+	@echo "building icon object"
+	@mkdir -p $(@D)
+	@objcopy -I binary -O pe-x86-64 -B i386:x86-64 \
+	--redefine-syms=$(RESD)/icon/syms.map \
+	--rename-section .data=.iconpix \
+	$< $@
+
 ## macOS icon
 $(RESD)/objconv/objconv:
 	@echo "making objconv"
@@ -217,7 +323,7 @@ $(RESD)/angle/libs:
 	@echo "getting ANGLE"
 	@cd ./$(RESD)/angle && ./getmetalangle.sh
 
-## compilation
+## compilation with gcc for X11, Wayland and Windows
 $(OBJD)/%.o: %.c
 	@echo "building object $@"
 	@mkdir -p $(@D)
@@ -228,6 +334,23 @@ $(BIND)/$(NAME): $(SRCS_OBJS)
 	@mkdir -p $(@D)
 	@$(CC) -o $@ $^ $(LINK)
 
+$(BIND)/$(NAME).exe: $(SRCS_OBJS)
+	@echo "compiling executable $@"
+	@mkdir -p $(@D)
+	@$(CC) -o $@ $^ $(LINK)
+
+## compilation with MSVC for Windows
+$(OBJD)/%.obj: %.c
+	@echo "building object $@"
+	@mkdir -p $(@D)
+	@$(CC) $(INCL) $(FLAGS) -Fo$@ -c $<
+
+$(BIND)/$(NAME)_msvc.exe: $(SRCS_OBJS)
+	@echo "compiling executable $@"
+	@mkdir -p $(@D)
+	@$(CC) -Fe$@ $(LINK) $^ -link $(LINK_WINDOWS)
+
+## compilation with clang for macOS
 ifeq ($(CONTEXT), EGL)
 $(BIND)/$(NAME).app: $(RESD)/angle/libs $(BIND)/$(NAME)
 	@echo "renaming binary to $@"
