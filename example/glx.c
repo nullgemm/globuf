@@ -198,7 +198,7 @@ int main(void)
 			return 1;
 		}
 
-		globox_platform_events_wait(&globox); // TODO compatible with windows bullshit?
+		globox_platform_events_wait(&globox);
 
 		if (globox_error_catch(&globox))
 		{

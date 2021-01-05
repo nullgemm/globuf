@@ -19,14 +19,14 @@ void globox_error_init(struct globox* globox)
 #endif
 }
 
-inline void globox_error_reset(struct globox* globox)
+void globox_error_reset(struct globox* globox)
 {
 #ifndef GLOBOX_ERROR_SKIP
 	globox->globox_error = GLOBOX_ERROR_OK;
 #endif
 }
 
-inline void globox_error_basic_log(struct globox* globox)
+void globox_error_basic_log(struct globox* globox)
 {
 #ifdef GLOBOX_ERROR_LOG_BASIC
 #ifndef GLOBOX_ERROR_SKIP
@@ -42,7 +42,7 @@ inline void globox_error_basic_log(struct globox* globox)
 #endif
 }
 
-inline char* globox_error_output_log(struct globox* globox)
+char* globox_error_output_log(struct globox* globox)
 {
 	if (globox->globox_error < GLOBOX_ERROR_SIZE)
 	{
@@ -60,13 +60,13 @@ enum globox_error globox_error_output_code(struct globox* globox)
 }
 
 #ifdef GLOBOX_ERROR_LOG_DEBUG
-inline void globox_error_throw_extra(
+void globox_error_throw_extra(
 	struct globox* globox,
 	enum globox_error new_code,
 	const char* file,
 	unsigned int line)
 #else
-inline void globox_error_throw(
+void globox_error_throw(
 	struct globox* globox,
 	enum globox_error new_code)
 #endif
@@ -94,7 +94,7 @@ inline void globox_error_throw(
 #endif
 }
 
-inline char globox_error_catch(struct globox* globox)
+char globox_error_catch(struct globox* globox)
 {
 #ifndef GLOBOX_ERROR_SKIP
 	return (globox->globox_error != GLOBOX_ERROR_OK);

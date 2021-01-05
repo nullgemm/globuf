@@ -70,67 +70,67 @@ void globox_close(struct globox* globox)
 
 // getters
 
-inline int32_t globox_get_x(struct globox* globox)
+int32_t globox_get_x(struct globox* globox)
 {
 	return globox->globox_x;
 }
 
-inline int32_t globox_get_y(struct globox* globox)
+int32_t globox_get_y(struct globox* globox)
 {
 	return globox->globox_y;
 }
 
-inline uint32_t globox_get_width(struct globox* globox)
+uint32_t globox_get_width(struct globox* globox)
 {
 	return globox->globox_width;
 }
 
-inline uint32_t globox_get_height(struct globox* globox)
+uint32_t globox_get_height(struct globox* globox)
 {
 	return globox->globox_height;
 }
 
-inline char* globox_get_title(struct globox* globox)
+char* globox_get_title(struct globox* globox)
 {
 	return globox->globox_title;
 }
 
-inline bool globox_get_closed(struct globox* globox)
+bool globox_get_closed(struct globox* globox)
 {
 	return globox->globox_closed;
 }
 
-inline bool globox_get_redraw(struct globox* globox)
+bool globox_get_redraw(struct globox* globox)
 {
 	return globox->globox_redraw;
 }
 
-inline bool globox_get_transparent(struct globox* globox)
+bool globox_get_transparent(struct globox* globox)
 {
 	return globox->globox_transparent;
 }
 
-inline bool globox_get_frameless(struct globox* globox)
+bool globox_get_frameless(struct globox* globox)
 {
 	return globox->globox_frameless;
 }
 
-inline bool globox_get_blurred(struct globox* globox)
+bool globox_get_blurred(struct globox* globox)
 {
 	return globox->globox_blurred;
 }
 
-inline enum globox_state globox_get_state(struct globox* globox)
+enum globox_state globox_get_state(struct globox* globox)
 {
 	return globox->globox_state;
 }
 
-inline void* globox_get_event_callback_data(struct globox* globox)
+void* globox_get_event_callback_data(struct globox* globox)
 {
 	return globox->globox_event_callback_data;
 }
 
-inline void (*globox_get_event_callback(struct globox* globox))(void* event, void* data)
+void (*globox_get_event_callback(struct globox* globox))(void* event, void* data)
 {
 	return globox->globox_event_callback;
 }

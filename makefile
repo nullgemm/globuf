@@ -4,8 +4,8 @@ NAME = globox
 ## program execution command
 CMD = ./$(NAME)
 # targets
-PLATFORM ?= WAYLAND
-CONTEXT ?= EGL
+PLATFORM ?= WINDOWS
+CONTEXT ?= SOFTWARE
 NATIVE ?= TRUE
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
@@ -60,7 +60,7 @@ INCD = inc
 SUBD = sub
 RESD = res
 ## header files
-INCL = -I$(SRCD)
+INCL+= -I$(SRCD)
 INCL+= -I$(INCD)
 ## main code files
 SRCS = $(SRCD)/globox.c
