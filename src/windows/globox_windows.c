@@ -254,6 +254,10 @@ void globox_platform_init(
 		"could not save the window position";
 	log[GLOBOX_ERROR_WINDOWS_DESTROY] =
 		"could not destroy window";
+	log[GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW] =
+		"could not compute the window size";
+	log[GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET] =
+		"could not get the client area rectangle";
 
 	// save class name
 	platform->globox_windows_class_name =
@@ -339,6 +343,33 @@ void globox_platform_create_window(struct globox* globox)
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
+	BOOL ok;
+
+	RECT rect =
+	{
+		.left = globox->globox_x,
+		.top = globox->globox_y,
+		.right = globox->globox_x + globox->globox_width,
+		.bottom = globox->globox_y + globox->globox_height,
+	};
+
+	ok = AdjustWindowRectEx(
+		&rect,
+		WS_OVERLAPPEDWINDOW,
+		FALSE,
+		WS_EX_OVERLAPPEDWINDOW);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW);
+		return;
+	}
+
+	globox->globox_width = rect.right - rect.left;
+	globox->globox_height = rect.bottom - rect.top;
+
 	platform->globox_platform_event_handle =
 		CreateWindowEx(
 			WS_EX_OVERLAPPEDWINDOW,              // extended style
@@ -362,7 +393,7 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	BOOL ok = UpdateWindow(platform->globox_platform_event_handle);
+	ok = UpdateWindow(platform->globox_platform_event_handle);
 
 	if (ok == 0)
 	{
@@ -522,10 +553,22 @@ void globox_platform_events_handle(
 		{
 			if (globox->globox_state != GLOBOX_STATE_MINIMIZED)
 			{
-				globox->globox_width =
-					LOWORD(platform->globox_windows_msg.lParam);
-				globox->globox_height =
-					HIWORD(platform->globox_windows_msg.lParam);
+				RECT rect;
+
+				ok = GetClientRect(
+					platform->globox_platform_event_handle,
+					&rect);
+
+				if (ok == 0)
+				{
+					globox_error_throw(
+						globox,
+						GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET);
+					break;
+				}
+
+				globox->globox_width = rect.right - rect.left;
+				globox->globox_height = rect.bottom - rect.top;
 				globox->globox_redraw = true;
 
 				platform->globox_windows_resize_callback(globox);
