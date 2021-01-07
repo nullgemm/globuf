@@ -14,15 +14,39 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 {
 	switch (msg)
 	{
-		case WM_WINDOWPOSCHANGING:
-		case WM_WINDOWPOSCHANGED:
+		case WM_CREATE:
 		{
-			WINDOWPOS* win = (WINDOWPOS*) lParam;
-			LPARAM new_param = MAKELPARAM(win->cx, win->cy);
+			struct globox* globox =
+				((CREATESTRUCT*) lParam)->lpCreateParams;
 
-			if ((win->cx != 0) && (win->cy != 0))
+			SetWindowLongPtr(
+				hwnd,
+				GWLP_USERDATA,
+				(LONG_PTR) globox);
+
+			break;
+		}
+		case WM_WINDOWPOSCHANGING:
+		{
+			struct globox* globox =
+				(struct globox*)
+					GetWindowLongPtr(
+						hwnd,
+						GWLP_USERDATA);
+
+			if (globox == NULL)
 			{
-				PostMessage(hwnd, WM_SIZE, wParam, new_param);
+				break;
+			}
+
+			struct globox_platform* platform =
+				&(globox->globox_platform);
+
+			if (platform->globox_windows_sizemove_step <
+				GLOBOX_WINDOWS_SIZEMOVE_SIZEMOVE)
+			{
+				((WINDOWPOS*) lParam)->flags |=
+					SWP_NOMOVE | SWP_NOSIZE;
 			}
 
 			break;
@@ -200,6 +224,9 @@ void globox_platform_init(
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
+	platform->globox_windows_sizemove_step =
+		GLOBOX_WINDOWS_SIZEMOVE_WAITING;
+
 	log[GLOBOX_ERROR_WINDOWS_UTF8_WCHAR] =
 		"could not convert UTF-8";
 	log[GLOBOX_ERROR_WINDOWS_MODULE_HANDLE] =
@@ -258,6 +285,8 @@ void globox_platform_init(
 		"could not compute the window size";
 	log[GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET] =
 		"could not get the client area rectangle";
+	log[GLOBOX_ERROR_WINDOWS_GLOBOX_PTR] =
+		"could not associate the globox pointer to the window";
 
 	// save class name
 	platform->globox_windows_class_name =
@@ -310,7 +339,7 @@ void globox_platform_init(
 	WNDCLASSEX class =
 	{
 		.cbSize = sizeof (platform->globox_windows_class),
-		.style = CS_HREDRAW | CS_VREDRAW,     // redraw on size changes
+		.style = 0,      // we don't need extra PAINT events
 		.lpfnWndProc = window_procedure,      // window procedure
 		.cbClsExtra = 0, // extra bytes after the window-class structure
 		.cbWndExtra = 0, // extra bytes after the window instance
@@ -383,7 +412,7 @@ void globox_platform_create_window(struct globox* globox)
 			NULL,  // parent window handle
 			NULL,  // window-specific menu handle
 			platform->globox_windows_class_module_handle,
-			NULL); // custom data included in CREATESTRUCT
+			globox); // custom data included in CREATESTRUCT
 
 	if (platform->globox_platform_event_handle == NULL)
 	{
@@ -524,7 +553,6 @@ void globox_platform_events_handle(
 						globox_error_throw(
 							globox,
 							GLOBOX_ERROR_WINDOWS_DESTROY);
-						break;
 					}
 
 					break;

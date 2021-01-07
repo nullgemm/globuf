@@ -23,6 +23,16 @@
 // forward-declaration
 struct globox;
 
+// sizemove enum
+enum globox_windows_sizemove
+{
+	GLOBOX_WINDOWS_SIZEMOVE_WAITING = 0, // waiting for the sizemove event
+	GLOBOX_WINDOWS_SIZEMOVE_RELEASING,   // killing the sizemove modal loop
+	GLOBOX_WINDOWS_SIZEMOVE_DRAGGING,    // synthetizing a dragging context
+	GLOBOX_WINDOWS_SIZEMOVE_RESTORING,   // restoring the old mouse position
+	GLOBOX_WINDOWS_SIZEMOVE_SIZEMOVE,    // ready
+};
+
 // platform structure
 struct globox_platform
 {
@@ -52,6 +62,8 @@ struct globox_platform
 	LONG globox_windows_style_backup;
 	LONG globox_windows_exstyle_backup;
 	WINDOWPLACEMENT globox_windows_position_backup;
+
+	enum globox_windows_sizemove globox_windows_sizemove_step;
 
 	void (*globox_windows_resize_callback)(struct globox* globox);
 };
@@ -124,6 +136,7 @@ enum globox_error
 	GLOBOX_ERROR_WINDOWS_DESTROY,
 	GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW,
 	GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET,
+	GLOBOX_ERROR_WINDOWS_GLOBOX_PTR,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,
