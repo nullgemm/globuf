@@ -26,11 +26,11 @@ struct globox;
 // sizemove enum
 enum globox_windows_sizemove
 {
-	GLOBOX_WINDOWS_SIZEMOVE_WAITING = 0, // waiting for the sizemove event
-	GLOBOX_WINDOWS_SIZEMOVE_RELEASING,   // killing the sizemove modal loop
-	GLOBOX_WINDOWS_SIZEMOVE_DRAGGING,    // synthetizing a dragging context
-	GLOBOX_WINDOWS_SIZEMOVE_RESTORING,   // restoring the old mouse position
-	GLOBOX_WINDOWS_SIZEMOVE_SIZEMOVE,    // ready
+	GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL = 0, // waiting for the modal loop
+	GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES,     // waiting for the edge info
+	GLOBOX_WINDOWS_SIZEMOVE_KILLMODAL,     // killing the modal loop
+	GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG,     // synthetizing a mouse drag
+	GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE,     // starting the resize
 };
 
 // platform structure
@@ -63,6 +63,18 @@ struct globox_platform
 	LONG globox_windows_exstyle_backup;
 	WINDOWPLACEMENT globox_windows_position_backup;
 
+	uint32_t globox_windows_old_outer_x;
+	uint32_t globox_windows_old_outer_y;
+	uint32_t globox_windows_framediff_x;
+	uint32_t globox_windows_framediff_y;
+
+	uint32_t globox_windows_outer_width;
+	uint32_t globox_windows_outer_height;
+	uint32_t globox_windows_old_outer_width;
+	uint32_t globox_windows_old_outer_height;
+
+	int64_t globox_windows_interactive_x;
+	int64_t globox_windows_interactive_y;
 	enum globox_windows_sizemove globox_windows_sizemove_step;
 
 	void (*globox_windows_resize_callback)(struct globox* globox);

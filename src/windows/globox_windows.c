@@ -6,9 +6,12 @@
 #include "globox_error.h"
 // windows includes
 #include <windows.h>
+#include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
 
 // include platform structures
 #include "windows/globox_windows.h"
+#define WINDOW_MIN_X 170
+#define WINDOW_MIN_Y 50
 
 LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -16,18 +19,19 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	{
 		case WM_CREATE:
 		{
+			// saves the globox pointer in the window structure for
+			// use in this callback when processing other events
 			struct globox* globox =
 				((CREATESTRUCT*) lParam)->lpCreateParams;
 
-			SetWindowLongPtr(
-				hwnd,
-				GWLP_USERDATA,
-				(LONG_PTR) globox);
+			// could fail...
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR) globox);
 
 			break;
 		}
-		case WM_WINDOWPOSCHANGING:
+		case WM_ENTERSIZEMOVE:
 		{
+			// get the globox pointer
 			struct globox* globox =
 				(struct globox*)
 					GetWindowLongPtr(
@@ -42,11 +46,170 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			struct globox_platform* platform =
 				&(globox->globox_platform);
 
+			// confirm we entered the modal loop and
+			// started waiting for the edge info
+			platform->globox_windows_sizemove_step =
+				GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES;
+
+			break;
+		}
+		case WM_MOVING:
+		{
+			wParam = 0;
+
+			// fallthrough
+		}
+		case WM_SIZING:
+		{
+			// get the globox pointer
+			struct globox* globox =
+				(struct globox*)
+					GetWindowLongPtr(
+						hwnd,
+						GWLP_USERDATA);
+
+			if (globox == NULL)
+			{
+				break;
+			}
+
+			struct globox_platform* platform =
+				&(globox->globox_platform);
+
+			// only proceed when in the modal loop
+			if (platform->globox_windows_sizemove_step !=
+				GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES)
+			{
+				break;
+			}
+
+			// confirm we got the info and
+			// started killing the loop
+			platform->globox_windows_sizemove_step =
+				GLOBOX_WINDOWS_SIZEMOVE_KILLMODAL;
+
+			// save the sizing edge for use during the
+			// globox-initiated interactive resize
+			enum globox_interactive_mode mode;
+
+			switch (wParam)
+			{
+				case 0:
+				{
+					mode = GLOBOX_INTERACTIVE_MOVE;
+					break;
+				}
+				case WMSZ_LEFT:
+				{
+					mode = GLOBOX_INTERACTIVE_W;
+					break;
+				}
+				case WMSZ_RIGHT:
+				{
+					mode = GLOBOX_INTERACTIVE_E;
+					break;
+				}
+				case WMSZ_TOP:
+				{
+					mode = GLOBOX_INTERACTIVE_N;
+					break;
+				}
+				case WMSZ_TOPLEFT:
+				{
+					mode = GLOBOX_INTERACTIVE_NW;
+					break;
+				}
+				case WMSZ_TOPRIGHT:
+				{
+					mode = GLOBOX_INTERACTIVE_NE;
+					break;
+				}
+				case WMSZ_BOTTOM:
+				{
+					mode = GLOBOX_INTERACTIVE_S;
+					break;
+				}
+				case WMSZ_BOTTOMLEFT:
+				{
+					mode = GLOBOX_INTERACTIVE_SW;
+					break;
+				}
+				case WMSZ_BOTTOMRIGHT:
+				{
+					mode = GLOBOX_INTERACTIVE_SE;
+					break;
+				}
+			}
+
+			// kills the SIZEMOVE modal loop by
+			// synthetizing a left mouse release
+			MOUSEINPUT mouse =
+			{
+				.dx = 0,
+				.dy = 0,
+				.mouseData = 0,
+				.dwFlags = MOUSEEVENTF_LEFTUP,
+				.time = 0,
+				.dwExtraInfo = 0,
+			};
+
+			INPUT input =
+			{
+				INPUT_MOUSE,
+				mouse,
+			};
+
+			UINT ok = SendInput(1, &input, sizeof (INPUT));
+
+			if (ok == 0)
+			{
+				// we can't fail properly inside
+				// this fucking callback
+				break;
+			}
+
+			// initiate an interactive move and resize operation
+			// the next sizemove step will be set automatically
+			globox_platform_interactive_mode(
+				globox,
+				mode);
+
+			break;
+		}
+		case WM_WINDOWPOSCHANGING:
+		{
+			// get the globox pointer
+			struct globox* globox =
+				(struct globox*)
+					GetWindowLongPtr(
+						hwnd,
+						GWLP_USERDATA);
+
+			if (globox == NULL)
+			{
+				break;
+			}
+
+			struct globox_platform* platform =
+				&(globox->globox_platform);
+
+			// block window resizing and moving until
+			// globox has finished fooling windows
 			if (platform->globox_windows_sizemove_step <
-				GLOBOX_WINDOWS_SIZEMOVE_SIZEMOVE)
+				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE)
 			{
 				((WINDOWPOS*) lParam)->flags |=
-					SWP_NOMOVE | SWP_NOSIZE;
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOSENDCHANGING;
+			}
+			else
+			{
+				WINDOWPOS* win = (WINDOWPOS*) lParam;
+				LPARAM new_param = MAKELPARAM(win->cx, win->cy);
+
+				if ((win->cx != 0) && (win->cy != 0))
+				{
+					PostMessage(hwnd, WM_SIZE, wParam, new_param);
+				}
 			}
 
 			break;
@@ -205,7 +368,52 @@ HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
 
 void query_pointer(struct globox* globox)
 {
-	// TODO
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	POINT point;
+	RECT rect;
+	BOOL ok;
+
+	// get the cursor position
+	ok = GetCursorPos(&point);
+
+	if (ok == 0)
+	{
+		return;
+	}
+
+	// get the window bounds
+	ok = GetWindowRect(platform->globox_platform_event_handle, &rect);
+
+	if (ok == 0)
+	{
+		return;
+	}
+
+	// save the last mouse position
+	platform->globox_windows_interactive_x =
+		point.x;
+	platform->globox_windows_interactive_y =
+		point.y;
+
+	// save the last window position
+	platform->globox_windows_old_outer_x =
+		rect.left;
+	platform->globox_windows_old_outer_y =
+		rect.top;
+
+	// update the current window size
+	platform->globox_windows_outer_width =
+		rect.right - rect.left;
+	platform->globox_windows_outer_height =
+		rect.bottom - rect.top;
+
+	// save the last window size
+	platform->globox_windows_old_outer_width =
+		platform->globox_windows_outer_width;
+	platform->globox_windows_old_outer_height =
+		platform->globox_windows_outer_height;
 }
 
 // initalize the display system
@@ -225,7 +433,7 @@ void globox_platform_init(
 	globox->globox_blurred = blurred;
 
 	platform->globox_windows_sizemove_step =
-		GLOBOX_WINDOWS_SIZEMOVE_WAITING;
+		GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
 
 	log[GLOBOX_ERROR_WINDOWS_UTF8_WCHAR] =
 		"could not convert UTF-8";
@@ -396,8 +604,16 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	globox->globox_width = rect.right - rect.left;
-	globox->globox_height = rect.bottom - rect.top;
+	platform->globox_windows_outer_width = rect.right - rect.left;
+	platform->globox_windows_outer_height = rect.bottom - rect.top;
+
+	platform->globox_windows_framediff_x =
+		platform->globox_windows_outer_width
+		- globox->globox_width;
+
+	platform->globox_windows_framediff_y =
+		platform->globox_windows_outer_height
+		- globox->globox_height;
 
 	platform->globox_platform_event_handle =
 		CreateWindowEx(
@@ -407,8 +623,8 @@ void globox_platform_create_window(struct globox* globox)
 			WS_OVERLAPPEDWINDOW,
 			globox->globox_x,
 			globox->globox_y,
-			globox->globox_width,
-			globox->globox_height,
+			platform->globox_windows_outer_width,
+			platform->globox_windows_outer_height,
 			NULL,  // parent window handle
 			NULL,  // window-specific menu handle
 			platform->globox_windows_class_module_handle,
@@ -490,6 +706,9 @@ void globox_platform_interactive_mode(
 	struct globox* globox,
 	enum globox_interactive_mode mode)
 {
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
 	if ((mode != GLOBOX_INTERACTIVE_STOP)
 		&& (globox->globox_interactive_mode != mode))
 	{
@@ -497,17 +716,99 @@ void globox_platform_interactive_mode(
 
 		if (globox_error_catch(globox))
 		{
+			platform->globox_windows_sizemove_step =
+				GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
+
 			return;
 		}
 
 		globox->globox_interactive_mode = mode;
+
+		platform->globox_windows_sizemove_step =
+			GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG;
+
+		// gets mouse capture authorization by
+		// synthetizing a left mouse press
+		UINT ok;
+
+		// compute the screen coordinates for the client area origin
+		POINT origin =
+		{
+			.x = 0,
+			.y = 0,
+		};
+
+		ok = ClientToScreen(platform->globox_platform_event_handle, &origin);
+
+		if (ok == 0)
+		{
+			// TODO error ?
+			return;
+		}
+
+		// move the cursor to the middle of the client area
+		ok = SetCursorPos(
+			origin.x + (globox->globox_width / 2),
+			origin.y + (globox->globox_height / 2));
+
+		if (ok == 0)
+		{
+			// TODO error ?
+			return;
+		}
+
+		// press the left mouse button
+		MOUSEINPUT mouse2 =
+		{
+			.dx = 0,
+			.dy = 0,
+			.mouseData = 0,
+			.dwFlags = MOUSEEVENTF_LEFTDOWN,
+			.time = 0,
+			.dwExtraInfo = 0,
+		};
+
+		INPUT input2 =
+		{
+			INPUT_MOUSE,
+			mouse2,
+		};
+
+		ok = SendInput(1, &input2, sizeof (INPUT));
+
+		if (ok == 0)
+		{
+			// TODO error ?
+			return;
+		}
+
+		// compute the screen coordinates for the
+		// interactive resize reference point
+		POINT old_mouse_pos =
+		{
+			.x = platform->globox_windows_interactive_x,
+			.y = platform->globox_windows_interactive_y,
+		};
+
+		// move the cursor back to the interactive
+		// resize reference point
+		ok = SetCursorPos(
+			old_mouse_pos.x,
+			old_mouse_pos.y);
+
+		if (ok == 0)
+		{
+			// TODO error ?
+			return;
+		}
 	}
 	else
 	{
 		globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
-	}
 
-	// TODO
+		platform->globox_windows_sizemove_step =
+			GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
+	}
 }
 
 void globox_platform_events_handle(
@@ -606,6 +907,235 @@ void globox_platform_events_handle(
 		}
 		default:
 		{
+			// get mouse movements outside of the window
+			// when we are in interactive resize mode
+			if ((platform->globox_windows_msg.message ==
+				WM_LBUTTONDOWN)
+			&& (platform->globox_windows_sizemove_step ==
+				GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG))
+			{
+				SetCapture(
+					platform->globox_platform_event_handle);
+
+				platform->globox_windows_sizemove_step =
+					GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE;
+			}
+			else if ((platform->globox_windows_msg.message ==
+				WM_LBUTTONUP)
+			&& (platform->globox_windows_sizemove_step ==
+				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE))
+			{
+				ReleaseCapture();
+
+				globox_platform_interactive_mode(
+					globox,
+					GLOBOX_INTERACTIVE_STOP);
+			}
+			else if ((platform->globox_windows_msg.message ==
+				WM_MOUSEMOVE)
+			&& (platform->globox_windows_sizemove_step ==
+				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE))
+			{
+				int16_t x = GET_X_LPARAM(platform->globox_windows_msg.lParam);
+				int16_t y = GET_Y_LPARAM(platform->globox_windows_msg.lParam);
+
+				POINT start =
+				{
+					.x = platform->globox_windows_interactive_x,
+					.y = platform->globox_windows_interactive_y,
+				};
+
+				ok = ScreenToClient(
+					platform->globox_platform_event_handle,
+					&start);
+
+				if (ok == 0)
+				{
+					// TODO error ?
+					return;
+				}
+
+				RECT origin_rect;
+
+				ok = GetWindowRect(
+					platform->globox_platform_event_handle,
+					&origin_rect);
+
+				if (ok == 0)
+				{
+					// TODO error ?
+					break;
+				}
+
+				int32_t origin_x = origin_rect.left;
+				int32_t origin_y = origin_rect.top;
+
+				switch (globox->globox_interactive_mode)
+				{
+					case GLOBOX_INTERACTIVE_MOVE:
+					{
+						origin_y =
+							platform->globox_windows_old_outer_y
+							+ (y - start.y);
+
+						origin_x =
+							platform->globox_windows_old_outer_x
+							+ (x - start.x);
+						break;
+					}
+					case GLOBOX_INTERACTIVE_N:
+					{
+						origin_y =
+							platform->globox_windows_old_outer_y
+							+ (y - start.y);
+
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							- (y - start.y);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_NW:
+					{
+						origin_y =
+							platform->globox_windows_old_outer_y
+							+ (y - start.y);
+
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							- (y - start.y);
+
+						origin_x =
+							platform->globox_windows_old_outer_x
+							+ (x - start.x);
+
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							- (x - start.x);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_W:
+					{
+						origin_x =
+							platform->globox_windows_old_outer_x
+							+ (x - start.x);
+
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							- (x - start.x);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_SW:
+					{
+						origin_x =
+							platform->globox_windows_old_outer_x
+							+ (x - start.x);
+
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							- (x - start.x);
+
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							+ (y - start.y);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_S:
+					{
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							+ (y - start.y);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_SE:
+					{
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							+ (x - start.x);
+
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							+ (y - start.y);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_E:
+					{
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							+ (x - start.x);
+
+						break;
+					}
+					case GLOBOX_INTERACTIVE_NE:
+					{
+						origin_y =
+							platform->globox_windows_old_outer_y
+							+ (y - start.y);
+
+						platform->globox_windows_outer_height =
+							platform->globox_windows_old_outer_height
+							- (y - start.y);
+
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							+ (x - start.x);
+
+						break;
+					}
+				}
+
+				int32_t diff_x =
+					platform->globox_windows_outer_width
+					- platform->globox_windows_framediff_x;
+
+				int32_t diff_y =
+					platform->globox_windows_outer_height
+					- platform->globox_windows_framediff_y;
+
+				if (diff_x < WINDOW_MIN_X)
+				{
+					platform->globox_windows_outer_width += (WINDOW_MIN_X - diff_x);
+					origin_x = origin_rect.left;
+				}
+
+				if (diff_y < WINDOW_MIN_Y)
+				{
+					platform->globox_windows_outer_height += (WINDOW_MIN_Y - diff_y);
+					origin_y = origin_rect.top;
+				}
+
+				ok = SetWindowPos(
+					platform->globox_platform_event_handle,
+					HWND_TOPMOST,
+					origin_x,
+					origin_y,
+					platform->globox_windows_outer_width,
+					platform->globox_windows_outer_height,
+					0);
+
+				if (ok == 0)
+				{
+					// TODO error ?
+				}
+			}
+
+			if ((platform->globox_windows_sizemove_step ==
+				GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL)
+			&& ((platform->globox_windows_msg.message ==
+				WM_LBUTTONDOWN)
+			|| (platform->globox_windows_msg.message ==
+				WM_LBUTTONUP)
+			|| (platform->globox_windows_msg.message ==
+				WM_MOUSEMOVE)))
+			{
+				break;
+			}
+
 			if (globox->globox_event_callback != NULL)
 			{
 				globox->globox_event_callback(
