@@ -590,11 +590,20 @@ void globox_platform_create_window(struct globox* globox)
 		.bottom = globox->globox_y + globox->globox_height,
 	};
 
+	DWORD style = WS_OVERLAPPEDWINDOW;
+	DWORD exstyle = WS_EX_OVERLAPPEDWINDOW;
+
+	if (globox->globox_frameless == true)
+	{
+		style = WS_POPUP;
+		exstyle = 0;
+	}
+
 	ok = AdjustWindowRectEx(
 		&rect,
-		WS_OVERLAPPEDWINDOW,
+		style,
 		FALSE,
-		WS_EX_OVERLAPPEDWINDOW);
+		exstyle);
 
 	if (ok == 0)
 	{
@@ -617,10 +626,10 @@ void globox_platform_create_window(struct globox* globox)
 
 	platform->globox_platform_event_handle =
 		CreateWindowEx(
-			WS_EX_OVERLAPPEDWINDOW,              // extended style
+			exstyle,
 			platform->globox_windows_class_name, // class name
 			platform->globox_windows_class_name, // window title
-			WS_OVERLAPPEDWINDOW,
+			style,
 			globox->globox_x,
 			globox->globox_y,
 			platform->globox_windows_outer_width,
