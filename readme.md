@@ -31,8 +31,8 @@ Wayland
    It is not yet implemented.
 
 Windows
- - `software` provides an abstract buffer using GDI
-   It is not yet implemented.
+ - `software` provides a GPU buffer using Direct2D
+ - `gdi` provides an abstract buffer using GDI
  - `egl` provides OpenGL contexts using an internal WGL wrapper
    It is not yet implemented.
  - `wgl` provides OpenGL contexts using only WGL
@@ -61,6 +61,7 @@ You can also set the corresponding environment variables if you prefer.
 
 `CONTEXT` must be set to one of the following
  - `SOFTWARE`
+ - `GDI` (Windows only, see previous section)
  - `EGL`
  - `GLX` (X11 only, see previous section)
  - `WGL` (Windows only, see previous section)
