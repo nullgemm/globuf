@@ -649,13 +649,17 @@ void globox_platform_create_window(struct globox* globox)
 		exstyle = 0;
 	}
 
+#if defined(GLOBOX_CONTEXT_GDI)
+	// GDI does not support transparency or blur in theory:
+	// it can be made to work, but the result is not reliable,
+	// so we disable the fun here to prevent glitchy uses of globox
+	globox->globox_transparent = false;
+	globox->globox_blurred = false;
+#endif
+
 	if (globox->globox_transparent == true)
 	{
-#ifndef GLOBOX_CONTEXT_GDI
 		exstyle |= WS_EX_NOREDIRECTIONBITMAP;
-#else
-		globox->globox_transparent = false;
-#endif
 	}
 
 	ok = AdjustWindowRectEx(
@@ -716,12 +720,12 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	if (globox->globox_transparent == false)
+	if ((globox->globox_transparent == false) || (globox->globox_blurred == false))
 	{
 		return;
 	}
 
-	// enable transparency
+	// enable blur
 	HMODULE user32 = GetModuleHandle(TEXT("user32.dll"));
 
 	if (user32 == NULL)
