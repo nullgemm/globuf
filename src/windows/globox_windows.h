@@ -12,6 +12,8 @@
 // this will also have the effect of exposing the graphic context functions
 #if defined(GLOBOX_CONTEXT_SOFTWARE)
 	#include "software/globox_windows_software.h"
+#elif defined(GLOBOX_CONTEXT_GDI)
+	#include "gdi/globox_windows_gdi.h"
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 	#include "vulkan/globox_windows_vulkan.h"
 #elif defined(GLOBOX_CONTEXT_EGL)
@@ -43,7 +45,7 @@ struct globox_platform
 	uint32_t* globox_platform_argb;
 
 	// graphic contexts
-#if defined(GLOBOX_CONTEXT_SOFTWARE)
+#if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_GDI)
 	struct globox_windows_software globox_windows_software;
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 	struct globox_windows_vulkan globox_windows_vulkan;
@@ -78,6 +80,7 @@ struct globox_platform
 	enum globox_windows_sizemove globox_windows_sizemove_step;
 
 	void (*globox_windows_resize_callback)(struct globox* globox);
+	void (*globox_windows_dcomp_callback)(struct globox* globox);
 };
 
 enum globox_error
@@ -149,6 +152,29 @@ enum globox_error
 	GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW,
 	GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET,
 	GLOBOX_ERROR_WINDOWS_GLOBOX_PTR,
+
+	GLOBOX_ERROR_WINDOWS_MODULE_USER32,
+	GLOBOX_ERROR_WINDOWS_SYM,
+	GLOBOX_ERROR_WINDOWS_TRANSPARENT,
+
+	GLOBOX_ERROR_WINDOWS_SWAPCHAIN_CREATE,
+	GLOBOX_ERROR_WINDOWS_FACTORY_CREATE,
+	GLOBOX_ERROR_WINDOWS_ADAPTERS_END,
+	GLOBOX_ERROR_WINDOWS_ADAPTERS_LIST,
+	GLOBOX_ERROR_WINDOWS_DXGI_DEVICE,
+	GLOBOX_ERROR_WINDOWS_DCOMP_DEVICE,
+	GLOBOX_ERROR_WINDOWS_DCOMP_TARGET,
+	GLOBOX_ERROR_WINDOWS_DCOMP_VISUAL,
+	GLOBOX_ERROR_WINDOWS_D2D_FACTORY,
+	GLOBOX_ERROR_WINDOWS_D2D_DEVICE,
+	GLOBOX_ERROR_WINDOWS_D2D_DEVICE_CONTEXT,
+	GLOBOX_ERROR_WINDOWS_D2D_SWAPCHAIN_SURFACE,
+	GLOBOX_ERROR_WINDOWS_D2D_SURFACE_BITMAP,
+	GLOBOX_ERROR_WINDOWS_D2D_COPY,
+	GLOBOX_ERROR_WINDOWS_D2D_PRESENT,
+	GLOBOX_ERROR_WINDOWS_DCOMP_BIND,
+	GLOBOX_ERROR_WINDOWS_DCOMP_SET_ROOT,
+	GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,

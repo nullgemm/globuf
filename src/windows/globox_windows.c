@@ -10,6 +10,8 @@
 
 // include platform structures
 #include "windows/globox_windows.h"
+#include "windows/globox_windows_symbols.h"
+
 #define WINDOW_MIN_X 170
 #define WINDOW_MIN_Y 50
 
@@ -496,6 +498,49 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_WINDOWS_GLOBOX_PTR] =
 		"could not associate the globox pointer to the window";
 
+	log[GLOBOX_ERROR_WINDOWS_MODULE_USER32] =
+		"could not load user32.dll";
+	log[GLOBOX_ERROR_WINDOWS_SYM] =
+		"could not find the composition function symbol";
+	log[GLOBOX_ERROR_WINDOWS_TRANSPARENT] =
+		"could not make the window transparent";
+	log[GLOBOX_ERROR_WINDOWS_SWAPCHAIN_CREATE] =
+		"could not create the swapchain";
+	log[GLOBOX_ERROR_WINDOWS_FACTORY_CREATE] =
+		"could not create a DirectX factory";
+	log[GLOBOX_ERROR_WINDOWS_ADAPTERS_END] =
+		"could not find a suitable DirectX adapter";
+	log[GLOBOX_ERROR_WINDOWS_ADAPTERS_LIST] =
+		"could not list the available DirectX adapters";
+	log[GLOBOX_ERROR_WINDOWS_DXGI_DEVICE] =
+		"could not get the DirectX device";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_DEVICE] =
+		"could not create a DirectComposition device";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_TARGET] =
+		"could not create a DirectComposition target";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_VISUAL] =
+		"could not create a DirectComposition visual";
+	log[GLOBOX_ERROR_WINDOWS_D2D_FACTORY] =
+		"could not create a Direct2D factory";
+	log[GLOBOX_ERROR_WINDOWS_D2D_DEVICE] =
+		"could not create a Direct2D device";
+	log[GLOBOX_ERROR_WINDOWS_D2D_DEVICE_CONTEXT] =
+		"could not get a Direct2D device context";
+	log[GLOBOX_ERROR_WINDOWS_D2D_SWAPCHAIN_SURFACE] =
+		"could not get a swap chain surface";
+	log[GLOBOX_ERROR_WINDOWS_D2D_SURFACE_BITMAP] =
+		"could not get the surface bitmap";
+	log[GLOBOX_ERROR_WINDOWS_D2D_COPY] =
+		"could not copy the buffer to the surface bitmap";
+	log[GLOBOX_ERROR_WINDOWS_D2D_PRESENT] =
+		"could not present the swap chain surface";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_BIND] =
+		"could not bind the swap chain surface to the visual";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_SET_ROOT] =
+		"could not set the visual as the composition tree\'s root";
+	log[GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT] =
+		"could not commit the composition operation";
+
 	// save class name
 	platform->globox_windows_class_name =
 		utf8_to_wchar(globox->globox_title);
@@ -590,13 +635,27 @@ void globox_platform_create_window(struct globox* globox)
 		.bottom = globox->globox_y + globox->globox_height,
 	};
 
-	DWORD style = WS_OVERLAPPEDWINDOW;
-	DWORD exstyle = WS_EX_OVERLAPPEDWINDOW;
+	DWORD style;
+	DWORD exstyle;
 
-	if (globox->globox_frameless == true)
+	if (globox->globox_frameless == false)
+	{
+		style = WS_OVERLAPPEDWINDOW;
+		exstyle = WS_EX_OVERLAPPEDWINDOW;
+	}
+	else
 	{
 		style = WS_POPUP;
 		exstyle = 0;
+	}
+
+	if (globox->globox_transparent == true)
+	{
+#ifndef GLOBOX_CONTEXT_GDI
+		exstyle |= WS_EX_NOREDIRECTIONBITMAP;
+#else
+		globox->globox_transparent = false;
+#endif
 	}
 
 	ok = AdjustWindowRectEx(
@@ -656,6 +715,61 @@ void globox_platform_create_window(struct globox* globox)
 			GLOBOX_ERROR_WINDOWS_UPDATE_WINDOW);
 		return;
 	}
+
+	if (globox->globox_transparent == false)
+	{
+		return;
+	}
+
+	// enable transparency
+	HMODULE user32 = GetModuleHandle(TEXT("user32.dll"));
+
+	if (user32 == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_MODULE_USER32);
+		return;
+	}
+
+	FARPROC func = GetProcAddress(user32, "SetWindowCompositionAttribute");
+
+	if (func == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_SYM);
+		return;
+	}
+
+	SetWindowCompositionAttribute = (HRESULT (*)(HWND, void*)) func;
+
+	struct ACCENT_POLICY accent =
+	{
+		.AccentState = ACCENT_ENABLE_BLURBEHIND,
+		.AccentFlags = 0,
+		.GradientColor = 0,
+		.AnimationId = 0,
+	};
+
+	struct WINDOWCOMPOSITIONATTRIBDATA data =
+	{
+		.dwAttrib = WCA_ACCENT_POLICY,
+		.pvData = &accent,
+		.cbData = sizeof (accent),
+	};
+
+	ok = SetWindowCompositionAttribute(
+		platform->globox_platform_event_handle,
+		&data);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_TRANSPARENT);
+		return;
+	}
 }
 
 void globox_platform_hooks(struct globox* globox)
@@ -669,7 +783,10 @@ void globox_platform_hooks(struct globox* globox)
 
 void globox_platform_commit(struct globox* globox)
 {
-	// not needed
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	platform->globox_windows_dcomp_callback(globox);
 }
 
 void globox_platform_prepoll(struct globox* globox)

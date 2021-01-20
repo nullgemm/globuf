@@ -8,6 +8,65 @@
 #include <stdint.h>
 // windows includes
 #include <windows.h>
+#include <dxgi.h>
+#include <dxgi1_2.h>
+#include <dxgi1_3.h>
+#include <d3d11.h>
+#include <d2d1.h>
+#include <dcommon.h>
+#include <d2d1_1.h>
+#include <d2d1_2.h>
+#include "windows/globox_windows_symbols.h"
+#include "windows/software/globox_windows_software.h"
+
+void swapchain(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_windows_software* context = &(platform->globox_windows_software);
+
+	HRESULT ok;
+
+	DXGI_SAMPLE_DESC sample =
+	{
+		.Count = 1,
+#if 0
+		.Quality = 0,
+#endif
+	};
+
+	DXGI_SWAP_CHAIN_DESC1 swapchain_info =
+	{
+		.Width = context->globox_software_buffer_width,
+		.Height = context->globox_software_buffer_height,
+		.Format = DXGI_FORMAT_B8G8R8A8_UNORM,
+		.SampleDesc = sample,
+		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		.BufferCount = 2,
+		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
+		.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED,
+#if 0
+		.Stereo = False,
+		.Scaling = DXGI_SCALING_NONE,
+		.Flags = 0,
+#endif
+	};
+
+	ok = IDXGIFactory2_CreateSwapChainForComposition(
+		context->globox_software_dxgi_factory,
+		(IUnknown*) context->globox_software_dxgi_device,
+		&swapchain_info,
+		NULL,
+		&(context->globox_software_swapchain));
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_SWAPCHAIN_CREATE);
+		return;
+	}
+}
 
 void resize(struct globox* globox)
 {
@@ -15,61 +74,195 @@ void resize(struct globox* globox)
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
+	HRESULT ok;
+
 	// update bitmap info
-	context->globox_software_bmp_info.bmiHeader.biWidth = globox->globox_width;
-	context->globox_software_bmp_info.bmiHeader.biHeight = globox->globox_height;
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
 
-	// destroy old bitmap handle
-	if (context->globox_software_bmp_handle != NULL)
+	free(platform->globox_platform_argb);
+
+	platform->globox_platform_argb =
+		malloc(
+			4
+			* context->globox_software_buffer_width
+			* context->globox_software_buffer_height);
+
+	if (platform->globox_platform_argb == NULL)
 	{
-		BOOL ok = DeleteObject(context->globox_software_bmp_handle);
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_ALLOC);
+		return;
+	}
 
-		if (ok == 0)
+	// create swap chain
+	swapchain(globox);
+}
+
+void dcomp(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_windows_software* context = &(platform->globox_windows_software);
+
+	// DirectX11 initialization for DirectComposition
+	HRESULT ok;
+
+	// create a factory
+	ok = CreateDXGIFactory2(
+		0,
+		&IID_IDXGIFactory2,
+		&(context->globox_software_dxgi_factory));
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_FACTORY_CREATE);
+		return;
+	}
+
+	// find a compatible adapter
+	DXGI_ADAPTER_DESC desc;
+	IDXGIAdapter* adapter;
+	UINT i = 0;
+
+	do
+	{
+		ok = IDXGIFactory2_EnumAdapters(
+			context->globox_software_dxgi_factory,
+			i,
+			&adapter);
+
+		// this error path includes the DXGI_ERROR_NOT_FOUND case
+		// which occurs when reaching the end of the adapter list
+		if (ok != S_OK)
 		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WINDOWS_DELETE_BMP_HANDLE);
+			if (ok == DXGI_ERROR_NOT_FOUND)
+			{
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_WINDOWS_ADAPTERS_END);
+			}
+			else
+			{
+				globox_error_throw(
+					globox,
+					GLOBOX_ERROR_WINDOWS_ADAPTERS_LIST);
+			}
+
 			return;
 		}
+
+		// try creating the D3D11 device
+		ok = D3D11CreateDevice(
+			adapter,
+			D3D_DRIVER_TYPE_UNKNOWN,
+			NULL,  // don't provide D3D a software rasterizer
+			D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+			NULL,  // let D3D attempt to create feature levels
+			0,     // don't require a specific feature level
+			D3D11_SDK_VERSION,
+			&(context->globox_software_d3d11_device),
+			NULL,  // don't get the chosen feature level
+			NULL); // don't get a device context handle
+
+		// next adapter
+		++i;
 	}
+	while(ok != S_OK);
 
-	// get a device context handle
-	HDC hdc = GetDC(platform->globox_platform_event_handle);
+	// get the DXGI device
+	ok = ID3D11Device_QueryInterface(
+		context->globox_software_d3d11_device,
+		&IID_IDXGIDevice,
+		(void**) &(context->globox_software_dxgi_device));
 
-	if (hdc == NULL)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET);
+			GLOBOX_ERROR_WINDOWS_DXGI_DEVICE);
 		return;
 	}
 
-	// create a device-independent bitmap
-	context->globox_software_bmp_handle =
-		CreateDIBSection(
-			hdc,
-			&(context->globox_software_bmp_info),
-			DIB_RGB_COLORS,
-			(void**) &(platform->globox_platform_argb),
-			NULL, // automatic memory allocation by Windows
-			0);   // no buffer offset
+	// create swap chain
+	swapchain(globox);
 
-	if (context->globox_software_bmp_handle == NULL)
+	// create the DirectComposition device
+	ok = DCompositionCreateDevice(
+		context->globox_software_dxgi_device,
+		&IID_IDCompositionDevice,
+		(void**) &(context->globox_software_dcomp_device));
+
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_CREATE_DIB_SECTION);
+			GLOBOX_ERROR_WINDOWS_DCOMP_DEVICE);
 		return;
 	}
 
-	// release the device context handle
-	int ok = ReleaseDC(platform->globox_platform_event_handle, hdc);
+	// create the DirectComposition target
+	ok = IDCompositionDevice_CreateTargetForHwnd(
+		context->globox_software_dcomp_device,
+		platform->globox_platform_event_handle,
+		TRUE,
+		&(context->globox_software_dcomp_target));
 
-	if (ok == 0)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_REMOVE);
+			GLOBOX_ERROR_WINDOWS_DCOMP_TARGET);
+		return;
+	}
+
+	// create the visual object
+	ok = IDCompositionDevice_CreateVisual(
+		context->globox_software_dcomp_device,
+		&(context->globox_software_dcomp_visual));
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DCOMP_VISUAL);
+		return;
+	}
+
+	// create the Direct2D factory
+	D2D1_FACTORY_OPTIONS options =
+	{
+		.debugLevel = D2D1_DEBUG_LEVEL_NONE,
+	};
+
+	ok = D2D1CreateFactory(
+		D2D1_FACTORY_TYPE_SINGLE_THREADED,
+		&IID_ID2D1Factory2,
+		&options,
+		(void**) &(context->globox_software_d2d_factory));
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_D2D_FACTORY);
+		return;
+	}
+
+	// create the Direct2D device
+	ok = ID2D1Factory2_CreateDevice(
+		context->globox_software_d2d_factory,
+		context->globox_software_dxgi_device,
+		&(context->globox_software_d2d_device));
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_D2D_DEVICE);
 		return;
 	}
 }
@@ -81,40 +274,32 @@ void globox_context_software_init(
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_windows_software* context = &(platform->globox_windows_software);
 
 	platform->globox_windows_resize_callback = resize;
+	platform->globox_windows_dcomp_callback = dcomp;
+
+	context->globox_software_buffer_width = globox->globox_width;
+	context->globox_software_buffer_height = globox->globox_height;
+
+	platform->globox_platform_argb =
+		malloc(
+			4
+			* context->globox_software_buffer_width
+			* context->globox_software_buffer_height);
+
+	if (platform->globox_platform_argb == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_ALLOC);
+		return;
+	}
 }
 
 void globox_context_software_create(struct globox* globox)
 {
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_windows_software* context = &(platform->globox_windows_software);
-
-	// .biWidth and .biHeight are set in resize()
-	BITMAPINFOHEADER bmp_info_header =
-	{
-		.biSize = sizeof (BITMAPINFOHEADER),
-		.biPlanes = 1,           // 1 bitmap plane
-		.biBitCount = 32,        // 32 bits per pixel
-		.biCompression = BI_RGB, // raw bitmap format
-		.biSizeImage = 0,        // only paletted bitmaps need this
-		.biXPelsPerMeter = 0,    // use a neutral X pixel density
-		.biYPelsPerMeter = 0,    // use a neutral Y pixel density
-		.biClrUsed = 0,          // all colors must be used
-		.biClrImportant = 0,     // all colors are required
-	};
-
-	// only paletted bitmaps need bmiColors,
-	// so we use this trick to set it to "NULL"
-	BITMAPINFO bmp_info = {0};
-	bmp_info.bmiHeader = bmp_info_header;
-
-	context->globox_software_bmp_info = bmp_info;
-	context->globox_software_bmp_handle = NULL;
-
-	// finish initialization
-	resize(globox);
+	// not needed
 }
 
 void globox_context_software_shrink(struct globox* globox)
@@ -143,119 +328,151 @@ void globox_context_software_copy(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
-	BOOL ok;
+	HRESULT ok;
 
-	// damage region
-	RECT update =
+	// get a D2D device context
+	ID2D1DeviceContext* device_context;
+
+	ok = ID2D1Device1_CreateDeviceContext(
+		context->globox_software_d2d_device,
+		D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
+		&device_context);
+
+	if (ok != S_OK)
 	{
-		.left = x,
-		.top = y,
-		.right = width,
-		.bottom = height,
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_D2D_DEVICE_CONTEXT);
+		return;
+	}
+
+	// get a swap chain surface
+	IDXGISurface2* surface;
+
+	ok = IDXGISwapChain1_GetBuffer(
+		context->globox_software_swapchain,
+		0,
+		&IID_IDXGISurface2,
+		(void**) &surface);
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_D2D_SWAPCHAIN_SURFACE);
+		return;
+	}
+
+	// get the surface bitmap
+	ID2D1Bitmap1* bitmap;
+
+	D2D1_PIXEL_FORMAT format =
+	{
+		.format = DXGI_FORMAT_B8G8R8A8_UNORM,
+		.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED,
 	};
 
-	ok = InvalidateRect(platform->globox_platform_event_handle, &update, TRUE);
+	D2D1_BITMAP_PROPERTIES1 properties =
+	{
+		.dpiX = 96.0f,
+		.dpiY = 96.0f,
+		.colorContext = NULL,
+		.pixelFormat = format,
+		.bitmapOptions =
+			D2D1_BITMAP_OPTIONS_TARGET
+			| D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+	};
 
-	if (ok == 0)
+	ok = ID2D1DeviceContext_CreateBitmapFromDxgiSurface(
+		device_context,
+		surface,
+		&properties,
+		&bitmap);
+
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DAMAGE);
+			GLOBOX_ERROR_WINDOWS_D2D_SURFACE_BITMAP);
 		return;
 	}
 
-	// paint
-	PAINTSTRUCT paint;
+	// copy the buffer to the bitmap
+	D2D1_RECT_U rect =
+	{
+		.left = 0,
+		.top = 0,
+		.right = context->globox_software_buffer_width,
+		.bottom = context->globox_software_buffer_height,
+	};
 
-	HDC hdc_window = BeginPaint(platform->globox_platform_event_handle, &paint);
+	ok = ID2D1Bitmap1_CopyFromMemory(
+		bitmap,
+		&rect,
+		platform->globox_platform_argb,
+		context->globox_software_buffer_width * 4);
 
-	if (hdc_window == NULL)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_PAINT);
+			GLOBOX_ERROR_WINDOWS_D2D_COPY);
 		return;
 	}
 
-	HDC hdc_compatible = CreateCompatibleDC(hdc_window);
+	// present
+	ok = IDXGISwapChain1_Present(
+		context->globox_software_swapchain,
+		1,
+		0);
 
-	if (hdc_compatible == NULL)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_CREATE);
+			GLOBOX_ERROR_WINDOWS_D2D_PRESENT);
 		return;
 	}
 
-	HBITMAP hbm_compatible_old =
-		SelectObject(
-			hdc_compatible, 
-			context->globox_software_bmp_handle);
+	// bind surface to visual
+	ok = IDCompositionVisual_SetContent(
+		context->globox_software_dcomp_visual,
+		(void*) context->globox_software_swapchain);
 
-	if (hbm_compatible_old == NULL)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_SELECT_BITMAP_HANDLE);
+			GLOBOX_ERROR_WINDOWS_DCOMP_BIND);
 		return;
 	}
 
-	ok = BitBlt(
-		hdc_window,
-		x,
-		y,
-		width,
-		height,
-		hdc_compatible,
-		x,
-		y,
-		SRCCOPY);
+	// set visual as root
+	ok = IDCompositionTarget_SetRoot(
+		context->globox_software_dcomp_target,
+		context->globox_software_dcomp_visual);
 
-	if (ok == 0)
+	if (ok != S_OK)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_BITBLT);
+			GLOBOX_ERROR_WINDOWS_DCOMP_SET_ROOT);
 		return;
 	}
-
-	HBITMAP hbm_ret = SelectObject(hdc_compatible, hbm_compatible_old);
-
-	if (hbm_ret == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_SELECT_BITMAP_HANDLE);
-		return;
-	}
-
-	ok = DeleteDC(hdc_compatible);
-
-	if (ok == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_DELETE);
-		return;
-	}
-
-	// this one can't fail
-	EndPaint(platform->globox_platform_event_handle, &paint);
 
 	// commit
-	globox->globox_redraw = false;
+	ok = IDCompositionDevice_Commit(
+		context->globox_software_dcomp_device);
 
-	GdiFlush();
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT);
+		return;
+	}
+
+	globox->globox_redraw = false;
 }
 
 // getters
-
-BITMAPINFO globox_software_get_bmp_info(struct globox* globox)
-{
-	return globox->globox_platform.globox_windows_software.globox_software_bmp_info;
-}
-
-HBITMAP globox_software_get_bmp_handle(struct globox* globox)
-{
-	return globox->globox_platform.globox_windows_software.globox_software_bmp_handle;
-}

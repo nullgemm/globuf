@@ -132,6 +132,8 @@ ifeq ($(PLATFORM), WINDOWS)
 SRCS+= $(SRCD)/windows/globox_windows.c
 SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix.obj
 FLAGS+= -DGLOBOX_PLATFORM_WINDOWS -DUNICODE -D_UNICODE
+FLAGS+= -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00
+FLAGS+= -DCINTERFACE -DCOBJMACROS
 
 ifeq ($(NATIVE), FALSE)
 CMD = ./$(NAME).exe
@@ -146,6 +148,8 @@ else
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/$\
 $(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
 $(WINDOWS_VERSION_MSVC)/bin/Hostx64/x64/cl.exe"
+LINK+= -Z7 -Zc:inline
+LINK_WINDOW+= -DEBUG:FULL
 LINK_WINDOWS+= -LIBPATH:"/c/Program Files (x86)/Windows Kits/$\
 $(WINDOWS_VERSION)/Lib/$\
 $(WINDOWS_VERSION_SDK)/um/x64"
@@ -164,7 +168,19 @@ SRCS+= $(SRCD)/windows/software/globox_windows_software.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lgdi32
 else
-LINK = -l Gdi32.lib User32.lib shcore.lib
+LINK+= Gdi32.lib User32.lib shcore.lib
+LINK+= Ole32.lib d3d11.lib dxgi.lib dxguid.lib dcomp.lib d2d1.lib dwmapi.lib
+endif
+endif
+
+ifeq ($(CONTEXT), GDI)
+FLAGS+= -DGLOBOX_CONTEXT_GDI
+SRCS+= example/software.c
+SRCS+= $(SRCD)/windows/gdi/globox_windows_gdi.c
+ifeq ($(NATIVE), FALSE)
+LINK+= -lgdi32
+else
+LINK+= Gdi32.lib User32.lib shcore.lib
 endif
 endif
 
@@ -175,7 +191,7 @@ SRCS+= $(SRCD)/windows/software/globox_windows_wgl.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lopengl32
 else
-LINK = -l Gdi32.lib User32.lib shcore.lib
+LINK+= opengl32.lib
 endif
 endif
 endif
