@@ -21,6 +21,7 @@ extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
 #define VERTEX_ATTR_POSITION 0
+
 PFNGLATTACHSHADERPROC glAttachShader;
 PFNGLCOMPILESHADERPROC glCompileShader;
 PFNGLCREATEPROGRAMPROC glCreateProgram;

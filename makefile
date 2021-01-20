@@ -168,8 +168,8 @@ SRCS+= $(SRCD)/windows/software/globox_windows_software.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lgdi32
 else
-LINK+= Gdi32.lib User32.lib shcore.lib
-LINK+= Ole32.lib d3d11.lib dxgi.lib dxguid.lib dcomp.lib d2d1.lib dwmapi.lib
+LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
+LINK+= Ole32.lib d3d11.lib dxgi.lib dxguid.lib dcomp.lib d2d1.lib
 endif
 endif
 
@@ -180,7 +180,7 @@ SRCS+= $(SRCD)/windows/gdi/globox_windows_gdi.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lgdi32
 else
-LINK+= Gdi32.lib User32.lib shcore.lib
+LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 endif
 endif
 
@@ -191,7 +191,7 @@ SRCS+= $(SRCD)/windows/wgl/globox_windows_wgl.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lopengl32
 else
-LINK+= Gdi32.lib User32.lib shcore.lib
+LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 LINK+= opengl32.lib
 endif
 endif

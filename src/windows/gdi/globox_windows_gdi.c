@@ -78,6 +78,13 @@ void resize(struct globox* globox)
 			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_REMOVE);
 		return;
 	}
+
+	if (globox->globox_transparent == false)
+	{
+		return;
+	}
+
+	platform->globox_windows_dwm_transparency_callback(globox);
 }
 
 void globox_context_software_init(

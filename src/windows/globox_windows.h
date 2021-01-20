@@ -81,6 +81,7 @@ struct globox_platform
 
 	void (*globox_windows_resize_callback)(struct globox* globox);
 	void (*globox_windows_dcomp_callback)(struct globox* globox);
+	void (*globox_windows_dwm_transparency_callback)(struct globox* globox);
 };
 
 enum globox_error

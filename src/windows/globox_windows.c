@@ -9,11 +9,30 @@
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
 
 // include platform structures
+#include <dwmapi.h>
 #include "windows/globox_windows.h"
 #include "windows/globox_windows_symbols.h"
 
 #define WINDOW_MIN_X 170
 #define WINDOW_MIN_Y 50
+
+void dwm_transparency(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	DWM_BLURBEHIND blur_behind = {0};
+
+	HRGN region = CreateRectRgn(0, 0, -1, -1);
+
+	blur_behind.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+	blur_behind.hRgnBlur = region;
+	blur_behind.fEnable = TRUE;
+
+	DwmEnableBlurBehindWindow(
+		platform->globox_platform_event_handle,
+		&blur_behind);
+}
 
 LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -662,18 +681,12 @@ void globox_platform_create_window(struct globox* globox)
 		exstyle = 0;
 	}
 
-#if defined(GLOBOX_CONTEXT_GDI) || defined(GLOBOX_CONTEXT_WGL)
-	// GDI does not support transparency or blur in theory:
-	// it can be made to work, but the result is not reliable,
-	// so we disable the fun here to prevent glitchy uses of globox
-	globox->globox_transparent = false;
-	globox->globox_blurred = false;
-#endif
-
+#if !defined(GLOBOX_CONTEXT_GDI) && !defined(GLOBOX_CONTEXT_WGL)
 	if (globox->globox_transparent == true)
 	{
 		exstyle |= WS_EX_NOREDIRECTIONBITMAP;
 	}
+#endif
 
 	ok = AdjustWindowRectEx(
 		&rect,
@@ -733,7 +746,19 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	if ((globox->globox_transparent == false) || (globox->globox_blurred == false))
+	platform->globox_windows_dwm_transparency_callback =
+		dwm_transparency;
+
+	if (globox->globox_transparent == false)
+	{
+		return;
+	}
+
+#if defined(GLOBOX_CONTEXT_GDI) || defined(GLOBOX_CONTEXT_WGL)
+	dwm_transparency(globox);
+#endif
+
+	if (globox->globox_blurred == false)
 	{
 		return;
 	}

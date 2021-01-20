@@ -22,6 +22,19 @@ void dummy(struct globox* globox)
 	// not needed
 }
 
+void resize(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	if (globox->globox_transparent == false)
+	{
+		return;
+	}
+
+	platform->globox_windows_dwm_transparency_callback(globox);
+}
+
 void globox_context_wgl_init(
 	struct globox* globox,
 	int version_major,
@@ -31,7 +44,7 @@ void globox_context_wgl_init(
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
-	platform->globox_windows_resize_callback = dummy;
+	platform->globox_windows_resize_callback = resize;
 	platform->globox_windows_dcomp_callback = dummy;
 
 	context->globox_wgl_version_major = version_major;
@@ -55,7 +68,10 @@ void globox_context_wgl_init(
 	{
 		sizeof (PIXELFORMATDESCRIPTOR),
 		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		PFD_DRAW_TO_WINDOW
+			| PFD_SUPPORT_OPENGL
+			| PFD_SUPPORT_COMPOSITION
+			| PFD_DOUBLEBUFFER,
 		PFD_TYPE_RGBA,
 		32,
 		0, 0, 0, 0, 0, 0,
@@ -215,7 +231,6 @@ void globox_context_wgl_create(struct globox* globox)
 	}
 
 	ReleaseDC(platform->globox_platform_event_handle, hdc);
-
 }
 
 void globox_context_wgl_shrink(struct globox* globox)
