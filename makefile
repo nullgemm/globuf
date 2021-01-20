@@ -5,7 +5,7 @@ NAME = globox
 CMD = ./$(NAME)
 # targets
 PLATFORM ?= WINDOWS
-CONTEXT ?= SOFTWARE
+CONTEXT ?= WGL
 NATIVE ?= TRUE
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
@@ -187,10 +187,11 @@ endif
 ifeq ($(CONTEXT), WGL)
 FLAGS+= -DGLOBOX_CONTEXT_WGL
 SRCS+= example/wgl.c
-SRCS+= $(SRCD)/windows/software/globox_windows_wgl.c
+SRCS+= $(SRCD)/windows/wgl/globox_windows_wgl.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lopengl32
 else
+LINK+= Gdi32.lib User32.lib shcore.lib
 LINK+= opengl32.lib
 endif
 endif
@@ -252,6 +253,15 @@ final: $(BIND)/$(NAME).exe
 else
 final: $(BIND)/$(NAME)_msvc.exe
 endif
+$(INCD):
+	@echo "downloading OpenGL headers"
+	@mkdir -p $@/GLES2
+	@mkdir -p $@/KHR
+	@mkdir -p $@/GL
+	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2.h" -o $@/GLES2/gl2.h
+	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2platform.h" -o $@/GLES2/gl2platform.h
+	@curl -L "https://www.khronos.org/registry/EGL/api/KHR/khrplatform.h" -o $@/KHR/khrplatform.h
+	@curl -L "https://www.khronos.org/registry/OpenGL/api/GL/wglext.h" -o $@/GL/wglext.h
 endif
 
 ifeq ($(PLATFORM), MACOS)

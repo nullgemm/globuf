@@ -1,5 +1,6 @@
 #include "globox.h"
 #include <stddef.h>
+#include <windows.h>
 
 #if 0
 // we try to avoid ifdefs here by relying on helper files

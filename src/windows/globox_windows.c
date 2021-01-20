@@ -541,6 +541,19 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT] =
 		"could not commit the composition operation";
 
+	log[GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT] =
+		"could not get the window device context";
+	log[GLOBOX_ERROR_WINDOWS_WGL_SWAP] =
+		"could not swap OpenGL buffers";
+	log[GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_CHOOSE] =
+		"could not choose pixel format";
+	log[GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET] =
+		"could not set pixel format";
+	log[GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_CREATE] =
+		"could not create a WGL context";
+	log[GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_SET] =
+		"could not set the WGL context";
+
 	// save class name
 	platform->globox_windows_class_name =
 		utf8_to_wchar(globox->globox_title);
@@ -649,7 +662,7 @@ void globox_platform_create_window(struct globox* globox)
 		exstyle = 0;
 	}
 
-#if defined(GLOBOX_CONTEXT_GDI)
+#if defined(GLOBOX_CONTEXT_GDI) || defined(GLOBOX_CONTEXT_WGL)
 	// GDI does not support transparency or blur in theory:
 	// it can be made to work, but the result is not reliable,
 	// so we disable the fun here to prevent glitchy uses of globox

@@ -1,5 +1,5 @@
-#ifndef H_GLOBOX_WINDOWS_SOFTWARE
-#define H_GLOBOX_WINDOWS_SOFTWARE
+#ifndef H_GLOBOX_WINDOWS_GDI
+#define H_GLOBOX_WINDOWS_GDI
 
 #include "globox.h"
 #include "windows/globox_windows.h"

@@ -19,7 +19,7 @@
 #elif defined(GLOBOX_CONTEXT_EGL)
 	#include "egl/globox_windows_egl.h"
 #elif defined(GLOBOX_CONTEXT_WGL)
-	#include "glx/globox_windows_wgl.h"
+	#include "wgl/globox_windows_wgl.h"
 #endif
 
 // forward-declaration
@@ -51,8 +51,8 @@ struct globox_platform
 	struct globox_windows_vulkan globox_windows_vulkan;
 #elif defined(GLOBOX_CONTEXT_EGL)
 	struct globox_windows_egl globox_windows_egl;
-#elif defined(GLOBOX_CONTEXT_GLX)
-	struct globox_windows_glx globox_windows_glx;
+#elif defined(GLOBOX_CONTEXT_WGL)
+	struct globox_windows_wgl globox_windows_wgl;
 #endif
 
 	MSG globox_windows_msg;
@@ -175,6 +175,13 @@ enum globox_error
 	GLOBOX_ERROR_WINDOWS_DCOMP_BIND,
 	GLOBOX_ERROR_WINDOWS_DCOMP_SET_ROOT,
 	GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT,
+
+	GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT,
+	GLOBOX_ERROR_WINDOWS_WGL_SWAP,
+	GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_CHOOSE,
+	GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET,
+	GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_CREATE,
+	GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_SET,
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,
