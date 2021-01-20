@@ -158,6 +158,9 @@ void globox_context_wgl_create(struct globox* globox)
 		return;
 	}
 
+	wglMakeCurrent(hdc, NULL);
+	wglDeleteContext(context->globox_wgl_context);
+
 	int attr_wgl[] =
 	{
 		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,

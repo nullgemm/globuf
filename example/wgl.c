@@ -176,9 +176,6 @@ int main(void)
 		return 1;
 	}
 
-	// load OpenGL functions
-	wgl_load();
-
 	globox_context_wgl_create(&globox);
 
 	if (globox_error_catch(&globox))
@@ -203,6 +200,9 @@ int main(void)
 		&globox,
 		(uint32_t*) &iconpix_beg,
 		2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64));
+
+	// load OpenGL functions
+	wgl_load();
 
 	// prepare OpenGL or glES
 	const char* vertex_shader_src =
