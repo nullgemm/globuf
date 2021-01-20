@@ -36,7 +36,6 @@ Windows
  - `egl` provides OpenGL contexts using an internal WGL wrapper
    It is not yet implemented.
  - `wgl` provides OpenGL contexts using only WGL
-   It is not yet implemented.
  - `vk` provides Vulkan contexts using Vulkan's WSI
    It is not yet implemented.
 
