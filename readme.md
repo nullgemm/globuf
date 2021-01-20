@@ -33,8 +33,9 @@ Wayland
 Windows
  - `software` provides a GPU buffer using Direct2D
  - `gdi` provides an abstract buffer using GDI
- - `egl` provides OpenGL contexts using an internal WGL wrapper
-   It is not yet implemented.
+ - `egl` provides OpenGL contexts using EGLproxy
+   (which is a simple WGL wrapper)
+   Transparency is not supported because of a bug in EGLproxy
  - `wgl` provides OpenGL contexts using only WGL
  - `vk` provides Vulkan contexts using Vulkan's WSI
    It is not yet implemented.
