@@ -575,6 +575,9 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_SET] =
 		"could not set the WGL context";
 
+	log[GLOBOX_ERROR_WINDOWS_EGL_FAIL] =
+		"EGL error";
+
 	// save class name
 	platform->globox_windows_class_name =
 		utf8_to_wchar(globox->globox_title);
@@ -682,6 +685,12 @@ void globox_platform_create_window(struct globox* globox)
 		style = WS_POPUP;
 		exstyle = 0;
 	}
+
+	// because of a bug in EGLproxy transparency does not work
+#if defined(GLOBOX_CONTEXT_EGL)
+	globox->globox_transparent = false;
+	globox->globox_blurred = false;
+#endif
 
 #if !defined(GLOBOX_CONTEXT_GDI) && !defined(GLOBOX_CONTEXT_WGL)
 	if (globox->globox_transparent == true)

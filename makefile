@@ -5,7 +5,7 @@ NAME = globox
 CMD = ./$(NAME)
 # targets
 PLATFORM ?= WINDOWS
-CONTEXT ?= WGL
+CONTEXT ?= EGL
 NATIVE ?= TRUE
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
@@ -195,6 +195,21 @@ LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 LINK+= opengl32.lib
 endif
 endif
+
+ifeq ($(CONTEXT), EGL)
+FLAGS+= -DGLOBOX_CONTEXT_EGL
+SRCS+= example/egl.c
+SRCS+= $(SRCD)/windows/egl/globox_windows_egl.c
+SRCS+= $(RESD)/eglproxy/eglproxy-master/src/eglproxy.c
+SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_proc.c
+SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_wgl.c
+ifeq ($(NATIVE), FALSE)
+LINK+= -lopengl32
+else
+LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
+LINK+= opengl32.lib
+endif
+endif
 endif
 
 ## MACOS
@@ -253,13 +268,22 @@ final: $(BIND)/$(NAME).exe
 else
 final: $(BIND)/$(NAME)_msvc.exe
 endif
-$(INCD):
+$(RESD)/eglproxy/eglproxy-master:
+	@echo "downloading EGLproxy sources"
+	@cd ./$(RESD)/eglproxy && ./geteglproxy.sh
+
+$(INCD): $(RESD)/eglproxy/eglproxy-master
 	@echo "downloading OpenGL headers"
 	@mkdir -p $@/GLES2
+	@mkdir -p $@/EGL
 	@mkdir -p $@/KHR
 	@mkdir -p $@/GL
 	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2.h" -o $@/GLES2/gl2.h
 	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2platform.h" -o $@/GLES2/gl2platform.h
+	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/egl.h" -o $@/EGL/egl.h
+	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/eglext.h" -o $@/EGL/eglext.h
+	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/eglplatform.h" -o $@/EGL/eglplatform.h
+	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/eglproxy.h" -o $@/eglproxy.h
 	@curl -L "https://www.khronos.org/registry/EGL/api/KHR/khrplatform.h" -o $@/KHR/khrplatform.h
 	@curl -L "https://www.khronos.org/registry/OpenGL/api/GL/wglext.h" -o $@/GL/wglext.h
 endif

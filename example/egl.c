@@ -1,5 +1,11 @@
 #include "globox.h"
 #include <stddef.h>
+
+#if defined(GLOBOX_PLATFORM_WINDOWS)
+#include <gl/GL.h>
+#define GL_GLES_PROTOTYPES 0
+#endif
+
 #include <GLES2/gl2.h>
 
 #if 0
@@ -19,6 +25,55 @@ extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
 #define VERTEX_ATTR_POSITION 0
+
+#if defined(GLOBOX_PLATFORM_WINDOWS)
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLCOMPILESHADERPROC glCompileShader;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLDELETESHADERPROC glDeleteShader;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+
+// opengl32.dll only supports OpenGL 1
+// so we have to load these functions
+void wgl_load()
+{
+	glAttachShader =
+		(PFNGLATTACHSHADERPROC)
+			wglGetProcAddress("glAttachShader");
+	glCompileShader =
+		(PFNGLCOMPILESHADERPROC)
+			wglGetProcAddress("glCompileShader");
+	glCreateProgram =
+		(PFNGLCREATEPROGRAMPROC)
+			wglGetProcAddress("glCreateProgram");
+	glCreateShader =
+		(PFNGLCREATESHADERPROC)
+			wglGetProcAddress("glCreateShader");
+	glDeleteShader =
+		(PFNGLDELETESHADERPROC)
+			wglGetProcAddress("glDeleteShader");
+	glEnableVertexAttribArray =
+		(PFNGLENABLEVERTEXATTRIBARRAYPROC)
+			wglGetProcAddress("glEnableVertexAttribArray");
+	glLinkProgram =
+		(PFNGLLINKPROGRAMPROC)
+			wglGetProcAddress("glLinkProgram");
+	glShaderSource =
+		(PFNGLSHADERSOURCEPROC)
+			wglGetProcAddress("glShaderSource");
+	glUseProgram =
+		(PFNGLUSEPROGRAMPROC)
+			wglGetProcAddress("glUseProgram");
+	glVertexAttribPointer =
+		(PFNGLVERTEXATTRIBPOINTERPROC)
+			wglGetProcAddress("glVertexAttribPointer");
+}
+#endif
 
 void render(struct globox* globox)
 {
@@ -151,8 +206,14 @@ int main(void)
 		(uint32_t*) &iconpix_beg,
 		2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64));
 
+#if defined(GLOBOX_PLATFORM_WINDOWS)
+	// load OpenGL functions
+	wgl_load();
+#endif
+
 	// prepare OpenGL or glES
 	const char* vertex_shader_src =
+		"#version 130\n"
 		"attribute vec4 vPosition;"
 		"void main()"
 		"{"
@@ -160,6 +221,7 @@ int main(void)
 		"}";
 
 	const char* fragment_shader_src =
+		"#version 130\n"
 		"precision mediump float;"
 		"void main()"
 		"{"

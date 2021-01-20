@@ -2,5 +2,7 @@ bin
 inc
 obj
 res/icon/iconpix.bin
+res/eglproxy/eglproxy.zip
+res/eglproxy/eglproxy-master
 .gitmodules
 valgrind.log
