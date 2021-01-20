@@ -216,8 +216,10 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			// block window resizing and moving until
 			// globox has finished fooling windows
-			if (platform->globox_windows_sizemove_step <
+			if ((platform->globox_windows_sizemove_step <
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE)
+			&& (platform->globox_windows_sizemove_step >
+				GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL))
 			{
 				((WINDOWPOS*) lParam)->flags |=
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOSENDCHANGING;
