@@ -1,6 +1,6 @@
 #include "globox.h"
 #include <stddef.h>
-
+#include <gl/GL.h>
 #define GL_GLES_PROTOTYPES 0
 #include <GLES2/gl2.h>
 
