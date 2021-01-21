@@ -22,13 +22,13 @@ X11
    Transparency is not supported because of a bug in EGL.
  - `glx` provides OpenGL contexts using XCB and GLX/libX11.
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   It is not yet implemented.
+   (It is not yet implemented yet)
 
 Wayland
  - `software` provides an abstract buffer using libwayland-client
  - `egl` provides OpenGL and OpenGL ES contexts using only EGL
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   It is not yet implemented.
+   (It is not yet implemented yet)
 
 Windows
  - `software` provides a GPU buffer using Direct2D
@@ -38,7 +38,7 @@ Windows
    Transparency is not supported because of a bug in EGLproxy
  - `wgl` provides OpenGL contexts using only WGL
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   It is not yet implemented.
+   (It is not yet implemented yet)
 
 mac OS
  - `software` provides an abstract buffer using CoreImage
@@ -47,7 +47,7 @@ mac OS
    (which implements OpenGL ES on top of metal)
  - `vk` provides Vulkan contexts using MoltenVK
    (which implements Vulkan on top of metal)
-   It is not yet implemented.
+   (It is not implemented yet)
 
 ## Compiling
 First configure your test build using the variables in the makefile.
@@ -129,6 +129,10 @@ The `ANGLE` binaries are extracted from the latest `chromium` release.
 
 ### Windows
 #### Cross-compiling from Linux
+To cross-compile the Windows platform from Linux you will to set MinGW up.
+Globox was designed to be Wine-compatible so you can use it to run the examples
+(but remember Wine is not Windows and does not support transparency or blur).
+
 #### Compiling from Windows
 The Windows backend can also be compiled from Windows for easier testing.
 *Do not download Visual Studio just for globox, it would be completely overkill!*
