@@ -287,7 +287,7 @@ else
 final: $(INCD) $(BIND)/$(NAME)_msvc.exe
 endif
 endif
-$(RESD)/eglproxy:
+$(RESD)/eglproxy/readme.md:
 	@echo "downloading EGLproxy sources"
 ifeq ($(SERVER), GITEA)
 	@cp .gitea .gitmodules
@@ -298,13 +298,13 @@ endif
 	@git submodule update --init --remote
 
 ifeq ($(NATIVE), FALSE)
-$(RESD)/eglproxy/bin/eglproxy.dll: $(RESD)/eglproxy
+$(RESD)/eglproxy/bin/eglproxy.dll: $(RESD)/eglproxy/readme.md
 	@echo "building EGLproxy libraries"
-	@cd $^ && make inc && NATIVE=$(NATIVE) make bin/eglproxy.dll
+	@cd $(RESD)/eglproxy && make inc && NATIVE=$(NATIVE) make bin/eglproxy.dll
 else
-$(RESD)/eglproxy/bin/eglproxy.lib: $(RESD)/eglproxy
+$(RESD)/eglproxy/bin/eglproxy.lib: $(RESD)/eglproxy/readme.md
 	@echo "building EGLproxy libraries"
-	@cd $^ && NATIVE=$(NATIVE) make
+	@cd $(RESD)/eglproxy && NATIVE=$(NATIVE) make
 endif
 
 ifeq ($(NATIVE), FALSE)
