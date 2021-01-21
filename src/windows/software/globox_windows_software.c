@@ -14,8 +14,6 @@
 #include <d3d11.h>
 #include <d2d1.h>
 #include <dcommon.h>
-#include <d2d1_1.h>
-#include <d2d1_2.h>
 #include "windows/globox_windows_symbols.h"
 #include "windows/software/globox_windows_software.h"
 
@@ -74,8 +72,6 @@ void resize(struct globox* globox)
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
-	HRESULT ok;
-
 	// update bitmap info
 	context->globox_software_buffer_width = globox->globox_width;
 	context->globox_software_buffer_height = globox->globox_height;
@@ -124,7 +120,6 @@ void dcomp(struct globox* globox)
 	}
 
 	// find a compatible adapter
-	DXGI_ADAPTER_DESC desc;
 	IDXGIAdapter* adapter;
 	UINT i = 0;
 
@@ -406,8 +401,8 @@ void globox_context_software_copy(
 		.bottom = context->globox_software_buffer_height,
 	};
 
-	ok = ID2D1Bitmap1_CopyFromMemory(
-		bitmap,
+	ok = ID2D1Bitmap_CopyFromMemory(
+		(ID2D1Bitmap*) bitmap,
 		&rect,
 		platform->globox_platform_argb,
 		context->globox_software_buffer_width * 4);

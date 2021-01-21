@@ -10,7 +10,6 @@
 #include <d3d11.h>
 #include <d2d1.h>
 #include <d2d1_1.h>
-#include <d2d1_2.h>
 #include "windows/globox_windows_symbols.h"
 
 struct globox_windows_software

@@ -3,14 +3,11 @@
 
 #include <windows.h>
 #include <objbase.h>
-#include <INITGUID.H>
+#include <initguid.h>
 #include <dcomptypes.h>
+
 #include <d2d1.h>
 #include <d2d1_1.h>
-#include <d2d1_2.h>
-
-// the one undocumented function of globox
-HRESULT (*SetWindowCompositionAttribute)(HWND hwnd, void* data);
 
 // IDXGIDevice helper function
 HRESULT WINAPI DCompositionCreateDevice(
@@ -43,20 +40,25 @@ HRESULT WINAPI DCompositionCreateDevice(
 // IDCompositionTarget
 #define IDCompositionTarget_SetRoot(This, visual) \
 	((This)->lpVtbl->SetRoot(This, visual))
+
 // ID2D1Factory2
 #define ID2D1Factory2_CreateDevice(This, dxgiDevice, d2dDevice1) \
 	((This)->lpVtbl->CreateDevice(This, dxgiDevice, d2dDevice1))
 // ID2D1Device1
 #define ID2D1Device1_CreateDeviceContext(This, options, deviceContext) \
 	((This)->lpVtbl->CreateDeviceContext(This, options, deviceContext))
+
 // ID2D1DeviceContext
 #define ID2D1DeviceContext_CreateBitmapFromDxgiSurface(This, surface, properties, bitmap) \
 	((This)->lpVtbl->CreateBitmapFromDxgiSurface(This, surface, properties, bitmap))
-// ID2D1Bitmap1
-#define ID2D1Bitmap1_GetPixelSize(This) \
+
+#if defined(GLOBOX_COMPILER_MSVC)
+// ID2D1Bitmap
+#define ID2D1Bitmap_GetPixelSize(This) \
 	((This)->lpVtbl->GetPixelSize(This))
-#define ID2D1Bitmap1_CopyFromMemory(This, rect, data, pitch) \
+#define ID2D1Bitmap_CopyFromMemory(This, rect, data, pitch) \
 	((This)->lpVtbl->CopyFromMemory(This, rect, data, pitch))
+#endif
 
 // interface IDs
 EXTERN_C const IID IID_IDCompositionDevice;
@@ -67,7 +69,7 @@ EXTERN_C const IID IID_IDCompositionTarget;
 EXTERN_C const IID IID_ID2D1Factory2;
 EXTERN_C const IID IID_ID2D1Device1;
 EXTERN_C const IID IID_ID2D1DeviceContext;
-EXTERN_C const IID IID_ID2D1Bitmap1;
+EXTERN_C const IID IID_ID2D1Bitmap;
 
 // structures
 enum ACCENT_STATE
@@ -95,6 +97,19 @@ struct WINDOWCOMPOSITIONATTRIBDATA
 	SIZE_T cbData;
 };
 
+union NAMED_INPUT_UNION
+{
+	MOUSEINPUT mi;
+	KEYBDINPUT ki;
+	HARDWAREINPUT hi;
+};
+
+struct NAMED_INPUT
+{
+	DWORD type;
+	union NAMED_INPUT_UNION data;
+};
+
 typedef interface IDCompositionDevice IDCompositionDevice;
 typedef interface IDCompositionSurface IDCompositionSurface;
 typedef interface IDCompositionVisual IDCompositionVisual;
@@ -102,8 +117,11 @@ typedef interface IDCompositionTarget IDCompositionTarget;
 
 typedef interface ID2D1Factory2 ID2D1Factory2;
 typedef interface ID2D1Device1 ID2D1Device1;
+
+#if defined(GLOBOX_COMPILER_MSVC)
 typedef interface ID2D1DeviceContext ID2D1DeviceContext;
-typedef interface ID2D1Bitmap1 ID2D1Bitmap1;
+typedef interface ID2D1Bitmap ID2D1Bitmap;
+#endif
 
 // virtual tables
 // DirectComposition
@@ -290,6 +308,7 @@ typedef struct ID2D1Device1Vtbl
 	END_INTERFACE
 } ID2D1Device1Vtbl;
 
+#if defined(GLOBOX_COMPILER_MSVC)
 typedef struct ID2D1DeviceContextVtbl
 {
 	BEGIN_INTERFACE
@@ -374,7 +393,7 @@ typedef struct ID2D1DeviceContextVtbl
 	END_INTERFACE
 } ID2D1DeviceContextVtbl;
 
-typedef struct ID2D1Bitmap1Vtbl
+typedef struct ID2D1BitmapVtbl
 {
 	BEGIN_INTERFACE
 
@@ -389,19 +408,20 @@ typedef struct ID2D1Bitmap1Vtbl
 	// ID2D1Bitmap1 methods
 	void (STDMETHODCALLTYPE* func4)();
 	HRESULT (STDMETHODCALLTYPE* GetPixelSize)(
-		ID2D1Bitmap1* This);
+		ID2D1Bitmap* This);
 	void (STDMETHODCALLTYPE* func5)();
 	void (STDMETHODCALLTYPE* func6)();
 	void (STDMETHODCALLTYPE* func7)();
 	void (STDMETHODCALLTYPE* func8)();
 	HRESULT (STDMETHODCALLTYPE* CopyFromMemory)(
-		ID2D1Bitmap1* This,
+		ID2D1Bitmap* This,
 		D2D1_RECT_U* rect,
 		void* data,
 		UINT32 pitch);
 
 	END_INTERFACE
-} ID2D1Bitmap1Vtbl;
+} ID2D1BitmapVtbl;
+#endif
 
 // interfaces
 interface IDCompositionDevice
@@ -434,55 +454,16 @@ interface ID2D1Device1
 	CONST_VTBL struct ID2D1Device1Vtbl* lpVtbl;
 };
 
+#if defined(GLOBOX_COMPILER_MSVC)
 interface ID2D1DeviceContext
 {
 	CONST_VTBL struct ID2D1DeviceContextVtbl* lpVtbl;
 };
 
-interface ID2D1Bitmap1
+interface ID2D1Bitmap
 {
-	CONST_VTBL struct ID2D1Bitmap1Vtbl* lpVtbl;
+	CONST_VTBL struct ID2D1BitmapVtbl* lpVtbl;
 };
-
-// IIDs
-DEFINE_GUID(IID_IDCompositionDevice,
-	0xC37EA93A, 0xE7AA, 0x450D,
-	0xB1, 0x6F, 0x97, 0x46,
-	0xCB, 0x04, 0x07, 0xF3);
-
-DEFINE_GUID(IID_IDCompositionSurface,
-	0xBB8A4953, 0x2C99, 0x4F5A,
-	0x96, 0xF5, 0x48, 0x19,
-	0x02, 0x7F, 0xA3, 0xAC);
-
-DEFINE_GUID(IID_IDCompositionVisual,
-	0x4d93059d, 0x097b, 0x4651,
-	0x9a, 0x60, 0xf0, 0xf2,
-	0x51, 0x16, 0xe2, 0xf3);
-
-DEFINE_GUID(IID_IDCompositionTarget,
-	0xeacdd04c, 0x117e, 0x4e17,
-	0x88, 0xf4, 0xd1, 0xb1,
-	0x2b, 0x0e, 0x3d, 0x89);
-
-DEFINE_GUID(IID_ID2D1Factory2,
-	0x94f81a73, 0x9212, 0x4376,
-	0x9c, 0x58, 0xb1, 0x6a,
-	0x3a, 0x0d, 0x39, 0x92);
-
-DEFINE_GUID(IID_ID2D1Device1,
-	0xd21768e1, 0x23a4, 0x4823,
-	0xa1, 0x4b, 0x7c, 0x3e,
-	0xba, 0x85, 0xd6, 0x58);
-
-DEFINE_GUID(IID_ID2D1DeviceContext,
-	0xe8f7fe7a, 0x191c, 0x466d,
-	0xad, 0x95, 0x97, 0x56,
-	0x78, 0xbd, 0xa9, 0x98);
-
-DEFINE_GUID(IID_ID2D1Bitmap1,
-	0xa898a84c, 0x3873, 0x4588,
-	0xb0, 0x8b, 0xeb, 0xbf,
-	0x97, 0x8d, 0xf0, 0x41);
+#endif
 
 #endif

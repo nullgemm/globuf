@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 #if defined(GLOBOX_PLATFORM_WINDOWS)
-#include <gl/GL.h>
+#include <GL/gl.h>
 #define GL_GLES_PROTOTYPES 0
 #endif
 

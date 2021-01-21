@@ -1,6 +1,6 @@
 #include "globox.h"
 #include <stddef.h>
-#include <gl/GL.h>
+#include <GL/gl.h>
 #define GL_GLES_PROTOTYPES 0
 #include <GLES2/gl2.h>
 
@@ -149,7 +149,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_platform_init(&globox, true, false, true);
+	globox_platform_init(&globox, false, false, true);
 
 	if (globox_error_catch(&globox))
 	{

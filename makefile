@@ -5,8 +5,8 @@ NAME = globox
 CMD = ./$(NAME)
 # targets
 PLATFORM ?= WINDOWS
-CONTEXT ?= EGL
-NATIVE ?= TRUE
+CONTEXT ?= WGL
+NATIVE ?= FALSE
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
 
@@ -41,6 +41,8 @@ $(WINDOWS_VERSION_SDK)/shared"
 INCL+= -I"/c/Program Files (x86)/Microsoft Visual Studio/$\
 $(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
 $(WINDOWS_VERSION_MSVC)/include"
+else
+FLAGS+= -Wno-implicit-fallthrough -Wno-cast-function-type -Wno-incompatible-pointer-types
 endif
 endif
 
@@ -130,20 +132,22 @@ endif
 ## WINDOWS
 ifeq ($(PLATFORM), WINDOWS)
 SRCS+= $(SRCD)/windows/globox_windows.c
+SRCS+= $(SRCD)/windows/globox_windows_symbols.c
 SRCS_OBJS+= $(OBJD)/$(RESD)/icon/iconpix.obj
-FLAGS+= -DGLOBOX_PLATFORM_WINDOWS -DUNICODE -D_UNICODE
+FLAGS+= -DGLOBOX_PLATFORM_WINDOWS -DGLOBOX_COMPATIBILITY_WINE
+FLAGS+= -DUNICODE -D_UNICODE
 FLAGS+= -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00
 FLAGS+= -DCINTERFACE -DCOBJMACROS
 
 ifeq ($(NATIVE), FALSE)
 CMD = ./$(NAME).exe
 else
+FLAGS+= -DGLOBOX_COMPILER_MSVC
 CMD = ./$(NAME)_msvc.exe
 endif
 
 ifeq ($(NATIVE), FALSE)
 CC = x86_64-w64-mingw32-gcc
-LINK+= -mwindows
 else
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/$\
 $(WINDOWS_VERSION_VISUAL_STUDIO)/BuildTools/VC/Tools/MSVC/$\
@@ -166,7 +170,8 @@ FLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
 SRCS+= example/software.c
 SRCS+= $(SRCD)/windows/software/globox_windows_software.c
 ifeq ($(NATIVE), FALSE)
-LINK+= -lgdi32
+LINK+= -lole32 -ld3d11 -ldxgi -ldxguid -ldcomp -ld2d1
+LINK+= -lgdi32 -ldwmapi -mwindows
 else
 LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 LINK+= Ole32.lib d3d11.lib dxgi.lib dxguid.lib dcomp.lib d2d1.lib
@@ -178,7 +183,7 @@ FLAGS+= -DGLOBOX_CONTEXT_GDI
 SRCS+= example/software.c
 SRCS+= $(SRCD)/windows/gdi/globox_windows_gdi.c
 ifeq ($(NATIVE), FALSE)
-LINK+= -lgdi32
+LINK+= -lgdi32 -ldwmapi -mwindows
 else
 LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 endif
@@ -190,6 +195,7 @@ SRCS+= example/wgl.c
 SRCS+= $(SRCD)/windows/wgl/globox_windows_wgl.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lopengl32
+LINK+= -lgdi32 -ldwmapi -mwindows
 else
 LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 LINK+= opengl32.lib
@@ -205,6 +211,7 @@ SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_proc.c
 SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_wgl.c
 ifeq ($(NATIVE), FALSE)
 LINK+= -lopengl32
+LINK+= -lgdi32 -ldwmapi -mwindows
 else
 LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 LINK+= opengl32.lib
@@ -246,7 +253,11 @@ endif
 
 # object files list
 ifeq ($(PLATFORM), WINDOWS)
+ifeq ($(NATIVE), TRUE)
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.obj,$(SRCS))
+else
+SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
+endif
 else
 SRCS_OBJS+= $(patsubst %.c,$(OBJD)/%.o,$(SRCS))
 endif

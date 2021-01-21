@@ -173,6 +173,20 @@ void globox_context_egl_copy(
 	int32_t y,
 	uint32_t width,
 	uint32_t height);
+#elif defined(GLOBOX_CONTEXT_WGL)
+void globox_context_wgl_free(struct globox* globox);
+void globox_context_wgl_create(struct globox* globox);
+void globox_context_wgl_shrink(struct globox* globox);
+void globox_context_wgl_init(
+	struct globox* globox,
+	int version_major,
+	int version_minor);
+void globox_context_wgl_copy(
+	struct globox* globox,
+	int32_t x,
+	int32_t y,
+	uint32_t width,
+	uint32_t height);
 #elif defined(GLOBOX_CONTEXT_GLX)
 void globox_context_glx_free(struct globox* globox);
 void globox_context_glx_create(struct globox* globox);

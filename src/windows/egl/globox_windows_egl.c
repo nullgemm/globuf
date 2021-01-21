@@ -211,7 +211,7 @@ void globox_context_egl_create(struct globox* globox)
 
 void globox_context_egl_shrink(struct globox* globox)
 {
-
+	// not needed
 }
 
 void globox_context_egl_free(struct globox* globox)

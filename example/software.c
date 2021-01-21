@@ -1,6 +1,5 @@
 #include "globox.h"
 #include <stddef.h>
-#include <windows.h>
 
 #if 0
 // we try to avoid ifdefs here by relying on helper files
@@ -94,7 +93,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_platform_init(&globox, true, false, true);
+	globox_platform_init(&globox, false, false, true);
 
 	if (globox_error_catch(&globox))
 	{

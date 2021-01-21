@@ -8,7 +8,7 @@
 #include <stdint.h>
 // windows includes
 #include <windows.h>
-#include <gl/GL.h>
+#include <GL/gl.h>
 #include "windows/wgl/globox_windows_wgl.h"
 
 #undef WGL_WGLEXT_PROTOTYPES
@@ -49,6 +49,13 @@ void globox_context_wgl_init(
 
 	context->globox_wgl_version_major = version_major;
 	context->globox_wgl_version_minor = version_minor;
+}
+
+void globox_context_wgl_create(struct globox* globox)
+{
+	// alias for readability
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	BOOL ok;
 
@@ -127,16 +134,7 @@ void globox_context_wgl_init(
 		return;
 	}
 
-	ReleaseDC(platform->globox_platform_event_handle, hdc);
-
 	context->globox_wgl_pfd = pfd;
-}
-
-void globox_context_wgl_create(struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	wglCreateContextAttribsARB =
 		(PFNWGLCREATECONTEXTATTRIBSARBPROC)
@@ -145,18 +143,6 @@ void globox_context_wgl_create(struct globox* globox)
 	wglChoosePixelFormatARB = 
 		(PFNWGLCHOOSEPIXELFORMATARBPROC)
 			wglGetProcAddress("wglChoosePixelFormatARB");
-
-	BOOL ok;
-
-	HDC hdc = GetDC(platform->globox_platform_event_handle);
-
-	if (hdc == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT);
-		return;
-	}
 
 	wglMakeCurrent(hdc, NULL);
 	wglDeleteContext(context->globox_wgl_context);
@@ -194,6 +180,7 @@ void globox_context_wgl_create(struct globox* globox)
 
 	ok = SetPixelFormat(hdc, *formats, &(context->globox_wgl_pfd));
 
+#ifndef GLOBOX_COMPATIBILITY_WINE
 	if (ok == 0)
 	{
 		globox_error_throw(
@@ -201,6 +188,7 @@ void globox_context_wgl_create(struct globox* globox)
 			GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET);
 		return;
 	}
+#endif
 
 	int attr_gl[] =
 	{
@@ -243,12 +231,7 @@ void globox_context_wgl_shrink(struct globox* globox)
 
 void globox_context_wgl_free(struct globox* globox)
 {
-// TODO
-#if 0
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
-#endif
+	// TODO
 }
 
 void globox_context_wgl_copy(
@@ -260,7 +243,6 @@ void globox_context_wgl_copy(
 {
 	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	BOOL ok;
 

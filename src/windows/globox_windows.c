@@ -16,6 +16,9 @@
 #define WINDOW_MIN_X 170
 #define WINDOW_MIN_Y 50
 
+// the one undocumented function of globox
+HRESULT (*SetWindowCompositionAttribute)(HWND hwnd, void* data);
+
 void dwm_transparency(struct globox* globox)
 {
 	// alias for readability
@@ -174,13 +177,13 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				.dwExtraInfo = 0,
 			};
 
-			INPUT input =
+			struct NAMED_INPUT input =
 			{
-				INPUT_MOUSE,
-				mouse,
+				.type = INPUT_MOUSE,
+				.data.mi = mouse,
 			};
 
-			UINT ok = SendInput(1, &input, sizeof (INPUT));
+			UINT ok = SendInput(1, (PINPUT) &input, sizeof (INPUT));
 
 			if (ok == 0)
 			{
@@ -757,6 +760,8 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
+	globox_platform_set_state(globox, globox->globox_state);
+
 	platform->globox_windows_dwm_transparency_callback =
 		dwm_transparency;
 
@@ -827,11 +832,7 @@ void globox_platform_create_window(struct globox* globox)
 
 void globox_platform_hooks(struct globox* globox)
 {
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
-	// platform update
-	globox_platform_set_state(globox, globox->globox_state);
+	// not needed
 }
 
 void globox_platform_commit(struct globox* globox)
@@ -947,13 +948,13 @@ void globox_platform_interactive_mode(
 			.dwExtraInfo = 0,
 		};
 
-		INPUT input2 =
+		struct NAMED_INPUT input2 =
 		{
-			INPUT_MOUSE,
-			mouse2,
+			.type = INPUT_MOUSE,
+			.data.mi = mouse2,
 		};
 
-		ok = SendInput(1, &input2, sizeof (INPUT));
+		ok = SendInput(1, (PINPUT) &input2, sizeof (INPUT));
 
 		if (ok == 0)
 		{
@@ -1266,6 +1267,10 @@ void globox_platform_events_handle(
 
 						break;
 					}
+					default:
+					{
+						break;
+					}
 				}
 
 				int32_t diff_x =
@@ -1335,9 +1340,6 @@ void globox_platform_events_handle(
 
 void globox_platform_free(struct globox* globox)
 {
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
 	// TODO
 }
 
