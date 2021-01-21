@@ -5,8 +5,9 @@ NAME = globox
 CMD = ./$(NAME)
 # targets
 PLATFORM ?= WINDOWS
-CONTEXT ?= WGL
+CONTEXT ?= EGL
 NATIVE ?= FALSE
+SERVER ?= GITHUB
 ## valgrind execution arguments
 VALGRIND = --show-error-list=yes --show-leak-kinds=all --track-origins=yes --leak-check=full --suppressions=../res/valgrind.supp
 
@@ -206,15 +207,14 @@ ifeq ($(CONTEXT), EGL)
 FLAGS+= -DGLOBOX_CONTEXT_EGL
 SRCS+= example/egl.c
 SRCS+= $(SRCD)/windows/egl/globox_windows_egl.c
-SRCS+= $(RESD)/eglproxy/eglproxy-master/src/eglproxy.c
-SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_proc.c
-SRCS+= $(RESD)/eglproxy/eglproxy-master/src/egl_wgl.c
 ifeq ($(NATIVE), FALSE)
-LINK+= -lopengl32
+LINK+= -L$(RESD)/eglproxy/bin
+LINK+= -leglproxy -lopengl32
 LINK+= -lgdi32 -ldwmapi -mwindows
 else
+LINK_WINDOWS+= -LIBPATH:"$(RESD)/eglproxy/bin"
 LINK+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
-LINK+= opengl32.lib
+LINK+= eglproxy.lib opengl32.lib
 endif
 endif
 endif
@@ -275,28 +275,60 @@ endif
 
 ifeq ($(PLATFORM), WINDOWS)
 ifeq ($(NATIVE), FALSE)
-final: $(BIND)/$(NAME).exe
+ifeq ($(CONTEXT), EGL)
+final: $(INCD) $(BIND)/eglproxy.dll $(BIND)/$(NAME).exe
 else
-final: $(BIND)/$(NAME)_msvc.exe
+final: $(INCD) $(BIND)/$(NAME).exe
 endif
-$(RESD)/eglproxy/eglproxy-master:
+else
+ifeq ($(CONTEXT), EGL)
+final: $(INCD) $(BIND)/eglproxy.dll $(BIND)/$(NAME)_msvc.exe
+else
+final: $(INCD) $(BIND)/$(NAME)_msvc.exe
+endif
+endif
+$(RESD)/eglproxy:
 	@echo "downloading EGLproxy sources"
-	@cd ./$(RESD)/eglproxy && ./geteglproxy.sh
+ifeq ($(SERVER), GITEA)
+	@cp .gitea .gitmodules
+else
+	@cp .github .gitmodules
+endif
+	@git submodule sync
+	@git submodule update --init --remote
 
-$(INCD): $(RESD)/eglproxy/eglproxy-master
+ifeq ($(NATIVE), FALSE)
+$(RESD)/eglproxy/bin/eglproxy.dll: $(RESD)/eglproxy
+	@echo "building EGLproxy libraries"
+	@cd $^ && make inc && NATIVE=$(NATIVE) make bin/eglproxy.dll
+else
+$(RESD)/eglproxy/bin/eglproxy.lib: $(RESD)/eglproxy
+	@echo "building EGLproxy libraries"
+	@cd $^ && NATIVE=$(NATIVE) make
+endif
+
+ifeq ($(NATIVE), FALSE)
+$(BIND)/eglproxy.dll: $(RESD)/eglproxy/bin/eglproxy.dll
+else
+$(BIND)/eglproxy.dll: $(RESD)/eglproxy/bin/eglproxy.lib $(RESD)/eglproxy/bin/eglproxy.dll
+endif
+	@echo "copying EGLproxy library"
+	@mkdir -p $(BIND)
+	@cp $(RESD)/eglproxy/bin/eglproxy.dll $@
+
+$(INCD):
 	@echo "downloading OpenGL headers"
+	@mkdir -p $@/GL
 	@mkdir -p $@/GLES2
 	@mkdir -p $@/EGL
 	@mkdir -p $@/KHR
-	@mkdir -p $@/GL
+	@curl -L "https://www.khronos.org/registry/OpenGL/api/GL/wglext.h" -o $@/GL/wglext.h
 	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2.h" -o $@/GLES2/gl2.h
 	@curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2platform.h" -o $@/GLES2/gl2platform.h
-	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/egl.h" -o $@/EGL/egl.h
-	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/eglext.h" -o $@/EGL/eglext.h
-	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/EGL/eglplatform.h" -o $@/EGL/eglplatform.h
-	@curl -L "https://raw.githubusercontent.com/souryogurt/eglproxy/master/inc/eglproxy.h" -o $@/eglproxy.h
+	@curl -L "https://www.khronos.org/registry/EGL/api/EGL/egl.h" -o $@/EGL/egl.h
+	@curl -L "https://www.khronos.org/registry/EGL/api/EGL/eglext.h" -o $@/EGL/eglext.h
+	@curl -L "https://www.khronos.org/registry/EGL/api/EGL/eglplatform.h" -o $@/EGL/eglplatform.h
 	@curl -L "https://www.khronos.org/registry/EGL/api/KHR/khrplatform.h" -o $@/KHR/khrplatform.h
-	@curl -L "https://www.khronos.org/registry/OpenGL/api/GL/wglext.h" -o $@/GL/wglext.h
 endif
 
 ifeq ($(PLATFORM), MACOS)
