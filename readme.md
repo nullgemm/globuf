@@ -22,13 +22,13 @@ X11
    Transparency is not supported because of a bug in EGL.
  - `glx` provides OpenGL contexts using XCB and GLX/libX11.
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   (It is not yet implemented yet)
+   (It is not implemented yet)
 
 Wayland
  - `software` provides an abstract buffer using libwayland-client
  - `egl` provides OpenGL and OpenGL ES contexts using only EGL
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   (It is not yet implemented yet)
+   (It is not implemented yet)
 
 Windows
  - `software` provides a GPU buffer using Direct2D
@@ -38,7 +38,7 @@ Windows
    Transparency is not supported because of a bug in EGLproxy
  - `wgl` provides OpenGL contexts using only WGL
  - `vk` provides Vulkan contexts using Vulkan's WSI
-   (It is not yet implemented yet)
+   (It is not implemented yet)
 
 mac OS
  - `software` provides an abstract buffer using CoreImage
