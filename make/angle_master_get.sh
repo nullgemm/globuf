@@ -1,22 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 
-rm -rf ./tmp
-rm -rf ./libs
-rm -rf ./include
-mkdir -p ./tmp
-mkdir -p ./libs
-mkdir -p ./include
-cd ./tmp
+# get into the right folder
+cd "$(dirname "$0")"
+rm -rf ../res/angle
+mkdir -p ../res/angle/tmp
+mkdir -p ../res/angle/libs
+mkdir -p ../res/angle/include
+cd ../res/angle/tmp
 
 curl \
 -L "https://download-chromium.appspot.com/dl/Mac?type=snapshots" \
--o ./chromium.zip
+-o chromium.zip
 
 curl \
 -L "https://github.com/kakashidinho/metalangle/releases/download/gles3-0.0.4/MetalANGLE.dylib.mac.zip" \
--o ./metalangle.zip
+-o angle_dev.zip
 
-unzip ./chromium.zip
+unzip chromium.zip
 cp \
 "chrome-mac/Chromium.app/Contents/Frameworks/"\
 "Chromium Framework.framework/Libraries/libGLESv2.dylib" \
@@ -24,7 +24,5 @@ cp \
 "Chromium Framework.framework/Libraries/libEGL.dylib" \
 ../libs/
 
-unzip ./metalangle.zip
-mv \
-./include/* \
-../include/
+unzip angle_dev.zip
+mv include/* ../include/

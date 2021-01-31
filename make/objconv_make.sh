@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-echo "# making tmp folder"
-rm -rf ./tmp
-mkdir -p ./tmp
-cd ./tmp
+# get into the right folder
+cd "$(dirname "$0")"
+rm -rf ../res/objconv
+mkdir -p ../res/objconv/tmp
+cd ../res/objconv/tmp
 
 echo "# downloading"
 curl \
@@ -18,4 +19,4 @@ echo "# building"
 ./build.sh
 
 echo "# moving binary"
-mv ./objconv ..
+mv objconv ..
