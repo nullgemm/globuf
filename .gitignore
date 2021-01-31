@@ -5,5 +5,6 @@ inc
 res/angle
 res/objconv
 res/icon/iconpix.bin
+makefile_*
 valgrind.log
 .gitmodules

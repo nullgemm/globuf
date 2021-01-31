@@ -21,4 +21,4 @@ inc/EGL/eglext.h
 curl -L "https://www.khronos.org/registry/EGL/api/EGL/eglplatform.h" -o \
 inc/EGL/eglplatform.h
 curl -L "https://www.khronos.org/registry/EGL/api/KHR/khrplatform.h" -o \
-inc/EGL/khrplatform.h
+inc/KHR/khrplatform.h
