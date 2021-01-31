@@ -50,26 +50,12 @@ mac OS
    (It is not implemented yet)
 
 ## Compiling
-First configure your test build using the variables in the makefile.
-You can also set the corresponding environment variables if you prefer.
-
-`PLATFORM` must be set to one of the following
- - `WAYLAND`
- - `X11`
- - `WINDOWS`
- - `MACOS`
-
-`CONTEXT` must be set to one of the following
- - `SOFTWARE`
- - `GDI` (Windows only, see previous section)
- - `EGL`
- - `GLX` (X11 only, see previous section)
- - `WGL` (Windows only, see previous section)
- - `VULKAN`
-
-`NATIVE` must be set to one of the following
- - `TRUE` when compiling for your native OS
- - `FALSE` when cross-compiling
+Edit and run the `gen` scripts in the `make` folder.
+You will be prompted for a context type and wether to cross-compile or not.
+Then simply run the makefile created at the root of the repository:
+```
+make -f makefile_BACKEND_CONTEXT_NATIVE
+```
 
 ### Wayland
 Globox supports Plasma's background blur Wayland protocol, and although we will
@@ -90,7 +76,7 @@ To get a working macOS toolchain under Linux we recommend cloning the
 repo and following the instructions in the readme.
 
 After the toolchain was installed and your environment variables updated you
-will also need to install objcopy, which is required by the example makefile.
+will also need to install objcopy, which is required by the generated makefile.
 
 #### Compiling from macOS
 The macOS backend can also be compiled from macOS for easier debugging.
@@ -106,7 +92,7 @@ If you did not get Xcode, you also have to install git independently
 brew install git
 ```
 
-The example makefile also requires some extra tools, starting with `objcopy`
+The generated makefile also requires some extra tools, starting with `objcopy`
 ```
 brew install binutils
 ```
@@ -118,11 +104,11 @@ After installation, the binary can be found under
 
 #### Nota Bene
 Another tool required is `objconv`. Since it can't be installed easily,
-the example makefile will download and compile a local version automatically.
-Same for the `metalANGLE` library used to provide metal-backed glES support,
-which the makefile will get from an official release archive.
+the generated makefile will download and compile a local version automatically.
+In a similar fashion, the `metalANGLE` library used to provide metal-backed
+glES support is fetched by the `gen` script from an official release archive.
 
-An extra script is available in the `res/angle` folder in case you want to use
+An extra script is available in the `make` folder in case you want to use
 the original `ANGLE`: it suffers from small visual glitches but is the official
 version of the library, in which `metalANGLE` changes are eventually integrated.
 The `ANGLE` binaries are extracted from the latest `chromium` release.
@@ -141,7 +127,7 @@ You only need builds of the POSIX `rm`, `mv` and `cp` and GNU's `make` and `objc
 We recommend using the
 [Git for Windows SDK](https://github.com/git-for-windows/build-extra/releases/latest)
 to get a basic POSIX environment without cluttering your Windows installation:
-it will create an isolated MSYS2 installation accessible from a Bash Shell.
+it will create an isolated MSYS2 with a lot of useful stuff already configured.
 
 Make sure to get the "SDK" version from the link above as the releases from
 [git-scm.com](https://git-scm.com)
@@ -150,7 +136,7 @@ We also recommend that you replace the command-line font with a
 [decent one](https://dejavu-fonts.github.io/Download.html).
 
 The Git for Windows SDK provides you with gcc, which can be used to compile.
-When going that way set `NATIVE` to false (the Linux make-path will be used).
+When going that way, use the `gen_windows_mingw.sh` script to generate a makefile.
 
 Alternatively, you can find Microsoft's *stuff* in the [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
 The setup is done through the Visual Studio Installer and starts automatically.
