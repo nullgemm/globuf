@@ -1,8 +1,9 @@
 bin
 inc
-obj
+*.o
+*.obj
+res/angle
+res/objconv
 res/icon/iconpix.bin
-res/eglproxy/eglproxy.zip
-res/eglproxy/eglproxy-master
-.gitmodules
 valgrind.log
+.gitmodules

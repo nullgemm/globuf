@@ -163,6 +163,11 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 					mode = GLOBOX_INTERACTIVE_SE;
 					break;
 				}
+				default:
+				{
+					mode = GLOBOX_INTERACTIVE_STOP;
+					break;
+				}
 			}
 
 			// kills the SIZEMOVE modal loop by
@@ -186,6 +191,13 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			UINT ok = SendInput(1, (PINPUT) &input, sizeof (INPUT));
 
 			if (ok == 0)
+			{
+				// we can't fail properly inside
+				// this fucking callback
+				break;
+			}
+
+			if (mode == GLOBOX_INTERACTIVE_STOP)
 			{
 				// we can't fail properly inside
 				// this fucking callback
