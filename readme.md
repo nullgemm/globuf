@@ -154,8 +154,8 @@ Here's what you can do:
  - `Windows` Fix the application exit
  - `Windows` Free the resources on exit
  - `Windows` Perform the final cleanup
- - `macOS  ` Fix the disabled application controls (close, maximize, minimize)
- - `macOS  ` Fix the background blur not working (it did before cleanup)
+ - `macOS` Fix the disabled application controls (close, maximize, minimize)
+ - `macOS` Fix the background blur not working (it did before cleanup)
  - Integrate Willis, Cursoryx and DPIshit examples
  - Implement the Vulkan context for all platforms
 
