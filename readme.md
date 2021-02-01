@@ -146,3 +146,18 @@ and select those you want. In our case, this will be a compiler and SDK:
  - `Windows 10 SDK`
  - `MSVC - VS C++ x64/x86 build tools`
  - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`
+
+## Contributing
+Here's what you can do:
+ - `Windows` Hide the mouse pointer when initializing the resize hack
+ - `Windows` Fix the flickering when moving and resizing
+ - `Windows` Fix the application exit
+ - `Windows` Free the resources on exit
+ - `Windows` Perform the final cleanup
+ - `macOS  ` Fix the disabled application controls (close, maximize, minimize)
+ - `macOS  ` Fix the background blur not working (it did before cleanup)
+ - Integrate Willis, Cursoryx and DPIshit examples
+ - Implement the Vulkan context for all platforms
+
+Note the macOS platform worked perfectly before the final cleanup was done,
+so maybe it's worth comparing the `master` and `experimental_macos` branches.
