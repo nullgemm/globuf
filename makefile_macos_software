@@ -1,0 +1,102 @@
+.POSIX:
+NAME = globox
+CMD = ./globox.app
+
+CC = o64-clang
+LDFLAGS+= 
+LDLIBS+= -framework AppKit
+OBJCOPY = objcopy
+
+VALGRIND+= --show-error-list=yes
+VALGRIND+= --show-leak-kinds=all
+VALGRIND+= --track-origins=yes
+VALGRIND+= --leak-check=full
+VALGRIND+= --suppressions=../res/valgrind.supp
+
+CFLAGS+= -std=c99
+CFLAGS+= -pedantic
+CFLAGS+= -g
+CFLAGS+= -Wall
+CFLAGS+= -Wextra
+CFLAGS+= -Werror=vla
+CFLAGS+= -Werror
+CFLAGS+= -Wno-address-of-packed-member
+CFLAGS+= -Wno-unused-parameter
+CFLAGS+= -Isrc
+
+CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
+CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
+CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
+CFLAGS+= -DGLOBOX_PLATFORM_MACOS
+CFLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+
+OBJ+= src/globox.o
+OBJ+= src/globox_error.o
+OBJ+= src/macos/globox_macos.o
+OBJ+= src/macos/globox_macos_symbols.o
+OBJ+= src/macos/globox_macos_callbacks.o
+OBJ+= example/software.o
+OBJ+= src/macos/software/globox_macos_software.o
+OBJ+= res/icon/iconpix_mach.o
+
+bin/$(NAME).app: bin/$(NAME)
+	mv bin/$(NAME) $@
+
+bin/$(NAME): $(OBJ)
+	mkdir -p $(@D)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+res/objconv/objconv:
+	make/scripts/objconv_make.sh
+
+res/icon/iconpix.bin:
+	make/scripts/pixmap_bin.sh
+
+res/icon/iconpix_elf.o: res/icon/iconpix.bin res/objconv/objconv
+	$(OBJCOPY) -I binary -O elf64-x86-64 -B i386:x86-64 \
+	--redefine-syms=res/icon/syms.map \
+	--rename-section .data=.iconpix \
+	$< $@
+
+res/icon/iconpix_mach.o: res/icon/iconpix_elf.o
+	res/objconv/objconv -fmac64 -nu+ -v0 \
+	res/icon/iconpix_elf.o $@
+
+leak: bin/$(NAME)
+	@echo "# running valgrind"
+	cd bin && valgrind $(VALGRIND) 2> ../valgrind.log $(CMD)
+	less valgrind.log
+
+globox.o: src/globox.c src/globox.h src/globox_error.h
+globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_macos.o: src/macos/globox_macos.c globox.h globox_error.h \
+  macos/globox_macos_types.h macos/globox_macos_symbols.h \
+  macos/globox_macos_callbacks.h macos/globox_macos.h
+globox_macos_symbols.o: src/macos/globox_macos_symbols.c \
+  macos/globox_macos_types.h macos/globox_macos_symbols.h
+globox_macos_callbacks.o: src/macos/globox_macos_callbacks.c globox.h \
+  globox_error.h macos/globox_macos_types.h macos/globox_macos_symbols.h \
+  macos/globox_macos.h macos/globox_macos_callbacks.h
+software.o: example/software.c globox.h
+globox_macos_software.o: src/macos/software/globox_macos_software.c \
+  globox.h globox_error.h macos/globox_macos_types.h \
+  macos/globox_macos_symbols.h macos/globox_macos.h \
+  macos/software/globox_macos_software.h
+
+run:
+	cd bin && $(CMD)
+
+clean:
+	make/scripts/clean.sh
+
+remotes:
+	@echo "# registering remotes"
+	make/scripts/git_remotes.sh
+
+github:
+	@echo "# sourcing submodules from https://github.com"
+	make/scripts/git_github.sh
+
+gitea:
+	@echo "# sourcing submodules from personal server"
+	make/scripts/git_gitea.sh

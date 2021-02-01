@@ -48,7 +48,7 @@ read -p "select context type ([1] d2d1 | [2] gdi | [3] egl | [4] wgl): " context
 case $context in
 	[1]* )
 # software context
-makefile=makefile_windows_d2d1
+makefile=makefile_windows_software
 src+=("example/software.c")
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
@@ -73,13 +73,13 @@ defines+=("-DGLOBOX_CONTEXT_GDI")
 makefile=makefile_windows_egl
 src+=("example/egl.c")
 src+=("src/windows/egl/globox_windows_egl.c")
-flags+=("-Iinc")
+flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 ldflags+=("-Lres/eglproxy/bin")
 ldlibs+=("-leglproxy")
 ldlibs+=("-lopengl32")
 
-make/egl_get.sh
+make/scripts/egl_get.sh
 	;;
 
 	[4]* )
@@ -87,14 +87,14 @@ make/egl_get.sh
 makefile=makefile_windows_wgl
 src+=("example/wgl.c")
 src+=("src/windows/wgl/globox_windows_wgl.c")
-flags+=("-Iinc")
+flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 ldlibs+=("-mwindows")
 ldlibs+=("-lopengl32")
 
-make/egl_get.sh
+make/scripts/egl_get.sh
 	;;
 esac
 
@@ -131,6 +131,12 @@ done
 for file in ${obj[@]}; do
 	echo "OBJ+= $file" >> $makefile
 done
+
+# build eglproxy and get OpenGL header when needed
+if [ $context -gt 2 ]; then
+echo "" >> $makefile
+cat make/templates/targets_windows_mingw_egl.make >> $makefile
+fi
 
 echo "" >> $makefile
 cat make/templates/targets_windows_mingw.make >> $makefile

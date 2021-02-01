@@ -2,7 +2,7 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-cd ..
+cd ../..
 
 cp .github .gitmodules
 git submodule sync

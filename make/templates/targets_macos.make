@@ -3,10 +3,10 @@ bin/$(NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 res/objconv/objconv:
-	make/objconv_make.sh
+	make/scripts/objconv_make.sh
 
 res/icon/iconpix.bin:
-	make/pixmap_bin.sh
+	make/scripts/pixmap_bin.sh
 
 res/icon/iconpix_elf.o: res/icon/iconpix.bin res/objconv/objconv
 	$(OBJCOPY) -I binary -O elf64-x86-64 -B i386:x86-64 \

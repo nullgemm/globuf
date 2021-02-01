@@ -2,10 +2,12 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-rm -rf ../res/angle
-mkdir -p ../res/angle/bin
-mkdir -p ../res/angle/libs
-cd ../res/angle
+cd ../..
+
+rm -rf res/angle
+mkdir -p res/angle/bin
+mkdir -p res/angle/libs
+cd res/angle
 
 # clone repos
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git

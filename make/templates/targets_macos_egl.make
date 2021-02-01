@@ -3,4 +3,4 @@ bin/$(NAME).app: res/angle/libs bin/$(NAME)
 	cp res/angle/libs/*.dylib $(@D)
 
 res/angle/libs:
-	make/angle_dev_get.sh
+	make/scripts/angle_dev_get.sh

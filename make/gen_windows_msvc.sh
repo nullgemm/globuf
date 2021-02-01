@@ -92,13 +92,13 @@ defines+=("-DGLOBOX_CONTEXT_GDI")
 makefile=makefile_windows_egl_native
 src+=("example/egl.c")
 src+=("src/windows/egl/globox_windows_egl.c")
-flags+=("-Iinc")
+flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 ldflags+=("-LIBPATH:res/eglproxy/bin")
 ldlibs+=("eglproxy.lib")
 ldlibs+=("opengl32.lib")
 
-make/egl_get.sh
+make/scripts/egl_get.sh
 	;;
 
 	[4]* )
@@ -106,7 +106,7 @@ make/egl_get.sh
 makefile=makefile_windows_wgl_native
 src+=("example/wgl.c")
 src+=("src/windows/wgl/globox_windows_wgl.c")
-flags+=("-Iinc")
+flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("Gdi32.lib")
 ldlibs+=("User32.lib")
@@ -114,7 +114,7 @@ ldlibs+=("shcore.lib")
 ldlibs+=("dwmapi.lib")
 ldlibs+=("opengl32.lib")
 
-make/egl_get.sh
+make/scripts/egl_get.sh
 	;;
 esac
 
@@ -151,6 +151,12 @@ done
 for file in ${obj[@]}; do
 	echo "OBJ+= $file" >> $makefile
 done
+
+# build eglproxy and get OpenGL header when needed
+if [ $context -gt 2 ]; then
+echo "" >> $makefile
+cat make/templates/targets_windows_msvc_egl.make >> $makefile
+fi
 
 # generate binary target
 echo "" >> $makefile

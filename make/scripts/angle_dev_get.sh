@@ -2,10 +2,12 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-rm -rf ../res/angle
-mkdir -p ../res/angle/libs
-mkdir -p ../res/angle/include
-cd ../res/angle/libs
+cd ../..
+
+rm -rf res/angle
+mkdir -p res/angle/libs
+mkdir -p res/angle/include
+cd res/angle/libs
 
 curl \
 -L "https://github.com/kakashidinho/metalangle/releases/download/gles3-0.0.4/MetalANGLE.dylib.mac.zip" \

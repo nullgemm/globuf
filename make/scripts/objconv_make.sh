@@ -2,9 +2,11 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-rm -rf ../res/objconv
-mkdir -p ../res/objconv/tmp
-cd ../res/objconv/tmp
+cd ../..
+
+rm -rf res/objconv
+mkdir -p res/objconv/tmp
+cd res/objconv/tmp
 
 echo "# downloading"
 curl \

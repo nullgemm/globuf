@@ -2,11 +2,13 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-rm -rf ../res/angle
-mkdir -p ../res/angle/tmp
-mkdir -p ../res/angle/libs
-mkdir -p ../res/angle/include
-cd ../res/angle/tmp
+cd ../..
+
+rm -rf res/angle
+mkdir -p res/angle/tmp
+mkdir -p res/angle/libs
+mkdir -p res/angle/include
+cd res/angle/tmp
 
 curl \
 -L "https://download-chromium.appspot.com/dl/Mac?type=snapshots" \

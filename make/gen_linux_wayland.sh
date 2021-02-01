@@ -10,11 +10,11 @@ src+=("src/globox_error.c")
 src+=("src/wayland/globox_wayland.c")
 src+=("src/wayland/globox_wayland_callbacks.c")
 
-src+=("inc/xdg-shell-protocol.c")
-src+=("inc/xdg-decoration-protocol.c")
-src+=("inc/kde-blur-protocol.c")
-src+=("inc/zwp-relative-pointer-protocol.c")
-src+=("inc/zwp-pointer-constraints-protocol.c")
+src+=("res/wayland_headers/xdg-shell-protocol.c")
+src+=("res/wayland_headers/xdg-decoration-protocol.c")
+src+=("res/wayland_headers/kde-blur-protocol.c")
+src+=("res/wayland_headers/zwp-relative-pointer-protocol.c")
+src+=("res/wayland_headers/zwp-pointer-constraints-protocol.c")
 
 obj+=("res/icon/iconpix.o")
 
@@ -23,7 +23,7 @@ flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Isrc")
-flags+=("-Iinc")
+flags+=("-Ires/wayland_headers")
 
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
@@ -69,38 +69,8 @@ valgrind+=("--track-origins=yes ")
 valgrind+=("--leak-check=full ")
 valgrind+=("--suppressions=../res/valgrind.supp")
 
-# generate source files
-mkdir -p inc
-wayland-scanner private-code \
-	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-	> inc/xdg-shell-protocol.c
-wayland-scanner client-header \
-	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-	> inc/xdg-shell-client-protocol.h
-wayland-scanner private-code \
-	< /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml \
-	> inc/xdg-decoration-protocol.c
-wayland-scanner client-header \
-	< /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml \
-	> inc/xdg-decoration-client-protocol.h
-wayland-scanner private-code \
-	< /usr/share/plasma-wayland-protocols/blur.xml \
-	> inc/kde-blur-protocol.c
-wayland-scanner client-header \
-	< /usr/share/plasma-wayland-protocols/blur.xml \
-	> inc/kde-blur-client-protocol.h
-wayland-scanner private-code \
-	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
-	> inc/zwp-pointer-constraints-protocol.c
-wayland-scanner client-header \
-	< /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml \
-	> inc/zwp-pointer-constraints-protocol.h
-wayland-scanner private-code \
-	< /usr/share/wayland-protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml \
-	> inc/zwp-relative-pointer-protocol.c
-wayland-scanner client-header \
-	< /usr/share/wayland-protocols/unstable/relative-pointer/relative-pointer-unstable-v1.xml \
-	> inc/zwp-relative-pointer-protocol.h
+# generate additional sources
+make/scripts/wayland_get.sh
 
 # create empty makefile
 echo ".POSIX:" > $makefile
@@ -142,6 +112,10 @@ done
 for file in ${obj[@]}; do
 	echo "OBJ+= $file" >> $makefile
 done
+
+# get wayland headers when needed
+echo "" >> $makefile
+cat make/templates/targets_linux_wayland.make >> $makefile
 
 # generate binary target
 echo "" >> $makefile

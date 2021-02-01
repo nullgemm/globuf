@@ -2,7 +2,7 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-cd ..
+cd ../..
 
 for file in $(find . -name "*.o"); do
 	rm $file

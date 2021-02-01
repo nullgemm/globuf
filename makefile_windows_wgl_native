@@ -1,0 +1,94 @@
+.POSIX:
+NAME = globox.exe
+CMD = ./globox.exe
+
+CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
+LDFLAGS+= -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
+LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib Gdi32.lib User32.lib shcore.lib dwmapi.lib opengl32.lib
+
+CFLAGS+= -Z7 -Zc:inline
+CFLAGS+= -Isrc
+CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt"
+CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
+CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared"
+CFLAGS+= -I"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/include"
+CFLAGS+= -Ires/egl_headers
+
+CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
+CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
+CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
+CFLAGS+= -DGLOBOX_PLATFORM_WINDOWS
+CFLAGS+= -DGLOBOX_COMPATIBILITY_WINE
+CFLAGS+= -DGLOBOX_COMPILER_MSVC
+CFLAGS+= -DUNICODE
+CFLAGS+= -D_UNICODE
+CFLAGS+= -DWINVER=0x0A00
+CFLAGS+= -D_WIN32_WINNT=0x0A00
+CFLAGS+= -DCINTERFACE
+CFLAGS+= -DCOBJMACROS
+CFLAGS+= -DGLOBOX_CONTEXT_WGL
+
+OBJ+= src/globox.obj
+OBJ+= src/globox_error.obj
+OBJ+= src/windows/globox_windows.obj
+OBJ+= src/windows/globox_windows_symbols.obj
+OBJ+= example/wgl.obj
+OBJ+= src/windows/wgl/globox_windows_wgl.obj
+OBJ+= res/icon/iconpix_pe.obj
+
+final: res/egl_headers bin/eglproxy.dll bin/$(NAME).exe
+
+bin/eglproxy.dll: res/eglproxy/bin/eglproxy.lib
+	mkdir -p $(@D)
+	cp res/eglproxy/bin/eglproxy.dll $@
+
+res/eglproxy/bin/eglproxy.lib: res/eglproxy/readme.md
+	cd res/eglproxy && NATIVE=TRUE make
+
+res/egl_headers:
+	make/scripts/egl_get.sh
+
+bin/$(NAME).exe: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) -Febin/$(NAME) $^ -link $(LDFLAGS) $(LDLIBS)
+
+res/icon/iconpix.bin:
+	make/scripts/pixmap_bin.sh
+
+res/icon/iconpix_pe.obj: res/icon/iconpix.bin
+	objcopy -I binary -O pe-x86-64 -B i386:x86-64 \
+	--redefine-syms=res/icon/syms.map \
+	--rename-section .data=.iconpix \
+	$< $@
+
+globox.o: src/globox.c src/globox.h src/globox_error.h
+globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
+ windows/globox_windows.h windows/globox_windows_symbols.h
+globox_windows_symbols.o: src/windows/globox_windows_symbols.c \
+ windows/globox_windows_symbols.h
+wgl.o: example/wgl.c globox.h
+globox_windows_wgl.o: src/windows/wgl/globox_windows_wgl.c globox.h \
+ globox_error.h windows/globox_windows.h windows/wgl/globox_windows_wgl.h
+
+.SUFFIXES: .c .obj
+.c.obj:
+	$(CC) $(CFLAGS) -Fo$@ -c $<
+
+run:
+	cd bin && $(CMD)
+
+clean:
+	make/scripts/clean.sh
+
+remotes:
+	@echo "# registering remotes"
+	make/scripts/git_remotes.sh
+
+github:
+	@echo "# sourcing submodules from https://github.com"
+	make/scripts/git_github.sh
+
+gitea:
+	@echo "# sourcing submodules from personal server"
+	make/scripts/git_gitea.sh

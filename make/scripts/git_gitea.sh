@@ -2,7 +2,7 @@
 
 # get into the right folder
 cd "$(dirname "$0")"
-cd ..
+cd ../..
 
 cp .gitea .gitmodules
 git submodule sync
