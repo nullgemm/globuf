@@ -150,8 +150,8 @@ and select those you want. In our case, this will be a compiler and SDK:
 ## Contributing
 Here's what you can do:
  - `Windows` Hide the mouse pointer when initializing the resize hack
- - `Windows` Fix the flickering when moving and resizing
- - `Windows` Fix the application exit
+ - `Windows` Fix the flickering when resizing with d2d1
+ - `Windows` Fix the window restoration from minimized state being impossible
  - `Windows` Free the resources on exit
  - `Windows` Perform the final cleanup
  - `macOS` Fix the disabled application controls (close, maximize, minimize)
