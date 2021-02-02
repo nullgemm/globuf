@@ -262,6 +262,27 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			break;
 		}
+		case WM_DESTROY:
+		{
+			// TODO DeleteObject(hbm);
+			PostQuitMessage(0);
+
+			// get the globox pointer
+			struct globox* globox =
+				(struct globox*)
+					GetWindowLongPtr(
+						hwnd,
+						GWLP_USERDATA);
+
+			if (globox == NULL)
+			{
+				break;
+			}
+
+			globox->globox_closed = true;
+
+			break;
+		}
 		case WM_ERASEBKGND:
 		{
 			// necessary to avoid background flickering
@@ -1037,28 +1058,7 @@ void globox_platform_events_handle(
 					transmission = false;
 					break;
 				}
-				case SC_CLOSE:
-				{
-					ok = DestroyWindow(
-						platform->globox_platform_event_handle);
-
-					if (ok == 0)
-					{
-						globox_error_throw(
-							globox,
-							GLOBOX_ERROR_WINDOWS_DESTROY);
-					}
-
-					break;
-				}
 			}
-
-			break;
-		}
-		case WM_DESTROY:
-		{
-			// TODO DeleteObject(hbm);
-			PostQuitMessage(0);
 
 			break;
 		}
