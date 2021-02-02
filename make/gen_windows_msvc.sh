@@ -49,6 +49,9 @@ defines+=("-D_WIN32_WINNT=0x0A00")
 defines+=("-DCINTERFACE")
 defines+=("-DCOBJMACROS")
 
+ldflags+=("-SUBSYSTEM:windows")
+ldflags+=("-ENTRY:mainCRTStartup")
+
 ldflags+=("-DEBUG:FULL")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Lib/$ver_windows_sdk/um/x64\"")
