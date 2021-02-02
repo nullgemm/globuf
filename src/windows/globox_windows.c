@@ -190,17 +190,12 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			UINT ok = SendInput(1, (PINPUT) &input, sizeof (INPUT));
 
-			if (ok == 0)
+			if ((ok == 0) || (mode == GLOBOX_INTERACTIVE_STOP))
 			{
 				// we can't fail properly inside
 				// this fucking callback
-				break;
-			}
-
-			if (mode == GLOBOX_INTERACTIVE_STOP)
-			{
-				// we can't fail properly inside
-				// this fucking callback
+				platform->globox_windows_sizemove_step =
+					GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
 				break;
 			}
 
