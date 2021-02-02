@@ -17,6 +17,8 @@ struct globox_windows_software
 	uint32_t globox_software_buffer_width;
 	uint32_t globox_software_buffer_height;
 
+	int globox_software_alpha;
+
 	// DirectX types
 	IDXGIFactory2* globox_software_dxgi_factory;
 	IDXGIDevice* globox_software_dxgi_device;

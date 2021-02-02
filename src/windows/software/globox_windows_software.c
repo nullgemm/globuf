@@ -42,7 +42,7 @@ void swapchain(struct globox* globox)
 		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
 		.BufferCount = 2,
 		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
-		.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED,
+		.AlphaMode = context->globox_software_alpha,
 #if 0
 		.Stereo = False,
 		.Scaling = DXGI_SCALING_NONE,
@@ -290,6 +290,15 @@ void globox_context_software_init(
 			GLOBOX_ERROR_ALLOC);
 		return;
 	}
+
+	if (globox->globox_transparent == true)
+	{
+		context->globox_software_alpha = DXGI_ALPHA_MODE_PREMULTIPLIED;
+	}
+	else
+	{
+		context->globox_software_alpha = DXGI_ALPHA_MODE_IGNORE;
+	}
 }
 
 void globox_context_software_create(struct globox* globox)
@@ -364,7 +373,7 @@ void globox_context_software_copy(
 	D2D1_PIXEL_FORMAT format =
 	{
 		.format = DXGI_FORMAT_B8G8R8A8_UNORM,
-		.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED,
+		.alphaMode = context->globox_software_alpha,
 	};
 
 	D2D1_BITMAP_PROPERTIES1 properties =
