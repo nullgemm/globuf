@@ -267,6 +267,12 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			break;
 		}
+		case WM_ERASEBKGND:
+		{
+			// necessary to avoid background flickering
+			// when resizing gdi, egl and wgl contexts
+			return 1;
+		}
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
