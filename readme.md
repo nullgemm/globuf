@@ -160,22 +160,22 @@ Note the macOS platform worked perfectly before the final cleanup was done,
 so maybe it's worth comparing the `master` and `experimental_macos` branches.
 
 ## Known issues
-The following issues are known cannot be fixed:
- - `Windows` Direct2D contexts blink during resize operations
+The following issues are known but cannot be fixed:
+ - `Windows` Direct2D contexts blink during resize operations |
    This is a known limit of Microsoft's APIs, we can't do much about it
- - `Windows` The mouse cursor does not change to reflect the resize operations
+ - `Windows` The mouse cursor does not change to reflect the resize operations |
    This is a known limit of the hack used in globox to work around the
    limitations of Microsoft's APIs. Other hacks exist that preserve the
    expected behaviour but rely on timers, which we do not find acceptable.
- - `Windows` Snap-Drag mechanisms are not available
+ - `Windows` Snap-Drag mechanisms are not available |
    Microsoft does not expose an API to control Snap-Drag,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
- - `macOS` Window resizing modifiers are not available
+ - `macOS` Window resizing modifiers are not available |
    This is a known limit of the hack used in globox to work around the
    limitations of Apple's APIs. Other hacks exist that preserve the
    expected behaviour but rely on timers, which we do not find acceptable.
- - `macOS` Magnetic window positioning is not available
+ - `macOS` Magnetic window positioning is not available |
    Apple does not expose an API to control magnetic window positioning,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
