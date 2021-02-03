@@ -251,9 +251,26 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		{
 			switch (wParam)
 			{
+				case SC_RESTORE:
+				{
+					// get the globox pointer
+					struct globox* globox =
+						(struct globox*)
+							GetWindowLongPtr(
+								hwnd,
+								GWLP_USERDATA);
+
+					if (globox == NULL)
+					{
+						break;
+					}
+
+					globox->globox_state = GLOBOX_STATE_REGULAR;
+
+					break;
+				}
 				case SC_MAXIMIZE:
 				case SC_MINIMIZE:
-				case SC_RESTORE:
 				{
 					PostMessage(hwnd, msg, wParam, lParam);
 					break;
@@ -1049,12 +1066,6 @@ void globox_platform_events_handle(
 				case SC_MINIMIZE:
 				{
 					globox->globox_state = GLOBOX_STATE_MINIMIZED;
-					transmission = false;
-					break;
-				}
-				case SC_RESTORE:
-				{
-					globox->globox_state = GLOBOX_STATE_REGULAR;
 					transmission = false;
 					break;
 				}
