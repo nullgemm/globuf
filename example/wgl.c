@@ -149,7 +149,7 @@ int main(void)
 		return 1;
 	}
 
-	globox_platform_init(&globox, false, false, true);
+	globox_platform_init(&globox, true, false, true);
 
 	if (globox_error_catch(&globox))
 	{

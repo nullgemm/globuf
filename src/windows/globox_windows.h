@@ -12,8 +12,8 @@
 // this will also have the effect of exposing the graphic context functions
 #if defined(GLOBOX_CONTEXT_SOFTWARE)
 	#include "software/globox_windows_software.h"
-#elif defined(GLOBOX_CONTEXT_GDI)
-	#include "gdi/globox_windows_gdi.h"
+#elif defined(GLOBOX_CONTEXT_D2D1)
+	#include "d2d1/globox_windows_d2d1.h"
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 	#include "vulkan/globox_windows_vulkan.h"
 #elif defined(GLOBOX_CONTEXT_EGL)
@@ -45,7 +45,7 @@ struct globox_platform
 	uint32_t* globox_platform_argb;
 
 	// graphic contexts
-#if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_GDI)
+#if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_D2D1)
 	struct globox_windows_software globox_windows_software;
 #elif defined(GLOBOX_CONTEXT_VULKAN)
 	struct globox_windows_vulkan globox_windows_vulkan;

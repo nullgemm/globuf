@@ -48,9 +48,11 @@ HRESULT WINAPI DCompositionCreateDevice(
 #define ID2D1Device1_CreateDeviceContext(This, options, deviceContext) \
 	((This)->lpVtbl->CreateDeviceContext(This, options, deviceContext))
 
+#if 0
 // ID2D1DeviceContext
 #define ID2D1DeviceContext_CreateBitmapFromDxgiSurface(This, surface, properties, bitmap) \
 	((This)->lpVtbl->CreateBitmapFromDxgiSurface(This, surface, properties, bitmap))
+#endif
 
 #if defined(GLOBOX_COMPILER_MSVC)
 // ID2D1Bitmap

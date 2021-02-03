@@ -4,7 +4,7 @@ CMD = wine ./globox.exe
 
 CC = x86_64-w64-mingw32-gcc
 LDFLAGS+= 
-LDLIBS+= -lgdi32 -ldwmapi -mwindows -lole32 -ld3d11 -ldxgi -ldxguid -ldcomp -ld2d1
+LDLIBS+= -lgdi32 -ldwmapi -mwindows
 
 CFLAGS+= -std=c99
 CFLAGS+= -pedantic
@@ -63,7 +63,6 @@ globox_windows_symbols.o: src/windows/globox_windows_symbols.c \
 software.o: example/software.c globox.h
 globox_windows_software.o: src/windows/software/globox_windows_software.c \
  globox.h globox_error.h windows/globox_windows.h \
- windows/globox_windows_symbols.h \
  windows/software/globox_windows_software.h
 
 run:

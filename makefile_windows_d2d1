@@ -4,7 +4,7 @@ CMD = wine ./globox.exe
 
 CC = x86_64-w64-mingw32-gcc
 LDFLAGS+= 
-LDLIBS+= -lgdi32 -ldwmapi -mwindows
+LDLIBS+= -lgdi32 -ldwmapi -mwindows -lole32 -ld3d11 -ldxgi -ldxguid -ldcomp -ld2d1
 
 CFLAGS+= -std=c99
 CFLAGS+= -pedantic
@@ -31,14 +31,14 @@ CFLAGS+= -DWINVER=0x0A00
 CFLAGS+= -D_WIN32_WINNT=0x0A00
 CFLAGS+= -DCINTERFACE
 CFLAGS+= -DCOBJMACROS
-CFLAGS+= -DGLOBOX_CONTEXT_GDI
+CFLAGS+= -DGLOBOX_CONTEXT_D2D1
 
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
 OBJ+= src/windows/globox_windows.o
 OBJ+= src/windows/globox_windows_symbols.o
 OBJ+= example/software.o
-OBJ+= src/windows/gdi/globox_windows_gdi.o
+OBJ+= src/windows/d2d1/globox_windows_d2d1.o
 OBJ+= res/icon/iconpix_pe.o
 
 bin/$(NAME).exe: $(OBJ)
@@ -61,8 +61,9 @@ globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
 globox_windows_symbols.o: src/windows/globox_windows_symbols.c \
  windows/globox_windows_symbols.h
 software.o: example/software.c globox.h
-globox_windows_gdi.o: src/windows/gdi/globox_windows_gdi.c globox.h \
- globox_error.h windows/globox_windows.h windows/gdi/globox_windows_gdi.h
+globox_windows_d2d1.o: src/windows/d2d1/globox_windows_d2d1.c globox.h \
+ globox_error.h windows/globox_windows.h windows/globox_windows_symbols.h \
+ windows/d2d1/globox_windows_d2d1.h
 
 run:
 	cd bin && $(CMD)

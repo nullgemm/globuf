@@ -65,7 +65,7 @@ ldlibs+=("User32.lib")
 ldlibs+=("shcore.lib")
 ldlibs+=("dwmapi.lib")
 
-read -p "select context ([1] software | [2] gdi | [3] egl | [4] wgl): " context
+read -p "select context ([1] software | [2] d2d1 | [3] egl | [4] wgl): " context
 
 case $context in
 	[1]* )
@@ -74,20 +74,20 @@ makefile=makefile_windows_software_native
 src+=("example/software.c")
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
+	;;
+
+	[2]* )
+# software context
+makefile=makefile_windows_d2d1_native
+src+=("example/software.c")
+src+=("src/windows/d2d1/globox_windows_d2d1.c")
+defines+=("-DGLOBOX_CONTEXT_D2D1")
 ldlibs+=("Ole32.lib")
 ldlibs+=("d3d11.lib")
 ldlibs+=("dxgi.lib")
 ldlibs+=("dxguid.lib")
 ldlibs+=("dcomp.lib")
 ldlibs+=("d2d1.lib")
-	;;
-
-	[2]* )
-# software context
-makefile=makefile_windows_gdi_native
-src+=("example/software.c")
-src+=("src/windows/gdi/globox_windows_gdi.c")
-defines+=("-DGLOBOX_CONTEXT_GDI")
 	;;
 
 	[3]* )

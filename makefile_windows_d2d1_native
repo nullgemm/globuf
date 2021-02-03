@@ -4,7 +4,7 @@ CMD = ./globox.exe
 
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
 LDFLAGS+= -SUBSYSTEM:windows -ENTRY:mainCRTStartup -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
-LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
+LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib Ole32.lib d3d11.lib dxgi.lib dxguid.lib dcomp.lib d2d1.lib
 
 CFLAGS+= -Z7 -Zc:inline
 CFLAGS+= -Isrc
@@ -25,14 +25,14 @@ CFLAGS+= -DWINVER=0x0A00
 CFLAGS+= -D_WIN32_WINNT=0x0A00
 CFLAGS+= -DCINTERFACE
 CFLAGS+= -DCOBJMACROS
-CFLAGS+= -DGLOBOX_CONTEXT_GDI
+CFLAGS+= -DGLOBOX_CONTEXT_D2D1
 
 OBJ+= src/globox.obj
 OBJ+= src/globox_error.obj
 OBJ+= src/windows/globox_windows.obj
 OBJ+= src/windows/globox_windows_symbols.obj
 OBJ+= example/software.obj
-OBJ+= src/windows/gdi/globox_windows_gdi.obj
+OBJ+= src/windows/d2d1/globox_windows_d2d1.obj
 OBJ+= res/icon/iconpix_pe.obj
 
 bin/$(NAME).exe: $(OBJ)
@@ -55,8 +55,9 @@ globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
 globox_windows_symbols.o: src/windows/globox_windows_symbols.c \
  windows/globox_windows_symbols.h
 software.o: example/software.c globox.h
-globox_windows_gdi.o: src/windows/gdi/globox_windows_gdi.c globox.h \
- globox_error.h windows/globox_windows.h windows/gdi/globox_windows_gdi.h
+globox_windows_d2d1.o: src/windows/d2d1/globox_windows_d2d1.c globox.h \
+ globox_error.h windows/globox_windows.h windows/globox_windows_symbols.h \
+ windows/d2d1/globox_windows_d2d1.h
 
 .SUFFIXES: .c .obj
 .c.obj:

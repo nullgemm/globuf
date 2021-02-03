@@ -43,7 +43,7 @@ ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 ldlibs+=("-mwindows")
 
-read -p "select context type ([1] d2d1 | [2] gdi | [3] egl | [4] wgl): " context
+read -p "select context type ([1] software | [2] d2d1 | [3] egl | [4] wgl): " context
 
 case $context in
 	[1]* )
@@ -52,20 +52,20 @@ makefile=makefile_windows_software
 src+=("example/software.c")
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
+	;;
+
+	[2]* )
+# software context
+makefile=makefile_windows_d2d1
+src+=("example/software.c")
+src+=("src/windows/d2d1/globox_windows_d2d1.c")
+defines+=("-DGLOBOX_CONTEXT_D2D1")
 ldlibs+=("-lole32")
 ldlibs+=("-ld3d11")
 ldlibs+=("-ldxgi")
 ldlibs+=("-ldxguid")
 ldlibs+=("-ldcomp")
 ldlibs+=("-ld2d1")
-	;;
-
-	[2]* )
-# software context
-makefile=makefile_windows_gdi
-src+=("example/software.c")
-src+=("src/windows/gdi/globox_windows_gdi.c")
-defines+=("-DGLOBOX_CONTEXT_GDI")
 	;;
 
 	[3]* )

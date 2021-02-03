@@ -300,12 +300,14 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			break;
 		}
+#ifndef GLOBOX_CONTEXT_D2D1
 		case WM_ERASEBKGND:
 		{
 			// necessary to avoid background flickering
 			// when resizing gdi, egl and wgl contexts
 			return 1;
 		}
+#endif
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -746,7 +748,7 @@ void globox_platform_create_window(struct globox* globox)
 	globox->globox_blurred = false;
 #endif
 
-#if !defined(GLOBOX_CONTEXT_GDI) && !defined(GLOBOX_CONTEXT_WGL)
+#if !defined(GLOBOX_CONTEXT_SOFTWARE) && !defined(GLOBOX_CONTEXT_WGL)
 	if (globox->globox_transparent == true)
 	{
 		exstyle |= WS_EX_NOREDIRECTIONBITMAP;
@@ -821,7 +823,7 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-#if defined(GLOBOX_CONTEXT_GDI) || defined(GLOBOX_CONTEXT_WGL)
+#if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_WGL)
 	dwm_transparency(globox);
 #endif
 
