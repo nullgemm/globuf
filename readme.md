@@ -149,7 +149,6 @@ and select those you want. In our case, this will be a compiler and SDK:
 
 ## Contributing
 Here's what you can do:
- - `Windows` Fix the window restoration from minimized state being impossible
  - `Windows` Free the resources on exit
  - `Windows` Perform the final cleanup
  - `macOS` Fix the disabled application controls (close, maximize, minimize)
