@@ -149,8 +149,6 @@ and select those you want. In our case, this will be a compiler and SDK:
 
 ## Contributing
 Here's what you can do:
- - `Windows` Hide the mouse pointer when initializing the resize hack
- - `Windows` Fix the flickering when resizing with d2d1
  - `Windows` Fix the window restoration from minimized state being impossible
  - `Windows` Free the resources on exit
  - `Windows` Perform the final cleanup
@@ -161,3 +159,24 @@ Here's what you can do:
 
 Note the macOS platform worked perfectly before the final cleanup was done,
 so maybe it's worth comparing the `master` and `experimental_macos` branches.
+
+## Known issues
+The following issues are known cannot be fixed:
+ - `Windows` Direct2D contexts blink during resize operations
+   This is a known limit of Microsoft's APIs, we can't do much about it
+ - `Windows` The mouse cursor does not change to reflect the resize operations
+   This is a known limit of the hack used in globox to work around the
+   limitations of Microsoft's APIs. Other hacks exist that preserve the
+   expected behaviour but rely on timers, which we do not find acceptable.
+ - `Windows` Snap-Drag mechanisms are not available
+   Microsoft does not expose an API to control Snap-Drag,
+   and the aforementioned hack used to provide a consistent event-loop
+   behaviour across platforms prevents us from getting access to it normally.
+ - `macOS` Window resizing modifiers are not available
+   This is a known limit of the hack used in globox to work around the
+   limitations of Apple's APIs. Other hacks exist that preserve the
+   expected behaviour but rely on timers, which we do not find acceptable.
+ - `macOS` Magnetic window positioning is not available
+   Apple does not expose an API to control magnetic window positioning,
+   and the aforementioned hack used to provide a consistent event-loop
+   behaviour across platforms prevents us from getting access to it normally.
