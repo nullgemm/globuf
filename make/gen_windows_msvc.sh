@@ -65,6 +65,10 @@ ldlibs+=("User32.lib")
 ldlibs+=("shcore.lib")
 ldlibs+=("dwmapi.lib")
 
+drmemory+=("-report_max -1")
+drmemory+=("-report_leak_max -1")
+drmemory+=("-batch")
+
 read -p "select context ([1] software | [2] d2d1 | [3] egl | [4] wgl): " context
 
 case $context in
@@ -131,6 +135,12 @@ echo "" >> $makefile
 echo "CC = $cc" >> $makefile
 echo "LDFLAGS+= ${ldflags[@]}" >> $makefile
 echo "LDLIBS+= ${ldlibs[@]}" >> $makefile
+
+# generate Dr.Memory flags
+echo "" >> $makefile
+for file in ${drmemory[@]}; do
+	echo "DRMEMORY+= $file" >> $makefile
+done
 
 # generate compiler flags
 echo "" >> $makefile

@@ -7,4 +7,5 @@ res/objconv
 res/icon/iconpix.bin
 makefile_*
 valgrind.log
+drmemory.log
 .gitmodules

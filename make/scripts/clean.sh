@@ -12,4 +12,4 @@ for file in $(find . -name "*.obj"); do
 	rm $file
 done;
 
-rm -rf bin valgrind.log
+rm -rf bin valgrind.log drmemory.log

@@ -10,3 +10,8 @@ res/icon/iconpix_pe.obj: res/icon/iconpix.bin
 	--redefine-syms=res/icon/syms.map \
 	--rename-section .data=.iconpix \
 	$< $@
+
+leak: bin/$(NAME).exe
+	@echo "# running Dr.Memory"
+	cd bin && drmemory.exe $(DRMEMORY) 2> ../drmemory.log $(CMD)
+	less drmemory.log
