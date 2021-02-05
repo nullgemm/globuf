@@ -1,14 +1,14 @@
 #include "globox.h"
 #include "globox_error.h"
-#include "windows/globox_windows.h"
-// system includes
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-// windows includes
 #include <windows.h>
 #include <GL/gl.h>
+
+#include "windows/globox_windows.h"
 #include "windows/wgl/globox_windows_wgl.h"
 
 #undef WGL_WGLEXT_PROTOTYPES
@@ -24,7 +24,6 @@ void dummy(struct globox* globox)
 
 void resize(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	if (globox->globox_transparent == false)
@@ -40,7 +39,6 @@ void globox_context_wgl_init(
 	int version_major,
 	int version_minor)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
@@ -53,7 +51,6 @@ void globox_context_wgl_init(
 
 void globox_context_wgl_create(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
@@ -65,7 +62,7 @@ void globox_context_wgl_create(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT);
+			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET);
 		return;
 	}
 
@@ -241,10 +238,7 @@ void globox_context_wgl_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
-
-	BOOL ok;
 
 	HDC hdc = GetDC(platform->globox_platform_event_handle);
 
@@ -252,11 +246,11 @@ void globox_context_wgl_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT);
+			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET);
 		return;
 	}
 
-	ok = wglSwapLayerBuffers(hdc, WGL_SWAP_MAIN_PLANE);
+	BOOL ok = wglSwapLayerBuffers(hdc, WGL_SWAP_MAIN_PLANE);
 
 	if (ok == 0)
 	{
@@ -270,5 +264,3 @@ void globox_context_wgl_copy(
 
 	globox->globox_redraw = false;
 }
-
-// getters

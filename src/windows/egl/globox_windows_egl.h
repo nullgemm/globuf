@@ -2,9 +2,8 @@
 #define H_GLOBOX_WINDOWS_EGL
 
 #include "globox.h"
-#include "windows/globox_windows.h"
-// context includes
 #include <EGL/egl.h>
+#include "windows/globox_windows.h"
 
 struct globox_windows_egl
 {

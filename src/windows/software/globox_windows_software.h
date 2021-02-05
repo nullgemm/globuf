@@ -3,7 +3,6 @@
 
 #include "globox.h"
 #include "windows/globox_windows.h"
-// windows includes
 #include <windows.h>
 
 struct globox_windows_software

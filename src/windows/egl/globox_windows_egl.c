@@ -1,7 +1,9 @@
 #include "globox.h"
 #include "globox_error.h"
-#include "windows/globox_windows.h"
+
 #include <EGL/egl.h>
+
+#include "windows/globox_windows.h"
 
 void dummy(struct globox* globox)
 {
@@ -13,7 +15,6 @@ void globox_context_egl_init(
 	int version_major,
 	int version_minor)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
@@ -28,7 +29,7 @@ void globox_context_egl_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_DISPLAY_GET);
 		return;
 	}
 
@@ -47,7 +48,7 @@ void globox_context_egl_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_INIT);
 		return;
 	}
 
@@ -59,7 +60,7 @@ void globox_context_egl_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_API_BIND);
 		return;
 	}
 
@@ -87,7 +88,7 @@ void globox_context_egl_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_CONFIG_CHOOSE);
 		return;
 	}
 
@@ -109,14 +110,13 @@ void globox_context_egl_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_CONTEXT_CREATE);
 		return;
 	}
 }
 
 void globox_context_egl_create(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
@@ -135,7 +135,7 @@ void globox_context_egl_create(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_CONFIG_ATTRIB_GET);
 		return;
 	}
 
@@ -188,7 +188,7 @@ void globox_context_egl_create(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_SURFACE_CREATE);
 		return;
 	}
 
@@ -204,7 +204,7 @@ void globox_context_egl_create(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_MAKE_CURRENT);
 		return;
 	}
 }
@@ -216,7 +216,6 @@ void globox_context_egl_shrink(struct globox* globox)
 
 void globox_context_egl_free(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
@@ -231,7 +230,7 @@ void globox_context_egl_free(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_SURFACE_DESTROY);
 		return;
 	}
 
@@ -244,7 +243,7 @@ void globox_context_egl_free(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_CONTEXT_DESTROY);
 		return;
 	}
 
@@ -256,7 +255,7 @@ void globox_context_egl_free(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_TERMINATE);
 		return;
 	}
 }
@@ -268,7 +267,6 @@ void globox_context_egl_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
@@ -281,7 +279,7 @@ void globox_context_egl_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_EGL_FAIL);
+			GLOBOX_ERROR_WINDOWS_EGL_SWAP);
 		return;
 	}
 

@@ -144,7 +144,7 @@ void globox_platform_set_state(
 	enum globox_state state); 
 
 // context-dependent functions
-#if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_D2D1)
+#if defined(GLOBOX_CONTEXT_SOFTWARE)
 void globox_context_software_free(struct globox* globox);
 void globox_context_software_create(struct globox* globox);
 void globox_context_software_shrink(struct globox* globox);
@@ -293,7 +293,7 @@ uint32_t* globox_platform_get_argb(struct globox* globox);
 
 // platform-independent context getters
 #if defined(GLOBOX_CONTEXT_VULKAN)
-#elif defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_D2D1)
+#elif defined(GLOBOX_CONTEXT_SOFTWARE)
 uint32_t globox_software_get_buffer_width(struct globox* globox);
 uint32_t globox_software_get_buffer_height(struct globox* globox);
 #elif defined(GLOBOX_CONTEXT_EGL)

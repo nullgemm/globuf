@@ -31,8 +31,7 @@ Wayland
    (It is not implemented yet)
 
 Windows
- - `software` provides a GPU buffer using Direct2D
- - `gdi` provides an abstract buffer using GDI
+ - `software` provides an abstract buffer using GDI
  - `egl` provides OpenGL contexts using EGLproxy
    (which is a simple WGL wrapper)
    Transparency is not supported because of a bug in EGLproxy
@@ -150,7 +149,6 @@ and select those you want. In our case, this will be a compiler and SDK:
 ## Contributing
 Here's what you can do:
  - `Windows` Free the resources on exit
- - `Windows` Perform the final cleanup
  - `macOS` Fix the disabled application controls (close, maximize, minimize)
  - `macOS` Fix the background blur not working (it did before cleanup)
  - Integrate Willis, Cursoryx and DPIshit examples
@@ -161,8 +159,6 @@ so maybe it's worth comparing the `master` and `experimental_macos` branches.
 
 ## Known issues
 The following issues are known but cannot be fixed:
- - `Windows` Direct2D contexts blink during resize operations |
-   This is a known limit of Microsoft's APIs, we can't do much about it
  - `Windows` The mouse cursor does not change to reflect the resize operations |
    This is a known limit of the hack used in globox to work around the
    limitations of Microsoft's APIs. Other hacks exist that preserve the

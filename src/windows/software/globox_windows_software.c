@@ -1,13 +1,13 @@
 #include "globox.h"
 #include "globox_error.h"
-#include "windows/globox_windows.h"
-// system includes
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-// windows includes
 #include <windows.h>
+
+#include "windows/globox_windows.h"
 #include "windows/software/globox_windows_software.h"
 
 void dummy(struct globox* globox)
@@ -17,11 +17,9 @@ void dummy(struct globox* globox)
 
 void resize(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
-	// update bitmap info
 	context->globox_software_bmp_info.bmiHeader.biWidth = globox->globox_width;
 	context->globox_software_bmp_info.bmiHeader.biHeight = globox->globox_height;
 
@@ -34,7 +32,7 @@ void resize(struct globox* globox)
 		{
 			globox_error_throw(
 				globox,
-				GLOBOX_ERROR_WINDOWS_DELETE_BMP_HANDLE);
+				GLOBOX_ERROR_WINDOWS_DELETE);
 			return;
 		}
 	}
@@ -57,14 +55,14 @@ void resize(struct globox* globox)
 			&(context->globox_software_bmp_info),
 			DIB_RGB_COLORS,
 			(void**) &(platform->globox_platform_argb),
-			NULL, // automatic memory allocation by Windows
-			0);   // no buffer offset
+			NULL,
+			0);
 
 	if (context->globox_software_bmp_handle == NULL)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_CREATE_DIB_SECTION);
+			GLOBOX_ERROR_WINDOWS_GDI_DIB_CREATE);
 		return;
 	}
 
@@ -75,7 +73,7 @@ void resize(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_REMOVE);
+			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_RELEASE);
 		return;
 	}
 
@@ -92,7 +90,6 @@ void globox_context_software_init(
 	int version_major,
 	int version_minor)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	platform->globox_windows_resize_callback = resize;
@@ -101,7 +98,6 @@ void globox_context_software_init(
 
 void globox_context_software_create(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
@@ -138,12 +134,7 @@ void globox_context_software_shrink(struct globox* globox)
 
 void globox_context_software_free(struct globox* globox)
 {
-// TODO
-#if 0
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-	struct globox_windows_software* context = &(platform->globox_windows_software);
-#endif
+	// TODO
 }
 
 void globox_context_software_copy(
@@ -153,7 +144,6 @@ void globox_context_software_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
@@ -174,7 +164,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DAMAGE);
+			GLOBOX_ERROR_WINDOWS_GDI_DAMAGE);
 		return;
 	}
 
@@ -187,7 +177,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_PAINT);
+			GLOBOX_ERROR_WINDOWS_GDI_PAINT);
 		return;
 	}
 
@@ -197,7 +187,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_CREATE);
+			GLOBOX_ERROR_WINDOWS_GDI_DEVICE_CONTEXT_CREATE);
 		return;
 	}
 
@@ -210,7 +200,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_SELECT_BITMAP_HANDLE);
+			GLOBOX_ERROR_WINDOWS_GDI_BITMAP_SELECT);
 		return;
 	}
 
@@ -229,7 +219,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_BITBLT);
+			GLOBOX_ERROR_WINDOWS_GDI_BITBLT);
 		return;
 	}
 
@@ -239,7 +229,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_SELECT_BITMAP_HANDLE);
+			GLOBOX_ERROR_WINDOWS_GDI_BITMAP_SELECT);
 		return;
 	}
 
@@ -249,7 +239,7 @@ void globox_context_software_copy(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_DELETE);
+			GLOBOX_ERROR_WINDOWS_GDI_DEVICE_CONTEXT_DELETE);
 		return;
 	}
 

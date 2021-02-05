@@ -36,7 +36,6 @@ CFLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
 OBJ+= src/globox.obj
 OBJ+= src/globox_error.obj
 OBJ+= src/windows/globox_windows.obj
-OBJ+= src/windows/globox_windows_symbols.obj
 OBJ+= example/software.obj
 OBJ+= src/windows/software/globox_windows_software.obj
 OBJ+= res/icon/iconpix_pe.obj
@@ -62,9 +61,7 @@ leak: bin/$(NAME).exe
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
 globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
- windows/globox_windows.h windows/globox_windows_symbols.h
-globox_windows_symbols.o: src/windows/globox_windows_symbols.c \
- windows/globox_windows_symbols.h
+ windows/globox_windows.h
 software.o: example/software.c globox.h
 globox_windows_software.o: src/windows/software/globox_windows_software.c \
  globox.h globox_error.h windows/globox_windows.h \

@@ -10,7 +10,6 @@ cc=x86_64-w64-mingw32-gcc
 src+=("src/globox.c")
 src+=("src/globox_error.c")
 src+=("src/windows/globox_windows.c")
-src+=("src/windows/globox_windows_symbols.c")
 
 obj+=("res/icon/iconpix_pe.o")
 
@@ -43,7 +42,7 @@ ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 ldlibs+=("-mwindows")
 
-read -p "select context type ([1] software | [2] d2d1 | [3] egl | [4] wgl): " context
+read -p "select context type ([1] software | [2] egl | [3] wgl): " context
 
 case $context in
 	[1]* )
@@ -55,20 +54,6 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	[2]* )
-# software context
-makefile=makefile_windows_d2d1
-src+=("example/software.c")
-src+=("src/windows/d2d1/globox_windows_d2d1.c")
-defines+=("-DGLOBOX_CONTEXT_D2D1")
-ldlibs+=("-lole32")
-ldlibs+=("-ld3d11")
-ldlibs+=("-ldxgi")
-ldlibs+=("-ldxguid")
-ldlibs+=("-ldcomp")
-ldlibs+=("-ld2d1")
-	;;
-
-	[3]* )
 # egl context
 makefile=makefile_windows_egl
 src+=("example/egl.c")
@@ -82,7 +67,7 @@ ldlibs+=("-lopengl32")
 make/scripts/egl_get.sh
 	;;
 
-	[4]* )
+	[3]* )
 # wgl context
 makefile=makefile_windows_wgl
 src+=("example/wgl.c")
@@ -133,7 +118,7 @@ for file in ${obj[@]}; do
 done
 
 # build eglproxy and get OpenGL header when needed
-if [ $context -gt 2 ]; then
+if [ $context -gt 1 ]; then
 echo "" >> $makefile
 cat make/templates/targets_windows_mingw_egl.make >> $makefile
 fi

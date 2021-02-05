@@ -1,40 +1,274 @@
-/// this file implements the main globox functions for the windows platform
-/// it is completely isolated from the graphic context functions
-
-// include globox structures and functions
 #include "globox.h"
 #include "globox_error.h"
-// windows includes
+
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <windows.h>
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
-
-// include platform structures
 #include <dwmapi.h>
-#include "windows/globox_windows.h"
-#include "windows/globox_windows_symbols.h"
 
+#include "windows/globox_windows.h"
+
+// Microsoft's low-level APIs do not enforce any window size limit,
+// but Windows does not handle small windows correctly so glitches
+// can appear, like action buttons rendered outside of the titlebar.
+// To avoid this we came up with an arbitrary limit for globox.
 #define WINDOW_MIN_X 170
 #define WINDOW_MIN_Y 50
 
-// the one undocumented function of globox
-HRESULT (*SetWindowCompositionAttribute)(HWND hwnd, void* data);
+enum ACCENT_STATE
+{
+	ACCENT_ENABLE_BLURBEHIND = 3,
+};
+
+enum WINDOWCOMPOSITIONATTRIB
+{
+	WCA_ACCENT_POLICY = 19,
+};
+
+struct ACCENT_POLICY
+{
+	enum ACCENT_STATE AccentState;
+	DWORD AccentFlags;
+	DWORD GradientColor;
+	DWORD AnimationId;
+};
+
+struct WINDOWCOMPOSITIONATTRIBDATA
+{
+	enum WINDOWCOMPOSITIONATTRIB dwAttrib;
+	PVOID pvData;
+	SIZE_T cbData;
+};
+
+union NAMED_INPUT_UNION
+{
+	MOUSEINPUT mi;
+	KEYBDINPUT ki;
+	HARDWAREINPUT hi;
+};
+
+struct NAMED_INPUT
+{
+	DWORD type;
+	union NAMED_INPUT_UNION data;
+};
+
+LPWSTR utf8_to_wchar(const char* s)
+{
+	size_t codepoint_count =
+		MultiByteToWideChar(
+			CP_UTF8,
+			MB_PRECOMPOSED,
+			s,
+			-1,
+			NULL,
+			0);
+
+	if (codepoint_count == 0)
+	{
+		return NULL;
+	}
+
+	wchar_t* buf = malloc(codepoint_count * (sizeof (wchar_t)));
+
+	if (buf == NULL)
+	{
+		return NULL;
+	}
+
+	buf[0] = '\0';
+
+	int ok =
+		MultiByteToWideChar(
+			CP_UTF8,
+			MB_PRECOMPOSED,
+			s,
+			-1,
+			buf,
+			codepoint_count);
+
+	if (ok == 0)
+	{
+		return NULL;
+	}
+
+	return buf;
+}
+
+HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
+{
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	HDC hdc = GetDC(platform->globox_platform_event_handle);
+
+	if (hdc == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET);
+		return NULL;
+	}
+
+	HBITMAP mask =
+		CreateCompatibleBitmap(
+			hdc,
+			bmp->bmWidth,
+			bmp->bmHeight);
+
+	if (mask == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_BMP_MASK_CREATE);
+		return NULL;
+	}
+
+	HBITMAP color = CreateBitmapIndirect(bmp);
+
+	if (color == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_BMP_COLOR_CREATE);
+		return NULL;
+	}
+
+	ICONINFO info =
+	{
+		.fIcon = TRUE,
+		.xHotspot = 0,
+		.yHotspot = 0,
+		.hbmMask = mask,
+		.hbmColor = color,
+	};
+
+	HICON icon = CreateIconIndirect(&info);
+
+	if (icon == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_ICON_CREATE);
+		return NULL;
+	}
+
+	int ok;
+
+	ok = DeleteObject(mask);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DELETE);
+		return NULL;
+	}
+
+	ok = DeleteObject(color);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DELETE);
+		return NULL;
+	}
+
+	ok = ReleaseDC(platform->globox_platform_event_handle, hdc);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_RELEASE);
+		return NULL;
+	}
+
+	return icon;
+}
+
+void query_pointer(struct globox* globox)
+{
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	POINT point;
+	RECT rect;
+	BOOL ok;
+
+	ok = GetCursorPos(&point);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_CURSOR_POS_GET);
+		return;
+	}
+
+	ok = GetWindowRect(platform->globox_platform_event_handle, &rect);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_WINDOW_RECT_GET);
+		return;
+	}
+
+	// save the mouse position
+	platform->globox_windows_interactive_x = point.x;
+	platform->globox_windows_interactive_y = point.y;
+
+	// save the window position
+	platform->globox_windows_old_outer_x = rect.left;
+	platform->globox_windows_old_outer_y = rect.top;
+
+	// update the window size
+	platform->globox_windows_outer_width = rect.right - rect.left;
+	platform->globox_windows_outer_height = rect.bottom - rect.top;
+
+	// save the window size
+	platform->globox_windows_old_outer_width = platform->globox_windows_outer_width;
+	platform->globox_windows_old_outer_height = platform->globox_windows_outer_height;
+}
 
 void dwm_transparency(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
-	DWM_BLURBEHIND blur_behind = {0};
-
+	// TODO communicate only the client region without the frame and update when resizing
 	HRGN region = CreateRectRgn(0, 0, -1, -1);
 
-	blur_behind.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-	blur_behind.hRgnBlur = region;
-	blur_behind.fEnable = TRUE;
+	if (region == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_REGION);
+		return;
+	}
 
-	DwmEnableBlurBehindWindow(
-		platform->globox_platform_event_handle,
-		&blur_behind);
+	DWM_BLURBEHIND blur_behind =
+	{
+		.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION,
+		.fEnable = TRUE,
+		.hRgnBlur = region,
+		.fTransitionOnMaximized = FALSE,
+	};
+
+	int ok =
+		DwmEnableBlurBehindWindow(
+			platform->globox_platform_event_handle,
+			&blur_behind);
+
+	if (ok != S_OK)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM);
+		return;
+	}
 }
 
 LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -43,25 +277,25 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	{
 		case WM_CREATE:
 		{
-			// saves the globox pointer in the window structure for
-			// use in this callback when processing other events
+			// saves the globox pointer in the current event structure
+			// for use in this callback when processing other events
 			struct globox* globox =
 				((CREATESTRUCT*) lParam)->lpCreateParams;
 
-			// could fail...
+			// we have no way of handling any error
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR) globox);
 
 			break;
 		}
 		case WM_ENTERSIZEMOVE:
 		{
-			// get the globox pointer
 			struct globox* globox =
 				(struct globox*)
 					GetWindowLongPtr(
 						hwnd,
 						GWLP_USERDATA);
 
+			// we have no way of handling any error
 			if (globox == NULL)
 			{
 				break;
@@ -70,8 +304,7 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			struct globox_platform* platform =
 				&(globox->globox_platform);
 
-			// confirm we entered the modal loop and
-			// started waiting for the edge info
+			// confirm we entered the modal loop
 			platform->globox_windows_sizemove_step =
 				GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES;
 
@@ -79,19 +312,18 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		}
 		case WM_MOVING:
 		{
+			// fallthrough, set wParam to 0 for simplicity
 			wParam = 0;
-
-			// fallthrough
 		}
 		case WM_SIZING:
 		{
-			// get the globox pointer
 			struct globox* globox =
 				(struct globox*)
 					GetWindowLongPtr(
 						hwnd,
 						GWLP_USERDATA);
 
+			// we have no way of handling any error
 			if (globox == NULL)
 			{
 				break;
@@ -100,20 +332,18 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			struct globox_platform* platform =
 				&(globox->globox_platform);
 
-			// only proceed when in the modal loop
+			// only proceed after entering the
+			// interactive move and resize modal loop
 			if (platform->globox_windows_sizemove_step !=
 				GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES)
 			{
 				break;
 			}
 
-			// confirm we got the info and
-			// started killing the loop
+			// confirm we started killing the modal loop
 			platform->globox_windows_sizemove_step =
 				GLOBOX_WINDOWS_SIZEMOVE_KILLMODAL;
 
-			// save the sizing edge for use during the
-			// globox-initiated interactive resize
 			enum globox_interactive_mode mode;
 
 			switch (wParam)
@@ -190,17 +420,16 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			UINT ok = SendInput(1, (PINPUT) &input, sizeof (INPUT));
 
+			// we have no way of handling any error
+			// because if the previous function fails
+			// the app will be stuck in the modal loop
 			if ((ok == 0) || (mode == GLOBOX_INTERACTIVE_STOP))
 			{
-				// we can't fail properly inside
-				// this fucking callback
 				platform->globox_windows_sizemove_step =
 					GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
 				break;
 			}
 
-			// initiate an interactive move and resize operation
-			// the next sizemove step will be set automatically
 			globox_platform_interactive_mode(
 				globox,
 				mode);
@@ -209,7 +438,6 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		}
 		case WM_WINDOWPOSCHANGING:
 		{
-			// get the globox pointer
 			struct globox* globox =
 				(struct globox*)
 					GetWindowLongPtr(
@@ -224,8 +452,6 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			struct globox_platform* platform =
 				&(globox->globox_platform);
 
-			// block window resizing and moving until
-			// globox has finished fooling windows
 			if ((platform->globox_windows_sizemove_step <
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE)
 			&& (platform->globox_windows_sizemove_step >
@@ -253,13 +479,13 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			{
 				case SC_RESTORE:
 				{
-					// get the globox pointer
 					struct globox* globox =
 						(struct globox*)
 							GetWindowLongPtr(
 								hwnd,
 								GWLP_USERDATA);
 
+					// we have no way of handling any error
 					if (globox == NULL)
 					{
 						break;
@@ -272,6 +498,7 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				case SC_MAXIMIZE:
 				case SC_MINIMIZE:
 				{
+					// we have no way of handling any error
 					PostMessage(hwnd, msg, wParam, lParam);
 					break;
 				}
@@ -281,16 +508,15 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		}
 		case WM_DESTROY:
 		{
-			// TODO DeleteObject(hbm);
 			PostQuitMessage(0);
 
-			// get the globox pointer
 			struct globox* globox =
 				(struct globox*)
 					GetWindowLongPtr(
 						hwnd,
 						GWLP_USERDATA);
 
+			// we have no way of handling any error
 			if (globox == NULL)
 			{
 				break;
@@ -300,211 +526,27 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 			break;
 		}
-#ifndef GLOBOX_CONTEXT_D2D1
 		case WM_ERASEBKGND:
 		{
 			// necessary to avoid background flickering
 			// when resizing gdi, egl and wgl contexts
 			return 1;
 		}
-#endif
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-LPWSTR utf8_to_wchar(const char* s)
-{
-	size_t codepoint_count =
-		MultiByteToWideChar(
-			CP_UTF8,        // codepage
-			MB_PRECOMPOSED, // character composition choice
-			s,              // input buffer
-			-1,             // input buffer size (-1 = auto-compute)
-			NULL,           // output buffer
-			0);             // output buffer size (0 = do not use)
-
-	if (codepoint_count == 0)
-	{
-		return NULL;
-	}
-
-	wchar_t* buf = malloc(codepoint_count * (sizeof (wchar_t)));
-
-	if (buf == NULL)
-	{
-		return NULL;
-	}
-
-	buf[0] = '\0';
-
-	int ok =
-		MultiByteToWideChar(
-			CP_UTF8,
-			MB_PRECOMPOSED,
-			s,
-			-1,
-			buf,
-			codepoint_count);
-
-	if (ok == 0)
-	{
-		return NULL;
-	}
-
-	return buf;
-}
-
-HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
-	// get a device context handle
-	HDC hdc = GetDC(platform->globox_platform_event_handle);
-
-	if (hdc == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET);
-		return NULL;
-	}
-
-	// create a bitmap mask compatible with the device context
-	HBITMAP mask =
-		CreateCompatibleBitmap(
-			hdc,
-			bmp->bmWidth,
-			bmp->bmHeight);
-
-	if (mask == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_MASK_CREATE);
-		return NULL;
-	}
-
-	// create a bitmap
-	HBITMAP hbm = CreateBitmapIndirect(bmp);
-
-	if (hbm == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_BITMAP_CREATE);
-		return NULL;
-	}
-
-	// create icon info
-	ICONINFO info =
-	{
-		.fIcon = TRUE,
-		.xHotspot = 0, // ignored for icons
-		.yHotspot = 0, // ignored for icons
-		.hbmMask = mask,
-		.hbmColor = hbm,
-	};
-
-	HICON icon = CreateIconIndirect(&info);
-
-	if (icon == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_ICON_CREATE);
-		return NULL;
-	}
-
-	// cleanup
-	int ok;
-
-	// delete the bitmap mask
-	ok = DeleteObject(mask);
-
-	if (ok == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DELETE_MASK);
-		return NULL;
-	}
-
-	// release the device context handle
-	ok = ReleaseDC(platform->globox_platform_event_handle, hdc);
-
-	if (ok == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_REMOVE);
-		return NULL;
-	}
-
-	return icon;
-}
-
-void query_pointer(struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
-
-	POINT point;
-	RECT rect;
-	BOOL ok;
-
-	// get the cursor position
-	ok = GetCursorPos(&point);
-
-	if (ok == 0)
-	{
-		return;
-	}
-
-	// get the window bounds
-	ok = GetWindowRect(platform->globox_platform_event_handle, &rect);
-
-	if (ok == 0)
-	{
-		return;
-	}
-
-	// save the last mouse position
-	platform->globox_windows_interactive_x =
-		point.x;
-	platform->globox_windows_interactive_y =
-		point.y;
-
-	// save the last window position
-	platform->globox_windows_old_outer_x =
-		rect.left;
-	platform->globox_windows_old_outer_y =
-		rect.top;
-
-	// update the current window size
-	platform->globox_windows_outer_width =
-		rect.right - rect.left;
-	platform->globox_windows_outer_height =
-		rect.bottom - rect.top;
-
-	// save the last window size
-	platform->globox_windows_old_outer_width =
-		platform->globox_windows_outer_width;
-	platform->globox_windows_old_outer_height =
-		platform->globox_windows_outer_height;
-}
-
-// initalize the display system
 void globox_platform_init(
 	struct globox* globox,
 	bool transparent,
 	bool frameless,
 	bool blurred)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
+
+	log[GLOBOX_ERROR_WINDOWS_DELETE] = "";
 
 	globox->globox_redraw = false;
 	globox->globox_transparent = transparent;
@@ -514,127 +556,6 @@ void globox_platform_init(
 	platform->globox_windows_sizemove_step =
 		GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
 
-	log[GLOBOX_ERROR_WINDOWS_UTF8_WCHAR] =
-		"could not convert UTF-8";
-	log[GLOBOX_ERROR_WINDOWS_MODULE_HANDLE] =
-		"could not get the application module handle";
-	log[GLOBOX_ERROR_WINDOWS_DEFAULT_CURSOR] =
-		"could not get a default cursor";
-	log[GLOBOX_ERROR_WINDOWS_REGISTER_CLASS] =
-		"could not register window class";
-	log[GLOBOX_ERROR_WINDOWS_CREATE_WINDOW] =
-		"could not create window";
-	log[GLOBOX_ERROR_WINDOWS_UPDATE_WINDOW] =
-		"could not update window";
-	log[GLOBOX_ERROR_WINDOWS_DELETE_BMP_HANDLE] =
-		"could not delete bitmap handle";
-	log[GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_GET] =
-		"could not get a device context handle";
-	log[GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_REMOVE] =
-		"could not destroy the device context handle";
-	log[GLOBOX_ERROR_WINDOWS_CREATE_DIB_SECTION] =
-		"could not create a device-independent bitmap";
-	log[GLOBOX_ERROR_WINDOWS_DAMAGE] =
-		"could not damage the window area";
-	log[GLOBOX_ERROR_WINDOWS_PAINT] =
-		"could not start painting the window area";
-	log[GLOBOX_ERROR_WINDOWS_BITBLT] =
-		"could not blit the surface buffer";
-	log[GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_CREATE] =
-		"could not create a compatible device context";
-	log[GLOBOX_ERROR_WINDOWS_SELECT_BITMAP_HANDLE] =
-		"could not select the bitmap handle";
-	log[GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_DELETE] =
-		"could not delete the compatible device context";
-	log[GLOBOX_ERROR_WINDOWS_MASK_CREATE] =
-		"could not create the bitmap mask";
-	log[GLOBOX_ERROR_WINDOWS_BITMAP_CREATE] =
-		"could not create the bitmap";
-	log[GLOBOX_ERROR_WINDOWS_ICON_CREATE] =
-		"could not create the icon";
-	log[GLOBOX_ERROR_WINDOWS_DELETE_MASK] =
-		"could not delete the bitmap mask";
-	log[GLOBOX_ERROR_WINDOWS_GET_MESSAGE] =
-		"could not peek message";
-	log[GLOBOX_ERROR_WINDOWS_TITLE] =
-		"could not set window title";
-	log[GLOBOX_ERROR_WINDOWS_WINDOW_LONG_SET] =
-		"could not restore the window style";
-	log[GLOBOX_ERROR_WINDOWS_WINDOW_LONG_GET] =
-		"could not save the window style";
-	log[GLOBOX_ERROR_WINDOWS_WINDOW_PLACEMENT_SET] =
-		"could not restore the window position";
-	log[GLOBOX_ERROR_WINDOWS_WINDOW_PLACEMENT_GET] =
-		"could not save the window position";
-	log[GLOBOX_ERROR_WINDOWS_DESTROY] =
-		"could not destroy window";
-	log[GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW] =
-		"could not compute the window size";
-	log[GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET] =
-		"could not get the client area rectangle";
-	log[GLOBOX_ERROR_WINDOWS_GLOBOX_PTR] =
-		"could not associate the globox pointer to the window";
-
-	log[GLOBOX_ERROR_WINDOWS_MODULE_USER32] =
-		"could not load user32.dll";
-	log[GLOBOX_ERROR_WINDOWS_SYM] =
-		"could not find the composition function symbol";
-	log[GLOBOX_ERROR_WINDOWS_TRANSPARENT] =
-		"could not make the window transparent";
-	log[GLOBOX_ERROR_WINDOWS_SWAPCHAIN_CREATE] =
-		"could not create the swapchain";
-	log[GLOBOX_ERROR_WINDOWS_FACTORY_CREATE] =
-		"could not create a DirectX factory";
-	log[GLOBOX_ERROR_WINDOWS_ADAPTERS_END] =
-		"could not find a suitable DirectX adapter";
-	log[GLOBOX_ERROR_WINDOWS_ADAPTERS_LIST] =
-		"could not list the available DirectX adapters";
-	log[GLOBOX_ERROR_WINDOWS_DXGI_DEVICE] =
-		"could not get the DirectX device";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_DEVICE] =
-		"could not create a DirectComposition device";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_TARGET] =
-		"could not create a DirectComposition target";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_VISUAL] =
-		"could not create a DirectComposition visual";
-	log[GLOBOX_ERROR_WINDOWS_D2D_FACTORY] =
-		"could not create a Direct2D factory";
-	log[GLOBOX_ERROR_WINDOWS_D2D_DEVICE] =
-		"could not create a Direct2D device";
-	log[GLOBOX_ERROR_WINDOWS_D2D_DEVICE_CONTEXT] =
-		"could not get a Direct2D device context";
-	log[GLOBOX_ERROR_WINDOWS_D2D_SWAPCHAIN_SURFACE] =
-		"could not get a swap chain surface";
-	log[GLOBOX_ERROR_WINDOWS_D2D_SURFACE_BITMAP] =
-		"could not get the surface bitmap";
-	log[GLOBOX_ERROR_WINDOWS_D2D_COPY] =
-		"could not copy the buffer to the surface bitmap";
-	log[GLOBOX_ERROR_WINDOWS_D2D_PRESENT] =
-		"could not present the swap chain surface";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_BIND] =
-		"could not bind the swap chain surface to the visual";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_SET_ROOT] =
-		"could not set the visual as the composition tree\'s root";
-	log[GLOBOX_ERROR_WINDOWS_DCOMP_COMMIT] =
-		"could not commit the composition operation";
-
-	log[GLOBOX_ERROR_WINDOWS_WGL_DEVICE_CONTEXT] =
-		"could not get the window device context";
-	log[GLOBOX_ERROR_WINDOWS_WGL_SWAP] =
-		"could not swap OpenGL buffers";
-	log[GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_CHOOSE] =
-		"could not choose pixel format";
-	log[GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET] =
-		"could not set pixel format";
-	log[GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_CREATE] =
-		"could not create a WGL context";
-	log[GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_SET] =
-		"could not set the WGL context";
-
-	log[GLOBOX_ERROR_WINDOWS_EGL_FAIL] =
-		"EGL error";
-
-	// save class name
 	platform->globox_windows_class_name =
 		utf8_to_wchar(globox->globox_title);
 
@@ -642,11 +563,10 @@ void globox_platform_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_UTF8_WCHAR);
+			GLOBOX_ERROR_WINDOWS_UTF8);
 		return;
 	}
 
-	// save title
 	platform->globox_windows_wide_title =
 		wcsdup(platform->globox_windows_class_name);
 
@@ -658,7 +578,6 @@ void globox_platform_init(
 		return;
 	}
 
-	// save class window procedure owner
 	platform->globox_windows_class_module_handle =
 		GetModuleHandle(NULL);
 
@@ -666,56 +585,51 @@ void globox_platform_init(
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_MODULE_HANDLE);
+			GLOBOX_ERROR_WINDOWS_MODULE_APP);
 		return;
 	}
 
-	// prepare the default cursor
 	HCURSOR cursor = LoadCursor(NULL, IDC_ARROW);
 
 	if (cursor == NULL)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_DEFAULT_CURSOR);
+			GLOBOX_ERROR_WINDOWS_CURSOR_LOAD);
 		return;
 	}
 
-	// save class
 	WNDCLASSEX class =
 	{
 		.cbSize = sizeof (platform->globox_windows_class),
-		.style = 0,      // we don't need extra PAINT events
-		.lpfnWndProc = window_procedure,      // window procedure
-		.cbClsExtra = 0, // extra bytes after the window-class structure
-		.cbWndExtra = 0, // extra bytes after the window instance
+		.style = 0,
+		.lpfnWndProc = window_procedure,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
 		.hInstance = platform->globox_windows_class_module_handle,
-		.hIcon = NULL,                        // default icon
-		.hCursor = cursor,                    // arrow default cursor
+		.hIcon = NULL,
+		.hCursor = cursor,
 		.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1),
-		.lpszMenuName = NULL,                 // no default menu
+		.lpszMenuName = NULL,
 		.lpszClassName = platform->globox_windows_class_name,
-		.hIconSm = NULL,                      // default small icon
+		.hIconSm = NULL,
 	};
 
 	platform->globox_windows_class = class;
 
-	// register class
 	int ok = RegisterClassEx(&(platform->globox_windows_class));
 
 	if (ok == 0)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_REGISTER_CLASS);
+			GLOBOX_ERROR_WINDOWS_CLASS_REGISTER);
 		return;
 	}
 }
 
-// create the window
 void globox_platform_create_window(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	BOOL ok;
@@ -742,7 +656,7 @@ void globox_platform_create_window(struct globox* globox)
 		exstyle = 0;
 	}
 
-	// because of a bug in EGLproxy transparency does not work
+	// transparency does not work with EGLproxy due to a bug in the library
 #if defined(GLOBOX_CONTEXT_EGL)
 	globox->globox_transparent = false;
 	globox->globox_blurred = false;
@@ -755,51 +669,45 @@ void globox_platform_create_window(struct globox* globox)
 	}
 #endif
 
-	ok = AdjustWindowRectEx(
-		&rect,
-		style,
-		FALSE,
-		exstyle);
+	ok = AdjustWindowRectEx(&rect, style, FALSE, exstyle);
 
 	if (ok == 0)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_ADJUST_WINDOW);
+			GLOBOX_ERROR_WINDOWS_WINDOW_ADJUST);
 		return;
 	}
 
-	platform->globox_windows_outer_width = rect.right - rect.left;
-	platform->globox_windows_outer_height = rect.bottom - rect.top;
-
+	platform->globox_windows_outer_width =
+		rect.right - rect.left;
+	platform->globox_windows_outer_height =
+		rect.bottom - rect.top;
 	platform->globox_windows_framediff_x =
-		platform->globox_windows_outer_width
-		- globox->globox_width;
-
+		platform->globox_windows_outer_width - globox->globox_width;
 	platform->globox_windows_framediff_y =
-		platform->globox_windows_outer_height
-		- globox->globox_height;
+		platform->globox_windows_outer_height - globox->globox_height;
 
 	platform->globox_platform_event_handle =
 		CreateWindowEx(
 			exstyle,
-			platform->globox_windows_class_name, // class name
-			platform->globox_windows_class_name, // window title
+			platform->globox_windows_class_name,
+			platform->globox_windows_class_name,
 			style,
 			globox->globox_x,
 			globox->globox_y,
 			platform->globox_windows_outer_width,
 			platform->globox_windows_outer_height,
-			NULL,  // parent window handle
-			NULL,  // window-specific menu handle
+			NULL,
+			NULL,
 			platform->globox_windows_class_module_handle,
-			globox); // custom data included in CREATESTRUCT
+			globox);
 
 	if (platform->globox_platform_event_handle == NULL)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_CREATE_WINDOW);
+			GLOBOX_ERROR_WINDOWS_WINDOW_CREATE);
 		return;
 	}
 
@@ -809,7 +717,7 @@ void globox_platform_create_window(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_UPDATE_WINDOW);
+			GLOBOX_ERROR_WINDOWS_WINDOW_UPDATE);
 		return;
 	}
 
@@ -823,6 +731,8 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
+	// from here we handle transparency
+
 #if defined(GLOBOX_CONTEXT_SOFTWARE) || defined(GLOBOX_CONTEXT_WGL)
 	dwm_transparency(globox);
 #endif
@@ -832,7 +742,6 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	// enable blur
 	HMODULE user32 = GetModuleHandle(TEXT("user32.dll"));
 
 	if (user32 == NULL)
@@ -853,7 +762,9 @@ void globox_platform_create_window(struct globox* globox)
 		return;
 	}
 
-	SetWindowCompositionAttribute = (HRESULT (*)(HWND, void*)) func;
+	// this is windows, forget standards...
+	HRESULT (*SetWindowCompositionAttribute)(HWND, void*) =
+		(HRESULT (*)(HWND, void*)) func;
 
 	struct ACCENT_POLICY accent =
 	{
@@ -878,7 +789,7 @@ void globox_platform_create_window(struct globox* globox)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_TRANSPARENT);
+			GLOBOX_ERROR_WINDOWS_COMP_ATTR);
 		return;
 	}
 }
@@ -890,7 +801,6 @@ void globox_platform_hooks(struct globox* globox)
 
 void globox_platform_commit(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	platform->globox_windows_dcomp_callback(globox);
@@ -903,35 +813,33 @@ void globox_platform_prepoll(struct globox* globox)
 
 void globox_platform_events_poll(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	PeekMessage(
 		&(platform->globox_windows_msg),
 		platform->globox_platform_event_handle,
-		0,          // 0 to return all messages
-		0,          // 0 to return all messages
-		PM_REMOVE); // remove messages from queue after processing
+		0,
+		0,
+		PM_REMOVE);
 }
 
-// TODO remove this from the API and externalize it into a library
 void globox_platform_events_wait(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	BOOL ok =
 		GetMessage(
 			&(platform->globox_windows_msg),
 			platform->globox_platform_event_handle,
-			0,  // 0 to return all messages
-			0); // 0 to return all messages
+			0,
+			0);
 
 	if (ok == 0)
 	{
 		globox_error_throw(
 			globox,
-			GLOBOX_ERROR_WINDOWS_GET_MESSAGE);
+			GLOBOX_ERROR_WINDOWS_MESSAGE_GET);
+		return;
 	}
 }
 
@@ -939,7 +847,6 @@ void globox_platform_interactive_mode(
 	struct globox* globox,
 	enum globox_interactive_mode mode)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	if ((mode != GLOBOX_INTERACTIVE_STOP)
@@ -951,7 +858,6 @@ void globox_platform_interactive_mode(
 		{
 			platform->globox_windows_sizemove_step =
 				GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
-
 			return;
 		}
 
@@ -960,11 +866,9 @@ void globox_platform_interactive_mode(
 		platform->globox_windows_sizemove_step =
 			GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG;
 
-		// gets mouse capture authorization by
-		// synthetizing a left mouse press
+		// get the screen coordinates of the client area origin
 		UINT ok;
 
-		// compute the screen coordinates for the client area origin
 		POINT origin =
 		{
 			.x = 0,
@@ -975,7 +879,9 @@ void globox_platform_interactive_mode(
 
 		if (ok == 0)
 		{
-			// TODO error ?
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WINDOWS_CLIENT_POS);
 			return;
 		}
 
@@ -986,11 +892,14 @@ void globox_platform_interactive_mode(
 
 		if (ok == 0)
 		{
-			// TODO error ?
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WINDOWS_CURSOR_POS_SET);
 			return;
 		}
 
-		// press the left mouse button
+		// synthetize a left mouse click to be able to track
+		// the mouse outside of the client area while moving/resizing
 		MOUSEINPUT mouse2 =
 		{
 			.dx = 0,
@@ -1011,11 +920,13 @@ void globox_platform_interactive_mode(
 
 		if (ok == 0)
 		{
-			// TODO error ?
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WINDOWS_INPUT_SEND);
 			return;
 		}
 
-		// compute the screen coordinates for the
+		// compute the screen coordinates of the
 		// interactive resize reference point
 		POINT old_mouse_pos =
 		{
@@ -1023,15 +934,16 @@ void globox_platform_interactive_mode(
 			.y = platform->globox_windows_interactive_y,
 		};
 
-		// move the cursor back to the interactive
-		// resize reference point
+		// move the cursor back to the interactive resize reference point
 		ok = SetCursorPos(
 			old_mouse_pos.x,
 			old_mouse_pos.y);
 
 		if (ok == 0)
 		{
-			// TODO error ?
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WINDOWS_INPUT_SEND);
 			return;
 		}
 	}
@@ -1044,10 +956,8 @@ void globox_platform_interactive_mode(
 	}
 }
 
-void globox_platform_events_handle(
-	struct globox* globox)
+void globox_platform_events_handle(struct globox* globox)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	bool transmission = true;
@@ -1098,7 +1008,7 @@ void globox_platform_events_handle(
 				{
 					globox_error_throw(
 						globox,
-						GLOBOX_ERROR_WINDOWS_CLIENT_RECT_GET);
+						GLOBOX_ERROR_WINDOWS_CLIENT_RECT);
 					break;
 				}
 
@@ -1113,8 +1023,6 @@ void globox_platform_events_handle(
 		}
 		default:
 		{
-			// get mouse movements outside of the window
-			// when we are in interactive resize mode
 			if ((platform->globox_windows_msg.message ==
 				WM_LBUTTONDOWN)
 			&& (platform->globox_windows_sizemove_step ==
@@ -1127,11 +1035,19 @@ void globox_platform_events_handle(
 					GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE;
 			}
 			else if ((platform->globox_windows_msg.message ==
-				WM_LBUTTONUP)
+				 WM_LBUTTONUP)
 			&& (platform->globox_windows_sizemove_step ==
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE))
 			{
-				ReleaseCapture();
+				ok = ReleaseCapture();
+
+				if (ok == 0)
+				{
+					globox_error_throw(
+						globox,
+						GLOBOX_ERROR_WINDOWS_CAPTURE_RELEASE);
+					break;
+				}
 
 				globox_platform_interactive_mode(
 					globox,
@@ -1142,8 +1058,13 @@ void globox_platform_events_handle(
 			&& (platform->globox_windows_sizemove_step ==
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE))
 			{
-				int16_t x = GET_X_LPARAM(platform->globox_windows_msg.lParam);
-				int16_t y = GET_Y_LPARAM(platform->globox_windows_msg.lParam);
+				int16_t x =
+					GET_X_LPARAM(
+						platform->globox_windows_msg.lParam);
+
+				int16_t y =
+					GET_Y_LPARAM(
+						platform->globox_windows_msg.lParam);
 
 				POINT start =
 				{
@@ -1157,8 +1078,10 @@ void globox_platform_events_handle(
 
 				if (ok == 0)
 				{
-					// TODO error ?
-					return;
+					globox_error_throw(
+						globox,
+						GLOBOX_ERROR_WINDOWS_CLIENT_POS);
+					break;
 				}
 
 				RECT origin_rect;
@@ -1169,7 +1092,9 @@ void globox_platform_events_handle(
 
 				if (ok == 0)
 				{
-					// TODO error ?
+					globox_error_throw(
+						globox,
+						GLOBOX_ERROR_WINDOWS_CLIENT_RECT);
 					break;
 				}
 
@@ -1183,7 +1108,6 @@ void globox_platform_events_handle(
 						origin_y =
 							platform->globox_windows_old_outer_y
 							+ (y - start.y);
-
 						origin_x =
 							platform->globox_windows_old_outer_x
 							+ (x - start.x);
@@ -1194,11 +1118,9 @@ void globox_platform_events_handle(
 						origin_y =
 							platform->globox_windows_old_outer_y
 							+ (y - start.y);
-
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							- (y - start.y);
-
 						break;
 					}
 					case GLOBOX_INTERACTIVE_NW:
@@ -1206,19 +1128,15 @@ void globox_platform_events_handle(
 						origin_y =
 							platform->globox_windows_old_outer_y
 							+ (y - start.y);
-
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							- (y - start.y);
-
 						origin_x =
 							platform->globox_windows_old_outer_x
 							+ (x - start.x);
-
 						platform->globox_windows_outer_width =
 							platform->globox_windows_old_outer_width
 							- (x - start.x);
-
 						break;
 					}
 					case GLOBOX_INTERACTIVE_W:
@@ -1226,27 +1144,22 @@ void globox_platform_events_handle(
 						origin_x =
 							platform->globox_windows_old_outer_x
 							+ (x - start.x);
-
 						platform->globox_windows_outer_width =
 							platform->globox_windows_old_outer_width
 							- (x - start.x);
-
 						break;
 					}
 					case GLOBOX_INTERACTIVE_SW:
 					{
-						origin_x =
-							platform->globox_windows_old_outer_x
-							+ (x - start.x);
-
-						platform->globox_windows_outer_width =
-							platform->globox_windows_old_outer_width
-							- (x - start.x);
-
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							+ (y - start.y);
-
+						origin_x =
+							platform->globox_windows_old_outer_x
+							+ (x - start.x);
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							- (x - start.x);
 						break;
 					}
 					case GLOBOX_INTERACTIVE_S:
@@ -1254,19 +1167,16 @@ void globox_platform_events_handle(
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							+ (y - start.y);
-
 						break;
 					}
 					case GLOBOX_INTERACTIVE_SE:
 					{
-						platform->globox_windows_outer_width =
-							platform->globox_windows_old_outer_width
-							+ (x - start.x);
-
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							+ (y - start.y);
-
+						platform->globox_windows_outer_width =
+							platform->globox_windows_old_outer_width
+							+ (x - start.x);
 						break;
 					}
 					case GLOBOX_INTERACTIVE_E:
@@ -1274,7 +1184,6 @@ void globox_platform_events_handle(
 						platform->globox_windows_outer_width =
 							platform->globox_windows_old_outer_width
 							+ (x - start.x);
-
 						break;
 					}
 					case GLOBOX_INTERACTIVE_NE:
@@ -1282,15 +1191,12 @@ void globox_platform_events_handle(
 						origin_y =
 							platform->globox_windows_old_outer_y
 							+ (y - start.y);
-
 						platform->globox_windows_outer_height =
 							platform->globox_windows_old_outer_height
 							- (y - start.y);
-
 						platform->globox_windows_outer_width =
 							platform->globox_windows_old_outer_width
 							+ (x - start.x);
-
 						break;
 					}
 					default:
@@ -1309,13 +1215,15 @@ void globox_platform_events_handle(
 
 				if (diff_x < WINDOW_MIN_X)
 				{
-					platform->globox_windows_outer_width += (WINDOW_MIN_X - diff_x);
+					platform->globox_windows_outer_width +=
+						(WINDOW_MIN_X - diff_x);
 					origin_x = origin_rect.left;
 				}
 
 				if (diff_y < WINDOW_MIN_Y)
 				{
-					platform->globox_windows_outer_height += (WINDOW_MIN_Y - diff_y);
+					platform->globox_windows_outer_height +=
+						(WINDOW_MIN_Y - diff_y);
 					origin_y = origin_rect.top;
 				}
 
@@ -1330,7 +1238,10 @@ void globox_platform_events_handle(
 
 				if (ok == 0)
 				{
-					// TODO error ?
+					globox_error_throw(
+						globox,
+						GLOBOX_ERROR_WINDOWS_WINDOW_POS_SET);
+					break;
 				}
 			}
 
@@ -1369,24 +1280,22 @@ void globox_platform_free(struct globox* globox)
 	// TODO
 }
 
-// automagically converts X11 pixmaps to Windows icons
 void globox_platform_set_icon(
 	struct globox* globox,
 	uint32_t* pixmap,
 	uint32_t len)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
-	// smol
+	// small icon
 	BITMAP pixmap_32 =
 	{
-		.bmType = 0,            // always 0
-		.bmWidth = 32,          // width in pixels
-		.bmHeight = 32,         // height in pixels
-		.bmWidthBytes = 32 * 4, // bytes per row
-		.bmPlanes = 1,          // bitmap planes
-		.bmBitsPixel = 32,      // bits per pixel
+		.bmType = 0,
+		.bmWidth = 32,
+		.bmHeight = 32,
+		.bmWidthBytes = 32 * 4,
+		.bmPlanes = 1,
+		.bmBitsPixel = 32,
 		.bmBits = pixmap + 4 + (16 * 16),
 	};
 
@@ -1394,26 +1303,27 @@ void globox_platform_set_icon(
 
 	if (icon_32 == NULL)
 	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_ICON_SMALL);
 		return;
 	}
-	else
-	{
-		SendMessage(
-			platform->globox_platform_event_handle,
-			WM_SETICON,
-			ICON_SMALL,
-			(LPARAM) icon_32);
-	}
 
-	// thicc
+	SendMessage(
+		platform->globox_platform_event_handle,
+		WM_SETICON,
+		ICON_SMALL,
+		(LPARAM) icon_32);
+
+	// big icon
 	BITMAP pixmap_64 =
 	{
-		.bmType = 0,            // always 0
-		.bmWidth = 64,          // width in pixels
-		.bmHeight = 64,         // height in pixels
-		.bmWidthBytes = 64 * 4, // bytes per row
-		.bmPlanes = 1,          // bitmap planes
-		.bmBitsPixel = 32,      // bits per pixel
+		.bmType = 0,
+		.bmWidth = 64,
+		.bmHeight = 64,
+		.bmWidthBytes = 64 * 4,
+		.bmPlanes = 1,
+		.bmBitsPixel = 32,
 		.bmBits = pixmap + 4 + (16 * 16) + (32 * 32),
 	};
 
@@ -1421,23 +1331,23 @@ void globox_platform_set_icon(
 
 	if (icon_64 == NULL)
 	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_ICON_BIG);
 		return;
 	}
-	else
-	{
-		SendMessage(
-			platform->globox_platform_event_handle,
-			WM_SETICON,
-			ICON_BIG,
-			(LPARAM) icon_64);
-	}
+
+	SendMessage(
+		platform->globox_platform_event_handle,
+		WM_SETICON,
+		ICON_BIG,
+		(LPARAM) icon_64);
 }
 
 void globox_platform_set_title(
 	struct globox* globox,
-	const char* title)
+	 const char* title)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	// update internal UTF-8 string
@@ -1491,14 +1401,13 @@ void globox_platform_set_state(
 	struct globox* globox,
 	enum globox_state state)
 {
-	// alias for readability
 	struct globox_platform* platform = &(globox->globox_platform);
 
 	LONG ok_long;
 	BOOL ok_bool;
 
 	if ((globox->globox_state == GLOBOX_STATE_FULLSCREEN)
-		&& (globox->globox_state != state))
+	&& (globox->globox_state != state))
 	{
 		// restore style
 		ok_long = SetWindowLong(
@@ -1543,7 +1452,7 @@ void globox_platform_set_state(
 		{
 			globox_error_throw(
 				globox,
-				GLOBOX_ERROR_WINDOWS_WINDOW_PLACEMENT_SET);
+				GLOBOX_ERROR_WINDOWS_PLACEMENT_SET);
 			return;
 		}
 	}
@@ -1589,7 +1498,7 @@ void globox_platform_set_state(
 			{
 				globox_error_throw(
 					globox,
-					GLOBOX_ERROR_WINDOWS_WINDOW_PLACEMENT_GET);
+					GLOBOX_ERROR_WINDOWS_PLACEMENT_GET);
 				break;
 			}
 
@@ -1663,7 +1572,6 @@ void globox_platform_set_state(
 			ShowWindow(
 				platform->globox_platform_event_handle,
 				SW_SHOWMAXIMIZED);
-
 			break;
 		}
 	}
@@ -1672,6 +1580,7 @@ void globox_platform_set_state(
 }
 
 // getters
+
 uint32_t* globox_platform_get_argb(struct globox* globox)
 {
 	return globox->globox_platform.globox_platform_argb;
