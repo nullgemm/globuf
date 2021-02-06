@@ -176,15 +176,7 @@ HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
 		return NULL;
 	}
 
-	ok = ReleaseDC(platform->globox_platform_event_handle, hdc);
-
-	if (ok == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_RELEASE);
-		return NULL;
-	}
+	ReleaseDC(platform->globox_platform_event_handle, hdc);
 
 	return icon;
 }
@@ -261,6 +253,16 @@ void dwm_transparency(struct globox* globox)
 		DwmEnableBlurBehindWindow(
 			platform->globox_platform_event_handle,
 			&blur_behind);
+
+	BOOL ok_bool = DeleteObject(region);
+
+	if (ok_bool == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_DELETE);
+		return;
+	}
 
 	if (ok != S_OK)
 	{
@@ -1277,7 +1279,10 @@ void globox_platform_events_handle(struct globox* globox)
 
 void globox_platform_free(struct globox* globox)
 {
-	// TODO
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	free(platform->globox_windows_class_name);
+	free(platform->globox_windows_wide_title);
 }
 
 void globox_platform_set_icon(
@@ -1369,7 +1374,7 @@ void globox_platform_set_title(
 	// update internal wide-char string
 	if (platform->globox_windows_wide_title != NULL)
 	{
-		free(globox->globox_title);
+		free(platform->globox_windows_wide_title);
 	}
 
 	platform->globox_windows_wide_title = utf8_to_wchar(title);

@@ -176,6 +176,8 @@ void globox_context_egl_create(struct globox* globox)
 		return;
 	}
 
+	ReleaseDC(platform->globox_platform_event_handle, hdc);
+
 	// create EGL surface
 	context->globox_egl_surface =
 		eglCreateWindowSurface(

@@ -66,16 +66,7 @@ void resize(struct globox* globox)
 		return;
 	}
 
-	// release the device context handle
-	int ok = ReleaseDC(platform->globox_platform_event_handle, hdc);
-
-	if (ok == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DEVICE_CONTEXT_RELEASE);
-		return;
-	}
+	ReleaseDC(platform->globox_platform_event_handle, hdc);
 
 	if (globox->globox_transparent == false)
 	{

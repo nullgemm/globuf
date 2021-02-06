@@ -228,7 +228,18 @@ void globox_context_wgl_shrink(struct globox* globox)
 
 void globox_context_wgl_free(struct globox* globox)
 {
-	// TODO
+	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
+
+	BOOL ok = wglDeleteContext(context->globox_wgl_context);
+
+	if (ok == 0)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_DELETE);
+		return;
+	}
 }
 
 void globox_context_wgl_copy(
