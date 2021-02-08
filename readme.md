@@ -173,6 +173,29 @@ make -f makefile_windows_software_native clean
 make -f makefile_windows_software_native bin/globox.dll
 ```
 
+Packing the compiled objects into a static archive is also possible,
+but remember you will have to link all the external libraries yourself:
+```
+make -f makefile_linux_x11_software clean
+make -f makefile_linux_x11_software bin/globox.a
+```
+```
+make -f makefile_linux_wayland_software clean
+make -f makefile_linux_wayland_software bin/globox.a
+```
+```
+make -f makefile_macos_software clean
+make -f makefile_macos_software bin/globox.a
+```
+```
+make -f makefile_macos_software_native clean
+make -f makefile_macos_software_native bin/globox.a
+```
+```
+make -f makefile_windows_software clean
+make -f makefile_windows_software bin/globox.a
+```
+
 ## Contributing
 Here's what you can do:
  - `Windows` Fix the DLL generation with mingw and msvc
