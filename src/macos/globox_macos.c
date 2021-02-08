@@ -1076,6 +1076,14 @@ void globox_platform_events_handle(
 	}
 
 	handle_interactive_mode(globox);
+
+	if ((globox->globox_event_callback != NULL)
+	&& (event_type != NSEventTypeApplicationDefined))
+	{
+		globox->globox_event_callback(
+			event,
+			globox->globox_event_callback_data);
+	}
 }
 
 void globox_platform_free(struct globox* globox)

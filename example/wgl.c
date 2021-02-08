@@ -4,18 +4,6 @@
 #define GL_GLES_PROTOTYPES 0
 #include <GLES2/gl2.h>
 
-#if 0
-// we try to avoid ifdefs here by relying on helper files
-// helper headers for extensions
-#include "example_helper_willis.h"
-#include "example_helper_dpishit.h"
-#include "example_helper_cursoryx.h"
-// helper headers for rendering backends
-#include "example_helper_software.h"
-#include "example_helper_vulkan.h"
-#include "example_helper_egl.h"
-#endif
-
 extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;

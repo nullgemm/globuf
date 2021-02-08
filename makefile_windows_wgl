@@ -37,9 +37,9 @@ CFLAGS+= -DGLOBOX_CONTEXT_WGL
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
 OBJ+= src/windows/globox_windows.o
-OBJ+= example/wgl.o
 OBJ+= src/windows/wgl/globox_windows_wgl.o
-OBJ+= res/icon/iconpix_pe.o
+EXAMPLE+= res/icon/iconpix_pe.o
+EXAMPLE+= example/wgl.o
 
 final: res/egl_headers bin/eglproxy.dll bin/$(NAME).exe
 
@@ -54,7 +54,7 @@ res/eglproxy/bin/eglproxy.dll: res/eglproxy/readme.md
 res/egl_headers:
 	make/scripts/egl_get.sh
 
-bin/$(NAME).exe: $(OBJ)
+bin/$(NAME).exe: $(OBJ) $(EXAMPLE)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -o bin/$(NAME) $^ $(LDLIBS)
 
@@ -67,13 +67,17 @@ res/icon/iconpix_pe.o: res/icon/iconpix.bin
 	--rename-section .data=.iconpix \
 	$< $@
 
+bin/$(NAME).dll: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
+
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
 globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
  windows/globox_windows.h
-wgl.o: example/wgl.c globox.h
 globox_windows_wgl.o: src/windows/wgl/globox_windows_wgl.c globox.h \
  globox_error.h windows/globox_windows.h windows/wgl/globox_windows_wgl.h
+wgl.o: example/wgl.c globox.h
 
 run:
 	cd bin && $(CMD)

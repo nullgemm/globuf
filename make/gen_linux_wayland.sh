@@ -16,7 +16,7 @@ src+=("res/wayland_headers/kde-blur-protocol.c")
 src+=("res/wayland_headers/zwp-relative-pointer-protocol.c")
 src+=("res/wayland_headers/zwp-pointer-constraints-protocol.c")
 
-obj+=("res/icon/iconpix.o")
+example+=("res/icon/iconpix.o")
 
 flags+=("-std=c99" "-pedantic" "-g")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
@@ -43,7 +43,7 @@ case $action in
 	[1]* )
 # software context
 makefile=makefile_linux_wayland_software
-src+=("example/software.c")
+example_src+=("example/software.c")
 src+=("src/wayland/software/globox_wayland_software.c")
 src+=("src/wayland/software/globox_wayland_software_helpers.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
@@ -52,7 +52,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	[2]* )
 # egl context
 makefile=makefile_linux_wayland_egl
-src+=("example/egl.c")
+example_src+=("example/egl.c")
 src+=("src/wayland/egl/globox_wayland_egl.c")
 src+=("src/wayland/egl/globox_wayland_egl_helpers.c")
 defines+=("-DGLOBOX_CONTEXT_EGL")
@@ -109,21 +109,34 @@ for file in ${src[@]}; do
 	echo "OBJ+= $folder/$name.o" >> $makefile
 done
 
-for file in ${obj[@]}; do
-	echo "OBJ+= $file" >> $makefile
+for file in ${example[@]}; do
+	echo "EXAMPLE+= $file" >> $makefile
+done
+
+for file in ${example_src[@]}; do
+	folder=$(dirname "$file")
+	name=$(basename "$file" .c)
+	echo "EXAMPLE+= $folder/$name.o" >> $makefile
 done
 
 # get wayland headers when needed
 echo "" >> $makefile
 cat make/templates/targets_linux_wayland.make >> $makefile
 
-# generate binary target
+# generate binary targets
 echo "" >> $makefile
 cat make/templates/targets_linux.make >> $makefile
+
+echo "" >> $makefile
+cat make/templates/targets_nix_libs.make >> $makefile
 
 # generate object targets
 echo "" >> $makefile
 for file in ${src[@]}; do
+	gcc $defines -MM -MG $file >> $makefile
+done
+
+for file in ${example_src[@]}; do
 	gcc $defines -MM -MG $file >> $makefile
 done
 

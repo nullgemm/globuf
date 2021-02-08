@@ -11,7 +11,7 @@ src+=("src/globox.c")
 src+=("src/globox_error.c")
 src+=("src/windows/globox_windows.c")
 
-obj+=("res/icon/iconpix_pe.o")
+example+=("res/icon/iconpix_pe.o")
 
 flags+=("-std=c99" "-pedantic" "-g")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
@@ -48,7 +48,7 @@ case $context in
 	[1]* )
 # software context
 makefile=makefile_windows_software
-src+=("example/software.c")
+example_src+=("example/software.c")
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
@@ -56,7 +56,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	[2]* )
 # egl context
 makefile=makefile_windows_egl
-src+=("example/egl.c")
+example_src+=("example/egl.c")
 src+=("src/windows/egl/globox_windows_egl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
@@ -70,7 +70,7 @@ make/scripts/egl_get.sh
 	[3]* )
 # wgl context
 makefile=makefile_windows_wgl
-src+=("example/wgl.c")
+example_src+=("example/wgl.c")
 src+=("src/windows/wgl/globox_windows_wgl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
@@ -113,8 +113,14 @@ for file in ${src[@]}; do
 	echo "OBJ+= $folder/$name.o" >> $makefile
 done
 
-for file in ${obj[@]}; do
-	echo "OBJ+= $file" >> $makefile
+for file in ${example[@]}; do
+	echo "EXAMPLE+= $file" >> $makefile
+done
+
+for file in ${example_src[@]}; do
+	folder=$(dirname "$file")
+	name=$(basename "$file" .c)
+	echo "EXAMPLE+= $folder/$name.o" >> $makefile
 done
 
 # build eglproxy and get OpenGL header when needed
@@ -126,9 +132,16 @@ fi
 echo "" >> $makefile
 cat make/templates/targets_windows_mingw.make >> $makefile
 
+echo "" >> $makefile
+cat make/templates/targets_windows_mingw_libs.make >> $makefile
+
 # generate object targets
 echo "" >> $makefile
 for file in ${src[@]}; do
+	$cc $defines -MM -MG $file >> $makefile
+done
+
+for file in ${example_src[@]}; do
 	$cc $defines -MM -MG $file >> $makefile
 done
 

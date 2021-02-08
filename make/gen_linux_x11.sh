@@ -9,7 +9,7 @@ src+=("src/globox.c")
 src+=("src/globox_error.c")
 src+=("src/x11/globox_x11.c")
 
-obj+=("res/icon/iconpix.o")
+example+=("res/icon/iconpix.o")
 
 flags+=("-std=c99" "-pedantic" "-g")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
@@ -34,7 +34,7 @@ case $action in
 	[1]* )
 # software context
 makefile=makefile_linux_x11_software
-src+=("example/software.c")
+example_src+=("example/software.c")
 src+=("src/x11/software/globox_x11_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 link+=("xcb-shm")
@@ -45,7 +45,7 @@ link+=("xcb-render")
 	[2]* )
 # egl context
 makefile=makefile_linux_x11_egl
-src+=("example/egl.c")
+example_src+=("example/egl.c")
 src+=("src/x11/egl/globox_x11_egl.c")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 link+=("egl")
@@ -55,7 +55,7 @@ link+=("glesv2")
 	[3]* )
 # glx context
 makefile=makefile_linux_x11_glx
-src+=("example/glx.c")
+example_src+=("example/glx.c")
 src+=("src/x11/glx/globox_x11_glx.c")
 defines+=("-DGLOBOX_CONTEXT_GLX")
 link+=("glx")
@@ -107,17 +107,30 @@ for file in ${src[@]}; do
 	echo "OBJ+= $folder/$name.o" >> $makefile
 done
 
-for file in ${obj[@]}; do
-	echo "OBJ+= $file" >> $makefile
+for file in ${example[@]}; do
+	echo "EXAMPLE+= $file" >> $makefile
 done
 
-# generate binary target
+for file in ${example_src[@]}; do
+	folder=$(dirname "$file")
+	name=$(basename "$file" .c)
+	echo "EXAMPLE+= $folder/$name.o" >> $makefile
+done
+
+# generate binary targets
 echo "" >> $makefile
 cat make/templates/targets_linux.make >> $makefile
+
+echo "" >> $makefile
+cat make/templates/targets_nix_libs.make >> $makefile
 
 # generate object targets
 echo "" >> $makefile
 for file in ${src[@]}; do
+	gcc $defines -MM -MG $file >> $makefile
+done
+
+for file in ${example_src[@]}; do
 	gcc $defines -MM -MG $file >> $makefile
 done
 

@@ -146,6 +146,21 @@ and select those you want. In our case, this will be a compiler and SDK:
  - `MSVC - VS C++ x64/x86 build tools`
  - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`
 
+## Compiling libraries
+It is possible to compile globox as a specialized dynamic library:
+```
+CFLAGS=-fPIC make -f makefile_linux_x11_software bin/globox.so
+```
+```
+CFLAGS=-fPIC make -f makefile_linux_macos_software bin/globox.so
+```
+```
+CFLAGS=-fPIC make -f makefile_windows_windows_software bin/globox.dll
+```
+```
+CFLAGS=-fPIC make -f makefile_windows_windows_software_native bin/globox.dll
+```
+
 ## Contributing
 Here's what you can do:
  - `macOS` Fix the disabled application controls (close, maximize, minimize)

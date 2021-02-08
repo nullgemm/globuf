@@ -32,11 +32,11 @@ CFLAGS+= -DGLOBOX_CONTEXT_EGL
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
 OBJ+= src/x11/globox_x11.o
-OBJ+= example/egl.o
 OBJ+= src/x11/egl/globox_x11_egl.o
-OBJ+= res/icon/iconpix.o
+EXAMPLE+= res/icon/iconpix.o
+EXAMPLE+= example/egl.o
 
-bin/$(NAME): $(OBJ)
+bin/$(NAME): $(OBJ) $(EXAMPLE)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
@@ -54,13 +54,17 @@ leak: bin/$(NAME)
 	cd bin && valgrind $(VALGRIND) 2> ../valgrind.log $(CMD)
 	less valgrind.log
 
+bin/$(NAME).so: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
+
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
 globox_x11.o: src/x11/globox_x11.c globox.h globox_error.h \
  x11/globox_x11.h
-egl.o: example/egl.c globox.h
 globox_x11_egl.o: src/x11/egl/globox_x11_egl.c globox.h globox_error.h \
  x11/globox_x11.h
+egl.o: example/egl.c globox.h
 
 run:
 	cd bin && $(CMD)

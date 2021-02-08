@@ -19,7 +19,7 @@ src+=("src/globox.c")
 src+=("src/globox_error.c")
 src+=("src/windows/globox_windows.c")
 
-obj+=("res/icon/iconpix_pe.obj")
+example+=("res/icon/iconpix_pe.obj")
 
 flags+=("-Z7 -Zc:inline")
 flags+=("-Isrc")
@@ -49,8 +49,6 @@ defines+=("-DCINTERFACE")
 defines+=("-DCOBJMACROS")
 
 ldflags+=("-SUBSYSTEM:windows")
-ldflags+=("-ENTRY:mainCRTStartup")
-
 ldflags+=("-DEBUG:FULL")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Lib/$ver_windows_sdk/um/x64\"")
@@ -74,7 +72,7 @@ case $context in
 	[1]* )
 # software context
 makefile=makefile_windows_software_native
-src+=("example/software.c")
+example_src+=("example/software.c")
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
@@ -82,7 +80,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	[2]* )
 # egl context
 makefile=makefile_windows_egl_native
-src+=("example/egl.c")
+example_src+=("example/egl.c")
 src+=("src/windows/egl/globox_windows_egl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
@@ -96,7 +94,7 @@ make/scripts/egl_get.sh
 	[3]* )
 # wgl context
 makefile=makefile_windows_wgl_native
-src+=("example/wgl.c")
+example_src+=("example/wgl.c")
 src+=("src/windows/wgl/globox_windows_wgl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
@@ -112,7 +110,7 @@ esac
 
 # create empty makefile
 echo ".POSIX:" > $makefile
-echo "NAME = globox.exe" >> $makefile
+echo "NAME = globox" >> $makefile
 echo "CMD = ./globox.exe" >> $makefile
 
 # generate linking info
@@ -146,8 +144,14 @@ for file in ${src[@]}; do
 	echo "OBJ+= $folder/$name.obj" >> $makefile
 done
 
-for file in ${obj[@]}; do
-	echo "OBJ+= $file" >> $makefile
+for file in ${example[@]}; do
+	echo "EXAMPLE+= $file" >> $makefile
+done
+
+for file in ${example_src[@]}; do
+	folder=$(dirname "$file")
+	name=$(basename "$file" .c)
+	echo "EXAMPLE+= $folder/$name.obj" >> $makefile
 done
 
 # build eglproxy and get OpenGL header when needed
@@ -156,13 +160,20 @@ echo "" >> $makefile
 cat make/templates/targets_windows_msvc_egl.make >> $makefile
 fi
 
-# generate binary target
+# generate binary targets
 echo "" >> $makefile
 cat make/templates/targets_windows_msvc.make >> $makefile
+
+echo "" >> $makefile
+cat make/templates/targets_windows_msvc_libs.make >> $makefile
 
 # generate object targets
 echo "" >> $makefile
 for file in ${src[@]}; do
+	x86_64-w64-mingw32-gcc $defines -MM -MG $file >> $makefile
+done
+
+for file in ${example_src[@]}; do
 	x86_64-w64-mingw32-gcc $defines -MM -MG $file >> $makefile
 done
 

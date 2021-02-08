@@ -11,7 +11,7 @@ src+=("src/macos/globox_macos.c")
 src+=("src/macos/globox_macos_symbols.c")
 src+=("src/macos/globox_macos_callbacks.c")
 
-obj+=("res/icon/iconpix_mach.o")
+example+=("res/icon/iconpix_mach.o")
 
 flags+=("-std=c99" "-pedantic" "-g")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
@@ -36,7 +36,7 @@ case $context in
 	[1]* )
 # software context
 makefile=makefile_macos_software
-src+=("example/software.c")
+example_src+=("example/software.c")
 src+=("src/macos/software/globox_macos_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
@@ -44,7 +44,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	[2]* )
 # egl context
 makefile=makefile_macos_egl
-src+=("example/egl.c")
+example_src+=("example/egl.c")
 src+=("src/macos/egl/globox_macos_egl.c")
 flags+=("-Ires/angle/include")
 ldflags+=("-Lres/angle/libs")
@@ -114,11 +114,17 @@ for file in ${src[@]}; do
 	echo "OBJ+= $folder/$name.o" >> $makefile
 done
 
-for file in ${obj[@]}; do
-	echo "OBJ+= $file" >> $makefile
+for file in ${example[@]}; do
+	echo "EXAMPLE+= $file" >> $makefile
 done
 
-# generate binary target
+for file in ${example_src[@]}; do
+	folder=$(dirname "$file")
+	name=$(basename "$file" .c)
+	echo "EXAMPLE+= $folder/$name.o" >> $makefile
+done
+
+# generate binary targets
 case $context in
 	[1]* )
 echo "" >> $makefile
@@ -134,9 +140,16 @@ esac
 echo "" >> $makefile
 cat make/templates/targets_macos.make >> $makefile
 
+echo "" >> $makefile
+cat make/templates/targets_nix_libs.make >> $makefile
+
 # generate object targets
 echo "" >> $makefile
 for file in ${src[@]}; do
+	$cc $defines -MM -MG $file >> $makefile
+done
+
+for file in ${example_src[@]}; do
 	$cc $defines -MM -MG $file >> $makefile
 done
 

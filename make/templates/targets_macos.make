@@ -1,4 +1,4 @@
-bin/$(NAME): $(OBJ)
+bin/$(NAME): $(OBJ) $(EXAMPLE)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 

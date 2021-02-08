@@ -40,17 +40,17 @@ OBJ+= res/wayland_headers/xdg-decoration-protocol.o
 OBJ+= res/wayland_headers/kde-blur-protocol.o
 OBJ+= res/wayland_headers/zwp-relative-pointer-protocol.o
 OBJ+= res/wayland_headers/zwp-pointer-constraints-protocol.o
-OBJ+= example/egl.o
 OBJ+= src/wayland/egl/globox_wayland_egl.o
 OBJ+= src/wayland/egl/globox_wayland_egl_helpers.o
-OBJ+= res/icon/iconpix.o
+EXAMPLE+= res/icon/iconpix.o
+EXAMPLE+= example/egl.o
 
 final: res/wayland_headers bin/$(NAME)
 
 res/wayland_headers:
 	make/scripts/wayland_get.sh
 
-bin/$(NAME): $(OBJ)
+bin/$(NAME): $(OBJ) $(EXAMPLE)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
@@ -67,6 +67,10 @@ leak: bin/$(NAME)
 	@echo "# running valgrind"
 	cd bin && valgrind $(VALGRIND) 2> ../valgrind.log $(CMD)
 	less valgrind.log
+
+bin/$(NAME).so: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
@@ -85,7 +89,6 @@ zwp-relative-pointer-protocol.o: \
  res/wayland_headers/zwp-relative-pointer-protocol.c
 zwp-pointer-constraints-protocol.o: \
  res/wayland_headers/zwp-pointer-constraints-protocol.c
-egl.o: example/egl.c globox.h
 globox_wayland_egl.o: src/wayland/egl/globox_wayland_egl.c globox.h \
  globox_error.h wayland/globox_wayland.h wayland/egl/globox_wayland_egl.h \
  wayland/egl/globox_wayland_egl_helpers.h
@@ -93,6 +96,7 @@ globox_wayland_egl_helpers.o: \
  src/wayland/egl/globox_wayland_egl_helpers.c globox.h globox_error.h \
  wayland/globox_wayland.h wayland/egl/globox_wayland_egl.h \
  wayland/egl/globox_wayland_egl_helpers.h
+egl.o: example/egl.c globox.h
 
 run:
 	cd bin && $(CMD)
