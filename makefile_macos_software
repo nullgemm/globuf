@@ -71,6 +71,10 @@ bin/$(NAME).so: $(OBJ)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
 
+bin/$(NAME).a: $(OBJ)
+	mkdir -p $(@D)
+	ar rcs $@ $^
+
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
 globox_macos.o: src/macos/globox_macos.c globox.h globox_error.h \
