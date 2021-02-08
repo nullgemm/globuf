@@ -149,16 +149,28 @@ and select those you want. In our case, this will be a compiler and SDK:
 ## Compiling libraries
 It is possible to compile globox as a specialized dynamic library:
 ```
+make -f makefile_linux_x11_software clean
 CFLAGS=-fPIC make -f makefile_linux_x11_software bin/globox.so
 ```
 ```
-CFLAGS=-fPIC make -f makefile_linux_macos_software bin/globox.so
+make -f makefile_linux_wayland_software clean
+CFLAGS=-fPIC make -f makefile_linux_wayland_software bin/globox.so
 ```
 ```
-CFLAGS=-fPIC make -f makefile_windows_windows_software bin/globox.dll
+make -f makefile_macos_software clean
+CFLAGS=-fPIC make -f makefile_macos_software bin/globox.so
 ```
 ```
-CFLAGS=-fPIC make -f makefile_windows_windows_software_native bin/globox.dll
+make -f makefile_macos_software_native clean
+CFLAGS=-fPIC make -f makefile_macos_software_native bin/globox.so
+```
+```
+make -f makefile_windows_software clean
+CFLAGS=-fPIC make -f makefile_windows_software bin/globox.dll
+```
+```
+make -f makefile_windows_software_native clean
+make -f makefile_windows_software_native bin/globox.dll
 ```
 
 ## Contributing
