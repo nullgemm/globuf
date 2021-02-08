@@ -175,6 +175,8 @@ make -f makefile_windows_software_native bin/globox.dll
 
 ## Contributing
 Here's what you can do:
+ - `Windows` Fix the DLL generation with mingw and msvc
+ - `Windows` Create a first release
  - `macOS` Fix the disabled application controls (close, maximize, minimize)
  - `macOS` Fix the background blur not working (it did before cleanup)
  - Integrate Willis, Cursoryx and DPIshit examples
