@@ -15,6 +15,10 @@ cc="\"/c/Program Files (x86)/Microsoft Visual Studio/\
 $ver_visual_studio/BuildTools/VC/Tools/MSVC/\
 $ver_msvc/bin/Hostx64/x64/cl.exe\""
 
+lib="\"/c/Program Files (x86)/Microsoft Visual Studio/\
+$ver_visual_studio/BuildTools/VC/Tools/MSVC/\
+$ver_msvc/bin/Hostx64/x64/lib.exe\""
+
 src+=("src/globox.c")
 src+=("src/globox_error.c")
 src+=("src/windows/globox_windows.c")
@@ -116,6 +120,7 @@ echo "CMD = ./globox.exe" >> $makefile
 # generate linking info
 echo "" >> $makefile
 echo "CC = $cc" >> $makefile
+echo "LIB = $lib" >> $makefile
 echo "LDFLAGS+= ${ldflags[@]}" >> $makefile
 echo "LDLIBS+= ${ldlibs[@]}" >> $makefile
 

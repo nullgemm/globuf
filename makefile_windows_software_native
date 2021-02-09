@@ -3,6 +3,7 @@ NAME = globox
 CMD = ./globox.exe
 
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
+LIB = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/lib.exe"
 LDFLAGS+= -SUBSYSTEM:windows -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
 LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib
 
@@ -61,6 +62,10 @@ leak: bin/$(NAME).exe
 bin/$(NAME).dll: $(OBJ)
 	mkdir -p $(@D)
 	$(CC) -D_USRDLL -D_WINDLL $^ -link $(LDFLAGS) $(LDLIBS) -DLL -OUT:bin/$(NAME).dll
+
+bin/$(NAME).lib: $(OBJ)
+	mkdir -p $(@D)
+	$(LIB) -OUT:$@ $^
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
