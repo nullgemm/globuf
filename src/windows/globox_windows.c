@@ -650,7 +650,7 @@ void globox_platform_create_window(struct globox* globox)
 	if (globox->globox_frameless == false)
 	{
 		style = WS_OVERLAPPEDWINDOW;
-		exstyle = WS_EX_OVERLAPPEDWINDOW;
+		exstyle = 0;
 	}
 	else
 	{
