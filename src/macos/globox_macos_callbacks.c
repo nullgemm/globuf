@@ -351,7 +351,7 @@ unsigned long callback_window_will_use_fullscreen_presentation_options(
 		| NSApplicationPresentationFullScreen;
 }
 
-BOOL callback_application_did_finish_launching(
+BOOL callback_application_will_finish_launching(
 	struct macos_appdelegate* appdelegate,
 	SEL cmd,
 	id msg)

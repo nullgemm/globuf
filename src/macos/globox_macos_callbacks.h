@@ -45,7 +45,7 @@ unsigned long callback_window_will_use_fullscreen_presentation_options(
 	SEL cmd,
 	id* window,
 	unsigned long options);
-BOOL callback_application_did_finish_launching(
+BOOL callback_application_will_finish_launching(
 	struct macos_appdelegate* appdelegate,
 	SEL cmd,
 	id msg);

@@ -183,8 +183,8 @@ void globox_platform_init(
 	ok =
 		class_addMethod(
 			platform->globox_macos_class_appdelegate,
-			sel_getUid("applicationDidFinishLaunching:"),
-			(IMP) callback_application_did_finish_launching,
+			sel_getUid("applicationWillFinishLaunching:"),
+			(IMP) callback_application_will_finish_launching,
 			"i@:@");
 
 	if (ok == NO)
