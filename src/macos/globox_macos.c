@@ -30,6 +30,9 @@ enum globox_macos_cursor
 enum globox_macos_cursor_hover
 {
 	GLOBOX_MACOS_HOVER_NONE = 0,
+	GLOBOX_MACOS_HOVER_CLOSE,
+	GLOBOX_MACOS_HOVER_MIN,
+	GLOBOX_MACOS_HOVER_MAX,
 	GLOBOX_MACOS_HOVER_N,
 	GLOBOX_MACOS_HOVER_NW,
 	GLOBOX_MACOS_HOVER_W,
@@ -713,6 +716,29 @@ static void cursor_hover_update(
 			&& (pos.x < (button.origin.x + button.size.width)))
 		{
 			platform->globox_macos_inhibit_resize = true;
+
+			switch (i)
+			{
+				case 0:
+				{
+					platform->globox_macos_cursor_hover =
+						GLOBOX_MACOS_HOVER_CLOSE;
+					break;
+				}
+				case 1:
+				{
+					platform->globox_macos_cursor_hover =
+						GLOBOX_MACOS_HOVER_MIN;
+					break;
+				}
+				case 2:
+				{
+					platform->globox_macos_cursor_hover =
+						GLOBOX_MACOS_HOVER_MAX;
+					break;
+				}
+			}
+
 			return;
 		}
 
@@ -977,8 +1003,43 @@ void globox_platform_events_handle(
 		}
 		case NSEventTypeLeftMouseDown:
 		{
-			if ((globox->globox_interactive_mode != GLOBOX_INTERACTIVE_STOP)
-				|| (platform->globox_macos_inhibit_resize == true))
+			if (globox->globox_interactive_mode != GLOBOX_INTERACTIVE_STOP)
+			{
+				break;
+			}
+
+			switch (platform->globox_macos_cursor_hover)
+			{
+				case GLOBOX_MACOS_HOVER_CLOSE:
+				{
+					globox->globox_closed = true;
+					break;
+				}
+				case GLOBOX_MACOS_HOVER_MIN:
+				{
+					platform->globox_macos_state_old =
+						GLOBOX_STATE_REGULAR;
+
+					globox_platform_set_state(
+						globox,
+						GLOBOX_STATE_MINIMIZED);
+
+					break;
+				}
+				case GLOBOX_MACOS_HOVER_MAX:
+				{
+					platform->globox_macos_state_old =
+						GLOBOX_STATE_REGULAR;
+
+					globox_platform_set_state(
+						globox,
+						GLOBOX_STATE_FULLSCREEN);
+
+					break;
+				}
+			}
+
+			if (platform->globox_macos_inhibit_resize == true)
 			{
 				break;
 			}
@@ -1106,11 +1167,6 @@ void globox_platform_free(struct globox* globox)
 		(id) platform->globox_macos_obj_appdelegate,
 		sel_getUid("dealloc"));
 	objc_disposeClassPair(platform->globox_macos_class_appdelegate);
-
-	macos_msg_void_none(
-		(id) platform->globox_macos_obj_view,
-		sel_getUid("dealloc"));
-	objc_disposeClassPair(platform->globox_macos_class_view);
 }
 
 void globox_platform_set_icon(
@@ -1235,15 +1291,12 @@ void globox_platform_set_state(
 		}
 		case GLOBOX_STATE_MINIMIZED:
 		{
-			if (globox->globox_state != GLOBOX_STATE_MINIMIZED)
-			{
-				globox->globox_state = GLOBOX_STATE_MINIMIZED;
+			globox->globox_state = GLOBOX_STATE_MINIMIZED;
 
-				macos_msg_void_id(
-					platform->globox_macos_obj_window,
-					sel_getUid("miniaturize:"),
-					platform->globox_macos_obj_appdelegate);
-			}
+			macos_msg_void_id(
+				platform->globox_macos_obj_window,
+				sel_getUid("miniaturize:"),
+				platform->globox_macos_obj_appdelegate);
 
 			break;
 		}

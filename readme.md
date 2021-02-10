@@ -200,7 +200,6 @@ make -f makefile_windows_software bin/globox.a
 
 ## Contributing
 Here's what you can do:
- - `macOS` Fix the non-responsive application controls (close, maximize, minimize)
  - Integrate Willis, Cursoryx and DPIshit examples
  - Implement the Vulkan context for all platforms
 
