@@ -662,13 +662,6 @@ BOOL callback_application_did_finish_launching(
 		sel_getUid("makeKeyAndOrderFront:"),
 		appdelegate);
 
-	// HACK
-	// escape the default event loop
-	macos_msg_void_voidptr(
-		platform->globox_platform_event_handle,
-		sel_getUid("stop:"),
-		NULL);
-
 	// save a reference to the window instance
 	platform->globox_macos_obj_window = appdelegate->window;
 
@@ -686,15 +679,10 @@ BOOL callback_application_did_finish_launching(
 		| NSWindowCollectionBehaviorFullScreenPrimary
 		| NSWindowCollectionBehaviorFullScreenAllowsTiling);
 
-	if (globox->globox_frameless == true)
-	{
-		return YES;
-	}
-
 	id* button;
 	int k = 0;
 
-	while (k < 3)
+	while ((globox->globox_frameless == false) && (k < 3))
 	{
 		button =
 			macos_msg_idptr_int(
@@ -738,16 +726,66 @@ BOOL callback_application_did_finish_launching(
 				(id) button,
 				sel_getUid("frame"));
 
-		// TODO ptr required ? 
-		macos_msgptr_void_bool(
-			button,
+		macos_msg_void_bool(
+			(id) button,
 			sel_getUid("setEnabled:"),
 			YES);
 
 		++k;
 	}
 
+	// the `1` below is not clearly defined in Apple's documentation
+	macos_msg_void_int(
+		platform->globox_platform_event_handle,
+		sel_getUid("setActivationPolicy:"),
+		1);
+
+	macos_msg_void_id(
+		platform->globox_macos_obj_masterview,
+		sel_getUid("addSubview:"),
+		platform->globox_macos_obj_view);
+
+	macos_msg_subview(
+		platform->globox_macos_obj_masterview,
+		sel_getUid("addSubview:positioned:relativeTo:"),
+		platform->globox_macos_obj_blur,
+		-1,
+		platform->globox_macos_obj_view);
+
+	macos_msg_void_bool(
+		platform->globox_platform_event_handle,
+		sel_getUid("activateIgnoringOtherApps:"),
+		YES);
+
 	return YES;
+}
+
+void callback_application_will_become_active(
+	struct macos_appdelegate* appdelegate,
+	SEL cmd,
+	id msg)
+{
+	void* out = NULL;
+
+	object_getInstanceVariable(
+		(id) appdelegate,
+		"globox",
+		&out);
+
+	if (out == NULL)
+	{
+		return;
+	}
+
+	struct globox* globox = (struct globox*) out;
+	struct globox_platform* platform = &(globox->globox_platform);
+
+	// HACK
+	// escape the default event loop
+	macos_msg_void_voidptr(
+		platform->globox_platform_event_handle,
+		sel_getUid("stop:"),
+		NULL);
 }
 
 long callback_core_cursor_type(

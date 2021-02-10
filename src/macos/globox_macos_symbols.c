@@ -46,8 +46,6 @@ void (*macos_msg_void_ulong)(id, SEL, unsigned long) =
 	(void (*)(id, SEL, unsigned long)) objc_msgSend;
 id* (*macos_msg_idptr_int)(id, SEL, int) =
 	(id* (*)(id, SEL, int)) objc_msgSend;
-void (*macos_msgptr_void_bool)(id*, SEL, BOOL) =
-	(void (*)(id*, SEL, BOOL)) objc_msgSend;
 id (*macos_msg_id_rect)(id, SEL, struct macos_rect) =
 	(id (*)(id, SEL, struct macos_rect)) objc_msgSend;
 void (*macos_msg_subview)(id, SEL, id, int, id) =

@@ -200,13 +200,9 @@ make -f makefile_windows_software bin/globox.a
 
 ## Contributing
 Here's what you can do:
- - `macOS` Fix the disabled application controls (close, maximize, minimize)
- - `macOS` Fix the background blur not working (it did before cleanup)
+ - `macOS` Fix the non-responsive application controls (close, maximize, minimize)
  - Integrate Willis, Cursoryx and DPIshit examples
  - Implement the Vulkan context for all platforms
-
-Note the macOS platform worked perfectly before the final cleanup was done,
-so maybe it's worth comparing the `master` and `experimental_macos` branches.
 
 ## Known issues
 The following issues are known but cannot be fixed:

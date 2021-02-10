@@ -49,6 +49,10 @@ BOOL callback_application_did_finish_launching(
 	struct macos_appdelegate* appdelegate,
 	SEL cmd,
 	id msg);
+void callback_application_will_become_active(
+	struct macos_appdelegate* appdelegate,
+	SEL cmd,
+	id msg);
 long callback_core_cursor_type(
 	id self,
 	SEL cmd);

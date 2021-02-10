@@ -195,6 +195,26 @@ void globox_platform_init(
 
 		return;
 	}
+
+	// add post-launch event loop killing method
+	ok =
+		class_addMethod(
+			platform->globox_macos_class_appdelegate,
+			sel_getUid("applicationWillBecomeActive:"),
+			(IMP) callback_application_will_become_active,
+			"v@:@");
+
+	if (ok == NO)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_MACOS_CLASS_ADDMETHOD);
+
+		objc_disposeClassPair(platform->globox_macos_class_view);
+		objc_disposeClassPair(platform->globox_macos_class_appdelegate);
+
+		return;
+	}
 }
 
 void globox_platform_create_window(struct globox* globox)
@@ -382,24 +402,7 @@ void globox_platform_create_window(struct globox* globox)
 	// finish launching
 	macos_msg_void_none(
 		platform->globox_platform_event_handle,
-		sel_getUid("finishLaunching"));
-
-	macos_msg_void_none(
-		platform->globox_platform_event_handle,
 		sel_getUid("run"));
-
-	// wait for the application to be running and enable the window
-	BOOL wait;
-
-	do
-	{
-		wait =
-			macos_msg_bool_none(
-				platform->globox_platform_event_handle,
-				sel_getUid("isRunning"));
-	}
-	while (wait == YES);
-
 	// the `1` below is not clearly defined in Apple's documentation
 	macos_msg_void_int(
 		platform->globox_platform_event_handle,
