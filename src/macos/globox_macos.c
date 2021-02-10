@@ -716,6 +716,8 @@ static void cursor_hover_update(
 			&& (pos.x < (button.origin.x + button.size.width)))
 		{
 			platform->globox_macos_inhibit_resize = true;
+			platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
+			platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
 
 			switch (i)
 			{
