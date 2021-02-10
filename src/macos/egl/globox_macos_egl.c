@@ -320,8 +320,6 @@ void globox_context_egl_free(struct globox* globox)
 			GLOBOX_ERROR_MACOS_EGL_FAIL);
 		return;
 	}
-
-	free(context->globox_egl_config);
 }
 
 void globox_context_egl_copy(
