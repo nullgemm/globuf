@@ -1,5 +1,5 @@
 # Globox
-![globox_macos_linux_windows](https://user-images.githubusercontent.com/5473047/107370735-a7c8b080-6ae3-11eb-8872-b4b6212a425a.png)
+![globox_macos_linux_windows](https://user-images.githubusercontent.com/5473047/107652440-dfb92a80-6c80-11eb-9f91-b2750f18f61e.png)
 
 Globox is a cross-platform windowing library for Linux, Windows and macOS.
 It was built as a lightweight and modular alternative to similar libraries.
