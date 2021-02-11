@@ -50,10 +50,12 @@ mac OS
    (which implements Vulkan on top of metal)
    (It is not implemented yet)
 
-## Compiling
+## Re-generating the makefiles
 Edit and run the `gen` scripts in the `make` folder.
 You will be prompted for a context type and wether to cross-compile or not.
-Then simply run the makefile created at the root of the repository:
+
+## Compiling
+Simply run the makefiles created at the root of the repository:
 ```
 make -f makefile_BACKEND_CONTEXT_NATIVE
 ```
@@ -66,8 +68,8 @@ mandatory we make sure the feature is available to Plasma users, without having
 to build a specific binary for that purpose.
 
 Under ArchLinux, Plasma's protocols can be installed using the 
-`plasma-wayland-protocols` package found in the `Extra` repo. The official
-protocols repository can be found on
+`plasma-wayland-protocols` package found in the `Extra` repo.
+The official protocols repository can be found on
 [invent.kde.org](https://invent.kde.org/libraries/plasma-wayland-protocols).
 
 ### macOS
@@ -116,7 +118,7 @@ The `ANGLE` binaries are extracted from the latest `chromium` release.
 
 ### Windows
 #### Cross-compiling from Linux
-To cross-compile the Windows platform from Linux you will to set MinGW up.
+To cross-compile the Windows platform from Linux you will need to install MinGW.
 Globox was designed to be Wine-compatible so you can use it to run the examples
 (but remember Wine is not Windows and does not support transparency or blur).
 
@@ -139,7 +141,8 @@ We also recommend that you replace the command-line font with a
 The Git for Windows SDK provides you with gcc, which can be used to compile.
 When going that way, use the `gen_windows_mingw.sh` script to generate a makefile.
 
-Alternatively, you can find Microsoft's *stuff* in the [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+Alternatively, you can find Microsoft's *stuff* in the
+[Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
 The setup is done through the Visual Studio Installer and starts automatically.
 If you miss some components just start it again and click "Modify" to add them.
 Nothing is installed by default, you need to open the "individual components" tab
