@@ -25,6 +25,7 @@ done
 
 # generate egl headers
 make/scripts/egl_get.sh
+make/scripts/eglproxy_get.sh
 
 # generate dynamic libraries
 mkdir -p "$release/lib/globox/windows"
