@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 cd ../..
 
 # download target eglproxy release
-version="v0.1.0"
+version="v0.1.1"
 
 curl -L "https://github.com/nullgemm/eglproxy/releases/download/$version/eglproxy_bin_$version.zip" -o \
 res/eglproxy.zip
