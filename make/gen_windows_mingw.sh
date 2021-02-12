@@ -13,7 +13,7 @@ src+=("src/windows/globox_windows.c")
 
 example+=("res/icon/iconpix_pe.o")
 
-flags+=("-std=c99" "-pedantic" "-g")
+flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
@@ -42,6 +42,16 @@ ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 ldlibs+=("-mwindows")
 
+# build type
+read -p "optimize? ([1] optimize | [2] debug): " optimize
+
+if [ $optimize -eq 1 ]; then
+flags+=("-O2")
+else
+flags+=("-g")
+fi
+
+# context type
 read -p "select context type ([1] software | [2] egl | [3] wgl): " context
 
 case $context in

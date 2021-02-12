@@ -25,7 +25,7 @@ src+=("src/windows/globox_windows.c")
 
 example+=("res/icon/iconpix_pe.obj")
 
-flags+=("-Z7 -Zc:inline")
+flags+=("-Zc:inline")
 flags+=("-Isrc")
 flags+=("-I\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Include/$ver_windows_sdk/ucrt\"")
@@ -53,7 +53,6 @@ defines+=("-DCINTERFACE")
 defines+=("-DCOBJMACROS")
 
 ldflags+=("-SUBSYSTEM:windows")
-ldflags+=("-DEBUG:FULL")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Lib/$ver_windows_sdk/um/x64\"")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Microsoft Visual Studio/\
@@ -70,6 +69,17 @@ drmemory+=("-report_max -1")
 drmemory+=("-report_leak_max -1")
 drmemory+=("-batch")
 
+# build type
+read -p "optimize? ([1] optimize | [2] debug): " optimize
+
+if [ $optimize -eq 1 ]; then
+flags+=("-O2")
+else
+flags+=("-Z7")
+ldflags+=("-DEBUG:FULL")
+fi
+
+# context type
 read -p "select context ([1] software | [2] egl | [3] wgl): " context
 
 case $context in

@@ -13,7 +13,7 @@ src+=("src/macos/globox_macos_callbacks.c")
 
 example+=("res/icon/iconpix_mach.o")
 
-flags+=("-std=c99" "-pedantic" "-g")
+flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
@@ -28,6 +28,15 @@ defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 defines+=("-DGLOBOX_PLATFORM_MACOS")
 
 ldlibs+=("-framework AppKit")
+
+# build type
+read -p "optimize? ([1] optimize | [2] debug): " optimize
+
+if [ $optimize -eq 1 ]; then
+flags+=("-O2")
+else
+flags+=("-g")
+fi
 
 # context-dependent additions
 read -p "select context type ([1] software | [2] egl): " context
