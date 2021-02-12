@@ -8,7 +8,6 @@ LDLIBS+= -lgdi32 -ldwmapi -mwindows -leglproxy -lopengl32
 
 CFLAGS+= -std=c99
 CFLAGS+= -pedantic
-CFLAGS+= -g
 CFLAGS+= -Wall
 CFLAGS+= -Wextra
 CFLAGS+= -Werror=vla
@@ -19,6 +18,7 @@ CFLAGS+= -Wno-implicit-fallthrough
 CFLAGS+= -Wno-cast-function-type
 CFLAGS+= -Wno-incompatible-pointer-types
 CFLAGS+= -Isrc
+CFLAGS+= -g
 CFLAGS+= -Ires/egl_headers
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC

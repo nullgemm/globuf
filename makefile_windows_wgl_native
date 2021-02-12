@@ -4,7 +4,7 @@ CMD = ./globox.exe
 
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
 LIB = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/lib.exe"
-LDFLAGS+= -SUBSYSTEM:windows -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
+LDFLAGS+= -SUBSYSTEM:windows -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64" -DEBUG:FULL
 LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib Gdi32.lib User32.lib shcore.lib dwmapi.lib opengl32.lib
 
 DRMEMORY+= -report_max
@@ -13,12 +13,13 @@ DRMEMORY+= -report_leak_max
 DRMEMORY+= -1
 DRMEMORY+= -batch
 
-CFLAGS+= -Z7 -Zc:inline
+CFLAGS+= -Zc:inline
 CFLAGS+= -Isrc
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt"
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared"
 CFLAGS+= -I"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/include"
+CFLAGS+= -Z7
 CFLAGS+= -Ires/egl_headers
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC

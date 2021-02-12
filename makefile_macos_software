@@ -15,7 +15,6 @@ VALGRIND+= --suppressions=../res/valgrind.supp
 
 CFLAGS+= -std=c99
 CFLAGS+= -pedantic
-CFLAGS+= -g
 CFLAGS+= -Wall
 CFLAGS+= -Wextra
 CFLAGS+= -Werror=vla
@@ -23,6 +22,7 @@ CFLAGS+= -Werror
 CFLAGS+= -Wno-address-of-packed-member
 CFLAGS+= -Wno-unused-parameter
 CFLAGS+= -Isrc
+CFLAGS+= -g
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
 CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
