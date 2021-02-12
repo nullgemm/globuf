@@ -4,7 +4,7 @@ CMD = ./globox.exe
 
 CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
 LIB = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/lib.exe"
-LDFLAGS+= -SUBSYSTEM:windows -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64" -LIBPATH:res/eglproxy/bin
+LDFLAGS+= -SUBSYSTEM:windows -DEBUG:FULL -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64" -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64" -LIBPATH:res/eglproxy/lib/msvc
 LDLIBS+= Gdi32.lib User32.lib shcore.lib dwmapi.lib eglproxy.lib opengl32.lib
 
 DRMEMORY+= -report_max
@@ -44,12 +44,12 @@ EXAMPLE+= example/egl.obj
 
 final: res/egl_headers bin/eglproxy.dll bin/$(NAME).exe
 
-bin/eglproxy.dll: res/eglproxy/bin/eglproxy.lib
+bin/eglproxy.dll: res/eglproxy
 	mkdir -p $(@D)
-	cp res/eglproxy/bin/eglproxy.dll $@
+	cp res/eglproxy/lib/msvc/eglproxy.dll $@
 
-res/eglproxy/bin/eglproxy.lib: res/eglproxy/readme.md
-	cd res/eglproxy && NATIVE=TRUE make
+res/eglproxy:
+	make/scripts/eglproxy_get.sh
 
 res/egl_headers:
 	make/scripts/egl_get.sh
@@ -101,11 +101,3 @@ clean:
 remotes:
 	@echo "# registering remotes"
 	make/scripts/git_remotes.sh
-
-github:
-	@echo "# sourcing submodules from https://github.com"
-	make/scripts/git_github.sh
-
-gitea:
-	@echo "# sourcing submodules from personal server"
-	make/scripts/git_gitea.sh

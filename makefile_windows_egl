@@ -3,7 +3,7 @@ NAME = globox
 CMD = wine ./globox.exe
 
 CC = x86_64-w64-mingw32-gcc
-LDFLAGS+= -Lres/eglproxy/bin
+LDFLAGS+= -Lres/eglproxy/lib/mingw
 LDLIBS+= -lgdi32 -ldwmapi -mwindows -leglproxy -lopengl32
 
 CFLAGS+= -std=c99
@@ -43,13 +43,12 @@ EXAMPLE+= example/egl.o
 
 final: res/egl_headers bin/eglproxy.dll bin/$(NAME).exe
 
-bin/eglproxy.dll: res/eglproxy/bin/eglproxy.dll
+bin/eglproxy.dll: res/eglproxy
 	mkdir -p $(@D)
-	cp res/eglproxy/bin/eglproxy.dll $@
+	cp res/eglproxy/lib/mingw/eglproxy.dll $@
 
-res/eglproxy/bin/eglproxy.dll: res/eglproxy/readme.md
-	cd res/eglproxy && NATIVE=FALSE make
-	rm res/eglproxy/bin/eglproxy.lib
+res/eglproxy:
+	make/scripts/eglproxy_get.sh
 
 res/egl_headers:
 	make/scripts/egl_get.sh
@@ -88,11 +87,3 @@ clean:
 remotes:
 	@echo "# registering remotes"
 	make/scripts/git_remotes.sh
-
-github:
-	@echo "# sourcing submodules from https://github.com"
-	make/scripts/git_github.sh
-
-gitea:
-	@echo "# sourcing submodules from personal server"
-	make/scripts/git_gitea.sh

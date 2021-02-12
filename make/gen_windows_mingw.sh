@@ -60,11 +60,11 @@ example_src+=("example/egl.c")
 src+=("src/windows/egl/globox_windows_egl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
-ldflags+=("-Lres/eglproxy/bin")
+ldflags+=("-Lres/eglproxy/lib/mingw")
 ldlibs+=("-leglproxy")
 ldlibs+=("-lopengl32")
 
-make/scripts/egl_get.sh
+make/scripts/eglproxy_get.sh
 	;;
 
 	[3]* )
@@ -124,7 +124,7 @@ for file in ${example_src[@]}; do
 done
 
 # build eglproxy and get OpenGL header when needed
-if [ $context -gt 1 ]; then
+if [ $context -eq 2 ]; then
 echo "" >> $makefile
 cat make/templates/targets_windows_mingw_egl.make >> $makefile
 fi

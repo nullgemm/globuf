@@ -4,6 +4,7 @@ inc
 *.obj
 res/angle
 res/objconv
+res/eglproxy
 res/egl_headers
 res/wayland_headers
 res/icon/iconpix.bin

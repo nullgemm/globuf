@@ -1,3 +1,0 @@
-[submodule "res/eglproxy"]
-	path = res/eglproxy
-	url = https://github.com/nullgemm/eglproxy.git

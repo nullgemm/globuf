@@ -41,19 +41,6 @@ OBJ+= src/windows/wgl/globox_windows_wgl.o
 EXAMPLE+= res/icon/iconpix_pe.o
 EXAMPLE+= example/wgl.o
 
-final: res/egl_headers bin/eglproxy.dll bin/$(NAME).exe
-
-bin/eglproxy.dll: res/eglproxy/bin/eglproxy.dll
-	mkdir -p $(@D)
-	cp res/eglproxy/bin/eglproxy.dll $@
-
-res/eglproxy/bin/eglproxy.dll: res/eglproxy/readme.md
-	cd res/eglproxy && NATIVE=FALSE make
-	rm res/eglproxy/bin/eglproxy.lib
-
-res/egl_headers:
-	make/scripts/egl_get.sh
-
 bin/$(NAME).exe: $(OBJ) $(EXAMPLE)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -o bin/$(NAME) $^ $(LDLIBS)
@@ -88,11 +75,3 @@ clean:
 remotes:
 	@echo "# registering remotes"
 	make/scripts/git_remotes.sh
-
-github:
-	@echo "# sourcing submodules from https://github.com"
-	make/scripts/git_github.sh
-
-gitea:
-	@echo "# sourcing submodules from personal server"
-	make/scripts/git_gitea.sh
