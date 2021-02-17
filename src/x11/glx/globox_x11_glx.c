@@ -52,7 +52,7 @@ void globox_context_glx_init(
 	int version_minor)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_glx* context = &(platform->globox_x11_glx);
 
 	context->globox_glx_version_major = version_major;
@@ -227,7 +227,7 @@ void globox_context_glx_init(
 void globox_context_glx_create(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_glx* context = &(platform->globox_x11_glx);
 
 	// create GLX context
@@ -327,7 +327,7 @@ void globox_context_glx_create(struct globox* globox)
 void globox_context_glx_free(struct globox* globox)
 {
 	// alias for readability
-	struct globox_x11_glx* context = &(globox->globox_platform.globox_x11_glx);
+	struct globox_x11_glx* context = &(globox->globox_platform->globox_x11_glx);
 
 	glXDestroyWindow(context->globox_glx_display, context->globox_glx_win);
 	glXDestroyContext(context->globox_glx_display, context->globox_glx_context);
@@ -341,7 +341,7 @@ void globox_context_glx_copy(
 	uint32_t height)
 {
 	// alias for readability
-	struct globox_x11_glx* context = &(globox->globox_platform.globox_x11_glx);
+	struct globox_x11_glx* context = &(globox->globox_platform->globox_x11_glx);
 
 	glXSwapBuffers(
 		context->globox_glx_display,
@@ -358,20 +358,20 @@ void globox_context_glx_shrink(struct globox* globox)
 // getters
 Display* globox_glx_get_display(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_glx.globox_glx_display;
+	return globox->globox_platform->globox_x11_glx.globox_glx_display;
 }
 
 GLXFBConfig globox_glx_get_fb_config(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_glx.globox_glx_fb_config;
+	return globox->globox_platform->globox_x11_glx.globox_glx_fb_config;
 }
 
 GLXContext globox_glx_get_context(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_glx.globox_glx_context;
+	return globox->globox_platform->globox_x11_glx.globox_glx_context;
 }
 
 GLXWindow globox_glx_get_win(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_glx.globox_glx_win;
+	return globox->globox_platform->globox_x11_glx.globox_glx_win;
 }

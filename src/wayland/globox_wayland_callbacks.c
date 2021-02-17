@@ -70,7 +70,7 @@ void callback_registry_global(
 {
 	int error;
 	struct globox* globox = data;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (strcmp(interface, wl_shm_interface.name) == 0)
 	{
@@ -240,7 +240,7 @@ void callback_xdg_toplevel_configure(
 	struct wl_array* states)
 {
 	struct globox* globox = data;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if ((width == 0) || (height == 0))
 	{
@@ -272,7 +272,7 @@ void callback_xdg_surface_configure(
 	uint32_t serial)
 {
 	struct globox* globox = data;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xdg_surface_ack_configure(
 		xdg_surface,

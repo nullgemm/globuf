@@ -30,9 +30,10 @@ void globox_platform_init(
 	bool blurred)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
+	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
 
+	globox->globox_platform = platform;
 	globox->globox_redraw = false;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
@@ -68,7 +69,7 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_X11_WIN_INFO] = "";
 
 #if defined(GLOBOX_CONTEXT_GLX)
-	struct globox_x11_glx* context = &(globox->globox_platform.globox_x11_glx);
+	struct globox_x11_glx* context = &(platform->globox_x11_glx);
 
 	context->globox_glx_display =
 		XOpenDisplay(
@@ -183,7 +184,7 @@ void globox_platform_init(
 void globox_platform_create_window(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// create the window
 	platform->globox_x11_win =
@@ -260,7 +261,7 @@ void globox_platform_create_window(struct globox* globox)
 void globox_platform_hooks(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// platform update
 	globox_platform_set_title(globox, globox->globox_title);
@@ -506,7 +507,7 @@ void globox_platform_hooks(struct globox* globox)
 void globox_platform_commit(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// flush connection
 	int error_flush =
@@ -537,7 +538,7 @@ void globox_platform_events_poll(struct globox* globox)
 void globox_platform_events_wait(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	int error_epoll =
 		epoll_wait(
@@ -558,7 +559,7 @@ void globox_platform_events_wait(struct globox* globox)
 static void query_pointer(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_query_pointer_cookie_t cookie =
 		xcb_query_pointer(
@@ -610,7 +611,7 @@ void globox_platform_interactive_mode(struct globox* globox, enum globox_interac
 static void handle_interactive_mode(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (globox->globox_interactive_mode == GLOBOX_INTERACTIVE_STOP)
 	{
@@ -791,7 +792,7 @@ static void handle_interactive_mode(struct globox* globox)
 static void handle_title(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_get_property_cookie_t cookie =
 		xcb_get_property(
@@ -839,7 +840,7 @@ static void handle_title(struct globox* globox)
 static void handle_state(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_get_property_cookie_t cookie =
 		xcb_get_property(
@@ -912,7 +913,7 @@ void globox_platform_events_handle(
 	struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_configure_notify_event_t* resize = NULL;
 	xcb_property_notify_event_t* state = NULL;
@@ -1057,15 +1058,17 @@ void globox_platform_events_handle(
 void globox_platform_free(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_destroy_window(platform->globox_x11_conn, platform->globox_x11_win);
 
 #if defined(GLOBOX_CONTEXT_GLX)
-	XCloseDisplay(globox->globox_platform.globox_x11_glx.globox_glx_display);
+	XCloseDisplay(platform->globox_x11_glx.globox_glx_display);
 #else
 	xcb_disconnect(platform->globox_x11_conn);
 #endif
+
+	free(platform);
 }
 
 void globox_platform_set_icon(
@@ -1074,7 +1077,7 @@ void globox_platform_set_icon(
 	uint32_t len)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_void_cookie_t cookie_icon =
 		xcb_change_property_checked(
@@ -1108,7 +1111,7 @@ void globox_platform_set_title(
 	const char* title)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	char* tmp = strdup(title);
 
 	if (globox->globox_title != NULL)
@@ -1153,7 +1156,7 @@ static void set_state(
 	uint32_t action)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_client_message_event_t event =
 	{
@@ -1201,7 +1204,7 @@ void globox_platform_set_state(
 	enum globox_state state)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	xcb_void_cookie_t cookie_map;
 	xcb_generic_error_t* error_map;
 
@@ -1423,70 +1426,70 @@ void globox_platform_set_state(
 // getters
 uint32_t* globox_platform_get_argb(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_argb;
+	return globox->globox_platform->globox_platform_argb;
 }
 
 int globox_platform_get_event_handle(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_event_handle;
+	return globox->globox_platform->globox_platform_event_handle;
 }
 
 xcb_connection_t* globox_x11_get_conn(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_conn;
+	return globox->globox_platform->globox_x11_conn;
 }
 
 xcb_atom_t* globox_x11_get_atom_list(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_atom_list;
+	return globox->globox_platform->globox_x11_atom_list;
 }
 
 xcb_window_t globox_x11_get_win(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_win;
+	return globox->globox_platform->globox_x11_win;
 }
 
 xcb_window_t globox_x11_get_root_win(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_root_win;
+	return globox->globox_platform->globox_x11_root_win;
 }
 
 int globox_x11_get_screen_id(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_screen_id;
+	return globox->globox_platform->globox_x11_screen_id;
 }
 
 xcb_screen_t* globox_x11_get_screen_obj(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_screen_obj;
+	return globox->globox_platform->globox_x11_screen_obj;
 }
 
 xcb_visualid_t globox_x11_get_visual_id(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_visual_id;
+	return globox->globox_platform->globox_x11_visual_id;
 }
 
 uint32_t globox_x11_get_attr_mask(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_attr_mask;
+	return globox->globox_platform->globox_x11_attr_mask;
 }
 
 uint32_t* globox_x11_get_attr_val(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_attr_val;
+	return globox->globox_platform->globox_x11_attr_val;
 }
 
 int globox_x11_get_epoll(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_epoll;
+	return globox->globox_platform->globox_x11_epoll;
 }
 
 struct epoll_event* globox_x11_get_epoll_event(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_epoll_event;
+	return globox->globox_platform->globox_x11_epoll_event;
 }
 
 uint32_t* globox_x11_get_expose_queue(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_expose_queue;
+	return globox->globox_platform->globox_x11_expose_queue;
 }

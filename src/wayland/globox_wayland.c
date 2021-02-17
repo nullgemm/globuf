@@ -28,7 +28,7 @@ void null_or_free(void* var)
 void update_decorations(struct globox* globox)
 {
 	int error;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (platform->globox_wayland_xdg_decoration_manager == NULL)
 	{
@@ -87,6 +87,9 @@ void globox_platform_init(
 	bool frameless,
 	bool blurred)
 {
+	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
+
+	globox->globox_platform = platform;
 	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
@@ -96,7 +99,6 @@ void globox_platform_init(
 	log[GLOBOX_ERROR_WAYLAND_REQUEST] = "";
 
 	int error;
-	struct globox_platform* platform = &(globox->globox_platform);
 
 	// TODO remove, temporary
 	platform->globox_wayland_screen_width = 1920;
@@ -215,7 +217,7 @@ void globox_platform_init(
 void globox_platform_create_window(struct globox* globox)
 {
 	int error;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// wayland surface
 	platform->globox_wayland_surface =
@@ -293,7 +295,7 @@ void globox_platform_create_window(struct globox* globox)
 
 void globox_platform_hooks(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// platform update
 	globox_platform_set_title(globox, globox->globox_title);
@@ -356,7 +358,7 @@ void globox_platform_hooks(struct globox* globox)
 
 void globox_platform_commit(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	wl_surface_commit(
 		platform->globox_wayland_surface);
@@ -364,7 +366,7 @@ void globox_platform_commit(struct globox* globox)
 
 void globox_platform_prepoll(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	int error =
 		wl_display_dispatch(
@@ -388,7 +390,7 @@ void globox_platform_events_poll(struct globox* globox)
 void globox_platform_events_wait(struct globox* globox)
 {
 #if 0
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	int error_epoll =
 		epoll_wait(
@@ -410,7 +412,7 @@ void globox_platform_events_wait(struct globox* globox)
 // TODO not tested
 void globox_platform_interactive_mode(struct globox* globox, enum globox_interactive_mode mode)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if ((mode != GLOBOX_INTERACTIVE_STOP)
 		&& (globox->globox_interactive_mode != mode))
@@ -502,7 +504,7 @@ void globox_platform_events_handle(
 
 void globox_platform_free(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (platform->globox_wayland_kde_blur_manager != NULL)
 	{
@@ -545,6 +547,8 @@ void globox_platform_free(struct globox* globox)
 	}
 
 	wl_display_disconnect(platform->globox_wayland_display);
+
+	free(platform);
 }
 
 void globox_platform_set_icon(
@@ -552,7 +556,7 @@ void globox_platform_set_icon(
 	uint32_t* pixmap,
 	uint32_t len)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	platform->globox_wayland_icon = pixmap;
 	platform->globox_wayland_icon_len = len;
@@ -562,7 +566,7 @@ void globox_platform_set_title(
 	struct globox* globox,
 	const char* title)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	char* tmp = strdup(title);
 
@@ -582,7 +586,7 @@ void globox_platform_set_state(
 	struct globox* globox,
 	enum globox_state state)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	switch (state)
 	{
@@ -671,7 +675,7 @@ void globox_platform_set_state(
 
 void globox_wayland_save_serial(struct globox* globox, uint32_t serial)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	platform->globox_wayland_saved_serial = serial;
 }
@@ -680,115 +684,115 @@ void globox_wayland_save_serial(struct globox* globox, uint32_t serial)
 
 uint32_t* globox_platform_get_argb(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_argb;
+	return globox->globox_platform->globox_platform_argb;
 }
 
 int globox_platform_get_event_handle(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_event_handle;
+	return globox->globox_platform->globox_platform_event_handle;
 }
 
 int globox_wayland_get_epoll(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_epoll;
+	return globox->globox_platform->globox_wayland_epoll;
 }
 
 struct epoll_event* globox_wayland_get_epoll_event(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_epoll_event;
+	return globox->globox_platform->globox_wayland_epoll_event;
 }
 
 uint32_t* globox_wayland_get_icon(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_icon;
+	return globox->globox_platform->globox_wayland_icon;
 }
 
 uint32_t globox_wayland_get_icon_len(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_icon_len;
+	return globox->globox_platform->globox_wayland_icon_len;
 }
 
 uint32_t globox_wayland_get_screen_width(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_screen_width;
+	return globox->globox_platform->globox_wayland_screen_width;
 }
 
 uint32_t globox_wayland_get_screen_height(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_screen_height;
+	return globox->globox_platform->globox_wayland_screen_height;
 }
 
 struct wl_display* globox_wayland_get_display(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_display;
+	return globox->globox_platform->globox_wayland_display;
 }
 
 struct wl_registry* globox_wayland_get_registry(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_registry;
+	return globox->globox_platform->globox_wayland_registry;
 }
 
 struct wl_shm* globox_wayland_get_shm(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_shm;
+	return globox->globox_platform->globox_wayland_shm;
 }
 
 struct wl_compositor* globox_wayland_get_compositor(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_compositor;
+	return globox->globox_platform->globox_wayland_compositor;
 }
 
 struct wl_output* globox_wayland_get_output(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_output;
+	return globox->globox_platform->globox_wayland_output;
 }
 
 struct wl_seat* globox_wayland_get_seat(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_seat;
+	return globox->globox_platform->globox_wayland_seat;
 }
 
 struct xdg_wm_base* globox_wayland_get_xdg_wm_base(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_xdg_wm_base;
+	return globox->globox_platform->globox_wayland_xdg_wm_base;
 }
 
 struct xdg_toplevel* globox_wayland_get_xdg_toplevel(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_xdg_toplevel;
+	return globox->globox_platform->globox_wayland_xdg_toplevel;
 }
 
 struct xdg_surface* globox_wayland_get_xdg_surface(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_xdg_surface;
+	return globox->globox_platform->globox_wayland_xdg_surface;
 }
 
 struct wl_surface* globox_wayland_get_surface(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_surface;
+	return globox->globox_platform->globox_wayland_surface;
 }
 
 struct zxdg_decoration_manager_v1* globox_wayland_get_xdg_decoration_manager(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_xdg_decoration_manager;
+	return globox->globox_platform->globox_wayland_xdg_decoration_manager;
 }
 
 struct zxdg_toplevel_decoration_v1* globox_wayland_get_xdg_decoration(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_xdg_decoration;
+	return globox->globox_platform->globox_wayland_xdg_decoration;
 }
 
 struct org_kde_kwin_blur_manager* globox_wayland_get_kde_blur_manager(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_kde_blur_manager;
+	return globox->globox_platform->globox_wayland_kde_blur_manager;
 }
 
 struct org_kde_kwin_blur* globox_wayland_get_kde_blur(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_kde_blur;
+	return globox->globox_platform->globox_wayland_kde_blur;
 }
 
 uint32_t globox_wayland_saved_get_serial(struct globox* globox)
 {
-	return globox->globox_platform.globox_wayland_saved_serial;
+	return globox->globox_platform->globox_wayland_saved_serial;
 }

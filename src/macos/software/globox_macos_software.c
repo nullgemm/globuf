@@ -28,7 +28,7 @@ void appdelegate_software_callback(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_macos_software* context = &(platform->globox_macos_software);
 
 	// initialize the view object with the view frame
@@ -119,7 +119,7 @@ void globox_context_software_init(
 	int version_minor)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_macos_software* context = &(platform->globox_macos_software);
 
 	context->globox_software_buffer_width = globox->globox_width;
@@ -150,7 +150,7 @@ void globox_context_software_create(struct globox* globox)
 void globox_context_software_shrink(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_macos_software* context = &(platform->globox_macos_software);
 
 	context->globox_software_buffer_width = globox->globox_width;
@@ -172,7 +172,7 @@ void globox_context_software_shrink(struct globox* globox)
 void globox_context_software_free(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	free(platform->globox_platform_argb);
 }
@@ -185,7 +185,7 @@ void globox_context_software_copy(
 	uint32_t height)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_macos_software* context = &(platform->globox_macos_software);
 
 	globox->globox_redraw = false;
@@ -284,10 +284,10 @@ void globox_context_software_copy(
 
 uint32_t globox_software_get_buffer_width(struct globox* globox)
 {
-	return globox->globox_platform.globox_macos_software.globox_software_buffer_width;
+	return globox->globox_platform->globox_macos_software.globox_software_buffer_width;
 }
 
 uint32_t globox_software_get_buffer_height(struct globox* globox)
 {
-	return globox->globox_platform.globox_macos_software.globox_software_buffer_height;
+	return globox->globox_platform->globox_macos_software.globox_software_buffer_height;
 }

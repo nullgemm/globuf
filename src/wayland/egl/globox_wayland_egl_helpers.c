@@ -48,7 +48,7 @@ void globox_egl_callback_resize(
 	int32_t width,
 	int32_t height)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_egl* context = &(platform->globox_wayland_egl);
 
 	wl_egl_window_resize(

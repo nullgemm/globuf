@@ -99,7 +99,7 @@ LPWSTR utf8_to_wchar(const char* s)
 
 HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	HDC hdc = GetDC(platform->globox_platform_event_handle);
 
@@ -183,7 +183,7 @@ HICON bitmap_to_icon(struct globox* globox, BITMAP* bmp)
 
 void query_pointer(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	POINT point;
 	RECT rect;
@@ -228,7 +228,7 @@ void query_pointer(struct globox* globox)
 
 void dwm_transparency(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// TODO communicate only the client region without the frame and update when resizing
 	HRGN region = CreateRectRgn(0, 0, globox->globox_width, globox->globox_height);
@@ -303,8 +303,7 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				break;
 			}
 
-			struct globox_platform* platform =
-				&(globox->globox_platform);
+			struct globox_platform* platform = globox->globox_platform;
 
 			// confirm we entered the modal loop
 			platform->globox_windows_sizemove_step =
@@ -331,8 +330,7 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				break;
 			}
 
-			struct globox_platform* platform =
-				&(globox->globox_platform);
+			struct globox_platform* platform = globox->globox_platform;
 
 			// only proceed after entering the
 			// interactive move and resize modal loop
@@ -451,8 +449,7 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				break;
 			}
 
-			struct globox_platform* platform =
-				&(globox->globox_platform);
+			struct globox_platform* platform = globox->globox_platform;
 
 			if ((platform->globox_windows_sizemove_step <
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE)
@@ -545,15 +542,16 @@ void globox_platform_init(
 	bool frameless,
 	bool blurred)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
+	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
 
-	log[GLOBOX_ERROR_WINDOWS_DELETE] = "";
-
+	globox->globox_platform = platform;
 	globox->globox_redraw = false;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
+
+	log[GLOBOX_ERROR_WINDOWS_DELETE] = "";
 
 	platform->globox_windows_sizemove_step =
 		GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL;
@@ -632,7 +630,7 @@ void globox_platform_init(
 
 void globox_platform_create_window(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	BOOL ok;
 
@@ -803,7 +801,7 @@ void globox_platform_hooks(struct globox* globox)
 
 void globox_platform_commit(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	platform->globox_windows_dcomp_callback(globox);
 }
@@ -815,7 +813,7 @@ void globox_platform_prepoll(struct globox* globox)
 
 void globox_platform_events_poll(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	PeekMessage(
 		&(platform->globox_windows_msg),
@@ -827,7 +825,7 @@ void globox_platform_events_poll(struct globox* globox)
 
 void globox_platform_events_wait(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	BOOL ok =
 		GetMessage(
@@ -849,7 +847,7 @@ void globox_platform_interactive_mode(
 	struct globox* globox,
 	enum globox_interactive_mode mode)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if ((mode != GLOBOX_INTERACTIVE_STOP)
 		&& (globox->globox_interactive_mode != mode))
@@ -960,7 +958,7 @@ void globox_platform_interactive_mode(
 
 void globox_platform_events_handle(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	bool transmission = true;
 	BOOL ok;
@@ -1279,10 +1277,11 @@ void globox_platform_events_handle(struct globox* globox)
 
 void globox_platform_free(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	free(platform->globox_windows_class_name);
 	free(platform->globox_windows_wide_title);
+	free(platform);
 }
 
 void globox_platform_set_icon(
@@ -1290,7 +1289,7 @@ void globox_platform_set_icon(
 	uint32_t* pixmap,
 	uint32_t len)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// small icon
 	BITMAP pixmap_32 =
@@ -1353,7 +1352,7 @@ void globox_platform_set_title(
 	struct globox* globox,
 	 const char* title)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// update internal UTF-8 string
 	if (globox->globox_title != NULL)
@@ -1406,7 +1405,7 @@ void globox_platform_set_state(
 	struct globox* globox,
 	enum globox_state state)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	LONG ok_long;
 	BOOL ok_bool;
@@ -1588,10 +1587,10 @@ void globox_platform_set_state(
 
 uint32_t* globox_platform_get_argb(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_argb;
+	return globox->globox_platform->globox_platform_argb;
 }
 
 HWND globox_platform_get_event_handle(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_event_handle;
+	return globox->globox_platform->globox_platform_event_handle;
 }

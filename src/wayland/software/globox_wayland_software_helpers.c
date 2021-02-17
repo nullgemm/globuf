@@ -19,7 +19,7 @@
 
 void globox_software_callback_allocate(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 	int size =
 		4
@@ -158,7 +158,7 @@ void globox_software_callback_allocate(struct globox* globox)
 
 void globox_software_callback_unminimize_start(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 	int error;
 	int size =
@@ -200,7 +200,7 @@ void globox_software_callback_unminimize_finish(struct globox* globox)
 
 void globox_software_callback_attach(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
 	wl_surface_attach(
@@ -215,7 +215,7 @@ void globox_software_callback_resize(
 	int32_t width,
 	int32_t height)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
 	uint32_t size = ((uint32_t) width) * height;

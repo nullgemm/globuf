@@ -52,9 +52,10 @@ void globox_platform_init(
 	bool blurred)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
 	char** log = globox->globox_log;
+	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
 
+	globox->globox_platform = platform;
 	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
 	globox->globox_frameless = frameless;
@@ -223,7 +224,7 @@ void globox_platform_init(
 void globox_platform_create_window(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	BOOL ok;
 
 	Class class;
@@ -428,7 +429,7 @@ void globox_platform_create_window(struct globox* globox)
 void globox_platform_hooks(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// the window initialization must be done before
 	// globox_platform_create_window returns
@@ -466,7 +467,7 @@ void globox_platform_hooks(struct globox* globox)
 void globox_platform_commit(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	macos_msg_void_bool(
 		platform->globox_macos_obj_view,
@@ -488,7 +489,7 @@ void globox_platform_events_poll(struct globox* globox)
 void globox_platform_events_wait(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	id* future =
 		macos_msg_idptr_none(
@@ -508,7 +509,7 @@ void globox_platform_events_wait(struct globox* globox)
 static void query_pointer(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	struct macos_point pos =
 		macos_msg_point_none(
@@ -542,7 +543,7 @@ void globox_platform_interactive_mode(struct globox* globox, enum globox_interac
 static void handle_interactive_mode(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (globox->globox_interactive_mode == GLOBOX_INTERACTIVE_STOP)
 	{
@@ -682,7 +683,7 @@ static void cursor_hover_update(
 	struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	struct macos_point pos =
 		macos_msg_point_none(
@@ -869,7 +870,7 @@ static void cursor_hover_update(
 static void window_state_update(struct globox* globox, long event_data)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	enum globox_state state_tmp = globox->globox_state;
 
@@ -915,7 +916,7 @@ void globox_platform_events_handle(
 	struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	id* event =
 		macos_msg_poll(
@@ -1155,7 +1156,7 @@ void globox_platform_events_handle(
 void globox_platform_free(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	macos_msg_void_none(
 		(id) platform->globox_macos_obj_cursor_a,
@@ -1169,6 +1170,8 @@ void globox_platform_free(struct globox* globox)
 		(id) platform->globox_macos_obj_appdelegate,
 		sel_getUid("dealloc"));
 	objc_disposeClassPair(platform->globox_macos_class_appdelegate);
+
+	free(platform);
 }
 
 void globox_platform_set_icon(
@@ -1184,7 +1187,7 @@ void globox_platform_set_title(
 	const char* title)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	char* tmp = strdup(title);
 
 	if (globox->globox_title != NULL)
@@ -1230,7 +1233,7 @@ void globox_platform_set_state(
 	enum globox_state state)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	switch (state)
 	{
@@ -1324,10 +1327,10 @@ void globox_platform_set_state(
 // getters
 uint32_t* globox_platform_get_argb(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_argb;
+	return globox->globox_platform->globox_platform_argb;
 }
 
 id globox_platform_get_event_handle(struct globox* globox)
 {
-	return globox->globox_platform.globox_platform_event_handle;
+	return globox->globox_platform->globox_platform_event_handle;
 }

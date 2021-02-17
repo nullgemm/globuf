@@ -208,7 +208,7 @@ void callback_window_will_enter_fullscreen(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 	platform->globox_macos_fullscreen = true;
@@ -269,7 +269,7 @@ void callback_window_will_exit_fullscreen(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 	platform->globox_macos_fullscreen = false;
@@ -320,7 +320,7 @@ struct macos_size callback_window_will_use_fullscreen_content_size(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	macos_msg_void_size(
 		platform->globox_macos_obj_view,
@@ -369,7 +369,7 @@ BOOL callback_application_will_finish_launching(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	Class class;
 	BOOL ok;
@@ -778,7 +778,7 @@ void callback_application_will_become_active(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// HACK
 	// escape the default event loop
@@ -802,7 +802,7 @@ long callback_core_cursor_type(
 	}
 
 	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	return platform->globox_macos_cursor;
 }

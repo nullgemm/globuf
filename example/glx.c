@@ -1,4 +1,5 @@
 #include "globox.h"
+#include <stddef.h>
 #include <GLES2/gl2.h>
 
 extern unsigned char iconpix_beg;

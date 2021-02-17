@@ -15,7 +15,7 @@ void globox_context_egl_init(
 	int version_major,
 	int version_minor)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
 	platform->globox_windows_resize_callback = dummy;
@@ -117,7 +117,7 @@ void globox_context_egl_init(
 
 void globox_context_egl_create(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
 	// get visual id from EGL
@@ -218,7 +218,7 @@ void globox_context_egl_shrink(struct globox* globox)
 
 void globox_context_egl_free(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
 	EGLBoolean status_egl;
@@ -269,7 +269,7 @@ void globox_context_egl_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_egl* context = &(platform->globox_windows_egl);
 
 	EGLBoolean status_egl =
@@ -292,25 +292,25 @@ void globox_context_egl_copy(
 
 EGLDisplay globox_egl_get_display(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_egl.globox_egl_display;
+	return globox->globox_platform->globox_windows_egl.globox_egl_display;
 }
 
 EGLContext globox_egl_get_context(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_egl.globox_egl_context;
+	return globox->globox_platform->globox_windows_egl.globox_egl_context;
 }
 
 EGLSurface globox_egl_get_surface(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_egl.globox_egl_surface;
+	return globox->globox_platform->globox_windows_egl.globox_egl_surface;
 }
 
 EGLConfig globox_egl_get_config(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_egl.globox_egl_config;
+	return globox->globox_platform->globox_windows_egl.globox_egl_config;
 }
 
 EGLint globox_egl_config_get_config_size(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_egl.globox_egl_config_size;
+	return globox->globox_platform->globox_windows_egl.globox_egl_config_size;
 }

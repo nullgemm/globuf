@@ -24,7 +24,7 @@ void dummy(struct globox* globox)
 
 void resize(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	if (globox->globox_transparent == false)
 	{
@@ -39,7 +39,7 @@ void globox_context_wgl_init(
 	int version_major,
 	int version_minor)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	platform->globox_windows_resize_callback = resize;
@@ -51,7 +51,7 @@ void globox_context_wgl_init(
 
 void globox_context_wgl_create(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	BOOL ok;
@@ -228,7 +228,7 @@ void globox_context_wgl_shrink(struct globox* globox)
 
 void globox_context_wgl_free(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_wgl* context = &(platform->globox_windows_wgl);
 
 	BOOL ok = wglDeleteContext(context->globox_wgl_context);
@@ -249,7 +249,7 @@ void globox_context_wgl_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	HDC hdc = GetDC(platform->globox_platform_event_handle);
 

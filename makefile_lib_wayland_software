@@ -1,0 +1,82 @@
+.POSIX:
+NAME = globox
+CC = gcc
+
+
+LDLIBS+= -lwayland-client
+LDLIBS+= -lrt
+
+CFLAGS+= -std=c99
+CFLAGS+= -pedantic
+CFLAGS+= -Wall
+CFLAGS+= -Wextra
+CFLAGS+= -Werror=vla
+CFLAGS+= -Werror
+CFLAGS+= -Wno-address-of-packed-member
+CFLAGS+= -Wno-unused-parameter
+CFLAGS+= -Isrc
+CFLAGS+= -Ires/wayland_headers
+CFLAGS+= -fPIC
+CFLAGS+= -g
+
+CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
+CFLAGS+= -DGLOBOX_INTERNAL
+CFLAGS+= -DGLOBOX_GETTERS_PLATFORM
+CFLAGS+= -DGLOBOX_PLATFORM_WAYLAND
+CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
+CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
+CFLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
+
+OBJ+= src/globox.o
+OBJ+= src/globox_error.o
+OBJ+= src/wayland/globox_wayland.o
+OBJ+= src/wayland/globox_wayland_callbacks.o
+OBJ+= res/wayland_headers/xdg-shell-protocol.o
+OBJ+= res/wayland_headers/xdg-decoration-protocol.o
+OBJ+= res/wayland_headers/kde-blur-protocol.o
+OBJ+= res/wayland_headers/zwp-relative-pointer-protocol.o
+OBJ+= res/wayland_headers/zwp-pointer-constraints-protocol.o
+OBJ+= src/wayland/software/globox_wayland_software.o
+OBJ+= src/wayland/software/globox_wayland_software_helpers.o
+
+default: res/wayland_headers bin/globox.a bin/globox.so
+
+bin/$(NAME).so: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) $(LDFLAGS) -shared -o $@ $^ $(LDLIBS)
+
+bin/$(NAME).a: $(OBJ)
+	mkdir -p $(@D)
+	ar rcs $@ $^
+
+res/wayland_headers:
+	make/scripts/wayland_get.sh
+
+globox.o: src/globox.c src/globox.h src/globox_error.h
+globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_wayland.o: src/wayland/globox_wayland.c globox.h globox_error.h \
+ xdg-shell-client-protocol.h xdg-decoration-client-protocol.h \
+ kde-blur-client-protocol.h zwp-relative-pointer-protocol.h \
+ zwp-pointer-constraints-protocol.h wayland/globox_wayland.h \
+ wayland/globox_wayland_callbacks.h
+globox_wayland_callbacks.o: src/wayland/globox_wayland_callbacks.c \
+ globox.h globox_error.h wayland/globox_wayland.h \
+ wayland/globox_wayland_callbacks.h
+xdg-shell-protocol.o: res/wayland_headers/xdg-shell-protocol.c
+xdg-decoration-protocol.o: res/wayland_headers/xdg-decoration-protocol.c
+kde-blur-protocol.o: res/wayland_headers/kde-blur-protocol.c
+zwp-relative-pointer-protocol.o: \
+ res/wayland_headers/zwp-relative-pointer-protocol.c
+zwp-pointer-constraints-protocol.o: \
+ res/wayland_headers/zwp-pointer-constraints-protocol.c
+globox_wayland_software.o: src/wayland/software/globox_wayland_software.c \
+ globox.h globox_error.h wayland/globox_wayland.h \
+ wayland/software/globox_wayland_software_helpers.h
+globox_wayland_software_helpers.o: \
+ src/wayland/software/globox_wayland_software_helpers.c globox.h \
+ globox_error.h wayland/globox_wayland.h \
+ wayland/software/globox_wayland_software.h \
+ wayland/software/globox_wayland_software_helpers.h
+
+clean:
+	make/scripts/clean.sh

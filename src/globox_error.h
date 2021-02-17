@@ -4,8 +4,6 @@
 /// this is an internal header providing the error functions that should not be
 /// used by the developer; it must be included after `globox.h`
 
-#include "globox.h"
-
 #ifdef GLOBOX_ERROR_LOG_DEBUG
 #define globox_error_throw(globox, new_code) \
 	globox_error_throw_extra(\
@@ -15,6 +13,8 @@
 		GLOBOX_ERROR_LINE)
 #define GLOBOX_ERROR_FILE __FILE__
 #define GLOBOX_ERROR_LINE __LINE__
+
+struct globox;
 
 void globox_error_throw_extra(
 	struct globox* globox,

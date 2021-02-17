@@ -17,7 +17,7 @@ void dummy(struct globox* globox)
 
 void resize(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
 	context->globox_software_bmp_info.bmiHeader.biWidth = globox->globox_width;
@@ -81,7 +81,7 @@ void globox_context_software_init(
 	int version_major,
 	int version_minor)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	platform->globox_windows_resize_callback = resize;
 	platform->globox_windows_dcomp_callback = dummy;
@@ -89,7 +89,7 @@ void globox_context_software_init(
 
 void globox_context_software_create(struct globox* globox)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
 	// .biWidth and .biHeight are set in resize()
@@ -135,7 +135,7 @@ void globox_context_software_copy(
 	uint32_t width,
 	uint32_t height)
 {
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
 	BOOL ok;
@@ -247,10 +247,10 @@ void globox_context_software_copy(
 
 BITMAPINFO globox_software_get_bmp_info(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_software.globox_software_bmp_info;
+	return globox->globox_platform->globox_windows_software.globox_software_bmp_info;
 }
 
 HBITMAP globox_software_get_bmp_handle(struct globox* globox)
 {
-	return globox->globox_platform.globox_windows_software.globox_software_bmp_handle;
+	return globox->globox_platform->globox_windows_software.globox_software_bmp_handle;
 }

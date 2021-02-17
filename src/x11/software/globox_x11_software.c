@@ -20,7 +20,7 @@
 static inline void visual_opaque(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	// check display server settings compatibility
 	platform->globox_x11_visual_id = platform->globox_x11_screen_obj->root_visual;
@@ -82,7 +82,7 @@ static inline void visual_opaque(struct globox* globox)
 static inline void visual_transparent(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	xcb_render_query_pict_formats_cookie_t cookie_pict;
 	xcb_render_query_pict_formats_reply_t* reply_pict;
@@ -229,7 +229,7 @@ static inline void visual_transparent(struct globox* globox)
 static void shm_create(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	int shmid =
@@ -303,7 +303,7 @@ static void shm_create(struct globox* globox)
 static void expose(struct globox* globox, int len)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 
 	int i = 0;
 
@@ -367,7 +367,7 @@ static void expose(struct globox* globox, int len)
 static void reserve(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	uint32_t buf_width = context->globox_software_buffer_width;
@@ -501,7 +501,7 @@ void globox_context_software_init(
 	int version_minor)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	context->globox_software_buffer_width = globox->globox_width;
@@ -532,7 +532,7 @@ void globox_context_software_init(
 void globox_context_software_create(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	// create XCB graphics context
@@ -680,7 +680,7 @@ void globox_context_software_create(struct globox* globox)
 void globox_context_software_shrink(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	context->globox_software_buffer_width = globox->globox_width;
@@ -812,7 +812,7 @@ void globox_context_software_shrink(struct globox* globox)
 void globox_context_software_free(struct globox* globox)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	xcb_free_pixmap(
@@ -865,7 +865,7 @@ void globox_context_software_copy(
 	uint32_t height)
 {
 	// alias for readability
-	struct globox_platform* platform = &(globox->globox_platform);
+	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
 	if (context->globox_software_shared_pixmaps == false)
@@ -1047,35 +1047,35 @@ void globox_context_software_copy(
 
 xcb_shm_segment_info_t globox_software_get_shm(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_shm;
+	return globox->globox_platform->globox_x11_software.globox_software_shm;
 }
 
 xcb_gcontext_t globox_software_get_gfx(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_gfx;
+	return globox->globox_platform->globox_x11_software.globox_software_gfx;
 }
 
 xcb_pixmap_t globox_software_get_pixmap(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_pixmap;
+	return globox->globox_platform->globox_x11_software.globox_software_pixmap;
 }
 
 bool globox_software_get_pixmap_update(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_pixmap_update;
+	return globox->globox_platform->globox_x11_software.globox_software_pixmap_update;
 }
 
 bool globox_software_get_shared_pixmaps(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_shared_pixmaps;
+	return globox->globox_platform->globox_x11_software.globox_software_shared_pixmaps;
 }
 
 uint32_t globox_software_get_buffer_width(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_buffer_width;
+	return globox->globox_platform->globox_x11_software.globox_software_buffer_width;
 }
 
 uint32_t globox_software_get_buffer_height(struct globox* globox)
 {
-	return globox->globox_platform.globox_x11_software.globox_software_buffer_height;
+	return globox->globox_platform->globox_x11_software.globox_software_buffer_height;
 }
