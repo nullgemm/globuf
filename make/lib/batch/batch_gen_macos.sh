@@ -11,5 +11,7 @@ else
 optimize=1
 fi
 
-echo -e "$optimize\n1\n2\n" | ./gen_macos.sh
-echo -e "$optimize\n2\n2\n" | ./gen_macos.sh
+echo -e "$optimize\n1\n1\n2\n" | ./gen_macos.sh
+echo -e "$optimize\n2\n1\n2\n" | ./gen_macos.sh
+echo -e "$optimize\n1\n2\n2\n" | ./gen_macos.sh
+echo -e "$optimize\n2\n2\n2\n" | ./gen_macos.sh

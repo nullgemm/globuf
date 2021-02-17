@@ -11,5 +11,7 @@ else
 link=1
 fi
 
-echo -e "1\n2\n$link\n" | ./gen_macos.sh
-echo -e "2\n2\n$link\n" | ./gen_macos.sh
+echo -e "1\n1\n2\n$link\n" | ./gen_macos.sh
+echo -e "2\n1\n2\n$link\n" | ./gen_macos.sh
+echo -e "1\n2\n2\n$link\n" | ./gen_macos.sh
+echo -e "2\n2\n2\n$link\n" | ./gen_macos.sh

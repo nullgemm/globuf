@@ -89,6 +89,18 @@ ar=ar
 	;;
 esac
 
+read -p "select current toolchain ([1] osxcross | [2] native)" current_toolchain
+
+case $current_toolchain in
+	[1]* ) # generating from linux
+cch=o64-clang
+	;;
+
+	[2]* ) # generating from mac
+cch=clang
+	;;
+esac
+
 # makefile start
 echo ".POSIX:" > $makefile
 echo "NAME = $name" >> $makefile
@@ -136,7 +148,7 @@ cat make/lib/templates/targets_macos.make >> $makefile
 # makefile object targets
 echo "" >> $makefile
 for file in "${src[@]}"; do
-	$cc $defines -MM -MG $file >> $makefile
+	$cch $defines -MM -MG $file >> $makefile
 done
 
 # makefile extra targets
