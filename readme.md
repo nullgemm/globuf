@@ -1,9 +1,7 @@
-# Globox
 ![globox_macos_linux_windows](https://user-images.githubusercontent.com/5473047/107652440-dfb92a80-6c80-11eb-9f91-b2750f18f61e.png)
 *cross-platform background blur under Linux (X11/Wayland), Windows and macOS*
 
----
-
+# Globox
 Globox is a cross-platform windowing library for Linux, Windows and macOS.
 It was built as a lightweight and modular alternative to similar libraries.
 
