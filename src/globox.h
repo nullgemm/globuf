@@ -38,6 +38,7 @@ enum globox_error
 	GLOBOX_ERROR_DOMAIN,
 	GLOBOX_ERROR_FD,
 
+#if defined(GLOBOX_PLATFORM_MACOS)
 	// macos platform errors
 	GLOBOX_ERROR_MACOS_CLASS_GET,
 	GLOBOX_ERROR_MACOS_CLASS_ALLOC,
@@ -46,7 +47,9 @@ enum globox_error
 	GLOBOX_ERROR_MACOS_OBJ_INIT,
 	GLOBOX_ERROR_MACOS_OBJ_NIL,
 	GLOBOX_ERROR_MACOS_EGL_FAIL,
+#endif
 
+#if defined(GLOBOX_PLATFORM_WAYLAND)
 	// wayland platform errors
 	GLOBOX_ERROR_WAYLAND_EPOLL_CREATE,
 	GLOBOX_ERROR_WAYLAND_EPOLL_CTL,
@@ -60,7 +63,9 @@ enum globox_error
 	GLOBOX_ERROR_WAYLAND_LISTENER,
 	// wayland egl errors
 	GLOBOX_ERROR_WAYLAND_EGL_FAIL,
+#endif
 
+#if defined(GLOBOX_PLATFORM_WINDOWS)
 	// windows platform errors
 	GLOBOX_ERROR_WINDOWS_SYM,
 	GLOBOX_ERROR_WINDOWS_MODULE_APP,
@@ -123,7 +128,9 @@ enum globox_error
 	GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_DELETE,
 	GLOBOX_ERROR_WINDOWS_WGL_CONTEXT_SET,
 	GLOBOX_ERROR_WINDOWS_WGL_SWAP,
+#endif
 
+#if defined(GLOBOX_PLATFORM_X11)
 	// x11 platform errors
 	GLOBOX_ERROR_X11_CONN,
 	GLOBOX_ERROR_X11_FLUSH,
@@ -158,6 +165,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_EGL_FAIL,
 	// x11 glx errors
 	GLOBOX_ERROR_X11_GLX_FAIL,
+#endif
 
 	// special value used to get the total number of error codes
 	GLOBOX_ERROR_SIZE,

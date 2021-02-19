@@ -8,6 +8,10 @@
 #include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
 #include <dwmapi.h>
 
+#if defined(GLOBOX_COMPATIBILITY_WINE) && defined(GLOBOX_ERROR_LOG_BASIC)
+#include <stdio.h>
+#endif
+
 #include "windows/globox_windows.h"
 
 // Microsoft's low-level APIs do not enforce any window size limit,
@@ -254,6 +258,21 @@ void dwm_transparency(struct globox* globox)
 			platform->globox_platform_event_handle,
 			&blur_behind);
 
+	if (ok != S_OK)
+	{
+#if !defined(GLOBOX_COMPATIBILITY_WINE)
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM);
+		// do not return yet to perform some extra clean-up
+#elif defined(GLOBOX_ERROR_LOG_BASIC)
+		fprintf(
+			stderr,
+			"Wine compatibility mode; skipping the following error:\n%s\n",
+			globox->globox_log[GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM]);
+#endif
+	}
+
 	BOOL ok_bool = DeleteObject(region);
 
 	if (ok_bool == 0)
@@ -261,14 +280,6 @@ void dwm_transparency(struct globox* globox)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WINDOWS_DELETE);
-		return;
-	}
-
-	if (ok != S_OK)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM);
 		return;
 	}
 }
@@ -902,10 +913,17 @@ void globox_platform_create_window(struct globox* globox)
 
 	if (ok == 0)
 	{
+#if !defined(GLOBOX_COMPATIBILITY_WINE)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WINDOWS_COMP_ATTR);
 		return;
+#elif defined(GLOBOX_ERROR_LOG_BASIC)
+		fprintf(
+			stderr,
+			"Wine compatibility mode; skipping the following error:\n%s\n",
+			globox->globox_log[GLOBOX_ERROR_WINDOWS_COMP_ATTR]);
+#endif
 	}
 }
 

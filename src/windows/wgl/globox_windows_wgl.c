@@ -8,6 +8,10 @@
 #include <windows.h>
 #include <GL/gl.h>
 
+#if defined(GLOBOX_COMPATIBILITY_WINE) && defined(GLOBOX_ERROR_LOG_BASIC)
+#include <stdio.h>
+#endif
+
 #include "windows/globox_windows.h"
 #include "windows/wgl/globox_windows_wgl.h"
 
@@ -177,15 +181,20 @@ void globox_context_wgl_create(struct globox* globox)
 
 	ok = SetPixelFormat(hdc, *formats, &(context->globox_wgl_pfd));
 
-#ifndef GLOBOX_COMPATIBILITY_WINE
 	if (ok == 0)
 	{
+#if !defined(GLOBOX_COMPATIBILITY_WINE)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET);
 		return;
-	}
+#elif defined(GLOBOX_ERROR_LOG_BASIC)
+		fprintf(
+			stderr,
+			"Wine compatibility mode; skipping the following error:\n%s\n",
+			globox->globox_log[GLOBOX_ERROR_WINDOWS_WGL_PIXEL_FORMAT_SET]);
 #endif
+	}
 
 	int attr_gl[] =
 	{
