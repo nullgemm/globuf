@@ -40,9 +40,6 @@ void globox_open(
 	log[GLOBOX_ERROR_BOUNDS] = "out-of-bounds index";
 	log[GLOBOX_ERROR_DOMAIN] = "invalid domain";
 
-	log[GLOBOX_ERROR_FUNC_OPEN] = "error in globox_open";
-	log[GLOBOX_ERROR_FUNC_PLATFORM_INIT] = "error in globox_platform_init";
-
 	// error system initialization
 	globox_error_init(globox);
 
