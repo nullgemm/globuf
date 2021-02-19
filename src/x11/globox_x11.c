@@ -39,34 +39,68 @@ void globox_platform_init(
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
-	log[GLOBOX_ERROR_X11_CONN] = "";
-	log[GLOBOX_ERROR_X11_MAP] = "";
-	log[GLOBOX_ERROR_X11_FLUSH] = "";
-	log[GLOBOX_ERROR_X11_WIN] = "";
-	log[GLOBOX_ERROR_X11_GC] = "";
-	log[GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE] = "";
-	log[GLOBOX_ERROR_X11_VISUAL_NOT_FOUND] = "";
-	log[GLOBOX_ERROR_X11_SHM_VERSION] = "";
-	log[GLOBOX_ERROR_X11_SHM_VERSION_REPLY] = "";
-	log[GLOBOX_ERROR_X11_PIXMAP] = "";
-	log[GLOBOX_ERROR_X11_SHMID] = "";
-	log[GLOBOX_ERROR_X11_SHMADDR] = "";
-	log[GLOBOX_ERROR_X11_SHM_ATTACH] = "";
-	log[GLOBOX_ERROR_X11_SHMCTL] = "";
-	log[GLOBOX_ERROR_X11_SHM_PIXMAP] = "";
-	log[GLOBOX_ERROR_X11_EPOLL_CREATE] = "";
-	log[GLOBOX_ERROR_X11_EPOLL_CTL] = "";
-	log[GLOBOX_ERROR_X11_WIN_ATTR] = "";
-	log[GLOBOX_ERROR_X11_ATOMS] = "";
-	log[GLOBOX_ERROR_X11_EPOLL_WAIT] = "";
-	log[GLOBOX_ERROR_X11_ICON] = "";
-	log[GLOBOX_ERROR_X11_TITLE] = "";
-	log[GLOBOX_ERROR_X11_SHM_DETACH] = "";
-	log[GLOBOX_ERROR_X11_SHMDT] = "";
-	log[GLOBOX_ERROR_X11_IMAGE] = "";
-	log[GLOBOX_ERROR_X11_COPY] = "";
-	log[GLOBOX_ERROR_X11_SCREEN_INFO] = "";
-	log[GLOBOX_ERROR_X11_WIN_INFO] = "";
+	log[GLOBOX_ERROR_X11_CONN] =
+		"could not connect to X server";
+	log[GLOBOX_ERROR_X11_MAP] =
+		"could not map window";
+	log[GLOBOX_ERROR_X11_FLUSH] =
+		"could not flush connection";
+	log[GLOBOX_ERROR_X11_WIN] =
+		"could not create window";
+	log[GLOBOX_ERROR_X11_GC] =
+		"could not create graphics context";
+	log[GLOBOX_ERROR_X11_VISUAL_NOT_COMPATIBLE] =
+		"could not find compatible visual format";
+	log[GLOBOX_ERROR_X11_VISUAL_NOT_FOUND] =
+		"could not find any visual format";
+	log[GLOBOX_ERROR_X11_SHM_VERSION_REPLY] =
+		"could not get XCB SHM version";
+	log[GLOBOX_ERROR_X11_PIXMAP] =
+		"could not create pixmap";
+	log[GLOBOX_ERROR_X11_SHMID] =
+		"could not get SHM ID";
+	log[GLOBOX_ERROR_X11_SHMADDR] =
+		"could not create new SHM";
+	log[GLOBOX_ERROR_X11_SHM_ATTACH] =
+		"could not attach SHM";
+	log[GLOBOX_ERROR_X11_SHMCTL] =
+		"could not send SHM control operation";
+	log[GLOBOX_ERROR_X11_SHM_PIXMAP] =
+		"could not create SHM pixmap";
+	log[GLOBOX_ERROR_X11_EPOLL_CREATE] =
+		"could not create new epoll interface";
+	log[GLOBOX_ERROR_X11_EPOLL_CTL] =
+		"could not send epoll control operation";
+	log[GLOBOX_ERROR_X11_WIN_ATTR] =
+		"could not change window attribute";
+	log[GLOBOX_ERROR_X11_ATOMS] =
+		"could not change atom";
+	log[GLOBOX_ERROR_X11_EPOLL_WAIT] =
+		"error while waiting for epoll events";
+	log[GLOBOX_ERROR_X11_ICON] =
+		"could not set window icon";
+	log[GLOBOX_ERROR_X11_TITLE] =
+		"could not set window title";
+	log[GLOBOX_ERROR_X11_SHM_DETACH] =
+		"could not detach SHM";
+	log[GLOBOX_ERROR_X11_SHMDT] =
+		"could not release SHM memory";
+	log[GLOBOX_ERROR_X11_IMAGE] =
+		"could not transmit image";
+	log[GLOBOX_ERROR_X11_COPY] =
+		"could not copy area";
+	log[GLOBOX_ERROR_X11_SCREEN_INFO] =
+		"could not get screen info";
+	log[GLOBOX_ERROR_X11_WIN_INFO] =
+		"could not get window geometry info";
+	log[GLOBOX_ERROR_X11_STATE] =
+		"could not update window property";
+	log[GLOBOX_ERROR_X11_EGL_FAIL] =
+		"error while dealing with EGL";
+	log[GLOBOX_ERROR_X11_GLX_FAIL] =
+		"error while dealing with GLX";
+	log[GLOBOX_ERROR_X11_INTERACTIVE] =
+		"could not handle interactive move and resize";
 
 #if defined(GLOBOX_CONTEXT_GLX)
 	struct globox_x11_glx* context = &(platform->globox_x11_glx);
