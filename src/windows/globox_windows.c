@@ -234,7 +234,7 @@ void dwm_transparency(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 
-	// TODO communicate only the client region without the frame and update when resizing
+	// TODO fix blur-border (DwmExtendFrameIntoClientArea?)
 	HRGN region = CreateRectRgn(0, 0, globox->globox_width, globox->globox_height);
 
 	if (region == NULL)

@@ -125,7 +125,7 @@ void globox_context_software_shrink(struct globox* globox)
 
 void globox_context_software_free(struct globox* globox)
 {
-	// TODO
+	// not needed
 }
 
 void globox_context_software_copy(
