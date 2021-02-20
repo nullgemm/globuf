@@ -234,22 +234,11 @@ void dwm_transparency(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 
-	// TODO fix blur-border (DwmExtendFrameIntoClientArea?)
-	HRGN region = CreateRectRgn(0, 0, globox->globox_width, globox->globox_height);
-
-	if (region == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_REGION);
-		return;
-	}
-
 	DWM_BLURBEHIND blur_behind =
 	{
-		.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION,
+		.dwFlags = DWM_BB_ENABLE,
 		.fEnable = TRUE,
-		.hRgnBlur = region,
+		.hRgnBlur = NULL,
 		.fTransitionOnMaximized = FALSE,
 	};
 
@@ -264,23 +253,13 @@ void dwm_transparency(struct globox* globox)
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM);
-		// do not return yet to perform some extra clean-up
+		return;
 #elif defined(GLOBOX_ERROR_LOG_BASIC)
 		fprintf(
 			stderr,
 			"Wine compatibility mode; skipping the following error:\n%s\n",
 			globox->globox_log[GLOBOX_ERROR_WINDOWS_TRANSPARENCY_DWM]);
 #endif
-	}
-
-	BOOL ok_bool = DeleteObject(region);
-
-	if (ok_bool == 0)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WINDOWS_DELETE);
-		return;
 	}
 }
 
