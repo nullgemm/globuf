@@ -406,8 +406,7 @@ void globox_platform_events_poll(struct globox* globox)
 	// not needed
 }
 
-// TODO remove this from the API and externalize it into a library,
-// along with the frame callback mechanism that should fix stuttering
+// TODO restore wayland handle watching to allow waiting for events
 void globox_platform_events_wait(struct globox* globox)
 {
 #if 0
