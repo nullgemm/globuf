@@ -56,6 +56,12 @@ enum NSWindowCollectionBehavior
 };
 
 // extra enums required as part of the private API
+enum macos_bitmapinfo
+{
+	GLOBOX_MACOS_BITMAPINFO_PREMULTIPLIEDLAST = 1,
+	GLOBOX_MACOS_BITMAPINFO_BYTEORDER32BIG = 4 << 12,
+};
+
 enum macos_events_subtype
 {
 	GLOBOX_MACOS_EVENT_WINDOW_STATE,

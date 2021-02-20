@@ -210,7 +210,8 @@ void globox_context_software_copy(
 			8,
 			context->globox_software_buffer_width * 4,
 			colorspace,
-			(4 << 12) | (1)); // TODO names
+			GLOBOX_MACOS_BITMAPINFO_PREMULTIPLIEDLAST
+			| GLOBOX_MACOS_BITMAPINFO_BYTEORDER32BIG);
 
 	if (bitmap == Nil)
 	{

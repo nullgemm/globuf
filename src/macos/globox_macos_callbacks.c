@@ -245,8 +245,6 @@ void callback_window_will_enter_fullscreen(
 		platform->globox_macos_obj_blur,
 		sel_getUid("setFrameSize:"),
 		frame.size);
-
-	// TODO check if order matters or not ?
 }
 
 void callback_window_will_exit_fullscreen(
