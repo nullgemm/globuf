@@ -9,6 +9,7 @@ name="globox"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
+src+=("src/globox_private_getters.c")
 src+=("src/macos/globox_macos.c")
 src+=("src/macos/globox_macos_symbols.c")
 src+=("src/macos/globox_macos_callbacks.c")
@@ -26,7 +27,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_INTERNAL")
-defines+=("-DGLOBOX_GETTERS_PLATFORM")
 defines+=("-DGLOBOX_PLATFORM_MACOS")
 
 # raw linker arguments

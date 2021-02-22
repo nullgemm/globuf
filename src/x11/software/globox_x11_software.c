@@ -1003,35 +1003,3 @@ void globox_context_software_copy(
 
 	globox_platform_commit(globox);
 }
-
-// getters
-
-xcb_shm_segment_info_t globox_software_get_shm(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_shm;
-}
-
-xcb_gcontext_t globox_software_get_gfx(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_gfx;
-}
-
-xcb_pixmap_t globox_software_get_pixmap(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_pixmap;
-}
-
-bool globox_software_get_pixmap_update(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_pixmap_update;
-}
-
-bool globox_software_get_shared_pixmaps(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_shared_pixmaps;
-}
-
-uint64_t globox_software_get_buffer_len(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_buffer_len;
-}

@@ -280,15 +280,3 @@ void globox_context_software_copy(
 	// commit
 	globox_platform_commit(globox);
 }
-
-// getters
-
-uint32_t globox_software_get_buffer_width(struct globox* globox)
-{
-	return globox->globox_platform->globox_macos_software.globox_software_buffer_width;
-}
-
-uint32_t globox_software_get_buffer_height(struct globox* globox)
-{
-	return globox->globox_platform->globox_macos_software.globox_software_buffer_height;
-}

@@ -102,6 +102,17 @@ bool globox_get_redraw(struct globox* globox)
 	return globox->globox_redraw;
 }
 
+enum globox_state globox_get_state(struct globox* globox)
+{
+	return globox->globox_state;
+}
+
+enum globox_interactive_mode
+	globox_get_interactive_mode(struct globox* globox)
+{
+	return globox->globox_interactive_mode;
+}
+
 bool globox_get_transparent(struct globox* globox)
 {
 	return globox->globox_transparent;
@@ -115,11 +126,6 @@ bool globox_get_frameless(struct globox* globox)
 bool globox_get_blurred(struct globox* globox)
 {
 	return globox->globox_blurred;
-}
-
-enum globox_state globox_get_state(struct globox* globox)
-{
-	return globox->globox_state;
 }
 
 void* globox_get_event_callback_data(struct globox* globox)

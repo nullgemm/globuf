@@ -10,6 +10,7 @@ cc="x86_64-w64-mingw32-gcc"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
+src+=("src/globox_private_getters.c")
 src+=("src/windows/globox_windows.c")
 
 flags+=("-std=c99" "-pedantic")
@@ -28,7 +29,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_INTERNAL")
-defines+=("-DGLOBOX_GETTERS_PLATFORM")
 defines+=("-DGLOBOX_PLATFORM_WINDOWS")
 defines+=("-DGLOBOX_COMPATIBILITY_WINE")
 defines+=("-DUNICODE")

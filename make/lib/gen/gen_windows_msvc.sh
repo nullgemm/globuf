@@ -21,6 +21,7 @@ $ver_msvc/bin/Hostx64/x64/lib.exe\""
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
+src+=("src/globox_private_getters.c")
 src+=("src/windows/globox_windows.c")
 
 flags+=("-Zc:inline")
@@ -40,7 +41,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_INTERNAL")
-defines+=("-DGLOBOX_GETTERS_PLATFORM")
 defines+=("-DGLOBOX_PLATFORM_WINDOWS")
 defines+=("-DGLOBOX_COMPATIBILITY_WINE")
 defines+=("-DGLOBOX_COMPILER_MSVC")

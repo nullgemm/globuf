@@ -21,7 +21,6 @@ CFLAGS+= -g
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
 CFLAGS+= -DGLOBOX_INTERNAL
-CFLAGS+= -DGLOBOX_GETTERS_PLATFORM
 CFLAGS+= -DGLOBOX_PLATFORM_X11
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
 CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
@@ -29,6 +28,7 @@ CFLAGS+= -DGLOBOX_CONTEXT_EGL
 
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
+OBJ+= src/globox_private_getters.o
 OBJ+= src/x11/globox_x11.o
 OBJ+= src/x11/egl/globox_x11_egl.o
 
@@ -47,6 +47,8 @@ res/wayland_headers:
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_private_getters.o: src/globox_private_getters.c \
+ src/globox_private_getters.h src/globox.h
 globox_x11.o: src/x11/globox_x11.c globox.h globox_error.h \
  x11/globox_x11.h
 globox_x11_egl.o: src/x11/egl/globox_x11_egl.c globox.h globox_error.h \

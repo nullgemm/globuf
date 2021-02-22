@@ -8,6 +8,7 @@ tag=$(git tag | tail -n 1)
 release=globox_bin_$tag
 
 src+=("globox.h")
+src+=("globox_private_getters.h")
 
 # generate headers
 for file in ${src[@]}; do

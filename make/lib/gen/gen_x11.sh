@@ -10,6 +10,7 @@ cc="gcc"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
+src+=("src/globox_private_getters.c")
 src+=("src/x11/globox_x11.c")
 
 flags+=("-std=c99" "-pedantic")
@@ -25,7 +26,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_INTERNAL")
-defines+=("-DGLOBOX_GETTERS_PLATFORM")
 defines+=("-DGLOBOX_PLATFORM_X11")
 
 # generated linker arguments

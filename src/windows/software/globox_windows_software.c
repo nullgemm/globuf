@@ -242,15 +242,3 @@ void globox_context_software_copy(
 
 	GdiFlush();
 }
-
-// getters
-
-BITMAPINFO globox_software_get_bmp_info(struct globox* globox)
-{
-	return globox->globox_platform->globox_windows_software.globox_software_bmp_info;
-}
-
-HBITMAP globox_software_get_bmp_handle(struct globox* globox)
-{
-	return globox->globox_platform->globox_windows_software.globox_software_bmp_handle;
-}

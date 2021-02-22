@@ -21,7 +21,6 @@ CFLAGS+= -g
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
 CFLAGS+= -DGLOBOX_INTERNAL
-CFLAGS+= -DGLOBOX_GETTERS_PLATFORM
 CFLAGS+= -DGLOBOX_PLATFORM_WAYLAND
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
 CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
@@ -29,6 +28,7 @@ CFLAGS+= -DGLOBOX_CONTEXT_SOFTWARE
 
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
+OBJ+= src/globox_private_getters.o
 OBJ+= src/wayland/globox_wayland.o
 OBJ+= src/wayland/globox_wayland_callbacks.o
 OBJ+= res/wayland_headers/xdg-shell-protocol.o
@@ -54,6 +54,8 @@ res/wayland_headers:
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_private_getters.o: src/globox_private_getters.c \
+ src/globox_private_getters.h src/globox.h
 globox_wayland.o: src/wayland/globox_wayland.c globox.h globox_error.h \
  xdg-shell-client-protocol.h xdg-decoration-client-protocol.h \
  kde-blur-client-protocol.h zwp-relative-pointer-protocol.h \

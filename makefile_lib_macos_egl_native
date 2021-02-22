@@ -24,7 +24,6 @@ CFLAGS+= -Ires/angle/include
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
 CFLAGS+= -DGLOBOX_INTERNAL
-CFLAGS+= -DGLOBOX_GETTERS_PLATFORM
 CFLAGS+= -DGLOBOX_PLATFORM_MACOS
 CFLAGS+= -DGLOBOX_ERROR_LOG_BASIC
 CFLAGS+= -DGLOBOX_ERROR_LOG_DEBUG
@@ -32,6 +31,7 @@ CFLAGS+= -DGLOBOX_CONTEXT_EGL
 
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
+OBJ+= src/globox_private_getters.o
 OBJ+= src/macos/globox_macos.o
 OBJ+= src/macos/globox_macos_symbols.o
 OBJ+= src/macos/globox_macos_callbacks.o
@@ -56,6 +56,8 @@ res/angle/libs:
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_private_getters.o: src/globox_private_getters.c \
+  src/globox_private_getters.h src/globox.h
 globox_macos.o: src/macos/globox_macos.c globox.h globox_error.h \
   macos/globox_macos_types.h macos/globox_macos_symbols.h \
   macos/globox_macos_callbacks.h macos/globox_macos.h

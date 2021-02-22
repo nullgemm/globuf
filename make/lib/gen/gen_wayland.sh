@@ -10,6 +10,7 @@ cc="gcc"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
+src+=("src/globox_private_getters.c")
 src+=("src/wayland/globox_wayland.c")
 src+=("src/wayland/globox_wayland_callbacks.c")
 
@@ -33,7 +34,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_INTERNAL")
-defines+=("-DGLOBOX_GETTERS_PLATFORM")
 defines+=("-DGLOBOX_PLATFORM_WAYLAND")
 
 # generated linker arguments

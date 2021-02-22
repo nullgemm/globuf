@@ -352,26 +352,5 @@ void globox_context_glx_copy(
 
 void globox_context_glx_shrink(struct globox* globox)
 {
-
-}
-
-// getters
-Display* globox_glx_get_display(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_glx.globox_glx_display;
-}
-
-GLXFBConfig globox_glx_get_fb_config(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_glx.globox_glx_fb_config;
-}
-
-GLXContext globox_glx_get_context(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_glx.globox_glx_context;
-}
-
-GLXWindow globox_glx_get_win(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_glx.globox_glx_win;
+	// not needed
 }

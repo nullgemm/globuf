@@ -54,9 +54,6 @@ struct globox_platform
 	uint32_t* globox_wayland_icon;
 	uint32_t globox_wayland_icon_len;
 
-	uint32_t globox_wayland_screen_width;
-	uint32_t globox_wayland_screen_height;
-
 	void (*globox_wayland_unminimize_start)(struct globox* globox);
 	void (*globox_wayland_unminimize_finish)(struct globox* globox);
 	void (*globox_wayland_callback_xdg_surface_configure)(

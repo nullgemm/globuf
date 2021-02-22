@@ -28,7 +28,6 @@ CFLAGS+= -Ires/egl_headers
 
 CFLAGS+= -DGLOBOX_ERROR_LOG_THROW
 CFLAGS+= -DGLOBOX_INTERNAL
-CFLAGS+= -DGLOBOX_GETTERS_PLATFORM
 CFLAGS+= -DGLOBOX_PLATFORM_WINDOWS
 CFLAGS+= -DGLOBOX_COMPATIBILITY_WINE
 CFLAGS+= -DUNICODE
@@ -43,6 +42,7 @@ CFLAGS+= -DGLOBOX_CONTEXT_EGL
 
 OBJ+= src/globox.o
 OBJ+= src/globox_error.o
+OBJ+= src/globox_private_getters.o
 OBJ+= src/windows/globox_windows.o
 OBJ+= src/windows/egl/globox_windows_egl.o
 
@@ -60,6 +60,8 @@ res/eglproxy:
 
 globox.o: src/globox.c src/globox.h src/globox_error.h
 globox_error.o: src/globox_error.c src/globox.h src/globox_error.h
+globox_private_getters.o: src/globox_private_getters.c \
+ src/globox_private_getters.h src/globox.h
 globox_windows.o: src/windows/globox_windows.c globox.h globox_error.h \
  windows/globox_windows.h
 globox_windows_egl.o: src/windows/egl/globox_windows_egl.c globox.h \
