@@ -15,9 +15,7 @@ struct globox_x11_software
 	xcb_pixmap_t globox_software_pixmap;
 	bool globox_software_pixmap_update;
 	bool globox_software_shared_pixmaps;
-
-	uint32_t globox_software_buffer_width;
-	uint32_t globox_software_buffer_height;
+	uint64_t globox_software_buffer_len;
 };
 
 #endif

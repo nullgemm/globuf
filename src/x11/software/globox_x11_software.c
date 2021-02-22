@@ -17,6 +17,20 @@
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>
 
+static inline uint64_t nextpow2(uint64_t x)
+{
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x |= x >> 32;
+	++x;
+
+	return x;
+}
+
 static inline void visual_opaque(struct globox* globox)
 {
 	// alias for readability
@@ -235,7 +249,7 @@ static void shm_create(struct globox* globox)
 	int shmid =
 		shmget(
 			IPC_PRIVATE,
-			4 * globox->globox_width * globox->globox_height,
+			context->globox_software_buffer_len,
 			IPC_CREAT | 0600);
 
 	if (shmid == -1)
@@ -370,87 +384,27 @@ static void reserve(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	uint32_t buf_width = context->globox_software_buffer_width;
-	uint32_t buf_height = context->globox_software_buffer_height;
+	uint64_t size = 4 * ((uint64_t) globox->globox_width) * ((uint64_t) globox->globox_height);
 
 	if (context->globox_software_shared_pixmaps == false)
 	{
-		if ((buf_width * buf_height) < (globox->globox_width * globox->globox_height))
+		if (context->globox_software_buffer_len < size)
 		{
-			xcb_generic_error_t* error;
+			context->globox_software_buffer_len =
+				nextpow2(
+					4
+					* globox->globox_width
+					* globox->globox_height);
 
-			// screen info
-			xcb_randr_get_screen_info_cookie_t screen_cookie;
-			xcb_randr_get_screen_info_reply_t* screen_reply;
-
-			screen_cookie =
-				xcb_randr_get_screen_info(
-					platform->globox_x11_conn,
-					platform->globox_x11_win);
-
-			screen_reply =
-				xcb_randr_get_screen_info_reply(
-					platform->globox_x11_conn,
-					screen_cookie,
-					&error);
-
-			if (error != NULL)
-			{
-				free(screen_reply);
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_SCREEN_INFO);
-				return;
-			}
-
-			xcb_window_t root = screen_reply->root;
-			free(screen_reply);
-
-			// window geometry info
-			xcb_get_geometry_cookie_t win_cookie;
-			xcb_get_geometry_reply_t* win_reply;
-
-			win_cookie =
-				xcb_get_geometry(
-					platform->globox_x11_conn,
-					root);
-
-			win_reply =
-				xcb_get_geometry_reply(
-					platform->globox_x11_conn,
-					win_cookie,
-					&error);
-
-			if (error != NULL)
-			{
-				free(win_reply);
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_X11_WIN_INFO);
-				return;
-			}
-
-			context->globox_software_buffer_width =
-				(1 + (context->globox_software_buffer_width / win_reply->width))
-					* win_reply->width;
-
-			context->globox_software_buffer_height =
-				(1 + (context->globox_software_buffer_height / win_reply->height))
-					* win_reply->height;
-
-			free(win_reply);
 			free(platform->globox_platform_argb);
 
 			platform->globox_platform_argb =
-				malloc(
-					4
-					* context->globox_software_buffer_width
-					* context->globox_software_buffer_height);
+				malloc(context->globox_software_buffer_len);
 		}
 	}
 	else
 	{
-		if ((buf_width * buf_height) != (globox->globox_width * globox->globox_height))
+		if (context->globox_software_buffer_len < size)
 		{
 			xcb_void_cookie_t cookie_shm;
 			xcb_generic_error_t* error_shm;
@@ -485,11 +439,14 @@ static void reserve(struct globox* globox)
 				return;
 			}
 
+			context->globox_software_buffer_len =
+				nextpow2(
+					4
+					* globox->globox_width
+					* globox->globox_height);
+
 			shm_create(globox);
 		}
-
-		context->globox_software_buffer_width = globox->globox_width;
-		context->globox_software_buffer_height = globox->globox_height;
 	}
 
 	context->globox_software_pixmap_update = true;
@@ -504,8 +461,10 @@ void globox_context_software_init(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_len =
+		4
+		* globox->globox_width
+		* globox->globox_height;
 
 	platform->globox_x11_reserve = reserve;
 	platform->globox_x11_expose = expose;
@@ -602,7 +561,7 @@ void globox_context_software_create(struct globox* globox)
 	// for this we can use xcb_put_image() to transfer the data using a socket
 	if (context->globox_software_shared_pixmaps == false)
 	{
-		platform->globox_platform_argb = malloc(4 * globox->globox_width * globox->globox_height);
+		platform->globox_platform_argb = malloc(context->globox_software_buffer_len);
 
 		if (platform->globox_platform_argb == NULL)
 		{
@@ -683,15 +642,17 @@ void globox_context_software_shrink(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_len =
+		4
+		* globox->globox_width
+		* globox->globox_height;
 
 	if (context->globox_software_shared_pixmaps == false)
 	{
 		platform->globox_platform_argb =
 			realloc(
 				platform->globox_platform_argb,
-				4 * globox->globox_width * globox->globox_height);
+				context->globox_software_buffer_len);
 
 		if (platform->globox_platform_argb == NULL)
 		{
@@ -705,7 +666,7 @@ void globox_context_software_shrink(struct globox* globox)
 		int shmid =
 			shmget(
 				IPC_PRIVATE,
-				4 * globox->globox_width * globox->globox_height,
+				context->globox_software_buffer_len,
 				IPC_CREAT | 0600);
 
 		if (shmid == -1)
@@ -790,7 +751,7 @@ void globox_context_software_shrink(struct globox* globox)
 		memcpy(
 			(uint32_t*) tmpaddr,
 			platform->globox_platform_argb,
-			4 * globox->globox_width * globox->globox_height);
+			context->globox_software_buffer_len);
 
 		int error_shmdt =
 			shmdt(
@@ -1070,12 +1031,7 @@ bool globox_software_get_shared_pixmaps(struct globox* globox)
 	return globox->globox_platform->globox_x11_software.globox_software_shared_pixmaps;
 }
 
-uint32_t globox_software_get_buffer_width(struct globox* globox)
+uint64_t globox_software_get_buffer_len(struct globox* globox)
 {
-	return globox->globox_platform->globox_x11_software.globox_software_buffer_width;
-}
-
-uint32_t globox_software_get_buffer_height(struct globox* globox)
-{
-	return globox->globox_platform->globox_x11_software.globox_software_buffer_height;
+	return globox->globox_platform->globox_x11_software.globox_software_buffer_len;
 }
