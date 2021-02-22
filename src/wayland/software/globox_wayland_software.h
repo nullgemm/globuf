@@ -6,12 +6,10 @@
 
 struct globox_wayland_software
 {
-	uint32_t globox_software_buffer_width;
-	uint32_t globox_software_buffer_height;
-
 	int globox_software_fd;
 	struct wl_shm_pool* globox_software_pool;
 	struct wl_buffer* globox_software_buffer;
+	uint64_t globox_software_buffer_len;
 };
 
 #endif

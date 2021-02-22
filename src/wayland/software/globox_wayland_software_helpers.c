@@ -17,14 +17,24 @@
 #include "wayland/software/globox_wayland_software.h"
 #include "wayland/software/globox_wayland_software_helpers.h"
 
+static inline uint64_t nextpow2(uint64_t x)
+{
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x |= x >> 32;
+	++x;
+
+	return x;
+}
+
 void globox_software_callback_allocate(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
-	int size =
-		4
-		* context->globox_software_buffer_width
-		* context->globox_software_buffer_height;
 
 	// create shm - code by sircmpwn
 	uint8_t retries = 100;
@@ -77,7 +87,7 @@ void globox_software_callback_allocate(struct globox* globox)
 
 	do
 	{
-		ret = ftruncate(fd, size);
+		ret = ftruncate(fd, context->globox_software_buffer_len);
 	}
 	while ((ret < 0) && (errno == EINTR));
 
@@ -94,7 +104,7 @@ void globox_software_callback_allocate(struct globox* globox)
 	platform->globox_platform_argb =
 		mmap(
 			NULL,
-			size,
+			context->globox_software_buffer_len,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED,
 			fd,
@@ -114,7 +124,7 @@ void globox_software_callback_allocate(struct globox* globox)
 		wl_shm_create_pool(
 			platform->globox_wayland_shm,
 			fd,
-			size);
+			context->globox_software_buffer_len);
 
 	if (context->globox_software_pool == NULL)
 	{
@@ -161,10 +171,6 @@ void globox_software_callback_unminimize_start(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 	int error;
-	int size =
-		4
-		* context->globox_software_buffer_width
-		* context->globox_software_buffer_height;
 
 	wl_shm_pool_destroy(context->globox_software_pool);
 
@@ -173,7 +179,7 @@ void globox_software_callback_unminimize_start(struct globox* globox)
 	error =
 		munmap(
 			platform->globox_platform_argb,
-			size);
+			context->globox_software_buffer_len);
 
 	if (error == -1)
 	{
@@ -218,23 +224,13 @@ void globox_software_callback_resize(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	uint32_t size = ((uint32_t) width) * height;
+	uint32_t size = 4 * ((uint64_t) width) * ((uint64_t) height);
 
-	uint32_t buffer_size =
-		context->globox_software_buffer_width
-		* context->globox_software_buffer_height;
-
-	if (buffer_size < size)
+	if (context->globox_software_buffer_len < size)
 	{
 		globox_software_callback_unminimize_start(globox);
 
-		context->globox_software_buffer_width =
-			(1 + (width / platform->globox_wayland_screen_width))
-			* platform->globox_wayland_screen_width;
-
-		context->globox_software_buffer_height =
-			(1 + (height / platform->globox_wayland_screen_height))
-			* platform->globox_wayland_screen_height;
+		context->globox_software_buffer_len = nextpow2(4 * width * height);
 
 		globox_software_callback_allocate(globox);
 

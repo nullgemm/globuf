@@ -121,10 +121,6 @@ void globox_platform_init(
 
 	int error;
 
-	// TODO remove, temporary
-	platform->globox_wayland_screen_width = 1920;
-	platform->globox_wayland_screen_height = 1080;
-
 	platform->globox_wayland_saved_serial = 0;
 	platform->globox_wayland_shm = NULL;
 	platform->globox_wayland_compositor = NULL;

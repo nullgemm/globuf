@@ -23,8 +23,10 @@ void globox_context_software_init(
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
 	// set buffer real size
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_len =
+		4
+		* globox->globox_width
+		* globox->globox_height;
 
 	// set callbacks function pointers
 	platform->globox_wayland_unminimize_start =
@@ -74,10 +76,6 @@ void globox_context_software_shrink(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 	int error;
-	int size =
-		4
-		* context->globox_software_buffer_width
-		* context->globox_software_buffer_height;
 
 	wl_shm_pool_destroy(context->globox_software_pool);
 
@@ -86,7 +84,7 @@ void globox_context_software_shrink(struct globox* globox)
 	error =
 		munmap(
 			platform->globox_platform_argb,
-			size);
+			context->globox_software_buffer_len);
 
 	if (error == -1)
 	{
@@ -95,8 +93,10 @@ void globox_context_software_shrink(struct globox* globox)
 			GLOBOX_ERROR_WAYLAND_MUNMAP);
 	}
 
-	context->globox_software_buffer_width = globox->globox_width;
-	context->globox_software_buffer_height = globox->globox_height;
+	context->globox_software_buffer_len =
+		4
+		* globox->globox_width
+		* globox->globox_height;
 
 	globox_software_callback_allocate(globox);
 
@@ -114,11 +114,6 @@ void globox_context_software_free(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	int size =
-		4
-		* context->globox_software_buffer_width
-		* context->globox_software_buffer_height;
-
 	wl_shm_pool_destroy(context->globox_software_pool);
 
 	close(context->globox_software_fd);
@@ -126,7 +121,7 @@ void globox_context_software_free(struct globox* globox)
 	error =
 		munmap(
 			platform->globox_platform_argb,
-			size);
+			context->globox_software_buffer_len);
 
 	if (error == -1)
 	{
@@ -179,12 +174,7 @@ struct wl_buffer* globox_software_get_buffer(struct globox* globox)
 	return globox->globox_platform->globox_wayland_software.globox_software_buffer;
 }
 
-uint32_t globox_software_get_buffer_width(struct globox* globox)
+uint32_t globox_software_get_buffer_len(struct globox* globox)
 {
-	return globox->globox_platform->globox_wayland_software.globox_software_buffer_width;
-}
-
-uint32_t globox_software_get_buffer_height(struct globox* globox)
-{
-	return globox->globox_platform->globox_wayland_software.globox_software_buffer_height;
+	return globox->globox_platform->globox_wayland_software.globox_software_buffer_len;
 }
