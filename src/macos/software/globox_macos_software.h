@@ -1,7 +1,8 @@
 #ifndef H_GLOBOX_MACOS_SOFTWARE
 #define H_GLOBOX_MACOS_SOFTWARE
 
-#include "macos/globox_macos_types.h"
+#include <stdint.h>
+#include <objc/objc.h>
 
 struct globox_macos_software
 {

@@ -1,8 +1,6 @@
 #ifndef H_GLOBOX_WINDOWS_WGL
 #define H_GLOBOX_WINDOWS_WGL
 
-#include "globox.h"
-#include "windows/globox_windows.h"
 #include <windows.h>
 
 struct globox_windows_wgl

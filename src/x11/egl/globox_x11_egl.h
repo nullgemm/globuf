@@ -1,9 +1,6 @@
 #ifndef H_GLOBOX_X11_EGL
 #define H_GLOBOX_X11_EGL
 
-#include "globox.h"
-#include "x11/globox_x11.h"
-// context includes
 #include <EGL/egl.h>
 
 struct globox_x11_egl

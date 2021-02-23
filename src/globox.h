@@ -7,24 +7,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// platform-specific includes
-#if defined(GLOBOX_INTERNAL)
-#if defined(GLOBOX_PLATFORM_WAYLAND)
-	#include "wayland/globox_wayland.h"
-#elif defined(GLOBOX_PLATFORM_X11)
-	#include "x11/globox_x11.h"
-#elif defined(GLOBOX_PLATFORM_WINDOWS)
-	#include "windows/globox_windows.h"
-#elif defined(GLOBOX_PLATFORM_MACOS)
-	#include "macos/globox_macos.h"
-	#include "macos/globox_macos_types.h"
-#endif
-#endif
-
-#if defined(GLOBOX_CONTEXT_EGL)
-	#include <EGL/egl.h>
-#endif
-
 // errors
 enum globox_error
 {

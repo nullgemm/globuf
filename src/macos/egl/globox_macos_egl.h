@@ -1,9 +1,7 @@
 #ifndef H_GLOBOX_MACOS_EGL
 #define H_GLOBOX_MACOS_EGL
 
-#include "globox.h"
-#include "macos/globox_macos.h"
-
+#include <objc/objc.h>
 #include <EGL/egl.h>
 
 struct globox_macos_egl

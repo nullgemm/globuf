@@ -1,9 +1,6 @@
 #ifndef H_GLOBOX_X11_SOFTWARE
 #define H_GLOBOX_X11_SOFTWARE
 
-#include "globox.h"
-#include "x11/globox_x11.h"
-// x11 includes
 #include <xcb/xcb.h>
 #include <xcb/xcb_image.h>
 #include <xcb/shm.h>

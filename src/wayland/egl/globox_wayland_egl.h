@@ -1,9 +1,7 @@
 #ifndef H_GLOBOX_WAYLAND_EGL
 #define H_GLOBOX_WAYLAND_EGL
 
-#include "globox.h"
-#include "wayland/globox_wayland.h"
-
+#include <wayland-client.h>
 #include <EGL/egl.h>
 
 struct globox_wayland_egl

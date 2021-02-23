@@ -1,9 +1,6 @@
 #ifndef H_GLOBOX_X11_GLX
 #define H_GLOBOX_X11_GLX
 
-#include "globox.h"
-#include "x11/globox_x11.h"
-// context includes
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 

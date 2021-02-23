@@ -12,14 +12,23 @@
 
 // platform-specific includes
 #if defined(GLOBOX_PLATFORM_WAYLAND)
-	#include "wayland/globox_wayland.h"
+	#include <wayland-client.h>
+	#include "xdg-shell-client-protocol.h"
+	#include "xdg-decoration-client-protocol.h"
+	#include "kde-blur-client-protocol.h"
 #elif defined(GLOBOX_PLATFORM_X11)
-	#include "x11/globox_x11.h"
+	#include <xcb/xcb.h>
+	#if defined(GLOBOX_CONTEXT_SOFTWARE)
+		#include <xcb/xcb_image.h>
+		#include <xcb/shm.h>
+	#elif defined(GLOBOX_CONTEXT_GLX)
+		#include <X11/Xlib.h>
+		#include <GL/glx.h>
+	#endif
 #elif defined(GLOBOX_PLATFORM_WINDOWS)
-	#include "windows/globox_windows.h"
+	#include <windows.h>
 #elif defined(GLOBOX_PLATFORM_MACOS)
-	#include "macos/globox_macos.h"
-	#include "macos/globox_macos_types.h"
+	#include <objc/objc.h>
 #endif
 
 #if defined(GLOBOX_CONTEXT_EGL)
@@ -200,10 +209,8 @@ id globox_get_macos_obj_masterview(
 	struct globox* globox);
 id globox_get_macos_obj_blur(
 	struct globox* globox);
-struct macos_size globox_get_macos_window_min_size(
-	struct globox* globox);
-struct macos_rect* globox_get_macos_buttons(
-	struct globox* globox);
+// no getter for globox_get_macos_window_min_size
+// no getter for globox_get_macos_buttons
 // no getter for globox_macos_titlebar_height
 // no getter for globox_macos_interactive_x
 // no getter for globox_macos_interactive_y

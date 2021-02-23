@@ -1,9 +1,7 @@
 #ifndef H_GLOBOX_WINDOWS_EGL
 #define H_GLOBOX_WINDOWS_EGL
 
-#include "globox.h"
 #include <EGL/egl.h>
-#include "windows/globox_windows.h"
 
 struct globox_windows_egl
 {

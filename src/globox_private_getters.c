@@ -1,5 +1,15 @@
 #include "globox_private_getters.h"
 
+#if defined(GLOBOX_PLATFORM_WAYLAND)
+	#include "wayland/globox_wayland.h"
+#elif defined(GLOBOX_PLATFORM_X11)
+	#include "x11/globox_x11.h"
+#elif defined(GLOBOX_PLATFORM_WINDOWS)
+	#include "windows/globox_windows.h"
+#elif defined(GLOBOX_PLATFORM_MACOS)
+	#include "macos/globox_macos.h"
+#endif
+
 // platform-dependent getters
 #if defined(GLOBOX_PLATFORM_WAYLAND)
 // no getter for globox_wayland_epoll

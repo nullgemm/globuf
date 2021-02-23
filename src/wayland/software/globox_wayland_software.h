@@ -1,8 +1,8 @@
 #ifndef H_GLOBOX_WAYLAND_SOFTWARE
 #define H_GLOBOX_WAYLAND_SOFTWARE
 
-#include "globox.h"
-#include "wayland/globox_wayland.h"
+#include <stdint.h>
+#include <wayland-client.h>
 
 struct globox_wayland_software
 {
