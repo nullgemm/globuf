@@ -18,6 +18,10 @@
 	#include "macos/globox_macos.h"
 #endif
 
+#if defined(GLOBOX_PLATFORM_WINDOWS) && !defined(GLOBOX_COMPATIBILITY_WINE)
+#error "please enable GLOBOX_COMPATIBILITY_WINE"
+#endif
+
 void globox_open(
 	struct globox* globox,
 	int32_t x,

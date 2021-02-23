@@ -7,10 +7,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if defined(GLOBOX_PLATFORM_WINDOWS) && !defined(GLOBOX_COMPATIBILITY_WINE)
-#error "please enable GLOBOX_COMPATIBILITY_WINE"
-#endif
-
 // errors
 enum globox_error
 {
