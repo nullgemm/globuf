@@ -40,7 +40,6 @@ $ver_visual_studio/BuildTools/VC/Tools/MSVC/$ver_msvc/include\"")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
-defines+=("-DGLOBOX_INTERNAL")
 defines+=("-DGLOBOX_PLATFORM_WINDOWS")
 defines+=("-DGLOBOX_COMPATIBILITY_WINE")
 defines+=("-DGLOBOX_COMPILER_MSVC")

@@ -51,8 +51,6 @@ void globox_platform_init(
 	bool frameless,
 	bool blurred)
 {
-	// alias for readability
-	char** log = globox->globox_log;
 	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
 
 	globox->globox_platform = platform;
@@ -69,15 +67,6 @@ void globox_platform_init(
 	platform->globox_macos_cursor_use_a = false;
 	platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
 	platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
-
-	// error messages
-	log[GLOBOX_ERROR_MACOS_CLASS_GET] = "could not get class definition";
-	log[GLOBOX_ERROR_MACOS_CLASS_ALLOC] = "could not create class pair";
-	log[GLOBOX_ERROR_MACOS_CLASS_ADDVAR] = "could not add variable to class";
-	log[GLOBOX_ERROR_MACOS_CLASS_ADDMETHOD] = "could not add method to class";
-	log[GLOBOX_ERROR_MACOS_OBJ_INIT] = "could not initialize object instance";
-	log[GLOBOX_ERROR_MACOS_OBJ_NIL] = "the object returned is Nil";
-	log[GLOBOX_ERROR_MACOS_EGL_FAIL] = "EGL error";
 
 	// re-used variables
 	Class class;

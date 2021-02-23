@@ -95,30 +95,6 @@ void globox_platform_init(
 	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
-	char** log = globox->globox_log;
-	log[GLOBOX_ERROR_WAYLAND_EPOLL_CREATE] =
-		"could not create new epoll interface";
-	log[GLOBOX_ERROR_WAYLAND_EPOLL_CTL] =
-		"could not send epoll control operation";
-	log[GLOBOX_ERROR_WAYLAND_EPOLL_WAIT] =
-		"error while waiting for epoll events";
-	log[GLOBOX_ERROR_WAYLAND_DISPLAY] =
-		"could not connect to display";
-	log[GLOBOX_ERROR_WAYLAND_ROUNDTRIP] =
-		"could not perform display roundtrip";
-	log[GLOBOX_ERROR_WAYLAND_DISPATCH] =
-		"could not dispatch";
-	log[GLOBOX_ERROR_WAYLAND_MMAP] =
-		"could not map SHM";
-	log[GLOBOX_ERROR_WAYLAND_MUNMAP] =
-		"could not unmap SHM";
-	log[GLOBOX_ERROR_WAYLAND_REQUEST] =
-		"could not perform request";
-	log[GLOBOX_ERROR_WAYLAND_LISTENER] =
-		"could not add listener";
-	log[GLOBOX_ERROR_WAYLAND_EGL_FAIL] =
-		"error while dealing with EGL";
-
 	int error;
 
 	platform->globox_wayland_saved_serial = 0;

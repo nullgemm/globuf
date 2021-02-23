@@ -33,7 +33,6 @@ flags+=("-fPIC")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
-defines+=("-DGLOBOX_INTERNAL")
 defines+=("-DGLOBOX_PLATFORM_WAYLAND")
 
 # generated linker arguments
