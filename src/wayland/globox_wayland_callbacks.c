@@ -217,11 +217,24 @@ void callback_registry_global(
 			platform->globox_wayland_seat,
 			globox->globox_event_callback_data);
 	}
-#if 0
 	else if (strcmp(interface, zwp_relative_pointer_manager_v1_interface.name) == 0)
+	{
+		platform->globox_wayland_pointer_manager =
+			wl_registry_bind(
+				wl_registry,
+				name,
+				&zwp_relative_pointer_manager_v1_interface,
+				1);
+	}
 	else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0)
-	else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0)
-#endif
+	{
+		platform->globox_wayland_pointer_constraints =
+			wl_registry_bind(
+				wl_registry,
+				name,
+				&zwp_pointer_constraints_v1_interface,
+				1);
+	}
 }
 
 void callback_registry_global_remove(

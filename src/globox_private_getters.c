@@ -90,6 +90,16 @@ struct zxdg_toplevel_decoration_v1_listener globox_get_wayland_xdg_decoration_li
 {
 	return globox->globox_platform->globox_wayland_xdg_decoration_listener;
 }
+struct zwp_relative_pointer_manager_v1* globox_get_wayland_pointer_manager(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_wayland_pointer_manager;
+}
+struct zwp_pointer_constraints_v1* globox_get_wayland_pointer_constraints(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_wayland_pointer_constraints;
+}
 struct org_kde_kwin_blur_manager* globox_get_wayland_kde_blur_manager(
 	struct globox* globox)
 {

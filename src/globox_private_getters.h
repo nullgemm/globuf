@@ -76,6 +76,10 @@ struct zxdg_toplevel_decoration_v1* globox_get_wayland_xdg_decoration(
 	struct globox* globox);
 struct zxdg_toplevel_decoration_v1_listener globox_get_wayland_xdg_decoration_listener(
 	struct globox* globox);
+struct zwp_relative_pointer_manager_v1* globox_get_wayland_pointer_manager(
+	struct globox* globox);
+struct zwp_pointer_constraints_v1* globox_get_wayland_pointer_constraints(
+	struct globox* globox);
 struct org_kde_kwin_blur_manager* globox_get_wayland_kde_blur_manager(
 	struct globox* globox);
 struct org_kde_kwin_blur* globox_get_wayland_kde_blur(

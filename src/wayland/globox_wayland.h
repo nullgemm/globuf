@@ -86,6 +86,9 @@ struct globox_platform
 	struct zxdg_toplevel_decoration_v1* globox_wayland_xdg_decoration;
 	struct zxdg_toplevel_decoration_v1_listener globox_wayland_xdg_decoration_listener;
 
+	struct zwp_relative_pointer_manager_v1* globox_wayland_pointer_manager;
+	struct zwp_pointer_constraints_v1* globox_wayland_pointer_constraints;
+
 	struct org_kde_kwin_blur_manager* globox_wayland_kde_blur_manager;
 	struct org_kde_kwin_blur* globox_wayland_kde_blur;
 
