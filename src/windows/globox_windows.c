@@ -1239,7 +1239,7 @@ void globox_platform_events_handle(struct globox* globox)
 				}
 			}
 
-			if ((platform->globox_windows_sizemove_step ==
+			if ((platform->globox_windows_sizemove_step !=
 				GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL)
 			&& ((platform->globox_windows_msg.message ==
 				WM_LBUTTONDOWN)
