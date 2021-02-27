@@ -37,6 +37,8 @@
 
 // platform-dependent getters
 #if defined(GLOBOX_PLATFORM_WAYLAND)
+int globox_platform_get_event_handle(
+	struct globox* globox);
 // no getter for globox_wayland_epoll
 // no getter for globox_wayland_epoll_event
 // no getter for globox_wayland_icon
@@ -99,6 +101,8 @@ struct wl_egl_window* globox_get_wayland_egl_window(
 	struct globox* globox);
 #endif
 #elif defined(GLOBOX_PLATFORM_X11)
+int globox_platform_get_event_handle(
+	struct globox* globox);
 // no getter for globox_x11_expose
 // no getter for globox_x11_reserve
 xcb_connection_t* globox_get_x11_conn(
@@ -150,20 +154,22 @@ GLXWindow globox_get_x11_glx_win(
 // no getter for globox_glx_version_minor
 #endif
 #elif defined(GLOBOX_PLATFORM_WINDOWS)
-MSG globox_windows_msg(
+HWND globox_platform_get_event_handle(
 	struct globox* globox);
-LPWSTR globox_windows_wide_title(
+MSG globox_get_windows_msg(
 	struct globox* globox);
-LPWSTR globox_windows_class_name(
+LPWSTR globox_get_windows_wide_title(
 	struct globox* globox);
-HMODULE globox_windows_class_module_handle(
+LPWSTR globox_get_windows_class_name(
 	struct globox* globox);
-WNDCLASSEX globox_windows_class(
+HMODULE globox_get_windows_class_module_handle(
 	struct globox* globox);
-LONG globox_windows_style_backup(
+WNDCLASSEX globox_get_windows_class(
+	struct globox* globox);
+LONG globox_get_windows_style_backup(
 	struct globox* globox);
 // no getter for globox_windows_exstyle_backup;
-WINDOWPLACEMENT globox_windows_position_backup(
+WINDOWPLACEMENT globox_get_windows_position_backup(
 	struct globox* globox);
 // no getter for globox_windows_old_outer_x
 // no getter for globox_windows_old_outer_y
@@ -196,6 +202,8 @@ HGLRC globox_get_windows_wgl_context(
 	struct globox* globox);
 #endif
 #elif defined(GLOBOX_PLATFORM_MACOS)
+id globox_platform_get_event_handle(
+	struct globox* globox);
 Class globox_get_macos_class_view(
 	struct globox* globox);
 Class globox_get_macos_class_appdelegate(
