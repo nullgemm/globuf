@@ -32,7 +32,7 @@ void callback_output_geometry(
 	const char* model,
 	int32_t output_transform)
 {
-	// TODO
+	// dummy
 }
 
 void callback_output_mode(
@@ -43,14 +43,14 @@ void callback_output_mode(
 	int32_t height,
 	int32_t refresh)
 {
-	// TODO
+	// dummy
 }
 
 void callback_output_done(
 	void* data,
 	struct wl_output* wl_output)
 {
-	// not needed
+	// dummy
 }
 
 void callback_output_scale(
@@ -58,7 +58,7 @@ void callback_output_scale(
 	struct wl_output* wl_output,
 	int32_t scale)
 {
-	// TODO
+	// dummy
 }
 
 void callback_registry_global(
@@ -174,33 +174,8 @@ void callback_registry_global(
 	}
 	else if (strcmp(interface, wl_output_interface.name) == 0)
 	{
-		platform->globox_wayland_output =
-			wl_registry_bind(
-				wl_registry,
-				name,
-				&wl_output_interface,
-				1);
-
-		if (platform->globox_wayland_output == NULL)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
-			return;
-		}
-
-		error =
-			wl_output_add_listener(
-				platform->globox_wayland_output,
-				&(platform->globox_wayland_output_listener),
-				globox);
-
-		if (error == -1)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WAYLAND_LISTENER);
-		}
+		platform->globox_wayland_output_registry = wl_registry;
+		platform->globox_wayland_output_name = name;
 	}
 	else if ((strcmp(interface, wl_seat_interface.name) == 0)
 		&& (globox->globox_event_callback != NULL))

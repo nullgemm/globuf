@@ -70,11 +70,22 @@ struct wl_surface* globox_get_wayland_surface(
 {
 	return globox->globox_platform->globox_wayland_surface;
 }
-// no getter for globox_wayland_output_listener
+struct wl_output_listener* globox_get_wayland_output_listener(
+	struct globox* globox)
+{
+	return &(globox->globox_platform->globox_wayland_output_listener);
+}
 // no getter for globox_wayland_registry_listener
 // no getter for globox_wayland_xdg_wm_base_listener
 // no getter for globox_wayland_xdg_toplevel_listener
 // no getter for globox_wayland_xdg_surface_listener
+// no getter for globox_wayland_output_registry
+// no getter for globox_wayland_output_name
+void** globox_get_wayland_output_data(
+	struct globox* globox)
+{
+	return &(globox->globox_platform->globox_wayland_output_data);
+}
 struct zxdg_decoration_manager_v1* globox_get_wayland_xdg_decoration_manager(
 	struct globox* globox)
 {

@@ -113,6 +113,10 @@ void globox_platform_init(
 	platform->globox_wayland_xdg_decoration_manager = NULL;
 	platform->globox_wayland_kde_blur = NULL;
 
+	platform->globox_wayland_output_registry = NULL;
+	platform->globox_wayland_output_name = 0;
+	platform->globox_wayland_output_data = globox;
+
 	// base
 	platform->globox_wayland_xdg_wm_base_listener.ping =
 		callback_xdg_wm_base_ping;
@@ -293,6 +297,38 @@ void globox_platform_hooks(struct globox* globox)
 	// platform update
 	globox_platform_set_title(globox, globox->globox_title);
 	globox_platform_set_state(globox, globox->globox_state);
+
+	// register output callbacks
+	if (platform->globox_wayland_output_registry != NULL)
+	{
+		platform->globox_wayland_output =
+			wl_registry_bind(
+				platform->globox_wayland_output_registry,
+				platform->globox_wayland_output_name,
+				&wl_output_interface,
+				1);
+
+		if (platform->globox_wayland_output == NULL)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+
+		int error =
+			wl_output_add_listener(
+				platform->globox_wayland_output,
+				&(platform->globox_wayland_output_listener),
+				platform->globox_wayland_output_data);
+
+		if (error == -1)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WAYLAND_LISTENER);
+		}
+	}
 
 	// blur
 	if ((platform->globox_wayland_kde_blur_manager != NULL)

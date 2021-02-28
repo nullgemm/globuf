@@ -82,6 +82,10 @@ struct globox_platform
 	struct xdg_toplevel_listener globox_wayland_xdg_toplevel_listener;
 	struct xdg_surface_listener globox_wayland_xdg_surface_listener;
 
+	struct wl_registry* globox_wayland_output_registry;
+	uint32_t globox_wayland_output_name;
+	void* globox_wayland_output_data;
+
 	struct zxdg_decoration_manager_v1* globox_wayland_xdg_decoration_manager;
 	struct zxdg_toplevel_decoration_v1* globox_wayland_xdg_decoration;
 	struct zxdg_toplevel_decoration_v1_listener globox_wayland_xdg_decoration_listener;
