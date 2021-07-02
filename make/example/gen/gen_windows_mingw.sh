@@ -74,7 +74,7 @@ esac
 obj+=("globox_bin_$tag/lib/globox/windows/"$globox"_mingw.a")
 
 # default target
-cmd="../make/scripts/dll_copy.sh "$globox"_mingw.dll && wine ./$name"
+cmd="../make/scripts/dll_copy.sh "$globox"_mingw.dll && wine ./$name.exe"
 default+=("bin/\$(NAME)")
 
 # makefile start
