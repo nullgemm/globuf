@@ -8,7 +8,7 @@ cd ../../..
 name="globox"
 ver_windows=10
 ver_windows_sdk=10.0.19041.0
-ver_msvc=14.28.29333
+ver_msvc=14.29.30037
 ver_visual_studio=2019
 
 cc="\"/c/Program Files (x86)/Microsoft Visual Studio/\
