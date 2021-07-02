@@ -175,19 +175,19 @@ int main(void)
 
 	render(&globox);
 
+	globox_platform_prepoll(&globox);
+
+	if (globox_error_catch(&globox))
+	{
+		globox_context_glx_free(&globox);
+		globox_platform_free(&globox);
+		globox_close(&globox);
+		return 1;
+	}
+
 	while (globox_get_closed(&globox) == false)
 	{
-		globox_platform_prepoll(&globox);
-
-		if (globox_error_catch(&globox))
-		{
-			globox_context_glx_free(&globox);
-			globox_platform_free(&globox);
-			globox_close(&globox);
-			return 1;
-		}
-
-		globox_platform_events_wait(&globox);
+		globox_platform_events_poll(&globox);
 
 		if (globox_error_catch(&globox))
 		{

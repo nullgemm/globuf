@@ -411,30 +411,60 @@ void globox_platform_prepoll(struct globox* globox)
 
 void globox_platform_events_poll(struct globox* globox)
 {
-	// not needed
-}
-
-// TODO restore wayland handle watching to allow waiting for events
-void globox_platform_events_wait(struct globox* globox)
-{
-#if 0
 	struct globox_platform* platform = globox->globox_platform;
 
-	int error_epoll =
+	int error = wl_display_flush(platform->globox_wayland_display);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_FLUSH);
+		return;
+	}
+
+	error =
 		epoll_wait(
 			platform->globox_wayland_epoll,
 			platform->globox_wayland_epoll_event,
 			GLOBOX_CONST_MAX_WAYLAND_EVENTS,
-			-1);
+			0);
 
-	if (error_epoll == -1)
+	if (error == -1)
 	{
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WAYLAND_EPOLL_WAIT);
 		return;
 	}
-#endif
+
+	if (error == 0)
+	{
+		return;
+	}
+
+	error = wl_display_dispatch(platform->globox_wayland_display);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_DISPATCH);
+	}
+}
+
+void globox_platform_events_wait(struct globox* globox)
+{
+	struct globox_platform* platform = globox->globox_platform;
+
+	int error = wl_display_dispatch(platform->globox_wayland_display);
+
+	if (error == -1)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_DISPATCH);
+	}
 }
 
 // TODO not tested
