@@ -1,11 +1,11 @@
 .POSIX:
 NAME = globox
-CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe"
-LIB = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/lib.exe"
+CC = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30037/bin/Hostx64/x64/cl.exe"
+LIB = "/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30037/bin/Hostx64/x64/lib.exe"
 
 LDFLAGS+= -SUBSYSTEM:windows
 LDFLAGS+= -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64"
-LDFLAGS+= -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/lib/spectre/x64"
+LDFLAGS+= -LIBPATH:"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30037/lib/spectre/x64"
 LDFLAGS+= -LIBPATH:"/c/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
 LDFLAGS+= -DEBUG:FULL
 LDFLAGS+= -LIBPATH:res/eglproxy/lib/msvc
@@ -22,7 +22,7 @@ CFLAGS+= -Isrc
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt"
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
 CFLAGS+= -I"/c/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared"
-CFLAGS+= -I"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/include"
+CFLAGS+= -I"/c/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30037/include"
 CFLAGS+= -Z7
 CFLAGS+= -Ires/egl_headers
 
