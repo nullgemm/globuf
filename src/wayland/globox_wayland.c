@@ -413,15 +413,13 @@ void globox_platform_events_poll(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 
-	int error = wl_display_flush(platform->globox_wayland_display);
+	int error;
 
-	if (error == -1)
+	do
 	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_FLUSH);
-		return;
+		error = wl_display_flush(platform->globox_wayland_display);
 	}
+	while (error == -1);
 
 	error =
 		epoll_wait(
