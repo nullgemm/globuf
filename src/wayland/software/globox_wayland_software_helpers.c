@@ -224,9 +224,16 @@ void globox_software_callback_resize(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	uint32_t size = 4 * ((uint64_t) width) * ((uint64_t) height);
+	bool alloc;
 
-	if (context->globox_software_buffer_len < size)
+#ifdef GLOBOX_KDE_WAYLAND_RESIZE_FIX
+	alloc = true;
+#else
+	uint32_t size = 4 * ((uint64_t) width) * ((uint64_t) height);
+	alloc = (context->globox_software_buffer_len < size);
+#endif
+
+	if (alloc == true)
 	{
 		globox_software_callback_unminimize_start(globox);
 

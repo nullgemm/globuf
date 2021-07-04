@@ -174,3 +174,10 @@ The following issues are known but cannot be fixed:
    Apple does not expose an API to control magnetic window positioning,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
+
+The following issues are known and fixed, but not by default:
+ - `KDE``Wayland` Resizing the window can introduce reverse-shearing artifacts,
+   by rendering *too fast* for this compositor to properly handle.
+   The solution is to always re-allocate the buffer with exaclty the right size,
+   but this fix is disabled by default for *hopefully* obvious reasons.
+   To turn it on, simply define `GLOBOX_KDE_WAYLAND_RESIZE_FIX`.

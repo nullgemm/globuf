@@ -34,6 +34,7 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_PLATFORM_WAYLAND")
+#defines+=("-DGLOBOX_KDE_WAYLAND_RESIZE_FIX")
 
 # generated linker arguments
 link+=("wayland-client")
