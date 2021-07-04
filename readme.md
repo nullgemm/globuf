@@ -176,7 +176,7 @@ The following issues are known but cannot be fixed:
    behaviour across platforms prevents us from getting access to it normally.
 
 The following issues are known and fixed, but not by default:
- - `KDE``Wayland` Resizing the window can introduce reverse-shearing artifacts,
+ - `KDE` `Wayland` Resizing the window can introduce reverse-shearing artifacts,
    by rendering *too fast* for this compositor to properly handle.
    The solution is to always re-allocate the buffer with exaclty the right size,
    but this fix is disabled by default for *hopefully* obvious reasons.
