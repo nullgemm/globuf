@@ -143,6 +143,13 @@ void globox_context_software_copy(
 	uint32_t height)
 {
 	struct globox_platform* platform = globox->globox_platform;
+	struct globox_wayland_software* context = &(platform->globox_wayland_software);
+
+	wl_surface_attach(
+		platform->globox_wayland_surface,
+		context->globox_software_buffer,
+		0,
+		0);
 
 	wl_surface_damage_buffer(
 		platform->globox_wayland_surface,
