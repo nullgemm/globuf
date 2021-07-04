@@ -58,8 +58,8 @@ enum NSWindowCollectionBehavior
 // extra enums required as part of the private API
 enum macos_bitmapinfo
 {
-	GLOBOX_MACOS_BITMAPINFO_PREMULTIPLIEDLAST = 1,
-	GLOBOX_MACOS_BITMAPINFO_BYTEORDER32BIG = 4 << 12,
+	GLOBOX_MACOS_BITMAPINFO_PREMULTIPLIEDFIRST = 2,
+	GLOBOX_MACOS_BITMAPINFO_BYTEORDER32LITTLE = 2 << 12,
 };
 
 enum macos_events_subtype
