@@ -21,7 +21,7 @@ void resize(struct globox* globox)
 	struct globox_windows_software* context = &(platform->globox_windows_software);
 
 	context->globox_software_bmp_info.bmiHeader.biWidth = globox->globox_width;
-	context->globox_software_bmp_info.bmiHeader.biHeight = globox->globox_height;
+	context->globox_software_bmp_info.bmiHeader.biHeight = -((LONG) globox->globox_height);
 
 	// destroy old bitmap handle
 	if (context->globox_software_bmp_handle != NULL)
