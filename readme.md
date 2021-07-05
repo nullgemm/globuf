@@ -152,8 +152,13 @@ and select those you want. In our case, this will be a compiler and SDK:
  - `MSVC - VS C++ x64/x86 build tools`
  - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`
 
+## Example
+It is possible to generate makefiles to build egl, wgl, glx & software examples
+using the scripts in `make/example/gen` or `make/example/batch`.
+A small desktop application using Globox, Razorbeard, Willis, DPIshit & Cursoryx
+is available [here](https://github.com/nullgemm/desktopsample).
+
 ## Todo
- - Integrate Willis, Cursoryx and DPIshit examples
  - Implement the Vulkan context for all platforms
 
 ## Known issues
