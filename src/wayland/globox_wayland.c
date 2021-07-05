@@ -413,27 +413,38 @@ void globox_platform_events_poll(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 
-	int error;
-
-	do
-	{
-		error = wl_display_flush(platform->globox_wayland_display);
-	}
-	while (error == -1);
-
-	error =
-		epoll_wait(
-			platform->globox_wayland_epoll,
-			platform->globox_wayland_epoll_event,
-			GLOBOX_CONST_MAX_WAYLAND_EVENTS,
-			0);
+	int error = wl_display_flush(platform->globox_wayland_display);
 
 	if (error == -1)
 	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_EPOLL_WAIT);
-		return;
+		do
+		{
+			epoll_wait(
+				platform->globox_wayland_epoll,
+				platform->globox_wayland_epoll_event,
+				GLOBOX_CONST_MAX_WAYLAND_EVENTS,
+				-1);
+
+			error = wl_display_flush(platform->globox_wayland_display);
+		}
+		while (error == -1);
+	}
+	else
+	{
+		error =
+			epoll_wait(
+				platform->globox_wayland_epoll,
+				platform->globox_wayland_epoll_event,
+				GLOBOX_CONST_MAX_WAYLAND_EVENTS,
+				0);
+
+		if (error == -1)
+		{
+			globox_error_throw(
+				globox,
+				GLOBOX_ERROR_WAYLAND_EPOLL_WAIT);
+			return;
+		}
 	}
 
 	if (error == 0)
