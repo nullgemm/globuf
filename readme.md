@@ -125,7 +125,7 @@ Globox was designed to be Wine-compatible so you can use it to run the examples
 
 #### Compiling from Windows
 The Windows backend can also be compiled from Windows for easier testing.
-*Do not download Visual Studio just for globox, it would be completely overkill!*
+*Do not download Visual Studio just for Globox, it would be completely overkill!*
 You only need builds of the POSIX `rm`, `mv` and `cp` and GNU's `make` and `objcopy`.
 
 We recommend using the
@@ -164,21 +164,36 @@ is available [here](https://github.com/nullgemm/desktopsample).
 ## Known issues
 The following issues are known but cannot be fixed:
  - `Windows` The mouse cursor does not change to reflect the resize operations |
-   This is a known limit of the hack used in globox to work around the
+   This is a known limit of the hack used in Globox to work around the
    limitations of Microsoft's APIs. Other hacks exist that preserve the
    expected behaviour but rely on timers, which we do not find acceptable.
  - `Windows` Snap-Drag mechanisms are not available |
    Microsoft does not expose an API to control Snap-Drag,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
- - `macOS` Window resizing modifiers are not available |
-   This is a known limit of the hack used in globox to work around the
-   limitations of Apple's APIs. Other hacks exist that preserve the
-   expected behaviour but rely on timers, which we do not find acceptable.
  - `macOS` Magnetic window positioning is not available |
    Apple does not expose an API to control magnetic window positioning,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
+
+The following issues are known and will not be fixed:
+ - `Windows` The window is blurred a few pixels outside its borders |
+   This is the consequence of a bug in the APIs used by Globox to
+   produce the background blur effect. The only way to fix it is to expand
+   the client area and render a custom frame on top of it using DWM APIs,
+   but this would hide some parts of the buffer, which is not acceptable.
+   Another solution would be to switch to a DirectComposition pipeline and
+   reconstruct the acrylic blur effect manually, but this requires using a lot
+   of undocumented DWM functionalities and DirectComposition is only accessible
+   from C++ code, which means we would have to rely on non-portable COM32 hacks.
+
+ - `macOS` Window resizing modifiers are not available |
+   This is a known limit of the hack used in Globox to work around the
+   limitations of Apple's APIs. Other hacks exist that preserve the
+   expected behaviour but rely on timers, which we do not find acceptable.
+   While implementing this feature manually is also possible, we do not think
+   it is a good idea in practice - for obvious portability concerns, but also
+   because it is far beyond the scope of a windowing library.
 
 The following issues are known and fixed, but not by default:
  - `KDE` `Wayland` Resizing the window can introduce reverse-shearing artifacts,
