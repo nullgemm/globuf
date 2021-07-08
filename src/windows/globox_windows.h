@@ -45,6 +45,7 @@ struct globox_platform
 	LPWSTR globox_windows_class_name;
 	HMODULE globox_windows_class_module_handle;
 	WNDCLASSEX globox_windows_class;
+	BOOL globox_windows_new_event;
 
 	LONG globox_windows_style_backup;
 	LONG globox_windows_exstyle_backup;

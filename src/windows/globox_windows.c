@@ -546,6 +546,8 @@ void globox_platform_init(
 	platform->globox_windows_class_name =
 		utf8_to_wchar(globox->globox_title);
 
+	platform->globox_windows_new_event = FALSE;
+
 	if (platform->globox_windows_class_name == NULL)
 	{
 		globox_error_throw(
@@ -809,12 +811,13 @@ void globox_platform_events_poll(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
 
-	PeekMessage(
-		&(platform->globox_windows_msg),
-		platform->globox_platform_event_handle,
-		0,
-		0,
-		PM_REMOVE);
+	platform->globox_windows_new_event =
+		PeekMessage(
+			&(platform->globox_windows_msg),
+			platform->globox_platform_event_handle,
+			0,
+			0,
+			PM_REMOVE);
 }
 
 void globox_platform_events_wait(struct globox* globox)
@@ -953,6 +956,11 @@ void globox_platform_interactive_mode(
 void globox_platform_events_handle(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
+
+	if (platform->globox_windows_new_event == FALSE)
+	{
+		return;
+	}
 
 	bool transmission = true;
 	BOOL ok;
