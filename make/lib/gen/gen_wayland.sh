@@ -34,7 +34,6 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 # library platform
 defines+=("-DGLOBOX_PLATFORM_WAYLAND")
-#defines+=("-DGLOBOX_KDE_WAYLAND_RESIZE_FIX")
 
 # generated linker arguments
 link+=("wayland-client")
@@ -64,6 +63,7 @@ makefile=makefile_lib_wayland_software
 src+=("src/wayland/software/globox_wayland_software.c")
 src+=("src/wayland/software/globox_wayland_software_helpers.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
+defines+=("-DGLOBOX_KDE_WAYLAND_RESIZE_FIX")
 	;;
 
 	[2]* ) # egl context

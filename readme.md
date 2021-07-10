@@ -194,10 +194,3 @@ The following issues are known and will not be fixed:
    While implementing this feature manually is also possible, we do not think
    it is a good idea in practice - for obvious portability concerns, but also
    because it is far beyond the scope of a windowing library.
-
-The following issues are known and fixed, but not by default:
- - `KDE` `Wayland` Resizing the window can introduce reverse-shearing artifacts,
-   by rendering *too fast* for this compositor to properly handle.
-   The solution is to always re-allocate the buffer with exaclty the right size,
-   but this fix is disabled by default for *hopefully* obvious reasons.
-   To turn it on, simply define `GLOBOX_KDE_WAYLAND_RESIZE_FIX`.
