@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-tag=$(git tag | tail -n 1)
+tag=$(git tag --sort v:refname | tail -n 1)
 release=globox_bin_$tag
 
 src+=("globox.h")
