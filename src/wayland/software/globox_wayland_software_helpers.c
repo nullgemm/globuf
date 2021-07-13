@@ -224,59 +224,14 @@ void globox_software_callback_resize(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	bool alloc;
+	globox_software_callback_unminimize_start(globox);
 
-#ifdef GLOBOX_KDE_WAYLAND_RESIZE_FIX
-	alloc = true;
-#else
-	uint32_t size = 4 * ((uint64_t) width) * ((uint64_t) height);
-	alloc = (context->globox_software_buffer_len < size);
-#endif
+	context->globox_software_buffer_len = nextpow2(4 * width * height);
 
-	if (alloc == true)
+	globox_software_callback_allocate(globox);
+
+	if (globox_error_catch(globox))
 	{
-		globox_software_callback_unminimize_start(globox);
-
-		context->globox_software_buffer_len = nextpow2(4 * width * height);
-
-		globox_software_callback_allocate(globox);
-
-		if (globox_error_catch(globox))
-		{
-			return;
-		}
-	}
-	else
-	{
-		uint32_t format;
-
-		if (globox->globox_transparent == true)
-		{
-			format = WL_SHM_FORMAT_ARGB8888;
-		}
-		else
-		{
-			format = WL_SHM_FORMAT_XRGB8888;
-		}
-
-		wl_buffer_destroy(
-			context->globox_software_buffer);
-
-		context->globox_software_buffer =
-			wl_shm_pool_create_buffer(
-				context->globox_software_pool,
-				0,
-				globox->globox_width,
-				globox->globox_height,
-				globox->globox_width * 4,
-				format);
-
-		if (context->globox_software_buffer == NULL)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
-			return;
-		}
+		return;
 	}
 }
