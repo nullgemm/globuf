@@ -73,39 +73,7 @@ void globox_context_software_create(struct globox* globox)
 
 void globox_context_software_shrink(struct globox* globox)
 {
-	struct globox_platform* platform = globox->globox_platform;
-	struct globox_wayland_software* context = &(platform->globox_wayland_software);
-	int error;
-
-	wl_shm_pool_destroy(context->globox_software_pool);
-
-	close(context->globox_software_fd);
-
-	error =
-		munmap(
-			platform->globox_platform_argb,
-			context->globox_software_buffer_len);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_MUNMAP);
-	}
-
-	context->globox_software_buffer_len =
-		4
-		* globox->globox_width
-		* globox->globox_height;
-
-	globox_software_callback_allocate(globox);
-
-	if (globox_error_catch(globox))
-	{
-		return;
-	}
-
-	return;
+	// not needed
 }
 
 void globox_context_software_free(struct globox* globox)

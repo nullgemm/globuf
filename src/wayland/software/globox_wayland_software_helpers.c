@@ -17,20 +17,6 @@
 #include "wayland/software/globox_wayland_software.h"
 #include "wayland/software/globox_wayland_software_helpers.h"
 
-static inline uint64_t nextpow2(uint64_t x)
-{
-	--x;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	x |= x >> 32;
-	++x;
-
-	return x;
-}
-
 void globox_software_callback_allocate(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;
@@ -226,7 +212,7 @@ void globox_software_callback_resize(
 
 	globox_software_callback_unminimize_start(globox);
 
-	context->globox_software_buffer_len = nextpow2(4 * width * height);
+	context->globox_software_buffer_len = 4 * width * height;
 
 	globox_software_callback_allocate(globox);
 
