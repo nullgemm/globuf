@@ -76,6 +76,8 @@ void render(struct globox* globox)
 
 	if (globox_get_redraw(globox) == true)
 	{
+		globox_platform_prepare_buffer(globox);
+
 		int32_t width = globox_get_width(globox);
 		int32_t height = globox_get_height(globox);
 		GLint viewport_rect[4];
