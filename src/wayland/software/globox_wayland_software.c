@@ -94,7 +94,13 @@ void globox_context_software_shrink(struct globox* globox)
 
 void globox_context_software_free(struct globox* globox)
 {
-	// not needed
+	struct globox_platform* platform = globox->globox_platform;
+	struct globox_wayland_software* context = &(platform->globox_wayland_software);
+
+	if (context->globox_software_buffer_list != NULL)
+	{
+		free(context->globox_software_buffer_list);
+	}
 }
 
 void globox_context_software_copy(
