@@ -254,6 +254,9 @@ void globox_platform_init(
 void globox_platform_events_handle(
 	struct globox* globox);
 
+void globox_platform_prepare_buffer(
+	struct globox* globox);
+
 void globox_platform_set_icon(
 	struct globox* globox,
 	uint32_t* pixmap,

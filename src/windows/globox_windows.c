@@ -1277,6 +1277,12 @@ void globox_platform_events_handle(struct globox* globox)
 	}
 }
 
+void globox_platform_prepare_buffer(
+	struct globox* globox)
+{
+	// not needed
+}
+
 void globox_platform_free(struct globox* globox)
 {
 	struct globox_platform* platform = globox->globox_platform;

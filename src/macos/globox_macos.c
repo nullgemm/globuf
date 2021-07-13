@@ -1141,6 +1141,12 @@ void globox_platform_events_handle(
 	}
 }
 
+void globox_platform_prepare_buffer(
+	struct globox* globox)
+{
+	// not needed
+}
+
 void globox_platform_free(struct globox* globox)
 {
 	// alias for readability

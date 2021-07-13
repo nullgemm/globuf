@@ -4,6 +4,7 @@
 #include "globox_error.h"
 
 #include <errno.h>
+#include <pthread.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -16,6 +17,37 @@
 #include "wayland/globox_wayland.h"
 #include "wayland/software/globox_wayland_software.h"
 #include "wayland/software/globox_wayland_software_helpers.h"
+
+void globox_software_callback_buffer_release(
+	void* data,
+	struct wl_buffer* wl_buffer)
+{
+	struct globox* globox = data;
+	struct globox_platform* platform = globox->globox_platform;
+	struct globox_wayland_software* context = &(platform->globox_wayland_software);
+
+	pthread_mutex_lock(&(context->globox_software_buffer_mutex));
+
+	if (context->globox_software_buffer_list_len
+		== context->globox_software_buffer_list_max)
+	{
+		context->globox_software_buffer_list_max += 10;
+
+		context->globox_software_buffer_list =
+			realloc(
+				context->globox_software_buffer_list,
+				context->globox_software_buffer_list_max
+					* (sizeof (struct wl_buffer*)));
+	}
+
+	context->globox_software_buffer_list
+		[context->globox_software_buffer_list_len] =
+			wl_buffer;
+
+	context->globox_software_buffer_list_len += 1;
+
+	pthread_mutex_unlock(&(context->globox_software_buffer_mutex));
+}
 
 void globox_software_callback_allocate(struct globox* globox)
 {
@@ -106,14 +138,15 @@ void globox_software_callback_allocate(struct globox* globox)
 	}
 
 	// create memory pool
-	context->globox_software_pool =
+	struct wl_shm_pool* software_pool =
 		wl_shm_create_pool(
 			platform->globox_wayland_shm,
 			fd,
 			context->globox_software_buffer_len);
 
-	if (context->globox_software_pool == NULL)
+	if (software_pool == NULL)
 	{
+		close(fd);
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WAYLAND_REQUEST);
@@ -134,7 +167,7 @@ void globox_software_callback_allocate(struct globox* globox)
 
 	context->globox_software_buffer =
 		wl_shm_pool_create_buffer(
-			context->globox_software_pool,
+			software_pool,
 			0,
 			globox->globox_width,
 			globox->globox_height,
@@ -143,41 +176,58 @@ void globox_software_callback_allocate(struct globox* globox)
 
 	if (context->globox_software_buffer == NULL)
 	{
+		close(fd);
+		wl_shm_pool_destroy(software_pool);
 		globox_error_throw(
 			globox,
 			GLOBOX_ERROR_WAYLAND_REQUEST);
 		return;
 	}
 
-	context->globox_software_fd = fd;
+	ret = wl_buffer_add_listener(
+		context->globox_software_buffer,
+		&(context->globox_software_buffer_listener),
+		globox);
+
+	if (ret == -1)
+	{
+		close(fd);
+		wl_shm_pool_destroy(software_pool);
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_WAYLAND_LISTENER);
+		return;
+	}
+
+	close(fd);
+	wl_shm_pool_destroy(software_pool);
+
+	// clean previous buffers
+	pthread_mutex_lock(&(context->globox_software_buffer_mutex));
+
+	if (context->globox_software_buffer_list_len > 0)
+	{
+		int k = 0;
+		int max = context->globox_software_buffer_list_len - 1;
+
+		while (k < max)
+		{
+			wl_buffer_destroy(context->globox_software_buffer_list[k]);
+			++k;
+		}
+
+		context->globox_software_buffer_list_len = 1;
+
+		context->globox_software_buffer_list[0] =
+			context->globox_software_buffer_list[k];
+	}
+
+	pthread_mutex_unlock(&(context->globox_software_buffer_mutex));
 }
 
 void globox_software_callback_unminimize_start(struct globox* globox)
 {
-	struct globox_platform* platform = globox->globox_platform;
-	struct globox_wayland_software* context = &(platform->globox_wayland_software);
-	int error;
-
-	wl_shm_pool_destroy(context->globox_software_pool);
-
-	close(context->globox_software_fd);
-
-	error =
-		munmap(
-			platform->globox_platform_argb,
-			context->globox_software_buffer_len);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_MUNMAP);
-		return;
-	}
-
-	wl_buffer_destroy(context->globox_software_buffer);
-
-	return;
+	// not needed
 }
 
 void globox_software_callback_unminimize_finish(struct globox* globox)
@@ -210,14 +260,5 @@ void globox_software_callback_resize(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
-	globox_software_callback_unminimize_start(globox);
-
 	context->globox_software_buffer_len = 4 * width * height;
-
-	globox_software_callback_allocate(globox);
-
-	if (globox_error_catch(globox))
-	{
-		return;
-	}
 }

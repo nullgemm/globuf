@@ -17,6 +17,8 @@ void render(struct globox* globox)
 
 	if (globox_get_redraw(globox) == true)
 	{
+		globox_platform_prepare_buffer(globox);
+
 		uint32_t width = globox_get_width(globox);
 		uint32_t height = globox_get_height(globox);
 		uint32_t* argb = globox_platform_get_argb(globox);

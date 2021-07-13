@@ -30,6 +30,8 @@ void globox_context_egl_init(
 		globox_egl_callback_unminimize_start;
 	platform->globox_wayland_unminimize_finish =
 		globox_egl_callback_unminimize_finish;
+	platform->globox_wayland_callback_allocate =
+		globox_egl_callback_allocate;
 	platform->globox_wayland_callback_xdg_toplevel_configure =
 		globox_egl_callback_resize;
 	platform->globox_wayland_callback_xdg_surface_configure =

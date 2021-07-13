@@ -56,6 +56,7 @@ struct globox_platform
 
 	void (*globox_wayland_unminimize_start)(struct globox* globox);
 	void (*globox_wayland_unminimize_finish)(struct globox* globox);
+	void (*globox_wayland_callback_allocate)(struct globox* globox);
 	void (*globox_wayland_callback_xdg_surface_configure)(
 		struct globox* globox);
 	void (*globox_wayland_callback_xdg_toplevel_configure)(

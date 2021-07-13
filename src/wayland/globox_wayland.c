@@ -476,7 +476,6 @@ void globox_platform_events_wait(struct globox* globox)
 	}
 }
 
-// TODO not tested
 void globox_platform_interactive_mode(struct globox* globox, enum globox_interactive_mode mode)
 {
 	struct globox_platform* platform = globox->globox_platform;
@@ -567,6 +566,14 @@ void globox_platform_events_handle(
 	struct globox* globox)
 {
 	// not needed
+}
+
+void globox_platform_prepare_buffer(
+	struct globox* globox)
+{
+	struct globox_platform* platform = globox->globox_platform;
+
+	platform->globox_wayland_callback_allocate(globox);
 }
 
 void globox_platform_free(struct globox* globox)

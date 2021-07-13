@@ -95,9 +95,11 @@ uint32_t globox_get_wayland_saved_serial(
 	struct globox* globox);
 
 #if defined(GLOBOX_CONTEXT_SOFTWARE)
-// no getter for globox_software_fd
-struct wl_shm_pool* globox_get_wayland_software_pool(
-	struct globox* globox);
+// no getter for globox_software_buffer_mutex
+// no getter for globox_software_buffer_list
+// no getter for globox_software_buffer_list_len
+// no getter for globox_software_buffer_list_max
+// no getter for globox_software_buffer_listener
 struct wl_buffer* globox_get_wayland_software_buffer(
 	struct globox* globox);
 // no getter for globox_software_buffer_len
