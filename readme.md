@@ -163,6 +163,10 @@ is available [here](https://github.com/nullgemm/desktopsample).
 
 ## Known issues
 The following issues are known but cannot be fixed:
+ - `Wayland` Mouse release events are not sent after interactive move & resize |
+   All tested compositors seem to emit a dummy mouse movement event instead, so
+   the only way out is to treat those received after initiating an interactive
+   move or resize as a mouse release, and ask Globox to exit interactive mode.
  - `Windows` The mouse cursor does not change to reflect the resize operations |
    This is a known limit of the hack used in Globox to work around the
    limitations of Microsoft's APIs. Other hacks exist that preserve the
@@ -175,6 +179,9 @@ The following issues are known but cannot be fixed:
    Apple does not expose an API to control magnetic window positioning,
    and the aforementioned hack used to provide a consistent event-loop
    behaviour across platforms prevents us from getting access to it normally.
+ - `macOS` Frameless windows do not receive mouse movement events |
+   In this case the window cannot be made key or main, and will not receive
+   certain events. This appears to be by design and can't be fixed.
 
 The following issues are known and will not be fixed:
  - `Windows` The window is blurred a few pixels outside its borders |
