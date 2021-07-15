@@ -185,7 +185,7 @@ void callback_registry_global(
 				wl_registry,
 				name,
 				&wl_seat_interface,
-				7);
+				4);
 
 		// add listener
 		globox->globox_event_callback(
