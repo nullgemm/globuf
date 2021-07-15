@@ -63,9 +63,5 @@ void callback_xdg_surface_configure(
 	void* data,
 	struct xdg_surface* xdg_surface,
 	uint32_t serial);
-void callback_xdg_decoration_configure(
-	void* data,
-	struct zxdg_toplevel_decoration_v1* xdg_decoration,
-	uint32_t mode);
 
 #endif

@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
-#include "xdg-decoration-client-protocol.h"
 #include "kde-blur-client-protocol.h"
 #include "zwp-relative-pointer-protocol.h"
 #include "zwp-pointer-constraints-protocol.h"
@@ -25,61 +24,6 @@ void null_or_free(void* var)
 	}
 }
 
-void update_decorations(struct globox* globox)
-{
-	int error;
-	struct globox_platform* platform = globox->globox_platform;
-
-	if (platform->globox_wayland_xdg_decoration_manager == NULL)
-	{
-		return;
-	}
-
-	// create decoration listener
-	platform->globox_wayland_xdg_decoration =
-		zxdg_decoration_manager_v1_get_toplevel_decoration(
-			platform->globox_wayland_xdg_decoration_manager,
-			platform->globox_wayland_xdg_toplevel);
-
-	if (platform->globox_wayland_xdg_decoration == NULL)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_REQUEST);
-		return;
-	}
-
-	error =
-		zxdg_toplevel_decoration_v1_add_listener(
-			platform->globox_wayland_xdg_decoration,
-			&(platform->globox_wayland_xdg_decoration_listener),
-			globox);
-
-	if (error == -1)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_WAYLAND_LISTENER);
-		return;
-	}
-
-	// send decoration method preferences
-	uint32_t mode;
-
-	if (globox->globox_frameless == true)
-	{
-		mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
-	}
-	else
-	{
-		mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
-	}
-
-	zxdg_toplevel_decoration_v1_set_mode(
-		platform->globox_wayland_xdg_decoration,
-		mode);
-}
-
 // initalize the display system
 void globox_platform_init(
 	struct globox* globox,
@@ -92,7 +36,7 @@ void globox_platform_init(
 	globox->globox_platform = platform;
 	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
-	globox->globox_frameless = frameless;
+	globox->globox_frameless = true;
 	globox->globox_blurred = blurred;
 
 	int error;
@@ -100,7 +44,6 @@ void globox_platform_init(
 	platform->globox_wayland_saved_serial = 0;
 	platform->globox_wayland_shm = NULL;
 	platform->globox_wayland_compositor = NULL;
-	platform->globox_wayland_xdg_decoration = NULL;
 	platform->globox_wayland_kde_blur_manager = NULL;
 	platform->globox_wayland_xdg_wm_base = NULL;
 	platform->globox_wayland_output = NULL;
@@ -110,7 +53,6 @@ void globox_platform_init(
 	platform->globox_wayland_xdg_toplevel = NULL;
 	platform->globox_wayland_xdg_surface = NULL;
 	platform->globox_wayland_surface = NULL;
-	platform->globox_wayland_xdg_decoration_manager = NULL;
 	platform->globox_wayland_kde_blur = NULL;
 
 	platform->globox_wayland_output_registry = NULL;
@@ -144,10 +86,6 @@ void globox_platform_init(
 		callback_xdg_toplevel_close;
 	platform->globox_wayland_xdg_surface_listener.configure =
 		callback_xdg_surface_configure;
-
-	// decoration
-	platform->globox_wayland_xdg_decoration_listener.configure =
-		callback_xdg_decoration_configure;
 
 	// connect to display
 	platform->globox_wayland_display =
@@ -586,12 +524,6 @@ void globox_platform_free(struct globox* globox)
 		org_kde_kwin_blur_destroy(platform->globox_wayland_kde_blur);
 	}
 
-	if (platform->globox_wayland_xdg_decoration != NULL)
-	{
-		free(platform->globox_wayland_xdg_decoration);
-		zxdg_decoration_manager_v1_destroy(platform->globox_wayland_xdg_decoration_manager);
-	}
-
 	null_or_free(platform->globox_wayland_seat);
 	null_or_free(platform->globox_wayland_output);
 	null_or_free(platform->globox_wayland_xdg_wm_base);
@@ -704,8 +636,6 @@ void globox_platform_set_state(
 					globox->globox_title);
 			}
 
-			update_decorations(globox);
-
 			break;
 		}
 		case GLOBOX_STATE_MAXIMIZED:
@@ -714,8 +644,6 @@ void globox_platform_set_state(
 				platform->globox_wayland_xdg_toplevel);
 			xdg_toplevel_set_maximized(
 				platform->globox_wayland_xdg_toplevel);
-
-			update_decorations(globox);
 
 			break;
 		}

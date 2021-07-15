@@ -14,7 +14,6 @@
 #if defined(GLOBOX_PLATFORM_WAYLAND)
 	#include <wayland-client.h>
 	#include "xdg-shell-client-protocol.h"
-	#include "xdg-decoration-client-protocol.h"
 	#include "kde-blur-client-protocol.h"
 #elif defined(GLOBOX_PLATFORM_X11)
 	#include <xcb/xcb.h>
@@ -76,12 +75,6 @@ struct wl_output_listener* globox_get_wayland_output_listener(
 // no getter for globox_wayland_output_registry
 // no getter for globox_wayland_output_name
 void** globox_get_wayland_output_data(
-	struct globox* globox);
-struct zxdg_decoration_manager_v1* globox_get_wayland_xdg_decoration_manager(
-	struct globox* globox);
-struct zxdg_toplevel_decoration_v1* globox_get_wayland_xdg_decoration(
-	struct globox* globox);
-struct zxdg_toplevel_decoration_v1_listener globox_get_wayland_xdg_decoration_listener(
 	struct globox* globox);
 struct zwp_relative_pointer_manager_v1* globox_get_wayland_pointer_manager(
 	struct globox* globox);
