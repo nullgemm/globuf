@@ -167,6 +167,12 @@ The following issues are known but cannot be fixed:
    All tested compositors seem to emit a dummy mouse movement event instead, so
    the only way out is to treat those received after initiating an interactive
    move or resize as a mouse release, and ask Globox to exit interactive mode.
+ - `Wayland` framed mode is not supported |
+   Globox used to support the `xdg-decoration` protocol to ask the compositor
+   to provide server-side decorations, unfortunately this was removed because
+   it can't be synchronized and would require API changes that can't be
+   replicated on other display systems while maintaining portability.
+   The exact reasons can be found in the [relevant commit message](https://github.com/nullgemm/globox/commit/629e41b657f6764f32eeb52c71982f9f040b0a18)
  - `Windows` The mouse cursor does not change to reflect the resize operations |
    This is a known limit of the hack used in Globox to work around the
    limitations of Microsoft's APIs. Other hacks exist that preserve the
