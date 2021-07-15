@@ -232,6 +232,8 @@ void globox_open(
 
 void globox_close(struct globox* globox);
 
+void globox_set_closed(struct globox* globox, bool closed);
+
 // platform-dependent functions
 void globox_platform_free(struct globox* globox);
 void globox_platform_create_window(struct globox* globox);

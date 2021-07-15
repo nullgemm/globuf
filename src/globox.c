@@ -289,6 +289,11 @@ void globox_close(struct globox* globox)
 	free(globox->globox_title);
 }
 
+void globox_set_closed(struct globox* globox, bool closed)
+{
+	globox->globox_closed = closed;
+}
+
 // getters
 
 int32_t globox_get_x(struct globox* globox)
