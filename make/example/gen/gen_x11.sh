@@ -52,7 +52,7 @@ name="globox_example_x11_glx"
 globox="globox_x11_glx"
 src+=("example/glx.c")
 defines+=("-DGLOBOX_CONTEXT_GLX")
-link+=("glx")
+link+=("gl")
 link+=("glesv2")
 link+=("x11 x11-xcb xrender")
 	;;

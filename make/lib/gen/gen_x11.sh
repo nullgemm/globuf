@@ -70,7 +70,7 @@ link+=("glesv2")
 makefile=makefile_lib_x11_glx
 src+=("src/x11/glx/globox_x11_glx.c")
 defines+=("-DGLOBOX_CONTEXT_GLX")
-link+=("glx")
+link+=("gl")
 link+=("glesv2")
 link+=("x11 x11-xcb xrender")
 	;;
