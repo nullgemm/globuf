@@ -20,11 +20,23 @@ done
 # generate libraries
 mkdir -p "$release/lib/globox/macos"
 make -f makefile_lib_macos_software clean
-make -f makefile_lib_macos_software
+
+if [[ -v AR ]]; then
+	make -f makefile_lib_macos_software -e AR=$AR
+else
+	make -f makefile_lib_macos_software
+fi
+
 mv bin/globox.a $release/lib/globox/macos/globox_macos_software.a
 mv bin/libglobox.dylib $release/lib/globox/macos/libglobox_macos_software.dylib
 
 make -f makefile_lib_macos_egl clean
-make -f makefile_lib_macos_egl
+
+if [[ -v AR ]]; then
+	make -f makefile_lib_macos_egl -e AR=$AR
+else
+	make -f makefile_lib_macos_egl
+fi
+
 mv bin/globox.a $release/lib/globox/macos/globox_macos_egl.a
 mv bin/libglobox.dylib $release/lib/globox/macos/libglobox_macos_egl.dylib
