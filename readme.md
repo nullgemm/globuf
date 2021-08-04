@@ -51,12 +51,16 @@ mac OS
    (which implements Vulkan on top of metal)
    (It is not implemented yet)
 
-## Re-generating the makefiles
-Edit and run the `gen` scripts in the `make` folder.
-You will be prompted for a context type and wether to cross-compile or not.
-
 ## Compiling
-Simply run the makefiles created at the root of the repository:
+Generate the makefiles using the scripts in `make/lib/gen/`.
+You will be prompted for a context type and wether to cross-compile or not;
+use the scripts in `make/lib/batch/` instead to automate this and go faster.
+```
+./make/lib/gen/gen_BACKEND.sh
+```
+
+Then, simply run the makefiles created at the root of the repository.
+You can also run the scripts in `make/lib/release/` to batch-build backends.
 ```
 make -f makefile_BACKEND_CONTEXT_NATIVE
 ```
