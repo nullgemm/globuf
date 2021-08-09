@@ -11,6 +11,8 @@ obj+=("res/icon/iconpix_mach.o")
 
 flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
+flags+=("-Wformat")
+flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Iglobox_bin_$tag/include")
@@ -19,6 +21,44 @@ defines+=("-DGLOBOX_PLATFORM_MACOS")
 
 # generated linker arguments
 ldlibs+=("-framework AppKit")
+
+read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+
+case $build in
+	[1]* ) # development build
+flags+=("-g")
+defines+=("-DGLOBOX_ERROR_LOG_BASIC")
+defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+	;;
+
+	[2]* ) # release build
+flags+=("-D_FORTIFY_SOURCE=2")
+flags+=("-fstack-protector-strong")
+flags+=("-fPIE")
+flags+=("-O2")
+ldflags+=("-z relro")
+ldflags+=("-z now")
+	;;
+
+	[3]* ) # sanitized build
+flags+=("-g")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fPIE")
+flags+=("-O2")
+flags+=("-fsanitize=undefined")
+#flags+=("-fsanitize=memory")
+#flags+=("-fsanitize-memory-track-origins=2")
+#flags+=("-fsanitize=address")
+#flags+=("-fsanitize-address-use-after-return=always")
+flags+=("-fsanitize=function")
+ldflags+=("-fsanitize=undefined")
+#ldflags+=("-fsanitize=memory")
+#ldflags+=("-fsanitize-memory-track-origins=2")
+#ldflags+=("-fsanitize=address")
+#ldflags+=("-fsanitize-address-use-after-return=always")
+ldflags+=("-fsanitize=function")
+	;;
+esac
 
 # context type
 read -p "select context type ([1] software | [2] egl): " context

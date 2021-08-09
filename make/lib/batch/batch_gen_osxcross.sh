@@ -4,9 +4,9 @@
 cd "$(dirname "$0")"
 cd ../gen
 
-# if we have "1" as an argument we generate release makefiles
-if [ -n "$1" ] && [ "$1" -eq 1 ] ; then
-optimize=2
+# if we have an argument we generate makefiles for this release type
+if [ -n "$1" ] ; then
+optimize=$1
 else
 optimize=1
 fi

@@ -16,6 +16,8 @@ src+=("src/macos/globox_macos_callbacks.c")
 
 flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
+flags+=("-Wformat")
+flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Isrc")
@@ -32,17 +34,41 @@ defines+=("-DGLOBOX_PLATFORM_MACOS")
 ldlibs+=("-framework AppKit")
 
 # build type
-read -p "select build type ([1] debug | [2] release): " build
+read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
 
 case $build in
-	[1]* ) # debug build
+	[1]* ) # development build
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
 	[2]* ) # release build
+flags+=("-D_FORTIFY_SOURCE=2")
+flags+=("-fstack-protector-strong")
+flags+=("-fPIE")
 flags+=("-O2")
+ldflags+=("-z relro")
+ldflags+=("-z now")
+	;;
+
+	[3]* ) # sanitized build
+flags+=("-g")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fPIE")
+flags+=("-O2")
+flags+=("-fsanitize=undefined")
+#flags+=("-fsanitize=memory")
+#flags+=("-fsanitize-memory-track-origins=2")
+#flags+=("-fsanitize=address")
+#flags+=("-fsanitize-address-use-after-return=always")
+flags+=("-fsanitize=function")
+ldflags+=("-fsanitize=undefined")
+#ldflags+=("-fsanitize=memory")
+#ldflags+=("-fsanitize-memory-track-origins=2")
+#ldflags+=("-fsanitize=address")
+#ldflags+=("-fsanitize-address-use-after-return=always")
+ldflags+=("-fsanitize=function")
 	;;
 esac
 
@@ -78,7 +104,7 @@ read -p "select toolchain type ([1] osxcross | [2] native): " toolchain
 case $toolchain in
 	[1]* ) # cross-compiling
 cc=o64-clang
-ar=x86_64-apple-darwin19-ar
+ar=x86_64-apple-darwin20.2-ar
 	;;
 
 	[2]* ) # compiling from mac
