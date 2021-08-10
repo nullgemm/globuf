@@ -12,6 +12,8 @@ obj+=("res/icon/iconpix.o")
 
 flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
+flags+=("-Wformat")
+flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Iglobox_bin_$tag/include")
@@ -21,6 +23,42 @@ defines+=("-DGLOBOX_PLATFORM_WAYLAND")
 # generated linker arguments
 link+=("wayland-client")
 ldlibs+=("-lrt")
+
+read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+
+case $build in
+	[1]* ) # development build
+flags+=("-g")
+defines+=("-DGLOBOX_ERROR_LOG_BASIC")
+defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+	;;
+
+	[2]* ) # release build
+flags+=("-D_FORTIFY_SOURCE=2")
+flags+=("-fstack-protector-strong")
+flags+=("-fPIE")
+flags+=("-O2")
+ldflags+=("-z relro")
+ldflags+=("-z now")
+	;;
+
+	[3]* ) # sanitized build
+cc="clang"
+flags+=("-g")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fPIE")
+flags+=("-fPIC")
+flags+=("-O2")
+flags+=("-fsanitize=undefined")
+flags+=("-fsanitize=memory")
+flags+=("-fsanitize-memory-track-origins=2")
+flags+=("-fsanitize=function")
+ldflags+=("-fsanitize=undefined")
+ldflags+=("-fsanitize=memory")
+ldflags+=("-fsanitize-memory-track-origins=2")
+ldflags+=("-fsanitize=function")
+	;;
+esac
 
 # context type
 read -p "select context type ([1] software | [2] egl): " context
