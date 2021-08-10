@@ -52,18 +52,13 @@ mac OS
    (It is not implemented yet)
 
 ## Compiling
-Generate the makefiles using the scripts in `make/lib/gen/`.
-You will be prompted for a context type and wether to cross-compile or not;
-use the scripts in `make/lib/batch/` instead to automate this and go faster.
-```
-./make/lib/gen/gen_BACKEND.sh
-```
-
+Generate the makefiles you need using the scripts in `make/lib/auto/`.
 Then, simply run the makefiles created at the root of the repository.
-You can also run the scripts in `make/lib/release/` to batch-build backends.
 ```
 make -f makefile_BACKEND_CONTEXT_NATIVE
 ```
+
+The scripts in `make/lib/dev/` can be used to automatically generate debug makefiles for multiple backends per platform. You can also run the scripts in `make/lib/release/` to directly build releases without any intervention.
 
 ### Wayland
 Globox supports Plasma's background blur Wayland protocol, and although we will
