@@ -36,8 +36,6 @@ flags+=("-D_FORTIFY_SOURCE=2")
 flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
 	;;
 
 	[3]* ) # sanitized build
