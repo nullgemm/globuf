@@ -17,6 +17,11 @@ for file in ${src[@]}; do
 	cp "src/$file" "$release/include/$file"
 done
 
+# generate makefiles
+./make/lib/auto/gen_windows_mingw_software_release.sh
+./make/lib/auto/gen_windows_mingw_egl_release.sh
+./make/lib/auto/gen_windows_mingw_wgl_release.sh
+
 # generate libraries
 mkdir -p "$release/lib/globox/windows"
 make -f makefile_lib_windows_software clean

@@ -17,6 +17,13 @@ for file in ${src[@]}; do
 	cp "src/$file" "$release/include/$file"
 done
 
+# generate makefiles
+./make/lib/auto/gen_x11_software_release.sh
+./make/lib/auto/gen_x11_egl_release.sh
+./make/lib/auto/gen_x11_glx_release.sh
+./make/lib/auto/gen_wayland_software_release.sh
+./make/lib/auto/gen_wayland_egl_release.sh
+
 # generate x11 libraries
 mkdir -p "$release/lib/globox/x11"
 make -f makefile_lib_x11_software clean

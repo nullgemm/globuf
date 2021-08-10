@@ -17,6 +17,10 @@ for file in ${src[@]}; do
 	cp "src/$file" "$release/include/$file"
 done
 
+# generate makefiles
+./make/lib/auto/gen_by_macos_for_macos_software_release.sh
+./make/lib/auto/gen_by_macos_for_macos_egl_release.sh
+
 # generate libraries
 mkdir -p "$release/lib/globox/macos"
 make -f makefile_lib_macos_software_native clean
