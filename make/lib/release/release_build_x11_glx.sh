@@ -4,7 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/release/release_headers.sh
 ./make/lib/auto/gen_x11_glx_release.sh
 make -f makefile_lib_x11_glx clean
 make -f makefile_lib_x11_glx
