@@ -33,6 +33,27 @@ ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 ldlibs+=("-mwindows")
 
+# build type
+read -p "select build type ([1] development | [2] release): " build
+
+case $build in
+	[1]* ) # development build
+flags+=("-g")
+defines+=("-DGLOBOX_ERROR_LOG_BASIC")
+defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+	;;
+
+	[2]* ) # release build
+flags+=("-D_FORTIFY_SOURCE=2")
+flags+=("-fstack-protector-strong")
+flags+=("-fPIE")
+flags+=("-fPIC")
+flags+=("-O2")
+ldflags+=("-z relro")
+ldflags+=("-z now")
+	;;
+esac
+
 # context type
 read -p "select context type ([1] software | [2] egl | [3] wgl): " context
 

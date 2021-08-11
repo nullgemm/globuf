@@ -60,6 +60,21 @@ drmemory+=("-report_max -1")
 drmemory+=("-report_leak_max -1")
 drmemory+=("-batch")
 
+# build type
+read -p "select build type ([1] development | [2] release): " build
+
+case $build in
+	[1]* ) # development build
+flags+=("-g")
+defines+=("-DGLOBOX_ERROR_LOG_BASIC")
+defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+	;;
+
+	[2]* ) # release build
+flags+=("-O2")
+	;;
+esac
+
 # context type
 read -p "select context type ([1] software | [2] egl | [3] wgl): " context
 
