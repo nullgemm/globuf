@@ -45,12 +45,9 @@ defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 
 	[2]* ) # release build
 flags+=("-D_FORTIFY_SOURCE=2")
-flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
 	;;
 esac
 
