@@ -59,6 +59,8 @@ flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
 flags+=("-fsanitize=undefined")
+flags+=("-mllvm")
+flags+=("-msan-keep-going=1")
 flags+=("-fsanitize=memory")
 flags+=("-fsanitize-memory-track-origins=2")
 flags+=("-fsanitize=function")
@@ -111,7 +113,7 @@ echo "CC = $cc" >> $makefile
 
 # makefile linking info
 echo "" >> $makefile
-for flag in $(pkg-config ${link[@]} --cflags); do
+for flag in $(pkg-config ${link[@]} --cflags) ${ldflags[@]}; do
 	echo "LDFLAGS+= $flag" >> $makefile
 done
 
