@@ -1,0 +1,333 @@
+jobs:
+  - name: globox_build_wayland_egl
+    plan:
+      - task: globox_build_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_gcc
+          run:
+            path: /scripts/build_wayland_egl.sh
+  - name: globox_build_wayland_software
+    plan:
+      - task: globox_build_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_gcc
+          run:
+            path: /scripts/build_wayland_software.sh
+  - name: globox_build_x11_egl
+    plan:
+      - task: globox_build_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_gcc
+          run:
+            path: /scripts/build_x11_egl.sh
+  - name: globox_build_x11_glx
+    plan:
+      - task: globox_build_x11_glx_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_gcc
+          run:
+            path: /scripts/build_x11_glx.sh
+  - name: globox_build_x11_software
+    plan:
+      - task: globox_build_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_gcc
+          run:
+            path: /scripts/build_x11_software.sh
+  - name: globox_build_mingw_egl
+    plan:
+      - task: globox_build_mingw_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_mingw
+          run:
+            path: /scripts/build_egl.sh
+  - name: globox_build_mingw_software
+    plan:
+      - task: globox_build_mingw_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_mingw
+          run:
+            path: /scripts/build_software.sh
+  - name: globox_build_mingw_wgl
+    plan:
+      - task: globox_build_mingw_wgl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_mingw
+          run:
+            path: /scripts/build_wgl.sh
+  - name: globox_build_osxcross_egl
+    plan:
+      - task: globox_build_osxcross_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_osxcross
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_osxcross
+            AR: x86_64-apple-darwin20.2-ar
+          run:
+            path: /scripts/build_egl.sh
+  - name: globox_build_osxcross_software
+    plan:
+      - task: globox_build_osxcross_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_osxcross
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_osxcross
+            AR: x86_64-apple-darwin20.2-ar
+          run:
+            path: /scripts/build_software.sh
+  - name: globox_test_cppcheck
+    plan:
+      - task: globox_test_cppcheck_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_cppcheck.sh
+  - name: globox_test_infer_wayland_egl
+    plan:
+      - task: globox_test_infer_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_infer/test_infer_wayland_egl.sh
+  - name: globox_test_infer_wayland_software
+    plan:
+      - task: globox_test_infer_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_infer/test_infer_wayland_software.sh
+  - name: globox_test_infer_x11_egl
+    plan:
+      - task: globox_test_infer_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_infer/test_infer_x11_egl.sh
+  - name: globox_test_infer_x11_glx
+    plan:
+      - task: globox_test_infer_x11_glx_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_infer/test_infer_x11_glx.sh
+  - name: globox_test_infer_x11_software
+    plan:
+      - task: globox_test_infer_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_infer/test_infer_x11_software.sh
+  - name: globox_test_san_wayland_egl
+    plan:
+      - task: globox_test_san_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_wayland_egl.sh
+  - name: globox_test_san_wayland_software
+    plan:
+      - task: globox_test_san_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_wayland_software.sh
+  - name: globox_test_san_x11_egl
+    plan:
+      - task: globox_test_san_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_x11_egl.sh
+  - name: globox_test_san_x11_software
+    plan:
+      - task: globox_test_san_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_x11_software.sh
+  - name: globox_test_valgrind_x11_egl
+    plan:
+      - task: globox_test_valgrind_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_valgrind/test_valgrind_x11_egl.sh
+  - name: globox_test_valgrind_x11_software
+    plan:
+      - task: globox_test_valgrind_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_valgrind/test_valgrind_x11_software.sh
