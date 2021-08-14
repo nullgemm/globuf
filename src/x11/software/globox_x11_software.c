@@ -192,7 +192,7 @@ static inline void visual_transparent(struct globox* globox)
 
 			while (iter_visuals.rem && (found_visual == false))
 			{
-				if (iter_visuals.data->format == pictformat)
+				if (iter_visuals.data->format == pictformat) // infer false positive
 				{
 					platform->globox_x11_visual_id = iter_visuals.data->visual;
 					found_visual = true;
