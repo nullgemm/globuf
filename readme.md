@@ -4,6 +4,7 @@
 # Globox
 Globox is a cross-platform windowing library for Linux, Windows and macOS.
 It was built as a lightweight and modular alternative to similar libraries.
+The entire library is written in C99 without the help of any other language.
 
 Only window management is taken care of, for more interactivity you will have
 to set the user input callback. Inside you can write a simple event handler or
@@ -13,8 +14,8 @@ Willis handles the keyboad and mouse and should support any keymap wizardry.
 Its main function can be used directly as a Globox input callback if the
 keyboard and mouse combo is all you care about.
 
-The modularity of Globox is key to its architecture: even window handling and
-context handling were carefully separated, making it possible to implement a
+The modularity of Globox is a key part of its architecture: even window handling
+and context handling were carefully separated, making it possible to implement a
 custom context type very easily without looking at the window creation code.
 
 ## Contexts backends details
@@ -51,6 +52,12 @@ mac OS
    (which implements Vulkan on top of metal)
    (It is not implemented yet)
 
+## Example
+It is possible to generate makefiles to build egl, wgl, glx & software examples
+using the scripts in `make/example/gen` or `make/example/batch`.
+A small desktop application using Globox, Razorbeard, Willis, DPIshit & Cursoryx
+is available [here](https://github.com/nullgemm/desktopsample).
+
 ## Compiling
 Generate the makefiles you need using the scripts in `make/lib/auto/`.
 Then, simply run the makefiles created at the root of the repository.
@@ -58,7 +65,9 @@ Then, simply run the makefiles created at the root of the repository.
 make -f makefile_BACKEND_CONTEXT_NATIVE
 ```
 
-The scripts in `make/lib/dev/` can be used to automatically generate debug makefiles for multiple backends per platform. You can also run the scripts in `make/lib/release/` to directly build releases without any intervention.
+The scripts in `make/lib/dev/` can be used to automatically generate debug
+makefiles for multiple backends per platform. You can also run the scripts in
+`make/lib/release/` to directly build releases without any intervention.
 
 ### Wayland
 Globox supports Plasma's background blur Wayland protocol, and although we will
@@ -151,11 +160,12 @@ and select those you want. In our case, this will be a compiler and SDK:
  - `MSVC - VS C++ x64/x86 build tools`
  - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`
 
-## Example
-It is possible to generate makefiles to build egl, wgl, glx & software examples
-using the scripts in `make/example/gen` or `make/example/batch`.
-A small desktop application using Globox, Razorbeard, Willis, DPIshit & Cursoryx
-is available [here](https://github.com/nullgemm/desktopsample).
+## Testing
+The `ci` folder contains dockerfiles and scripts to generate testing images
+and can be used locally, but a `concourse_pipeline.yml` file is also available
+here and should be usable with a few modifications in case you want a more
+user-friendly experience. Our own Concourse instance will not be made public
+since it runs on a home server (mostly for economic reasons).
 
 ## Todo
  - Implement the Vulkan context for all platforms
