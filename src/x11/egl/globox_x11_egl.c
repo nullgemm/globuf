@@ -128,6 +128,14 @@ void globox_context_egl_init(
 			EGL_NATIVE_VISUAL_ID,
 			&visual_id);
 
+	if (status_egl == EGL_FALSE)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_EGL_FAIL);
+		return;
+	}
+
 	platform->globox_x11_visual_id = visual_id;
 
 	// get visual depth from EGL
@@ -140,8 +148,6 @@ void globox_context_egl_init(
 			EGL_DEPTH_SIZE,
 			&visual_depth);
 
-	platform->globox_x11_visual_depth = visual_depth;
-
 	if (status_egl == EGL_FALSE)
 	{
 		globox_error_throw(
@@ -149,6 +155,8 @@ void globox_context_egl_init(
 			GLOBOX_ERROR_X11_EGL_FAIL);
 		return;
 	}
+
+	platform->globox_x11_visual_depth = visual_depth;
 
 	return;
 }
