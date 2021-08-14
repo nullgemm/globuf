@@ -33,6 +33,14 @@ void globox_platform_init(
 {
 	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
 
+	if (platform == NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
 	globox->globox_platform = platform;
 	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
