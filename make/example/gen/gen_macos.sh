@@ -4,6 +4,12 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+toolchain=$3
+current_toolchain=$4
+library=$5
+
 tag=$(git tag --sort v:refname | tail -n 1)
 
 # library makefile data
@@ -22,23 +28,25 @@ defines+=("-DGLOBOX_PLATFORM_MACOS")
 # generated linker arguments
 ldlibs+=("-framework AppKit")
 
-read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release | sanitized): " build
+fi
 
 case $build in
-	[1]* ) # development build
+	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-D_FORTIFY_SOURCE=2")
 flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-O2")
 	;;
 
-	[3]* ) # sanitized build
+	sanitized)
 flags+=("-g")
 flags+=("-fno-omit-frame-pointer")
 flags+=("-fPIE")
@@ -48,13 +56,20 @@ flags+=("-fsanitize=function")
 ldflags+=("-fsanitize=undefined")
 ldflags+=("-fsanitize=function")
 	;;
+
+	*)
+echo "invalid build type"
+exit 1
+	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_example_macos_software
 name="globox_example_macos_software"
 globox="globox_macos_software"
@@ -62,7 +77,7 @@ src+=("example/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_example_macos_egl
 name="globox_example_macos_egl"
 globox="globox_macos_egl"
@@ -75,51 +90,77 @@ ldlibs+=("-lGLESv2")
 default+=("res/angle/libs")
 default+=("bin/libEGL.dylib")
 	;;
+
+	*)
+echo "invalid context type"
+exit 1
+	;;
 esac
 
 # toolchain type
-read -p "select toolchain type ([1] osxcross | [2] native): " toolchain
+if [ -z "$toolchain" ]; then
+	read -p "select target toolchain type (osxcross | native): " toolchain
+fi
 
 case $toolchain in
-	[1]* ) # cross-compiling
+	osxcross)
 cc=o64-clang
 objcopy="objcopy"
 	;;
 
-	[2]* ) # compiling from mac
+	native)
 makefile+="_native"
 name+="_native"
 globox+="_native"
 cc=clang
 objcopy="/usr/local/Cellar/binutils/*/bin/objcopy"
 	;;
+
+	*)
+echo "invalid target toolchain type"
+exit 1
+	;;
 esac
 
-read -p "select current toolchain ([1] osxcross | [2] native)" current_toolchain
+if [ -z "$current_toolchain" ]; then
+	read -p "select current toolchain type (osxcross | native)" current_toolchain
+fi
 
 case $current_toolchain in
-	[1]* ) # generating from linux
+	osxcross)
 cch=o64-clang
 	;;
 
-	[2]* ) # generating from mac
+	native)
 cch=clang
+	;;
+
+	*)
+echo "invalid current toolchain type"
+exit 1
 	;;
 esac
 
 # link type
-read -p "select library type ([1] static | [2] shared): " library
+if [ -z "$library" ]; then
+	read -p "select library type (static | shared): " library
+fi
 
 case $library in
-	[1]* ) # link statically
+	static)
 obj+=("globox_bin_$tag/lib/globox/macos/$globox.a")
 cmd="./$name"
 	;;
 
-	[2]* ) # link dynamically
+	shared)
 ldflags+=("-Lglobox_bin_$tag/lib/globox/macos")
 ldlibs+=("-l$globox")
 cmd="../make/scripts/dylib_copy.sh "$globox" && ./$name"
+	;;
+
+	*)
+echo "invalid library type"
+exit 1
 	;;
 esac
 

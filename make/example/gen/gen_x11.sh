@@ -4,6 +4,10 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+library=$3
+
 tag=$(git tag --sort v:refname | tail -n 1)
 
 # library makefile data
@@ -23,16 +27,18 @@ defines+=("-DGLOBOX_PLATFORM_X11")
 # generated linker arguments
 link+=("xcb")
 
-read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release | sanitized): " build
+fi
 
 case $build in
-	[1]* ) # development build
+	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-D_FORTIFY_SOURCE=2")
 flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
@@ -42,7 +48,7 @@ ldflags+=("-z relro")
 ldflags+=("-z now")
 	;;
 
-	[3]* ) # sanitized build
+	sanitized)
 cc="clang"
 flags+=("-g")
 flags+=("-fno-omit-frame-pointer")
@@ -60,13 +66,20 @@ ldflags+=("-fsanitize=memory")
 ldflags+=("-fsanitize-memory-track-origins=2")
 ldflags+=("-fsanitize=function")
 	;;
+
+	*)
+echo "invalid build type"
+exit 1
+	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl | [3] glx): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl | glx): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_example_x11_software
 name="globox_example_x11_software"
 globox="globox_x11_software"
@@ -77,7 +90,7 @@ link+=("xcb-randr")
 link+=("xcb-render")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_example_x11_egl
 name="globox_example_x11_egl"
 globox="globox_x11_egl"
@@ -87,7 +100,7 @@ link+=("egl")
 link+=("glesv2")
 	;;
 
-	[3]* ) # glx context
+	glx)
 makefile=makefile_example_x11_glx
 name="globox_example_x11_glx"
 globox="globox_x11_glx"
@@ -97,21 +110,33 @@ link+=("gl")
 link+=("glesv2")
 link+=("x11 x11-xcb xrender")
 	;;
+
+	*)
+echo "invalid context type"
+exit 1
+	;;
 esac
 
 # link type
-read -p "select library type ([1] static | [2] shared): " library
+if [ -z "$library" ]; then
+	read -p "select library type (static | shared): " library
+fi
 
 case $library in
-	[1]* ) # link statically
+	static)
 obj+=("globox_bin_$tag/lib/globox/x11/$globox.a")
 cmd="./$name"
 	;;
 
-	[2]* ) # link dynamically
+	shared)
 ldflags+=("-Lglobox_bin_$tag/lib/globox/x11")
 ldlibs+=("-l:$globox.so")
 cmd="LD_LIBRARY_PATH=../globox_bin_$tag/lib/globox/x11 ./$name"
+	;;
+
+	*)
+echo "invalid library type"
+exit 1
 	;;
 esac
 

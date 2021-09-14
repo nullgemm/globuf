@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_windows_mingw_egl_release.sh
+./make/lib/gen/gen_windows_mingw.sh release egl
 make -f makefile_lib_windows_egl clean
 make -f makefile_lib_windows_egl

@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_x11_software_release.sh
+./make/lib/gen/gen_x11.sh release software
 make -f makefile_lib_x11_software clean
 make -f makefile_lib_x11_software

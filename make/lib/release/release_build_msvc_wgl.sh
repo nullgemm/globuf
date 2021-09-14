@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_windows_msvc_wgl_release.sh
+./make/lib/gen/gen_windows_msvc.sh release wgl
 make -f makefile_lib_windows_wgl_native clean
 make -f makefile_lib_windows_wgl_native

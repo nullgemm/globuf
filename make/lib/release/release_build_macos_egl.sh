@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_by_macos_for_macos_egl_release.sh
+./make/lib/gen/gen_macos.sh release egl native native
 make -f makefile_lib_macos_egl_native clean
 make -f makefile_lib_macos_egl_native

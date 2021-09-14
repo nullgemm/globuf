@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_by_osxcross_for_osxcross_egl_release.sh
+./make/lib/gen/gen_macos.sh release egl osxcross osxcross
 
 make -f makefile_lib_macos_egl clean
 

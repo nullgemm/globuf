@@ -4,6 +4,9 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+
 # library makefile data
 name="globox"
 ver_windows=10
@@ -65,32 +68,41 @@ ldlibs+=("shcore.lib")
 ldlibs+=("dwmapi.lib")
 
 # build type
-read -p "select build type ([1] debug | [2] release): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release): " build
+fi
 
 case $build in
-	[1]* ) # debug build
+	development)
 flags+=("-Z7")
 ldflags+=("-DEBUG:FULL")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-O2")
+	;;
+
+	*)
+echo "invalid build type"
+exit 1
 	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl | [3] wgl): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl | wgl): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_lib_windows_software_native
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_lib_windows_egl_native
 src+=("src/windows/egl/globox_windows_egl.c")
 flags+=("-Ires/egl_headers")
@@ -102,7 +114,7 @@ default+=("res/egl_headers")
 default+=("res/eglproxy")
 	;;
 
-	[3]* ) # wgl context
+	wgl)
 makefile=makefile_lib_windows_wgl_native
 src+=("src/windows/wgl/globox_windows_wgl.c")
 flags+=("-Ires/egl_headers")
@@ -113,6 +125,11 @@ ldlibs+=("shcore.lib")
 ldlibs+=("dwmapi.lib")
 ldlibs+=("opengl32.lib")
 default+=("res/egl_headers")
+	;;
+
+	*)
+echo "invalid context type"
+exit 1
 	;;
 esac
 

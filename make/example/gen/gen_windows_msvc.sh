@@ -4,6 +4,9 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+
 tag=$(git tag --sort v:refname | tail -n 1)
 
 # versions
@@ -61,25 +64,34 @@ drmemory+=("-report_leak_max -1")
 drmemory+=("-batch")
 
 # build type
-read -p "select build type ([1] development | [2] release): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release): " build
+fi
 
 case $build in
-	[1]* ) # development build
+	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-O2")
+	;;
+
+	*)
+echo "invalid build type"
+exit 1
 	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl | [3] wgl): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl | wgl): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_example_windows_software_native
 name="globox_example_windows_software_native"
 globox="globox_windows_software"
@@ -87,7 +99,7 @@ src+=("example/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_example_windows_egl_native
 name="globox_example_windows_egl_native"
 globox="globox_windows_egl"
@@ -101,7 +113,7 @@ default+=("res/egl_headers")
 default+=("bin/eglproxy.dll")
 	;;
 
-	[3]* ) # wgl context
+	wgl)
 makefile=makefile_example_windows_wgl_native
 name="globox_example_windows_wgl_native"
 globox="globox_windows_wgl"
@@ -110,6 +122,12 @@ flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("opengl32.lib")
 default+=("res/egl_headers")
+	;;
+
+	*)
+echo "invalid context type"
+exit 1
+	;;
 esac
 
 # link globox

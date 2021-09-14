@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_windows_mingw_software_release.sh
+./make/lib/gen/gen_windows_mingw.sh release software
 make -f makefile_lib_windows_software clean
 make -f makefile_lib_windows_software

@@ -4,6 +4,12 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+toolchain=$3
+current_toolchain=$4
+library=$5
+
 # library makefile data
 name="globox"
 
@@ -34,23 +40,25 @@ defines+=("-DGLOBOX_PLATFORM_MACOS")
 ldlibs+=("-framework AppKit")
 
 # build type
-read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release | sanitizers): " build
+fi
 
 case $build in
-	[1]* ) # development build
+	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-D_FORTIFY_SOURCE=2")
 flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-O2")
 	;;
 
-	[3]* ) # sanitized build
+	sanitized)
 flags+=("-g")
 flags+=("-fno-omit-frame-pointer")
 flags+=("-fPIE")
@@ -60,19 +68,26 @@ flags+=("-fsanitize=function")
 ldflags+=("-fsanitize=undefined")
 ldflags+=("-fsanitize=function")
 	;;
+
+	*)
+echo "invalid build type"
+exit 1
+	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_lib_macos_software
 src+=("src/macos/software/globox_macos_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_lib_macos_egl
 src+=("src/macos/egl/globox_macos_egl.c")
 flags+=("-Ires/angle/include")
@@ -82,6 +97,11 @@ ldlibs+=("-lEGL")
 ldlibs+=("-lGLESv2")
 default+=("res/angle/libs")
 	;;
+
+	*)
+echo "invalid context type"
+exit 1
+	;;
 esac
 
 # add the libraries as default targets
@@ -89,30 +109,44 @@ default+=("bin/$name.a")
 default+=("bin/lib$name.dylib")
 
 # toolchain type
-read -p "select toolchain type ([1] osxcross | [2] native): " toolchain
+if [ -z "$toolchain" ]; then
+	read -p "select target toolchain type (osxcross | native): " toolchain
+fi
 
 case $toolchain in
-	[1]* ) # cross-compiling
+	osxcross)
 cc=o64-clang
 ar=x86_64-apple-darwin20.2-ar
 	;;
 
-	[2]* ) # compiling from mac
+	native)
 makefile+="_native"
 cc=clang
 ar=ar
 	;;
+
+	*)
+echo "invalid target toolchain type"
+exit 1
+	;;
 esac
 
-read -p "select current toolchain ([1] osxcross | [2] native)" current_toolchain
+if [ -z "$current_toolchain" ]; then
+	read -p "select current toolchain type (osxcross | native)" current_toolchain
+fi
 
 case $current_toolchain in
-	[1]* ) # generating from linux
+	osxcross)
 cch=o64-clang
 	;;
 
-	[2]* ) # generating from mac
+	native)
 cch=clang
+	;;
+
+	*)
+echo "invalid current toolchain type"
+exit 1
 	;;
 esac
 

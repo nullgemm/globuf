@@ -4,6 +4,9 @@
 cd "$(dirname "$0")"
 cd ../../..
 
+build=$1
+context=$2
+
 # library makefile data
 name="globox"
 cc="gcc"
@@ -40,16 +43,18 @@ defines+=("-DGLOBOX_PLATFORM_WAYLAND")
 link+=("wayland-client")
 ldlibs+=("-lrt")
 
-read -p "select build type ([1] development | [2] release | [3] sanitizers): " build
+if [ -z "$build" ]; then
+	read -p "select build type (development | release | sanitizers): " build
+fi
 
 case $build in
-	[1]* ) # development build
+	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
 
-	[2]* ) # release build
+	release)
 flags+=("-D_FORTIFY_SOURCE=2")
 flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
@@ -59,7 +64,7 @@ ldflags+=("-z relro")
 ldflags+=("-z now")
 	;;
 
-	[3]* ) # sanitized build
+	sanitized)
 cc="clang"
 flags+=("-g")
 flags+=("-fno-omit-frame-pointer")
@@ -77,13 +82,20 @@ ldflags+=("-fsanitize=memory")
 ldflags+=("-fsanitize-memory-track-origins=2")
 ldflags+=("-fsanitize=function")
 	;;
+
+	*)
+echo "invalid build type"
+exit 1
+	;;
 esac
 
 # context type
-read -p "select context type ([1] software | [2] egl): " context
+if [ -z "$context" ]; then
+	read -p "select context type (software | egl): " context
+fi
 
 case $context in
-	[1]* ) # software context
+	software)
 makefile=makefile_lib_wayland_software
 src+=("src/wayland/software/globox_wayland_software.c")
 src+=("src/wayland/software/globox_wayland_software_helpers.c")
@@ -91,7 +103,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 ldlibs+=("-lpthread")
 	;;
 
-	[2]* ) # egl context
+	egl)
 makefile=makefile_lib_wayland_egl
 src+=("src/wayland/egl/globox_wayland_egl.c")
 src+=("src/wayland/egl/globox_wayland_egl_helpers.c")
@@ -99,6 +111,11 @@ defines+=("-DGLOBOX_CONTEXT_EGL")
 link+=("wayland-egl")
 link+=("egl")
 link+=("glesv2")
+	;;
+
+	*)
+echo "invalid build type"
+exit 1
 	;;
 esac
 

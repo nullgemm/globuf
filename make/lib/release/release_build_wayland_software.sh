@@ -4,6 +4,6 @@
 cd "$(dirname "$0")"
 cd ../../..
 
-./make/lib/auto/gen_wayland_software_release.sh
+./make/lib/gen/gen_wayland.sh release software
 make -f makefile_lib_wayland_software clean
 make -f makefile_lib_wayland_software
