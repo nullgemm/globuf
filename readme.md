@@ -59,15 +59,13 @@ A small desktop application using Globox, Razorbeard, Willis, DPIshit & Cursoryx
 is available [here](https://github.com/nullgemm/desktopsample).
 
 ## Compiling
-Generate the makefiles you need using the scripts in `make/lib/auto/`.
+Generate the makefiles you need using the scripts in `make/lib/gen/`.
 Then, simply run the makefiles created at the root of the repository.
 ```
 make -f makefile_BACKEND_CONTEXT_NATIVE
 ```
-
-The scripts in `make/lib/dev/` can be used to automatically generate debug
-makefiles for multiple backends per platform. You can also run the scripts in
-`make/lib/release/` to directly build releases without any intervention.
+You can also run the scripts in `make/lib/release/` to directly build
+releases without any intervention.
 
 ### Wayland
 Globox supports Plasma's background blur Wayland protocol, and although we will
