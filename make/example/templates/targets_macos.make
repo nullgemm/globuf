@@ -28,11 +28,5 @@ res/icon/iconpix_mach.o: res/icon/iconpix_elf.o
 	res/objconv/objconv -fmac64 -nu+ -v0 \
 	res/icon/iconpix_elf.o $@
 
-res/icon/iconpix.o: res/icon/iconpix.bin
-	objcopy -I binary -O elf64-x86-64 -B i386:x86-64 \
-	--redefine-syms=res/icon/syms.map \
-	--rename-section .data=.iconpix \
-	$< $@
-
 run: bin/$(NAME)
 	cd bin && $(CMD)
