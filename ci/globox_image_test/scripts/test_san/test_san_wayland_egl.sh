@@ -4,7 +4,7 @@ git clone https://github.com/nullgemm/globox.git
 cd globox
 
 # build lib
-./make/lib/auto/gen_wayland_egl_sanitizers.sh
+./make/lib/gen/gen_wayland.sh sanitized egl
 make -f makefile_lib_wayland_egl
 
 # copy lib
@@ -12,7 +12,7 @@ make -f makefile_lib_wayland_egl
 ./make/lib/release/release_copy_wayland_egl.sh
 
 # build example
-./make/example/auto/gen_wayland_egl_sanitizers_static.sh
+./make/example/gen/gen_wayland.sh sanitized egl static
 make -f makefile_example_wayland_egl
 
 # run example

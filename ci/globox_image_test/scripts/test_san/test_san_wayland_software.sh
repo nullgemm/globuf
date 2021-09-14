@@ -4,7 +4,7 @@ git clone https://github.com/nullgemm/globox.git
 cd globox
 
 # build lib
-./make/lib/auto/gen_wayland_software_sanitizers.sh
+./make/lib/gen/gen_wayland.sh sanitized software
 make -f makefile_lib_wayland_software
 
 # copy lib
@@ -12,7 +12,7 @@ make -f makefile_lib_wayland_software
 ./make/lib/release/release_copy_wayland_software.sh
 
 # build example
-./make/example/auto/gen_wayland_software_sanitizers_static.sh
+./make/example/gen/gen_wayland.sh sanitized software static
 make -f makefile_example_wayland_software
 
 # run example
