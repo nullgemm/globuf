@@ -123,7 +123,7 @@ exit 1
 esac
 
 if [ -z "$current_toolchain" ]; then
-	read -p "select current toolchain type (osxcross | native)" current_toolchain
+	read -p "select current toolchain type (osxcross | native): " current_toolchain
 fi
 
 case $current_toolchain in
