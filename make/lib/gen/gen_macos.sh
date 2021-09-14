@@ -41,7 +41,7 @@ ldlibs+=("-framework AppKit")
 
 # build type
 if [ -z "$build" ]; then
-	read -p "select build type (development | release | sanitizers): " build
+	read -p "select build type (development | release | sanitized): " build
 fi
 
 case $build in
@@ -132,7 +132,7 @@ exit 1
 esac
 
 if [ -z "$current_toolchain" ]; then
-	read -p "select current toolchain type (osxcross | native)" current_toolchain
+	read -p "select current toolchain type (osxcross | native): " current_toolchain
 fi
 
 case $current_toolchain in

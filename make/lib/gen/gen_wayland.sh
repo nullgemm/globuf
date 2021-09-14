@@ -44,7 +44,7 @@ link+=("wayland-client")
 ldlibs+=("-lrt")
 
 if [ -z "$build" ]; then
-	read -p "select build type (development | release | sanitizers): " build
+	read -p "select build type (development | release | sanitized): " build
 fi
 
 case $build in
