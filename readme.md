@@ -168,6 +168,9 @@ user-friendly experience. Our own Concourse instance will not be made public
 since it runs on a home server (mostly for economic reasons).
 
 ## Todo
+ - Fix the macOS frameless windows not being able to track the mouse
+ - Add Windows and macOS CI scripts for Qemu'd Concourse workers
+ - Make static binaries as static as possible
  - Implement the Vulkan context for all platforms
 
 ## Known issues
