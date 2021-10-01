@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get into the script's folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../../..
 
 build=$1
@@ -69,7 +69,7 @@ ldlibs+=("dwmapi.lib")
 
 # build type
 if [ -z "$build" ]; then
-	read -p "select build type (development | release): " build
+	read -rp "select build type (development | release): " build
 fi
 
 case $build in
@@ -92,7 +92,7 @@ esac
 
 # context type
 if [ -z "$context" ]; then
-	read -p "select context type (software | egl | wgl): " context
+	read -rp "select context type (software | egl | wgl): " context
 fi
 
 case $context in
@@ -138,10 +138,12 @@ default+=("bin/$name.lib")
 default+=("bin/$name.dll")
 
 # makefile start
-echo ".POSIX:" > $makefile
-echo "NAME = $name" >> $makefile
-echo "CC = $cc" >> $makefile
-echo "LIB = $lib" >> $makefile
+{ \
+echo ".POSIX:"; \
+echo "NAME = $name"; \
+echo "CC = $cc"; \
+echo "LIB = $lib"; \
+} > $makefile
 
 # makefile linking info
 echo "" >> $makefile
@@ -175,7 +177,7 @@ done
 
 # makefile default target
 echo "" >> $makefile
-echo "default: ${default[@]}" >> $makefile
+echo "default:" "${default[@]}" >> $makefile
 
 # makefile library targets
 echo "" >> $makefile
@@ -184,7 +186,7 @@ cat make/lib/templates/targets_windows_msvc.make >> $makefile
 # makefile object targets
 echo "" >> $makefile
 for file in "${src[@]}"; do
-	x86_64-w64-mingw32-gcc $defines -MM -MG $file >> $makefile
+	x86_64-w64-mingw32-gcc "${defines[@]}" -MM -MG "$file" >> $makefile
 done
 
 # makefile extra targets

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 git clone https://github.com/nullgemm/globox.git
-cd ./globox
+cd ./globox || exit
 
 # use macOS SDK
 export PATH=/scripts/sdk/osxcross/target/bin/:/bin:/sbin:/usr/bin:/usr/sbin

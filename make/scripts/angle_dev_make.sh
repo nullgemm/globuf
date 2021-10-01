@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # get into the right folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../..
 
 rm -rf res/angle
 mkdir -p res/angle/bin
 mkdir -p res/angle/libs
-cd res/angle
+cd res/angle || exit
 
 # clone repos
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
@@ -25,7 +25,7 @@ workdir=$(pwd)
 export PATH=$workdir/bin/:$workdir/depot_tools/:$PATH
 
 # prepare repo
-cd angle
+cd angle || exit
 python scripts/bootstrap.py
 gclient sync
 git checkout master

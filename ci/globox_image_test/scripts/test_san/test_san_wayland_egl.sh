@@ -1,7 +1,7 @@
 #!/bin/bash
 
 git clone https://github.com/nullgemm/globox.git
-cd globox
+cd globox || exit
 
 # build lib
 ./make/lib/gen/gen_wayland.sh sanitized egl

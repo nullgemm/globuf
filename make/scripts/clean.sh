@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # get into the right folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../..
 
-for file in $(find . -name "*.o"); do
-	rm $file
-done;
+while IFS= read -r -d '' file; do
+	rm "$file"
+done < <(find . -name "*.o" -print0)
 
-for file in $(find . -name "*.obj"); do
-	rm $file
-done;
+while IFS= read -r -d '' file; do
+	rm "$file"
+done < <(find . -name "*.obj" -print0)
 
 rm -rf bin valgrind.log drmemory.log

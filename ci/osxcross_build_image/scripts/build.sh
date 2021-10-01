@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd sdk
+cd sdk || exit
 
 echo "# Downloading an osxcross source snapshot"
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get into the script's folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../../..
 
 build=$1
@@ -28,7 +28,7 @@ defines+=("-DGLOBOX_PLATFORM_X11")
 link+=("xcb")
 
 if [ -z "$build" ]; then
-	read -p "select build type (development | release | sanitized): " build
+	read -rp "select build type (development | release | sanitized): " build
 fi
 
 case $build in
@@ -75,12 +75,12 @@ esac
 
 # context type
 if [ -z "$context" ]; then
-	read -p "select context type (software | egl | glx): " context
+	read -rp "select context type (software | egl | glx): " context
 fi
 
 case $context in
 	software)
-makefile=makefile_example_x11_software
+makefile="makefile_example_x11_software"
 name="globox_example_x11_software"
 globox="globox_x11_software"
 src+=("example/software.c")
@@ -91,7 +91,7 @@ link+=("xcb-render")
 	;;
 
 	egl)
-makefile=makefile_example_x11_egl
+makefile="makefile_example_x11_egl"
 name="globox_example_x11_egl"
 globox="globox_x11_egl"
 src+=("example/egl.c")
@@ -101,7 +101,7 @@ link+=("glesv2")
 	;;
 
 	glx)
-makefile=makefile_example_x11_glx
+makefile="makefile_example_x11_glx"
 name="globox_example_x11_glx"
 globox="globox_x11_glx"
 src+=("example/glx.c")
@@ -119,7 +119,7 @@ esac
 
 # link type
 if [ -z "$library" ]; then
-	read -p "select library type (static | shared): " library
+	read -rp "select library type (static | shared): " library
 fi
 
 case $library in
@@ -151,55 +151,57 @@ valgrind+=("--leak-check=full")
 valgrind+=("--suppressions=../res/valgrind.supp")
 
 # makefile start
-echo ".POSIX:" > $makefile
-echo "NAME = $name" >> $makefile
-echo "CMD = $cmd" >> $makefile
-echo "CC = $cc" >> $makefile
+{ \
+echo ".POSIX:"; \
+echo "NAME = $name"; \
+echo "CMD = $cmd"; \
+echo "CC = $cc"; \
+} > $makefile
 
 # makefile linking info
 echo "" >> $makefile
-for flag in $(pkg-config ${link[@]} --cflags) ${ldflags[@]}; do
+for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
 	echo "LDFLAGS+= $flag" >> $makefile
 done
 
 echo "" >> $makefile
-for flag in $(pkg-config ${link[@]} --libs) ${ldlibs[@]}; do
+for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
 	echo "LDLIBS+= $flag" >> $makefile
 done
 
 # makefile compiler flags
 echo "" >> $makefile
-for flag in ${flags[@]}; do
+for flag in "${flags[@]}"; do
 	echo "CFLAGS+= $flag" >> $makefile
 done
 
 echo "" >> $makefile
-for define in ${defines[@]}; do
+for define in "${defines[@]}"; do
 	echo "CFLAGS+= $define" >> $makefile
 done
 
 # makefile object list
 echo "" >> $makefile
-for file in ${src[@]}; do
+for file in "${src[@]}"; do
 	folder=$(dirname "$file")
 	filename=$(basename "$file" .c)
 	echo "OBJ+= $folder/$filename.o" >> $makefile
 done
 
 echo "" >> $makefile
-for prebuilt in ${obj[@]}; do
+for prebuilt in "${obj[@]}"; do
 	echo "OBJ_EXTRA+= $prebuilt" >> $makefile
 done
 
 # generate valgrind flags
 echo "" >> $makefile
-for flag in ${valgrind[@]}; do
+for flag in "${valgrind[@]}"; do
 	echo "VALGRIND+= $flag" >> $makefile
 done
 
 # makefile default target
 echo "" >> $makefile
-echo "default: ${default[@]}" >> $makefile
+echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
@@ -207,8 +209,8 @@ cat make/example/templates/targets_linux.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
-for file in ${src[@]}; do
-	$cc $defines -MM -MG $file >> $makefile
+for file in "${src[@]}"; do
+	$cc "${defines[@]}" -MM -MG "$file" >> $makefile
 done
 
 # makefile extra targets

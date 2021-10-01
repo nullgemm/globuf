@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get into the script's folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../../..
 
 build=$1
@@ -65,7 +65,7 @@ drmemory+=("-batch")
 
 # build type
 if [ -z "$build" ]; then
-	read -p "select build type (development | release): " build
+	read -rp "select build type (development | release): " build
 fi
 
 case $build in
@@ -87,12 +87,12 @@ esac
 
 # context type
 if [ -z "$context" ]; then
-	read -p "select context type (software | egl | wgl): " context
+	read -rp "select context type (software | egl | wgl): " context
 fi
 
 case $context in
 	software)
-makefile=makefile_example_windows_software_native
+makefile="makefile_example_windows_software_native"
 name="globox_example_windows_software_native"
 globox="globox_windows_software"
 src+=("example/software.c")
@@ -100,7 +100,7 @@ defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
-makefile=makefile_example_windows_egl_native
+makefile="makefile_example_windows_egl_native"
 name="globox_example_windows_egl_native"
 globox="globox_windows_egl"
 src+=("example/egl.c")
@@ -114,7 +114,7 @@ default+=("bin/eglproxy.dll")
 	;;
 
 	wgl)
-makefile=makefile_example_windows_wgl_native
+makefile="makefile_example_windows_wgl_native"
 name="globox_example_windows_wgl_native"
 globox="globox_windows_wgl"
 src+=("example/wgl.c")
@@ -132,18 +132,20 @@ esac
 
 # link globox
 ldflags+=("-LIBPATH:\"globox_bin_$tag/lib/globox/windows\"")
-ldlibs+=($globox"_msvc.lib")
+ldlibs+=("$globox""_msvc.lib")
 
 # default target
 cmd="./$name.exe"
 default+=("bin/\$(NAME)")
 
 # makefile start
-echo ".POSIX:" > $makefile
-echo "NAME = $name" >> $makefile
-echo "CMD = $cmd" >> $makefile
-echo "CC = $cc" >> $makefile
-echo "LIB = $lib" >> $makefile
+{ \
+echo ".POSIX:"; \
+echo "NAME = $name"; \
+echo "CMD = $cmd"; \
+echo "CC = $cc"; \
+echo "LIB = $lib"; \
+} > $makefile
 
 # makefile linking info
 echo "" >> $makefile
@@ -163,32 +165,32 @@ for flag in "${flags[@]}"; do
 done
 
 echo "" >> $makefile
-for define in ${defines[@]}; do
+for define in "${defines[@]}"; do
 	echo "CFLAGS+= $define" >> $makefile
 done
 
 # makefile object list
 echo "" >> $makefile
-for file in ${src[@]}; do
+for file in "${src[@]}"; do
 	folder=$(dirname "$file")
 	filename=$(basename "$file" .c)
 	echo "OBJ+= $folder/$filename.obj" >> $makefile
 done
 
 echo "" >> $makefile
-for prebuilt in ${obj[@]}; do
+for prebuilt in "${obj[@]}"; do
 	echo "OBJ_EXTRA+= $prebuilt" >> $makefile
 done
 
 # generate Dr.Memory flags
 echo "" >> $makefile
-for flag in ${drmemory[@]}; do
+for flag in "${drmemory[@]}"; do
 	echo "DRMEMORY+= $flag" >> $makefile
 done
 
 # makefile default target
 echo "" >> $makefile
-echo "default: ${default[@]}" >> $makefile
+echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
@@ -196,8 +198,8 @@ cat make/example/templates/targets_windows_msvc.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
-for file in ${src[@]}; do
-	x86_64-w64-mingw32-gcc $defines -MM -MG $file >> $makefile
+for file in "${src[@]}"; do
+	x86_64-w64-mingw32-gcc "${defines[@]}" -MM -MG "$file" >> $makefile
 done
 
 # makefile extra targets

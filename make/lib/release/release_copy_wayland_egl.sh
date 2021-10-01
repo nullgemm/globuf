@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # get into the right folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../../..
 
 tag=$(git tag --sort v:refname | tail -n 1)
-release=globox_bin_$tag
+release=globox_bin_"$tag"
 
 mkdir -p "$release/lib/globox/wayland"
-mv bin/globox.a $release/lib/globox/wayland/globox_wayland_egl.a
-mv bin/globox.so $release/lib/globox/wayland/globox_wayland_egl.so
+mv bin/globox.a "$release"/lib/globox/wayland/globox_wayland_egl.a
+mv bin/globox.so "$release"/lib/globox/wayland/globox_wayland_egl.so

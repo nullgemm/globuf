@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get into the right folder
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 cd ../../..
 
 ./make/lib/gen/gen_windows_msvc.sh release egl
