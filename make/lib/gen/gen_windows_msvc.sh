@@ -9,10 +9,14 @@ context=$2
 
 # library makefile data
 name="globox"
-ver_windows=10
-ver_windows_sdk=10.0.19041.0
-ver_msvc=14.29.30037
-ver_visual_studio=2019
+
+echo "getting latest Windows SDK version number from registry..."
+ver_windows_sdk=$(powershell 'Get-ChildItem -Name "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" | Select -Last 1')
+ver_windows=$(echo "$ver_windows_sdk" | sed "s/\\..*//")
+echo "searching for latest Visual Studio version number..."
+ver_visual_studio=$(powershell '& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" /all /latest /products Microsoft.VisualStudio.Product.BuildTools /property catalog_productLineVersion')
+echo "searching for latest MSVC version number..."
+ver_msvc=$(powershell 'Get-ChildItem -Name "C:\Program Files (x86)\Microsoft Visual Studio\'$ver_visual_studio'\BuildTools\VC\Tools\MSVC" | Select -Last 1')
 
 cc="\"/c/Program Files (x86)/Microsoft Visual Studio/\
 $ver_visual_studio/BuildTools/VC/Tools/MSVC/\

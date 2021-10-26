@@ -157,6 +157,9 @@ and select those you want. In our case, this will be a compiler and SDK:
  - `Windows 10 SDK`
  - `MSVC - VS C++ x64/x86 build tools`
  - `MSVC - VS C++ x64/x86 Spectre-mitigated libs`
+The `gen_windows_msvc.sh` scripts use powershell to detect the version number
+of these tools automatically without relying on Visual Studio, so make sure
+it is available on your system as well before generating makefiles.
 
 ## Testing
 The `ci` folder contains dockerfiles and scripts to generate testing images
