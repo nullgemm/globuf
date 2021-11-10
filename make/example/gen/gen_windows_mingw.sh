@@ -6,6 +6,7 @@ cd ../../..
 
 build=$1
 context=$2
+library=$3
 
 tag=$(git tag --sort v:refname | tail -n 1)
 
@@ -106,11 +107,29 @@ exit 1
 	;;
 esac
 
-# link globox
+# link type
+if [ -z "$library" ]; then
+	read -rp "select library type (static | shared): " library
+fi
+
+case $library in
+	static)
 obj+=("globox_bin_$tag/lib/globox/windows/""$globox""_mingw.a")
+cmd="wine ./$name.exe"
+	;;
+
+	shared)
+obj+=("globox_bin_$tag/lib/globox/windows/""$globox""_mingw.dll.a")
+cmd="../make/scripts/dll_copy.sh ""$globox""_mingw.dll && wine ./$name.exe"
+	;;
+
+	*)
+echo "invalid library type"
+exit 1
+	;;
+esac
 
 # default target
-cmd="../make/scripts/dll_copy.sh ""$globox""_mingw.dll && wine ./$name.exe"
 default+=("bin/\$(NAME)")
 
 # makefile start

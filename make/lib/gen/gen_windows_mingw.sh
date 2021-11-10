@@ -111,6 +111,7 @@ esac
 
 # add the libraries as default targets
 default+=("bin/$name.dll")
+default+=("bin/$name.a")
 
 # makefile start
 { \
