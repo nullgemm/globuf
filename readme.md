@@ -213,7 +213,11 @@ The following issues are known and will not be fixed:
    reconstruct the acrylic blur effect manually, but this requires using a lot
    of undocumented DWM functionalities and DirectComposition is only accessible
    from C++ code, which means we would have to rely on non-portable COM32 hacks.
-
+ - `Windows` MSVC `.dll`s are not available |
+   MSVC does not export any symbol by default and requires that we use a
+   windows-specific syntax or write a lengthy definition file to fix this issue.
+   Since both options are terrible, we chose not to provide MSVC `.dll`s
+   (however we do supply static MSVC `.lib`s, which can replace them perfectly).
  - `macOS` Window resizing modifiers are not available |
    This is a known limit of the hack used in Globox to work around the
    limitations of Apple's APIs. Other hacks exist that preserve the
