@@ -171,8 +171,9 @@ since it runs on a home server (mostly for economic reasons).
 
 ## Todo
  - Fix the macOS frameless windows not being able to track the mouse
+ - Remove native frames and write a decoration library to provide a framed mode
+ - Write documentation for public & private API
  - Add Windows and macOS CI scripts for Qemu'd Concourse workers
- - Make static binaries as static as possible
  - Implement the Vulkan context for all platforms
 
 ## Known issues
