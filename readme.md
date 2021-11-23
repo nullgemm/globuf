@@ -169,13 +169,6 @@ here and should be usable with a few modifications in case you want a more
 user-friendly experience. Our own Concourse instance will not be made public
 since it runs on a home server (mostly for economic reasons).
 
-## Todo
- - Fix the macOS frameless windows not being able to track the mouse
- - Remove native frames and write a decoration library to provide a framed mode
- - Write documentation for public & private API
- - Add Windows and macOS CI scripts for Qemu'd Concourse workers
- - Implement the Vulkan context for all platforms
-
 ## Known issues
 The following issues are known but cannot be fixed:
  - `Wayland` Mouse release events are not sent after interactive move & resize |
