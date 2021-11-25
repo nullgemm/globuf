@@ -838,6 +838,8 @@ void globox_platform_events_wait(struct globox* globox)
 			GLOBOX_ERROR_WINDOWS_MESSAGE_GET);
 		return;
 	}
+
+	platform->globox_windows_new_event = TRUE;
 }
 
 void globox_platform_interactive_mode(

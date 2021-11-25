@@ -252,7 +252,7 @@ int main(void)
 
 	while (globox_get_closed(&globox) == false)
 	{
-		globox_platform_events_poll(&globox);
+		globox_platform_events_wait(&globox);
 
 		if (globox_error_catch(&globox))
 		{
