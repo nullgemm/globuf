@@ -529,7 +529,6 @@ LRESULT CALLBACK window_procedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 void globox_platform_init(
 	struct globox* globox,
 	bool transparent,
-	bool frameless,
 	bool blurred)
 {
 	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
@@ -537,7 +536,6 @@ void globox_platform_init(
 	globox->globox_platform = platform;
 	globox->globox_redraw = false;
 	globox->globox_transparent = transparent;
-	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
 	platform->globox_windows_sizemove_step =

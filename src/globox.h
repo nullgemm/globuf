@@ -250,7 +250,6 @@ void globox_platform_interactive_mode(
 void globox_platform_init(
 	struct globox* globox,
 	bool transparent,
-	bool frameless,
 	bool blurred);
 
 void globox_platform_events_handle(
@@ -345,7 +344,6 @@ enum globox_interactive_mode
 	globox_get_interactive_mode(struct globox* globox);
 
 bool globox_get_transparent(struct globox* globox);
-bool globox_get_frameless(struct globox* globox);
 bool globox_get_blurred(struct globox* globox);
 
 // the syntax reaches its limits when it's time to return a function pointer

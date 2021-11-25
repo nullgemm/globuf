@@ -26,7 +26,6 @@
 void globox_platform_init(
 	struct globox* globox,
 	bool transparent,
-	bool frameless,
 	bool blurred)
 {
 	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
@@ -42,7 +41,6 @@ void globox_platform_init(
 	globox->globox_platform = platform;
 	globox->globox_redraw = false;
 	globox->globox_transparent = transparent;
-	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
 #if defined(GLOBOX_CONTEXT_GLX)

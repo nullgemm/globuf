@@ -48,7 +48,6 @@ enum globox_macos_cursor_hover
 void globox_platform_init(
 	struct globox* globox,
 	bool transparent,
-	bool frameless,
 	bool blurred)
 {
 	struct globox_platform* platform = malloc(sizeof (struct globox_platform));
@@ -56,7 +55,6 @@ void globox_platform_init(
 	globox->globox_platform = platform;
 	globox->globox_redraw = true;
 	globox->globox_transparent = transparent;
-	globox->globox_frameless = frameless;
 	globox->globox_blurred = blurred;
 
 	platform->globox_macos_interactive_x = 0;

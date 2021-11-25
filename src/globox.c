@@ -280,7 +280,7 @@ void globox_open(
 	globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 
 	globox->globox_transparent = false;
-	globox->globox_frameless = false;
+	globox->globox_frameless = true;
 	globox->globox_blurred = false;
 }
 
@@ -345,11 +345,6 @@ enum globox_interactive_mode
 bool globox_get_transparent(struct globox* globox)
 {
 	return globox->globox_transparent;
-}
-
-bool globox_get_frameless(struct globox* globox)
-{
-	return globox->globox_frameless;
 }
 
 bool globox_get_blurred(struct globox* globox)
