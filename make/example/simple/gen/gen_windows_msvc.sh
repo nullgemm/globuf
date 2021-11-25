@@ -2,7 +2,7 @@
 
 # get into the script's folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../../../..
 
 build=$1
 context=$2
@@ -95,18 +95,18 @@ fi
 
 case $context in
 	software)
-makefile="makefile_example_windows_software_native"
-name="globox_example_windows_software_native"
+makefile="makefile_example_simple_windows_software_native"
+name="globox_example_simple_windows_software_native"
 globox="globox_windows_software"
-src+=("example/software.c")
+src+=("example/simple/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
-makefile="makefile_example_windows_egl_native"
-name="globox_example_windows_egl_native"
+makefile="makefile_example_simple_windows_egl_native"
+name="globox_example_simple_windows_egl_native"
 globox="globox_windows_egl"
-src+=("example/egl.c")
+src+=("example/simple/egl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 ldflags+=("-LIBPATH:res/eglproxy/lib/msvc")
@@ -117,10 +117,10 @@ default+=("bin/eglproxy.dll")
 	;;
 
 	wgl)
-makefile="makefile_example_windows_wgl_native"
-name="globox_example_windows_wgl_native"
+makefile="makefile_example_simple_windows_wgl_native"
+name="globox_example_simple_windows_wgl_native"
 globox="globox_windows_wgl"
-src+=("example/wgl.c")
+src+=("example/simple/wgl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("opengl32.lib")
@@ -197,7 +197,7 @@ echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
-cat make/example/templates/targets_windows_msvc.make >> $makefile
+cat make/example/simple/templates/targets_windows_msvc.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
@@ -207,4 +207,4 @@ done
 
 # makefile extra targets
 echo "" >> $makefile
-cat make/example/templates/targets_extra.make >> $makefile
+cat make/example/simple/templates/targets_extra.make >> $makefile

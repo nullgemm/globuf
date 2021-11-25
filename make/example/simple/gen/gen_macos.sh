@@ -2,7 +2,7 @@
 
 # get into the script's folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../../../..
 
 build=$1
 context=$2
@@ -70,18 +70,18 @@ fi
 
 case $context in
 	software)
-makefile="makefile_example_macos_software"
-name="globox_example_macos_software"
+makefile="makefile_example_simple_macos_software"
+name="globox_example_simple_macos_software"
 globox="globox_macos_software"
-src+=("example/software.c")
+src+=("example/simple/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
-makefile="makefile_example_macos_egl"
-name="globox_example_macos_egl"
+makefile="makefile_example_simple_macos_egl"
+name="globox_example_simple_macos_egl"
 globox="globox_macos_egl"
-src+=("example/egl.c")
+src+=("example/simple/egl.c")
 flags+=("-Ires/angle/include")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 ldflags+=("-Lres/angle/libs")
@@ -230,7 +230,7 @@ echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
-cat make/example/templates/targets_macos.make >> $makefile
+cat make/example/simple/templates/targets_macos.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
@@ -240,4 +240,4 @@ done
 
 # makefile extra targets
 echo "" >> $makefile
-cat make/example/templates/targets_extra.make >> $makefile
+cat make/example/simple/templates/targets_extra.make >> $makefile

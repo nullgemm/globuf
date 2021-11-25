@@ -2,7 +2,7 @@
 
 # get into the script's folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../../../..
 
 build=$1
 context=$2
@@ -11,25 +11,35 @@ library=$3
 tag=$(git tag --sort v:refname | tail -n 1)
 
 # library makefile data
-cc="gcc"
-obj+=("res/icon/iconpix.o")
+cc="x86_64-w64-mingw32-gcc"
+obj+=("res/icon/iconpix_pe.o")
 
 flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
-flags+=("-Wformat")
-flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
+flags+=("-Wno-implicit-fallthrough")
+flags+=("-Wno-cast-function-type")
+flags+=("-Wno-incompatible-pointer-types")
 flags+=("-Iglobox_bin_$tag/include")
 
-defines+=("-DGLOBOX_PLATFORM_WAYLAND")
+defines+=("-DGLOBOX_PLATFORM_WINDOWS")
+defines+=("-DUNICODE")
+defines+=("-D_UNICODE")
+defines+=("-DWINVER=0x0A00")
+defines+=("-D_WIN32_WINNT=0x0A00")
+defines+=("-DCINTERFACE")
+defines+=("-DCOBJMACROS")
 
 # generated linker arguments
-link+=("wayland-client")
-ldlibs+=("-lrt")
+ldflags+=("-fno-stack-protector")
+ldlibs+=("-lgdi32")
+ldlibs+=("-ldwmapi")
+ldlibs+=("-mwindows")
 
+# build type
 if [ -z "$build" ]; then
-	read -rp "select build type (development | release | sanitized): " build
+	read -rp "select build type (development | release): " build
 fi
 
 case $build in
@@ -41,31 +51,9 @@ defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 
 	release)
 flags+=("-D_FORTIFY_SOURCE=2")
-flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
-	;;
-
-	sanitized)
-cc="clang"
-flags+=("-g")
-flags+=("-fno-omit-frame-pointer")
-flags+=("-fPIE")
-flags+=("-fPIC")
-flags+=("-O2")
-flags+=("-fsanitize=undefined")
-flags+=("-mllvm")
-flags+=("-msan-keep-going=1")
-flags+=("-fsanitize=memory")
-flags+=("-fsanitize-memory-track-origins=2")
-flags+=("-fsanitize=function")
-ldflags+=("-fsanitize=undefined")
-ldflags+=("-fsanitize=memory")
-ldflags+=("-fsanitize-memory-track-origins=2")
-ldflags+=("-fsanitize=function")
 	;;
 
 	*)
@@ -76,27 +64,41 @@ esac
 
 # context type
 if [ -z "$context" ]; then
-	read -rp "select context type (software | egl): " context
+	read -rp "select context type (software | egl | wgl): " context
 fi
 
 case $context in
 	software)
-makefile=makefile_example_wayland_software
-name="globox_example_wayland_software"
-globox="globox_wayland_software"
-src+=("example/software.c")
+makefile=makefile_example_simple_windows_software
+name="globox_example_simple_windows_software"
+globox="globox_windows_software"
+src+=("example/simple/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
-makefile=makefile_example_wayland_egl
-name="globox_example_wayland_egl"
-globox="globox_wayland_egl"
-src+=("example/egl.c")
+makefile=makefile_example_simple_windows_egl
+name="globox_example_simple_windows_egl"
+globox="globox_windows_egl"
+src+=("example/simple/egl.c")
+flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
-link+=("wayland-egl")
-link+=("egl")
-link+=("glesv2")
+ldflags+=("-Lres/eglproxy/lib/mingw")
+ldlibs+=("-leglproxy")
+ldlibs+=("-lopengl32")
+default+=("res/egl_headers")
+default+=("bin/eglproxy.dll")
+	;;
+
+	wgl)
+makefile=makefile_example_simple_windows_wgl
+name="globox_example_simple_windows_wgl"
+globox="globox_windows_wgl"
+src+=("example/simple/wgl.c")
+flags+=("-Ires/egl_headers")
+defines+=("-DGLOBOX_CONTEXT_WGL")
+ldlibs+=("-lopengl32")
+default+=("res/egl_headers")
 	;;
 
 	*)
@@ -112,14 +114,13 @@ fi
 
 case $library in
 	static)
-obj+=("globox_bin_$tag/lib/globox/wayland/$globox.a")
-cmd="./$name"
+obj+=("globox_bin_$tag/lib/globox/windows/""$globox""_mingw.a")
+cmd="wine ./$name.exe"
 	;;
 
 	shared)
-ldflags+=("-Lglobox_bin_$tag/lib/globox/wayland")
-ldlibs+=("-l:$globox.so")
-cmd="LD_LIBRARY_PATH=../globox_bin_$tag/lib/globox/wayland ./$name"
+obj+=("globox_bin_$tag/lib/globox/windows/""$globox""_mingw.dll.a")
+cmd="../make/scripts/dll_copy.sh ""$globox""_mingw.dll && wine ./$name.exe"
 	;;
 
 	*)
@@ -131,13 +132,6 @@ esac
 # default target
 default+=("bin/\$(NAME)")
 
-# valgrind flags
-valgrind+=("--show-error-list=yes")
-valgrind+=("--show-leak-kinds=all")
-valgrind+=("--track-origins=yes")
-valgrind+=("--leak-check=full")
-valgrind+=("--suppressions=../res/valgrind.supp")
-
 # makefile start
 { \
 echo ".POSIX:"; \
@@ -148,12 +142,12 @@ echo "CC = $cc"; \
 
 # makefile linking info
 echo "" >> $makefile
-for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
+for flag in "${ldflags[@]}"; do
 	echo "LDFLAGS+= $flag" >> $makefile
 done
 
 echo "" >> $makefile
-for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
+for flag in "${ldlibs[@]}"; do
 	echo "LDLIBS+= $flag" >> $makefile
 done
 
@@ -181,19 +175,13 @@ for prebuilt in "${obj[@]}"; do
 	echo "OBJ_EXTRA+= $prebuilt" >> $makefile
 done
 
-# generate valgrind flags
-echo "" >> $makefile
-for flag in "${valgrind[@]}"; do
-	echo "VALGRIND+= $flag" >> $makefile
-done
-
 # makefile default target
 echo "" >> $makefile
 echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
-cat make/example/templates/targets_linux.make >> $makefile
+cat make/example/simple/templates/targets_windows_mingw.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
@@ -203,4 +191,4 @@ done
 
 # makefile extra targets
 echo "" >> $makefile
-cat make/example/templates/targets_extra.make >> $makefile
+cat make/example/simple/templates/targets_extra.make >> $makefile

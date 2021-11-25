@@ -2,7 +2,7 @@
 
 # get into the script's folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../../../..
 
 build=$1
 context=$2
@@ -22,10 +22,11 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Iglobox_bin_$tag/include")
 
-defines+=("-DGLOBOX_PLATFORM_X11")
+defines+=("-DGLOBOX_PLATFORM_WAYLAND")
 
 # generated linker arguments
-link+=("xcb")
+link+=("wayland-client")
+ldlibs+=("-lrt")
 
 if [ -z "$build" ]; then
 	read -rp "select build type (development | release | sanitized): " build
@@ -75,40 +76,27 @@ esac
 
 # context type
 if [ -z "$context" ]; then
-	read -rp "select context type (software | egl | glx): " context
+	read -rp "select context type (software | egl): " context
 fi
 
 case $context in
 	software)
-makefile="makefile_example_x11_software"
-name="globox_example_x11_software"
-globox="globox_x11_software"
-src+=("example/software.c")
+makefile=makefile_example_simple_wayland_software
+name="globox_example_simple_wayland_software"
+globox="globox_wayland_software"
+src+=("example/simple/software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
-link+=("xcb-shm")
-link+=("xcb-randr")
-link+=("xcb-render")
 	;;
 
 	egl)
-makefile="makefile_example_x11_egl"
-name="globox_example_x11_egl"
-globox="globox_x11_egl"
-src+=("example/egl.c")
+makefile=makefile_example_simple_wayland_egl
+name="globox_example_simple_wayland_egl"
+globox="globox_wayland_egl"
+src+=("example/simple/egl.c")
 defines+=("-DGLOBOX_CONTEXT_EGL")
+link+=("wayland-egl")
 link+=("egl")
 link+=("glesv2")
-	;;
-
-	glx)
-makefile="makefile_example_x11_glx"
-name="globox_example_x11_glx"
-globox="globox_x11_glx"
-src+=("example/glx.c")
-defines+=("-DGLOBOX_CONTEXT_GLX")
-link+=("gl")
-link+=("glesv2")
-link+=("x11 x11-xcb xrender")
 	;;
 
 	*)
@@ -124,14 +112,14 @@ fi
 
 case $library in
 	static)
-obj+=("globox_bin_$tag/lib/globox/x11/$globox.a")
+obj+=("globox_bin_$tag/lib/globox/wayland/$globox.a")
 cmd="./$name"
 	;;
 
 	shared)
-ldflags+=("-Lglobox_bin_$tag/lib/globox/x11")
+ldflags+=("-Lglobox_bin_$tag/lib/globox/wayland")
 ldlibs+=("-l:$globox.so")
-cmd="LD_LIBRARY_PATH=../globox_bin_$tag/lib/globox/x11 ./$name"
+cmd="LD_LIBRARY_PATH=../globox_bin_$tag/lib/globox/wayland ./$name"
 	;;
 
 	*)
@@ -205,7 +193,7 @@ echo "default:" "${default[@]}" >> $makefile
 
 # makefile linux targets
 echo "" >> $makefile
-cat make/example/templates/targets_linux.make >> $makefile
+cat make/example/simple/templates/targets_linux.make >> $makefile
 
 # makefile object targets
 echo "" >> $makefile
@@ -215,4 +203,4 @@ done
 
 # makefile extra targets
 echo "" >> $makefile
-cat make/example/templates/targets_extra.make >> $makefile
+cat make/example/simple/templates/targets_extra.make >> $makefile
