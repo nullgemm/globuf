@@ -53,10 +53,11 @@ mac OS
    (It is not implemented yet)
 
 ## Example
-It is possible to generate makefiles to build egl, wgl, glx & software examples
-using the scripts in `make/example/gen` or `make/example/batch`.
-A small desktop application using Globox, Razorbeard, Willis, DPIshit & Cursoryx
-is available [here](https://github.com/nullgemm/desktopsample).
+It is possible to generate simple makefiles to build egl, wgl, glx & software
+examples without decorations using the scripts in `make/example/simple/gen`.
+A small desktop application using Globox, Willis, DPIshit, Cursoryx and
+providing an example implementation of client-side window decorations
+can be built using the scripts in `make/example/complex/gen`.
 
 ## Compiling
 Generate the makefiles you need using the scripts in `make/lib/gen/`.
