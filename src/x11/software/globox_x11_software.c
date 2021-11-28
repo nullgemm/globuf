@@ -461,6 +461,7 @@ void globox_context_software_init(
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_x11_software* context = &(platform->globox_x11_software);
 
+	context->globox_software_pixmap_update = false;
 	context->globox_software_buffer_len =
 		4
 		* globox->globox_width
