@@ -12,8 +12,8 @@ make -f makefile_lib_wayland_software
 ./make/lib/release/release_copy_wayland_software.sh
 
 # build example
-./make/example/gen/gen_wayland.sh sanitized software static
-make -f makefile_example_wayland_software
+./make/example/simple/gen/gen_wayland.sh sanitized software static
+make -f makefile_example_simple_wayland_software
 
 # run example
 export XDG_RUNTIME_DIR=/scripts/run

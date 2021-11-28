@@ -13,8 +13,8 @@ make -f makefile_lib_x11_egl
 ./make/lib/release/release_copy_x11_egl.sh
 
 # build example
-./make/example/gen/gen_x11.sh sanitized egl static
-make -f makefile_example_x11_egl
+./make/example/simple/gen/gen_x11.sh sanitized egl static
+make -f makefile_example_simple_x11_egl
 cd ./bin || exit
 
 # run the tests

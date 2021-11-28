@@ -12,8 +12,8 @@ make -f makefile_lib_wayland_egl
 ./make/lib/release/release_copy_wayland_egl.sh
 
 # build example
-./make/example/gen/gen_wayland.sh sanitized egl static
-make -f makefile_example_wayland_egl
+./make/example/simple/gen/gen_wayland.sh sanitized egl static
+make -f makefile_example_simple_wayland_egl
 
 # run example
 export XDG_RUNTIME_DIR=/scripts/run
