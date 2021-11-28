@@ -256,6 +256,11 @@ int main(void)
 		}
 	}
 
+	cursoryx_stop(&cursoryx);
+	willis_free(&willis);
+	free(cursoryx_data);
+	free(dpishit_data);
+	free(willis_data);
 	globox_context_glx_free(&globox);
 	globox_platform_free(&globox);
 	globox_close(&globox);

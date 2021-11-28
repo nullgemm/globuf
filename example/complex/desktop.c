@@ -165,6 +165,16 @@ void example_willis_event_callback(
 {
 	struct event_data* event_data = data;
 
+#if defined(WILLIS_WAYLAND)
+	// wayland dumbness workaround
+	if ((event_code == WILLIS_MOUSE_MOTION)
+	&& (globox_get_interactive_mode(event_data->globox) != GLOBOX_INTERACTIVE_STOP))
+	{
+		event_code = WILLIS_MOUSE_CLICK_LEFT;
+		event_state = WILLIS_STATE_RELEASE;
+	}
+#endif
+
 	// print the event's details
 	printf(
 		"%-27s: %s\n",

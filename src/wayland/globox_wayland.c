@@ -536,6 +536,9 @@ void globox_platform_free(struct globox* globox)
 	null_or_free(platform->globox_wayland_compositor);
 	null_or_free(platform->globox_wayland_shm);
 
+	null_or_free(platform->globox_wayland_pointer_manager);
+	null_or_free(platform->globox_wayland_pointer_constraints);
+
 	close(platform->globox_wayland_epoll);
 
 	if (platform->globox_wayland_xdg_toplevel != NULL)

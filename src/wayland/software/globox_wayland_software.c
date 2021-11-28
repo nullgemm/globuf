@@ -97,10 +97,19 @@ void globox_context_software_free(struct globox* globox)
 	struct globox_platform* platform = globox->globox_platform;
 	struct globox_wayland_software* context = &(platform->globox_wayland_software);
 
+	pthread_mutex_lock(&(context->globox_software_buffer_mutex));
+
+	for (int i = 0; i < context->globox_software_buffer_list_len; ++i)
+	{
+		wl_buffer_destroy(context->globox_software_buffer_list[i]);
+	}
+
 	if (context->globox_software_buffer_list != NULL)
 	{
 		free(context->globox_software_buffer_list);
 	}
+
+	pthread_mutex_unlock(&(context->globox_software_buffer_mutex));
 }
 
 void globox_context_software_copy(
