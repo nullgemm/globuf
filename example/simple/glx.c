@@ -143,6 +143,7 @@ int main(void)
 
 	// prepare OpenGL or glES
 	const char* vertex_shader_src =
+		"#version 130\n"
 		"attribute vec4 vPosition;"
 		"void main()"
 		"{"
@@ -150,6 +151,7 @@ int main(void)
 		"}";
 
 	const char* fragment_shader_src =
+		"#version 130\n"
 		"precision mediump float;"
 		"void main()"
 		"{"

@@ -117,6 +117,8 @@ void globox_context_glx_init(
 				context->globox_glx_display,
 				visual_info->visual);
 
+		XFree(visual_info);
+
 		if (pict_format == NULL)
 		{
 			continue;
