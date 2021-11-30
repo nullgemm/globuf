@@ -629,9 +629,9 @@ void example_willis_event_callback(
 		bool dpishit_real =
 			dpishit_refresh_real_density(event->dpishit);
 		bool dpishit_logic =
-			dpishit_refresh_scale(event->dpishit);
-		bool dpishit_scale =
 			dpishit_refresh_logic_density(event->dpishit);
+		bool dpishit_scale =
+			dpishit_refresh_scale(event->dpishit);
 
 		printf(
 			"DPIshit info:\n"
@@ -648,6 +648,64 @@ void example_willis_event_callback(
 			dpishit_logic,
 			display_info->scale,
 			dpishit_scale);
+
+		double scale;
+
+		if ((dpishit_scale == true) && (display_info->scale != 0.0))
+		{
+			scale = display_info->scale;
+		}
+		else
+		{
+			scale = 1.0;
+		}
+
+		if ((dpishit_logic == true) && (display_info->dpi_logic != 0.0))
+		{
+			frame->title_size =
+				scale * (9 / 25.4)
+				* display_info->dpi_logic;
+
+			frame->button_size =
+				scale * (10 / 25.4)
+				* display_info->dpi_logic;
+
+			frame->button_icon_size =
+				scale * (4 / 25.4)
+				* display_info->dpi_logic;
+
+			frame->border_size =
+				scale * (1 / 25.4)
+				* display_info->dpi_logic;
+
+			frame->corner_reach =
+				2 * frame->border_size;
+		}
+		else if (dpishit_real == true)
+		{
+			frame->title_size =
+				scale * 9
+				* display_info->px_width
+				/ display_info->mm_width;
+
+			frame->button_size =
+				scale * 10
+				* display_info->px_width
+				/ display_info->mm_width;
+
+			frame->button_icon_size =
+				scale * 4
+				* display_info->px_width
+				/ display_info->mm_width;
+
+			frame->border_size =
+				scale * 1
+				* display_info->px_width
+				/ display_info->mm_width;
+
+			frame->corner_reach =
+				2 * frame->border_size;
+		}
 	}
 
 	// if this event synthesized some text, print it
