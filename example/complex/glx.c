@@ -33,7 +33,7 @@ void render(struct globox* globox, struct frame_info* frame)
 		return;
 	}
 
-	if (globox_get_redraw(globox) == true)
+	if (true)
 	{
 		globox_platform_prepare_buffer(globox);
 
