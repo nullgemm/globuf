@@ -6,10 +6,10 @@ bin/$(NAME): $(OBJ) $(OBJ_EXTRA)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 bin/libEGL.dylib: res/angle/libs
+	mkdir -p $(@D)
 	cp res/angle/libs/*.dylib bin/
 
 res/angle/libs:
-	mkdir -p bin
 	make/scripts/angle_dev_get.sh
 
 res/objconv/objconv:
