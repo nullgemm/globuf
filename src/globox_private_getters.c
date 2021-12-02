@@ -396,7 +396,6 @@ Class globox_get_macos_class_appdelegate(
 {
 	return globox->globox_platform->globox_macos_class_appdelegate;
 }
-// no getter for globox_get_macos_class_cursor
 id globox_get_macos_obj_view(
 	struct globox* globox)
 {
@@ -407,8 +406,6 @@ id globox_get_macos_obj_appdelegate(
 {
 	return globox->globox_platform->globox_macos_obj_appdelegate;
 }
-// no getter for globox_get_macos_obj_cursor_a
-// no getter for globox_get_macos_obj_cursor_b
 id globox_get_macos_obj_window(
 	struct globox* globox)
 {
@@ -424,16 +421,6 @@ id globox_get_macos_obj_blur(
 {
 	return globox->globox_platform->globox_macos_obj_blur;
 }
-struct macos_size globox_get_macos_window_min_size(
-	struct globox* globox)
-{
-	return globox->globox_platform->globox_macos_window_min_size;
-}
-struct macos_rect* globox_get_macos_buttons(
-	struct globox* globox)
-{
-	return globox->globox_platform->globox_macos_buttons;
-}
 // no getter for globox_macos_titlebar_height
 // no getter for globox_macos_interactive_x
 // no getter for globox_macos_interactive_y
@@ -441,10 +428,6 @@ struct macos_rect* globox_get_macos_buttons(
 // no getter for globox_macos_inhibit_resize
 // no getter for globox_macos_old_window_frame
 // no getter for globox_macos_state_old
-// no getter for globox_macos_obj_cursor_old
-// no getter for globox_macos_cursor_use_a
-// no getter for globox_macos_cursor
-// no getter for globox_macos_cursor_hover
 // no getter for globox_macos_appdelegate_context_callback
 
 #if defined(GLOBOX_CONTEXT_SOFTWARE)

@@ -15,35 +15,6 @@
 // include platform structures
 #include "macos/globox_macos.h"
 
-#define RESIZE_REACH_CORNER 12
-#define RESIZE_REACH_SIDE 7
-
-enum globox_macos_cursor
-{
-	GLOBOX_MACOS_CURSOR_ARROW = 0,
-	GLOBOX_MACOS_CURSOR_WE = 28,
-	GLOBOX_MACOS_CURSOR_NESW = 30,
-	GLOBOX_MACOS_CURSOR_NS = 32,
-	GLOBOX_MACOS_CURSOR_NWSE = 34,
-};
-
-enum globox_macos_cursor_hover
-{
-	GLOBOX_MACOS_HOVER_NONE = 0,
-	GLOBOX_MACOS_HOVER_CLOSE,
-	GLOBOX_MACOS_HOVER_MIN,
-	GLOBOX_MACOS_HOVER_MAX,
-	GLOBOX_MACOS_HOVER_N,
-	GLOBOX_MACOS_HOVER_NW,
-	GLOBOX_MACOS_HOVER_W,
-	GLOBOX_MACOS_HOVER_SW,
-	GLOBOX_MACOS_HOVER_S,
-	GLOBOX_MACOS_HOVER_SE,
-	GLOBOX_MACOS_HOVER_E,
-	GLOBOX_MACOS_HOVER_NE,
-	GLOBOX_MACOS_HOVER_TITLEBAR,
-};
-
 // initalize the display system
 void globox_platform_init(
 	struct globox* globox,
@@ -62,9 +33,6 @@ void globox_platform_init(
 	platform->globox_macos_fullscreen = false;
 	platform->globox_macos_inhibit_resize = false;
 	platform->globox_macos_state_old = GLOBOX_STATE_REGULAR;
-	platform->globox_macos_cursor_use_a = false;
-	platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
-	platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
 
 	// re-used variables
 	Class class;
@@ -212,8 +180,6 @@ void globox_platform_create_window(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = globox->globox_platform;
-	BOOL ok;
-
 	Class class;
 	id obj;
 
@@ -317,73 +283,6 @@ void globox_platform_create_window(struct globox* globox)
 	globox_platform_set_title(globox, globox->globox_title);
 	globox_platform_set_state(globox, globox->globox_state);
 
-	// create system cursor subclass
-	class = objc_getClass("NSCursor");
-
-	if (class == Nil)
-	{ 
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_MACOS_CLASS_GET);
-
-		macos_msg_void_none(
-			(id) platform->globox_macos_obj_appdelegate,
-			sel_getUid("dealloc"));
-
-		return;
-	}
-
-	platform->globox_macos_class_cursor =
-		objc_allocateClassPair(
-			class,
-			"Cursor",
-			0);
-
-	if (platform->globox_macos_class_cursor == Nil)
-	{ 
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_MACOS_CLASS_ALLOC);
-
-		macos_msg_void_none(
-			(id) platform->globox_macos_obj_appdelegate,
-			sel_getUid("dealloc"));
-
-		return;
-	}
-
-	ok =
-		class_addMethod(
-			platform->globox_macos_class_cursor,
-			sel_getUid("_coreCursorType"),
-			(IMP) callback_core_cursor_type,
-			"@:");
-
-	if (ok == NO)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_MACOS_CLASS_ADDMETHOD);
-
-		macos_msg_void_none(
-			(id) platform->globox_macos_obj_appdelegate,
-			sel_getUid("dealloc"));
-
-		objc_disposeClassPair(platform->globox_macos_class_cursor);
-
-		return;
-	}
-
-	platform->globox_macos_obj_cursor_a =
-		macos_msg_id_none(
-			(id) platform->globox_macos_class_cursor,
-			sel_getUid("alloc"));
-
-	platform->globox_macos_obj_cursor_b =
-		macos_msg_id_none(
-			(id) platform->globox_macos_class_cursor,
-			sel_getUid("alloc"));
-
 	// attach the AppDelegate to the NSApp singleton
 	macos_msg_void_voidptr(
 		platform->globox_platform_event_handle,
@@ -415,40 +314,7 @@ void globox_platform_create_window(struct globox* globox)
 
 void globox_platform_hooks(struct globox* globox)
 {
-	// alias for readability
-	struct globox_platform* platform = globox->globox_platform;
-
-	// the window initialization must be done before
-	// globox_platform_create_window returns
-
-	// compute the titlebar height
-	struct macos_rect frame_window =
-		macos_msg_rect_none(
-			platform->globox_macos_obj_window,
-			sel_getUid("frame"));
-
-	struct macos_rect frame_view =
-		macos_msg_rect_none(
-			platform->globox_macos_obj_masterview,
-			sel_getUid("frame"));
-
-	platform->globox_macos_titlebar_height =
-		(int16_t) (frame_window.size.height - frame_view.size.height);
-
-	// save minimal window size
-	struct macos_size min_size =
-	{
-		.width = (2 * RESIZE_REACH_CORNER) + 1,
-		.height = platform->globox_macos_titlebar_height + RESIZE_REACH_CORNER + 1,
-	};
-
-	platform->globox_macos_window_min_size = min_size;
-
-	// set minimal window size
-	macos_msg_void_size(
-		platform->globox_macos_obj_window,
-		sel_getUid("setMinSize:"),
-		min_size);
+	// not needed
 }
 
 void globox_platform_commit(struct globox* globox)
@@ -623,24 +489,11 @@ static void handle_interactive_mode(struct globox* globox)
 	frame.size.width = (int16_t) frame.size.width;
 	frame.size.height = (int16_t) frame.size.height;
 
-	// fix crazy sizes
-	struct macos_size min_size = platform->globox_macos_window_min_size;
-
-	if (frame.size.width < min_size.width)
-	{
-		frame.size.width = min_size.width;
-	}
-
-	if (frame.size.height < min_size.height)
-	{
-		frame.size.height = min_size.height;
-	}
-
 	// set window position
 	struct macos_size size_view =
 	{
 		.width = frame.size.width,
-		.height = frame.size.height - platform->globox_macos_titlebar_height,
+		.height = frame.size.height,
 	};
 
 	platform->globox_macos_interactive_x += frame_old.origin.x - frame.origin.x;
@@ -663,194 +516,6 @@ static void handle_interactive_mode(struct globox* globox)
 		size_view);
 
 	globox->globox_redraw = true;
-}
-
-static void cursor_hover_update(
-	struct globox* globox)
-{
-	// alias for readability
-	struct globox_platform* platform = globox->globox_platform;
-
-	struct macos_point pos =
-		macos_msg_point_none(
-			platform->globox_macos_obj_window,
-			sel_getUid("mouseLocationOutsideOfEventStream"));
-
-	struct macos_rect frame =
-		macos_msg_rect_none(
-			platform->globox_macos_obj_window,
-			sel_getUid("frame"));
-
-	// don't change the cursor if there is no frame
-	if ((globox->globox_frameless == true)
-		|| (platform->globox_macos_fullscreen == true))
-	{
-		return;
-	}
-
-	// don't change the cursor if the mouse hovers a button
-	int16_t button_y = frame.size.height - platform->globox_macos_titlebar_height;
-	struct macos_rect button;
-	int i = 0;
-
-	while (i < 3)
-	{
-		button = platform->globox_macos_buttons[i];
-
-		if ((pos.y > (button_y + button.origin.y))
-			&& (pos.y < (button_y + button.origin.y + button.size.height))
-			&& (pos.x > button.origin.x)
-			&& (pos.x < (button.origin.x + button.size.width)))
-		{
-			platform->globox_macos_inhibit_resize = true;
-			platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
-			platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
-
-			switch (i)
-			{
-				case 0:
-				{
-					platform->globox_macos_cursor_hover =
-						GLOBOX_MACOS_HOVER_CLOSE;
-					break;
-				}
-				case 1:
-				{
-					platform->globox_macos_cursor_hover =
-						GLOBOX_MACOS_HOVER_MIN;
-					break;
-				}
-				case 2:
-				{
-					platform->globox_macos_cursor_hover =
-						GLOBOX_MACOS_HOVER_MAX;
-					break;
-				}
-			}
-
-			return;
-		}
-
-		++i;
-	}
-
-	platform->globox_macos_inhibit_resize = false;
-
-	// update the cursor state and image
-	enum globox_macos_cursor_hover old = platform->globox_macos_cursor_hover;
-
-	if ((pos.x > RESIZE_REACH_CORNER)
-		&& (pos.x < (frame.size.width - RESIZE_REACH_CORNER))
-		&& (pos.y > (frame.size.height - RESIZE_REACH_SIDE))
-		&& (pos.y < frame.size.height))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_N;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NS;
-	}
-	else if ((pos.x > 0)
-		&& (pos.x < RESIZE_REACH_CORNER)
-		&& (pos.y > (frame.size.height - RESIZE_REACH_CORNER))
-		&& (pos.y < frame.size.height))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NW;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NWSE;
-	}
-	else if ((pos.x > 0)
-		&& (pos.x < RESIZE_REACH_SIDE)
-		&& (pos.y > RESIZE_REACH_CORNER)
-		&& (pos.y < (frame.size.height - RESIZE_REACH_CORNER)))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_W;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_WE;
-	}
-	else if ((pos.x > 0)
-		&& (pos.x < RESIZE_REACH_CORNER)
-		&& (pos.y > 0)
-		&& (pos.y < RESIZE_REACH_CORNER))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_SW;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NESW;
-	}
-	else if ((pos.x > RESIZE_REACH_CORNER)
-		&& (pos.x < (frame.size.width - RESIZE_REACH_CORNER))
-		&& (pos.y > 0)
-		&& (pos.y < RESIZE_REACH_SIDE))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_S;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NS;
-	}
-	else if ((pos.x > (frame.size.width - RESIZE_REACH_CORNER))
-		&& (pos.x < frame.size.width)
-		&& (pos.y > 0)
-		&& (pos.y < RESIZE_REACH_CORNER))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_SE;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NWSE;
-	}
-	else if ((pos.x > (frame.size.width - RESIZE_REACH_SIDE))
-		&& (pos.x < frame.size.width)
-		&& (pos.y > RESIZE_REACH_CORNER)
-		&& (pos.y < (frame.size.height - RESIZE_REACH_CORNER)))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_E;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_WE;
-	}
-	else if ((pos.x > (frame.size.width - RESIZE_REACH_CORNER))
-		&& (pos.x < frame.size.width)
-		&& (pos.y > (frame.size.height - RESIZE_REACH_CORNER))
-		&& (pos.y < frame.size.height))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NE;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_NESW;
-	}
-	else if ((pos.x > 0)
-		&& (pos.x < frame.size.width)
-		&& (pos.y > (frame.size.height - platform->globox_macos_titlebar_height))
-		&& (pos.y < frame.size.height))
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_TITLEBAR;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
-	}
-	else 
-	{
-		platform->globox_macos_cursor_hover = GLOBOX_MACOS_HOVER_NONE;
-		platform->globox_macos_cursor = GLOBOX_MACOS_CURSOR_ARROW;
-	}
-
-	if (old != platform->globox_macos_cursor_hover)
-	{
-		if (old == GLOBOX_MACOS_HOVER_NONE)
-		{
-			Class class = objc_getClass("NSCursor");
-
-			if (class == Nil)
-			{ 
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_MACOS_CLASS_GET);
-				return;
-			}
-
-			platform->globox_macos_obj_cursor_old =
-				macos_msg_idptr_none(
-					(id) class,
-					sel_getUid("currentCursor"));
-
-			if (platform->globox_macos_obj_cursor_old == Nil)
-			{
-				globox_error_throw(
-					globox,
-					GLOBOX_ERROR_MACOS_OBJ_NIL);
-				return;
-			}
-		}
-		else
-		{
-			macos_msg_void_none(
-				(id) platform->globox_macos_obj_cursor_old,
-				sel_getUid("set"));
-		}
-	}
 }
 
 static void window_state_update(struct globox* globox, long event_data)
@@ -963,128 +628,12 @@ void globox_platform_events_handle(
 
 			break;
 		}
-		case NSEventTypeAppKitDefined:
-		{
-			short event_subtype =
-				macos_msg_event_subtype(
-					event,
-					sel_getUid("subtype"));
-
-			if (event_subtype != NSEventSubtypeApplicationActivated)
-			{
-				break;
-			}
-
-			cursor_hover_update(globox);
-
-			break;
-		}
-		case NSEventTypeMouseMoved:
-		{
-			if (globox->globox_interactive_mode != GLOBOX_INTERACTIVE_STOP)
-			{
-				break;
-			}
-
-			cursor_hover_update(globox);
-
-			break;
-		}
 		case NSEventTypeLeftMouseDown:
 		{
-			if (globox->globox_interactive_mode != GLOBOX_INTERACTIVE_STOP)
+			if ((globox->globox_interactive_mode != GLOBOX_INTERACTIVE_STOP)
+			|| (platform->globox_macos_inhibit_resize == true))
 			{
 				break;
-			}
-
-			switch (platform->globox_macos_cursor_hover)
-			{
-				case GLOBOX_MACOS_HOVER_CLOSE:
-				{
-					globox->globox_closed = true;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_MIN:
-				{
-					platform->globox_macos_state_old =
-						GLOBOX_STATE_REGULAR;
-
-					globox_platform_set_state(
-						globox,
-						GLOBOX_STATE_MINIMIZED);
-
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_MAX:
-				{
-					platform->globox_macos_state_old =
-						GLOBOX_STATE_REGULAR;
-
-					globox_platform_set_state(
-						globox,
-						GLOBOX_STATE_FULLSCREEN);
-
-					break;
-				}
-			}
-
-			if (platform->globox_macos_inhibit_resize == true)
-			{
-				break;
-			}
-
-			switch (platform->globox_macos_cursor_hover)
-			{
-				case GLOBOX_MACOS_HOVER_N:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_N;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_NW:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_NW;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_W:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_W;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_SW:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_SW;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_S:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_S;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_SE:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_SE;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_E:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_E;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_NE:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_NE;
-					break;
-				}
-				case GLOBOX_MACOS_HOVER_TITLEBAR:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_MOVE;
-					break;
-				}
-				default:
-				{
-					globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
-					break;
-				}
 			}
 
 			struct macos_point pos =
@@ -1105,26 +654,6 @@ void globox_platform_events_handle(
 			globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 
 			break;
-		}
-	}
-
-	if (platform->globox_macos_cursor_hover != GLOBOX_MACOS_HOVER_NONE)
-	{
-		if (platform->globox_macos_cursor_use_a == true)
-		{
-			macos_msg_id_none(
-				platform->globox_macos_obj_cursor_b,
-				sel_getUid("set"));
-
-			platform->globox_macos_cursor_use_a = false;
-		}
-		else
-		{
-			macos_msg_id_none(
-				platform->globox_macos_obj_cursor_a,
-				sel_getUid("set"));
-
-			platform->globox_macos_cursor_use_a = true;
 		}
 	}
 
@@ -1149,14 +678,6 @@ void globox_platform_free(struct globox* globox)
 {
 	// alias for readability
 	struct globox_platform* platform = globox->globox_platform;
-
-	macos_msg_void_none(
-		(id) platform->globox_macos_obj_cursor_a,
-		sel_getUid("dealloc"));
-	macos_msg_void_none(
-		(id) platform->globox_macos_obj_cursor_b,
-		sel_getUid("dealloc"));
-	objc_disposeClassPair(platform->globox_macos_class_cursor);
 
 	macos_msg_void_none(
 		(id) platform->globox_macos_obj_appdelegate,

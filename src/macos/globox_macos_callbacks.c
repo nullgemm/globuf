@@ -273,7 +273,6 @@ void callback_window_will_exit_fullscreen(
 	platform->globox_macos_fullscreen = false;
 
 	struct macos_size view_size = platform->globox_macos_old_window_frame.size;
-	view_size.height -= platform->globox_macos_titlebar_height;
 
 	macos_msg_resize(
 		platform->globox_macos_obj_window,
@@ -386,11 +385,6 @@ BOOL callback_application_will_finish_launching(
 
 	// initialize parameters
 	int stylemask = NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
-
-	if (globox->globox_frameless == false)
-	{
-		stylemask |= NSWindowStyleMaskTitled;
-	}
 
 	struct macos_rect rect_win =
 	{
@@ -677,61 +671,6 @@ BOOL callback_application_will_finish_launching(
 		| NSWindowCollectionBehaviorFullScreenPrimary
 		| NSWindowCollectionBehaviorFullScreenAllowsTiling);
 
-	id* button;
-	int k = 0;
-
-	while ((globox->globox_frameless == false) && (k < 3))
-	{
-		button =
-			macos_msg_idptr_int(
-				platform->globox_macos_obj_window,
-				sel_getUid("standardWindowButton:"),
-				k);
-
-		if (button == Nil)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_MACOS_OBJ_NIL);
-
-			macos_msg_void_none(
-				platform->globox_macos_obj_view,
-				sel_getUid("dealloc"));
-
-			macos_msg_void_none(
-				platform->globox_macos_obj_blur,
-				sel_getUid("dealloc"));
-
-			macos_msg_void_none(
-				platform->globox_macos_obj_masterview,
-				sel_getUid("dealloc"));
-
-			macos_msg_void_none(
-				window_delegate_obj,
-				sel_getUid("dealloc"));
-
-			macos_msg_void_none(
-				appdelegate->window,
-				sel_getUid("dealloc"));
-
-			objc_disposeClassPair(window_delegate_class);
-
-			return NO;
-		}
-
-		platform->globox_macos_buttons[k] =
-			macos_msg_rect_none(
-				(id) button,
-				sel_getUid("frame"));
-
-		macos_msg_void_bool(
-			(id) button,
-			sel_getUid("setEnabled:"),
-			YES);
-
-		++k;
-	}
-
 	// the `1` below is not clearly defined in Apple's documentation
 	macos_msg_void_int(
 		platform->globox_platform_event_handle,
@@ -784,23 +723,4 @@ void callback_application_will_become_active(
 		platform->globox_platform_event_handle,
 		sel_getUid("stop:"),
 		NULL);
-}
-
-long callback_core_cursor_type(
-	id self,
-	SEL cmd)
-{
-	void* out;
-
-	globox_macos_get_globox(&out);
-
-	if (out == NULL)
-	{
-		return 0;
-	}
-
-	struct globox* globox = (struct globox*) out;
-	struct globox_platform* platform = globox->globox_platform;
-
-	return platform->globox_macos_cursor;
 }

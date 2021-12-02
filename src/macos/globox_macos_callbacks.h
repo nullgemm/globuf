@@ -53,8 +53,5 @@ void callback_application_will_become_active(
 	struct macos_appdelegate* appdelegate,
 	SEL cmd,
 	id msg);
-long callback_core_cursor_type(
-	id self,
-	SEL cmd);
 
 #endif

@@ -360,7 +360,7 @@ void globox_context_egl_copy(
 		frame.size.width;
 
 	globox->globox_height =
-		frame.size.height - platform->globox_macos_titlebar_height;
+		frame.size.height;
 
 	globox_platform_commit(globox);
 }

@@ -38,20 +38,13 @@ struct globox_platform
 
 	Class globox_macos_class_view;
 	Class globox_macos_class_appdelegate;
-	Class globox_macos_class_cursor;
 
 	id globox_macos_obj_view;
 	id globox_macos_obj_appdelegate;
-	id globox_macos_obj_cursor_a;
-	id globox_macos_obj_cursor_b;
 	id globox_macos_obj_window;
 	id globox_macos_obj_masterview;
 	id globox_macos_obj_blur;
 
-	struct macos_size globox_macos_window_min_size;
-	struct macos_rect globox_macos_buttons[3];
-
-	int16_t globox_macos_titlebar_height;
 	int16_t globox_macos_interactive_x;
 	int16_t globox_macos_interactive_y;
 
@@ -60,10 +53,6 @@ struct globox_platform
 
 	struct macos_rect globox_macos_old_window_frame;
 	unsigned int globox_macos_state_old;
-	id* globox_macos_obj_cursor_old;
-	bool globox_macos_cursor_use_a;
-	long globox_macos_cursor;
-	unsigned int globox_macos_cursor_hover;
 
 	void (*globox_macos_appdelegate_context_callback)(
 		struct macos_appdelegate* appdelegate,
