@@ -280,7 +280,6 @@ void globox_open(
 	globox->globox_interactive_mode = GLOBOX_INTERACTIVE_STOP;
 
 	globox->globox_transparent = false;
-	globox->globox_frameless = true;
 	globox->globox_blurred = false;
 }
 

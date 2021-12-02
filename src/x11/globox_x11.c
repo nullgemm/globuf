@@ -324,43 +324,41 @@ void globox_platform_hooks(struct globox* globox)
 		return;
 	}
 
-	// frameless window
-	if (globox->globox_frameless == true)
+	// configure the window as frameless
+
+	// this is supposed to be a struct but whatever, here we set
+	//  - flags to 0x02 to configure the decorations
+	//  - decorations to 0x00 to remove them
+	uint32_t motif_hints[5] =
 	{
-		// this is supposed to be a struct but whatever, here we set
-		//  - flags to 0x02 to configure the decorations
-		//  - decorations to 0x00 to remove them
-		uint32_t motif_hints[5] =
-		{
-			2, // flags
-			0, // functions
-			0, // decorations
-			0, // input_mode
-			0, // status
-		};
+		2, // flags
+		0, // functions
+		0, // decorations
+		0, // input_mode
+		0, // status
+	};
 
-		cookie_prop =
-			xcb_change_property(
-				platform->globox_x11_conn,
-				XCB_PROP_MODE_REPLACE,
-				platform->globox_x11_win,
-				platform->globox_x11_atom_list[GLOBOX_X11_ATOM_FRAMELESS],
-				platform->globox_x11_atom_list[GLOBOX_X11_ATOM_FRAMELESS],
-				32,
-				5,
-				motif_hints);
-
-		error_atom = xcb_request_check(
+	cookie_prop =
+		xcb_change_property(
 			platform->globox_x11_conn,
-			cookie_prop);
+			XCB_PROP_MODE_REPLACE,
+			platform->globox_x11_win,
+			platform->globox_x11_atom_list[GLOBOX_X11_ATOM_FRAMELESS],
+			platform->globox_x11_atom_list[GLOBOX_X11_ATOM_FRAMELESS],
+			32,
+			5,
+			motif_hints);
 
-		if (error_atom != NULL)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_X11_ATOMS);
-			return;
-		}
+	error_atom = xcb_request_check(
+		platform->globox_x11_conn,
+		cookie_prop);
+
+	if (error_atom != NULL)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_X11_ATOMS);
+		return;
 	}
 
 	// blurred background

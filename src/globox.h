@@ -190,7 +190,6 @@ struct globox
 	enum globox_interactive_mode globox_interactive_mode;
 	// window style
 	bool globox_transparent;
-	bool globox_frameless;
 	bool globox_blurred;
 	// window events callback data (developer-provided)
 	void* globox_event_callback_data;

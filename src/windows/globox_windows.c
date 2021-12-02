@@ -629,19 +629,8 @@ void globox_platform_create_window(struct globox* globox)
 		.bottom = globox->globox_y + globox->globox_height,
 	};
 
-	DWORD style;
-	DWORD exstyle;
-
-	if (globox->globox_frameless == false)
-	{
-		style = WS_OVERLAPPEDWINDOW;
-		exstyle = 0;
-	}
-	else
-	{
-		style = WS_POPUP;
-		exstyle = 0;
-	}
+	DWORD style = WS_POPUP;
+	DWORD exstyle = 0;
 
 	// transparency does not work with EGLproxy due to a bug in the library
 #if defined(GLOBOX_CONTEXT_EGL)
@@ -862,87 +851,6 @@ void globox_platform_interactive_mode(
 
 		platform->globox_windows_sizemove_step =
 			GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG;
-
-		// get the screen coordinates of the client area origin
-		UINT ok;
-
-		POINT origin =
-		{
-			.x = 0,
-			.y = 0,
-		};
-
-		ok = ClientToScreen(platform->globox_platform_event_handle, &origin);
-
-		if (ok == 0)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WINDOWS_CLIENT_POS);
-			return;
-		}
-
-		// move the cursor to the middle of the client area
-		ok = SetCursorPos(
-			origin.x + (globox->globox_width / 2),
-			origin.y + (globox->globox_height / 2));
-
-		if (ok == 0)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WINDOWS_CURSOR_POS_SET);
-			return;
-		}
-
-		// synthetize a left mouse click to be able to track
-		// the mouse outside of the client area while moving/resizing
-		MOUSEINPUT mouse2 =
-		{
-			.dx = 0,
-			.dy = 0,
-			.mouseData = 0,
-			.dwFlags = MOUSEEVENTF_LEFTDOWN,
-			.time = 0,
-			.dwExtraInfo = 0,
-		};
-
-		struct NAMED_INPUT input2 =
-		{
-			.type = INPUT_MOUSE,
-			.data.mi = mouse2,
-		};
-
-		ok = SendInput(1, (PINPUT) &input2, sizeof (INPUT));
-
-		if (ok == 0)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WINDOWS_INPUT_SEND);
-			return;
-		}
-
-		// compute the screen coordinates of the
-		// interactive resize reference point
-		POINT old_mouse_pos =
-		{
-			.x = platform->globox_windows_interactive_x,
-			.y = platform->globox_windows_interactive_y,
-		};
-
-		// move the cursor back to the interactive resize reference point
-		ok = SetCursorPos(
-			old_mouse_pos.x,
-			old_mouse_pos.y);
-
-		if (ok == 0)
-		{
-			globox_error_throw(
-				globox,
-				GLOBOX_ERROR_WINDOWS_INPUT_SEND);
-			return;
-		}
 	}
 	else
 	{
