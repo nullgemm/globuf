@@ -359,6 +359,7 @@ int main(void)
 	// initialize willis
 	void* willis_data = example_willis_data(&globox);
 
+#if !defined(WILLIS_WINDOWS) && !defined(WILLIS_MACOS)
 	if (willis_data == NULL)
 	{
 		free(dpishit_data);
@@ -367,6 +368,7 @@ int main(void)
 		globox_close(&globox);
 		return 1;
 	}
+#endif
 
 	struct event_data event_data =
 	{
@@ -386,6 +388,7 @@ int main(void)
 	// cursoryx
 	void* cursoryx_data = example_cursoryx_data(&globox, &willis);
 
+#if !defined(CURSORYX_MACOS)
 	if (cursoryx_data == NULL)
 	{
 		willis_free(&willis);
@@ -396,6 +399,7 @@ int main(void)
 		globox_close(&globox);
 		return 1;
 	}
+#endif
 
 	cursoryx_start(
 		&cursoryx,
