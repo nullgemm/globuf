@@ -76,6 +76,10 @@ void globox_platform_init(
 		context->globox_glx_display,
 		XCBOwnsEventQueue);
 
+	platform->globox_x11_screen_id =
+		XDefaultScreen(
+			context->globox_glx_display);
+
 	globox->globox_redraw = true;
 #else
 	platform->globox_x11_conn =
