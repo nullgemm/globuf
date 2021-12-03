@@ -92,7 +92,8 @@ void render(struct globox* globox, struct frame_info* frame)
 		return;
 	}
 
-	if (true)
+	if ((globox_get_redraw(globox) == true)
+	|| (frame->redraw == true))
 	{
 		globox_platform_prepare_buffer(globox);
 
@@ -278,6 +279,7 @@ int main(void)
 		.state = FRAME_STATE_IDLE,
 		.state_press = FRAME_STATE_IDLE,
 		.interactive = false,
+		.redraw = false,
 	};
 
 	globox_open(

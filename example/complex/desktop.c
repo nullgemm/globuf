@@ -706,6 +706,8 @@ void example_willis_event_callback(
 			frame->corner_reach =
 				2 * frame->border_size;
 		}
+
+		frame->redraw = true;
 	}
 
 	// if this event synthesized some text, print it
@@ -738,6 +740,7 @@ void example_willis_event_callback(
 
 			example_willis_frame_callback(event, x, y);
 			example_cursoryx_frame_set_cursor(event);
+			frame->redraw = true;
 		}
 	}
 

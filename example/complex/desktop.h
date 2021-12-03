@@ -47,6 +47,7 @@ struct frame_info
 	enum frame_state state;
 	enum frame_state state_press;
 	bool interactive;
+	bool redraw;
 };
 
 struct event_data
