@@ -86,7 +86,8 @@ fi
 
 case $build in
 	development)
-flags+=("-g")
+flags+=("-Z7")
+ldflags+=("-DEBUG:FULL")
 defines+=("-DGLOBOX_ERROR_LOG_BASIC")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 	;;
