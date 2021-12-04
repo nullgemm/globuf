@@ -13,6 +13,22 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
+extern unsigned char square_frag_beg;
+extern unsigned char square_frag_end;
+extern unsigned char square_frag_len;
+
+extern unsigned char square_vert_beg;
+extern unsigned char square_vert_end;
+extern unsigned char square_vert_len;
+
+extern unsigned char decorations_frag_beg;
+extern unsigned char decorations_frag_end;
+extern unsigned char decorations_frag_len;
+
+extern unsigned char decorations_vert_beg;
+extern unsigned char decorations_vert_end;
+extern unsigned char decorations_vert_len;
+
 #define VERTEX_ATTR_POSITION 0
 
 GLuint shader_program;
@@ -370,28 +386,16 @@ int main(void)
 	wgl_load();
 
 	// prepare OpenGL or glES
-	const char* vertex_shader_src =
-		"#version 130\n"
-		"attribute vec4 vPosition;"
-		"void main()"
-		"{"
-		"\tgl_Position = vPosition;"
-		"}";
-
-	const char* fragment_shader_src =
-		"#version 130\n"
-		"precision mediump float;"
-		"void main()"
-		"{"
-		"\tgl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
-		"}";
-
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_shader_src, 0);
+	const char * const square_vert = (char*) &square_vert_beg;
+	GLint square_vert_size = &square_vert_end - &square_vert_beg;
+	glShaderSource(vertex_shader, 1, &square_vert, &square_vert_size);
 	glCompileShader(vertex_shader);
 
 	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_src, 0);
+	const char * const square_frag = (char*) &square_frag_beg;
+	GLint square_frag_size = &square_frag_end - &square_frag_beg;
+	glShaderSource(fragment_shader, 1, &square_frag, &square_frag_size);
 	glCompileShader(fragment_shader);
 
 	shader_program = glCreateProgram();
@@ -401,56 +405,16 @@ int main(void)
 	glDeleteShader(fragment_shader);
 	glLinkProgram(shader_program);
 
-	const char* vertex_shader_src_frame =
-		"#version 130\n"
-		"attribute vec4 vPosition;"
-		"void main()"
-		"{"
-		"\tgl_Position = vPosition;"
-		"}";
-
-	const char* fragment_shader_src_frame =
-		"#version 130\n"
-		"precision mediump float;\n"
-		"uniform float title_size;\n"
-		"uniform float button_size;\n"
-		"uniform float button_icon_size;\n"
-		"uniform float border_size;\n"
-		"uniform float width;\n"
-		"uniform float height;\n"
-		"uniform float hover;\n"
-		"void main()\n"
-		"{\n"
-		"\tvec2 pos = gl_FragCoord.xy;\n"
-		"\tfloat button_ya = 1.0f - step(height - (title_size - button_icon_size) / 2, pos.y);\n"
-		"\tfloat button_yb = step(height - (title_size + button_icon_size) / 2, pos.y);\n"
-		"\tfloat button_close_xa = step(width - border_size - (button_size + button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_close_xb = 1.0f - step(width - border_size - (button_size - button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_maximize_xa = step(width - border_size - (3 * button_size + button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_maximize_xb = 1.0f - step(width - border_size - (3 * button_size - button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_minimize_xa = step(width - border_size - (5 * button_size + button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_minimize_xb = 1.0f - step(width - border_size - (5 * button_size - button_icon_size) / 2, pos.x);\n"
-		"\tfloat button_hover_ya = 1.0f - step(height - border_size, pos.y);\n"
-		"\tfloat button_hover_yb = step(height - title_size + border_size, pos.y);\n"
-		"\tfloat button_hover_xa = step(width - border_size - (hover * button_size), pos.x);\n"
-		"\tfloat button_hover_xb = 1.0f - step(width - border_size - ((hover - 1) * button_size), pos.x);\n"
-		"\tfloat close = button_ya * button_yb * button_close_xa * button_close_xb;\n"
-		"\tfloat maximize = button_ya * button_yb * button_maximize_xa * button_maximize_xb;\n"
-		"\tfloat minimize = button_ya * button_yb * button_minimize_xa * button_minimize_xb;\n"
-		"\tfloat hover_state = button_hover_ya * button_hover_yb * button_hover_xa * button_hover_xb;\n"
-		"\tgl_FragColor = (1.0f - close) * (1.0f - maximize) * (1.0f - minimize) * (1.0f - hover_state) * vec4(0.117f, 0.117f, 0.117f, 1.0f);\n"
-		"\tgl_FragColor += (1.0f - close) * (1.0f - maximize) * (1.0f - minimize) * hover_state * vec4(0.164f, 0.164f, 0.164f, 1.0f);\n"
-		"\tgl_FragColor += close * vec4(0.478f, 0.125f, 0.125f, 1.0f);\n"
-		"\tgl_FragColor += maximize * vec4(0.188f, 0.482f, 0.184f, 1.0f);\n"
-		"\tgl_FragColor += minimize * vec4(0.498f, 0.470f, 0.149f, 1.0f);\n"
-		"}";
-
 	GLuint vertex_shader_frame = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader_frame, 1, &vertex_shader_src_frame, 0);
+	const char * const decorations_vert = (char*) &decorations_vert_beg;
+	GLint decorations_vert_size = &decorations_vert_end - &decorations_vert_beg;
+	glShaderSource(vertex_shader_frame, 1, &decorations_vert, &decorations_vert_size);
 	glCompileShader(vertex_shader_frame);
 
 	GLuint fragment_shader_frame = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_frame, 1, &fragment_shader_src_frame, 0);
+	const char * const decorations_frag = (char*) &decorations_frag_beg;
+	GLint decorations_frag_size = &decorations_frag_end - &decorations_frag_beg;
+	glShaderSource(fragment_shader_frame, 1, &decorations_frag, &decorations_frag_size);
 	glCompileShader(fragment_shader_frame);
 
 	shader_program_frame = glCreateProgram();

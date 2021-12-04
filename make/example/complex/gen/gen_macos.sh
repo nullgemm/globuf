@@ -102,6 +102,10 @@ ldlibs+=("-lEGL")
 ldlibs+=("-lGLESv2")
 default+=("res/angle/libs")
 default+=("bin/libEGL.dylib")
+obj+=("res/shaders/gles2/square_vert_gles2_mach.o")
+obj+=("res/shaders/gles2/square_frag_gles2_mach.o")
+obj+=("res/shaders/gles2/decorations_vert_gles2_mach.o")
+obj+=("res/shaders/gles2/decorations_frag_gles2_mach.o")
 	;;
 
 	*)

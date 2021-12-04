@@ -102,6 +102,10 @@ ldlibs+=("-leglproxy")
 ldlibs+=("-lopengl32")
 default+=("res/egl_headers")
 default+=("bin/eglproxy.dll")
+obj+=("res/shaders/gl1/square_vert_gl1_pe.o")
+obj+=("res/shaders/gl1/square_frag_gl1_pe.o")
+obj+=("res/shaders/gl1/decorations_vert_gl1_pe.o")
+obj+=("res/shaders/gl1/decorations_frag_gl1_pe.o")
 	;;
 
 	wgl)
@@ -113,6 +117,10 @@ flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("-lopengl32")
 default+=("res/egl_headers")
+obj+=("res/shaders/gl1/square_vert_gl1_pe.o")
+obj+=("res/shaders/gl1/square_frag_gl1_pe.o")
+obj+=("res/shaders/gl1/decorations_vert_gl1_pe.o")
+obj+=("res/shaders/gl1/decorations_frag_gl1_pe.o")
 	;;
 
 	*)
