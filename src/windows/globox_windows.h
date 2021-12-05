@@ -21,7 +21,6 @@ enum globox_windows_sizemove
 	GLOBOX_WINDOWS_SIZEMOVE_WAITMODAL = 0, // waiting for the modal loop
 	GLOBOX_WINDOWS_SIZEMOVE_WAITEDGES,     // waiting for the edge info
 	GLOBOX_WINDOWS_SIZEMOVE_KILLMODAL,     // killing the modal loop
-	GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG,     // synthetizing a mouse drag
 	GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE,     // starting the resize
 };
 

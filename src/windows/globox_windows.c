@@ -849,8 +849,10 @@ void globox_platform_interactive_mode(
 
 		globox->globox_interactive_mode = mode;
 
+		SetCapture(platform->globox_platform_event_handle);
+
 		platform->globox_windows_sizemove_step =
-			GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG;
+			GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE;
 	}
 	else
 	{
@@ -934,17 +936,6 @@ void globox_platform_events_handle(struct globox* globox)
 		default:
 		{
 			if ((platform->globox_windows_msg.message ==
-				WM_LBUTTONDOWN)
-			&& (platform->globox_windows_sizemove_step ==
-				GLOBOX_WINDOWS_SIZEMOVE_SYNTHDRAG))
-			{
-				SetCapture(
-					platform->globox_platform_event_handle);
-
-				platform->globox_windows_sizemove_step =
-					GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE;
-			}
-			else if ((platform->globox_windows_msg.message ==
 				 WM_LBUTTONUP)
 			&& (platform->globox_windows_sizemove_step ==
 				GLOBOX_WINDOWS_SIZEMOVE_STARTSIZE))
