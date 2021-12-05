@@ -39,6 +39,7 @@ struct globox_platform
 	Class globox_macos_class_view;
 	Class globox_macos_class_appdelegate;
 
+	id globox_macos_obj_trackingarea;
 	id globox_macos_obj_view;
 	id globox_macos_obj_appdelegate;
 	id globox_macos_obj_window;

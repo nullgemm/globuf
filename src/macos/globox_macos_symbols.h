@@ -55,6 +55,13 @@ enum NSWindowCollectionBehavior
 	NSWindowCollectionBehaviorFullScreenAllowsTiling = 1 << 11,
 };
 
+enum NSTrackingAreaOptions
+{
+	NSTrackingMouseMoved = 0x02,
+	NSTrackingActiveAlways = 0x80,
+	NSTrackingInVisibleRect = 0x200,
+};
+
 // extra enums required as part of the private API
 enum macos_bitmapinfo
 {
@@ -103,6 +110,8 @@ extern void (*macos_msg_void_ulong)(id, SEL, unsigned long);
 extern id* (*macos_msg_idptr_int)(id, SEL, int);
 extern id (*macos_msg_id_rect)(id, SEL, struct macos_rect);
 extern void (*macos_msg_subview)(id, SEL, id, int, id);
+extern id (*macos_msg_id_trackingarea)(
+	id, SEL, struct macos_rect, unsigned long, id, id);
 extern id* (*macos_msg_event)(
 	id, SEL, unsigned long, struct macos_point, unsigned long,
 	double, long, id, short, long, long);

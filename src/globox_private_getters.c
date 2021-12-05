@@ -411,6 +411,11 @@ Class globox_get_macos_class_appdelegate(
 {
 	return globox->globox_platform->globox_macos_class_appdelegate;
 }
+id globox_get_macos_obj_trackingarea(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_macos_obj_trackingarea;
+}
 id globox_get_macos_obj_view(
 	struct globox* globox)
 {

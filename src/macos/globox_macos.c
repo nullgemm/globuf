@@ -330,7 +330,44 @@ void globox_platform_commit(struct globox* globox)
 
 void globox_platform_prepoll(struct globox* globox)
 {
-	// not needed
+	// alias for readability
+	struct globox_platform* platform = globox->globox_platform;
+
+	// create a trackingarea object
+	Class class = objc_getClass("NSTrackingArea");
+
+	if (class == Nil)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_MACOS_CLASS_GET);
+		return;
+	}
+
+	id trackingarea =
+		macos_msg_id_none(
+			(id) class,
+			sel_getUid("alloc"));
+
+	// configure it to automatically cover the view and supply a dummy rect
+	struct macos_rect rect = {0};
+
+	platform->globox_macos_obj_trackingarea =
+		macos_msg_id_trackingarea(
+			trackingarea,
+			sel_getUid("initWithRect:options:owner:userInfo:"),
+			rect,
+			NSTrackingMouseMoved
+			| NSTrackingActiveAlways
+			| NSTrackingInVisibleRect,
+			platform->globox_macos_obj_view,
+			Nil);
+
+	// bind it to the view to get mouse move events
+	macos_msg_void_id(
+		platform->globox_macos_obj_view,
+		sel_getUid("addTrackingArea:"),
+		platform->globox_macos_obj_trackingarea);
 }
 
 void globox_platform_events_poll(struct globox* globox)

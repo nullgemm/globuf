@@ -216,6 +216,8 @@ Class globox_get_macos_class_view(
 Class globox_get_macos_class_appdelegate(
 	struct globox* globox);
 // no getter for globox_get_macos_class_cursor
+id globox_get_macos_obj_trackingarea(
+	struct globox* globox);
 id globox_get_macos_obj_view(
 	struct globox* globox);
 id globox_get_macos_obj_appdelegate(
