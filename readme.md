@@ -1,5 +1,5 @@
-![globox_macos_linux_windows](https://user-images.githubusercontent.com/5473047/107652440-dfb92a80-6c80-11eb-9f91-b2750f18f61e.png)
-*cross-platform background blur under Linux (X11/Wayland), Windows and macOS*
+![globox_macos_linux_windows](https://user-images.githubusercontent.com/5473047/144758425-9d5e4433-3670-41b2-82f9-6ced93d69468.png)
+*cross-platform background blur under macOS, Windows and Linux (X11/Wayland)*
 
 # Globox
 Globox is a cross-platform windowing library for Linux, Windows and macOS.
@@ -58,6 +58,12 @@ examples without decorations using the scripts in `make/example/simple/gen`.
 A small desktop application using Globox, Willis, DPIshit, Cursoryx and
 providing an example implementation of client-side window decorations
 can be built using the scripts in `make/example/complex/gen`.
+For the desktop example you will need to clone with `--recurse-submodules`.
+Alternatively, get the submodules by running the following commands:
+```
+git submodule init
+git submodule update
+```
 
 ## Compiling
 Generate the makefiles you need using the scripts in `make/lib/gen/`.
@@ -171,52 +177,26 @@ user-friendly experience. Our own Concourse instance will not be made public
 since it runs on a home server (mostly for economic reasons).
 
 ## Known issues
-The following issues are known but cannot be fixed:
+The following issues are known and can only be fixed with platform-specific code
  - `Wayland` Mouse release events are not sent after interactive move & resize |
    All tested compositors seem to emit a dummy mouse movement event instead, so
    the only way out is to treat those received after initiating an interactive
    move or resize as a mouse release, and ask Globox to exit interactive mode.
- - `Wayland` framed mode is not supported |
-   Globox used to support the `xdg-decoration` protocol to ask the compositor
-   to provide server-side decorations, unfortunately this was removed because
-   it can't be synchronized and would require API changes that can't be
-   replicated on other display systems while maintaining portability.
-   The exact reasons can be found in the [relevant commit message](https://github.com/nullgemm/globox/commit/7dcf3fe84a39a8d6086c5d1c0ada15339fe70f00)
- - `Windows` The mouse cursor does not change to reflect the resize operations |
-   This is a known limit of the hack used in Globox to work around the
-   limitations of Microsoft's APIs. Other hacks exist that preserve the
-   expected behaviour but rely on timers, which we do not find acceptable.
+ - `macOS` The GL ES viewport is limited to the bottom-left quarter |
+   For some reason using a retina display makes macOS return fake sizes,
+   expressed in logic pixels twice the size of the actual pixels.
+   The only valid fix is to get this scaling value from Globox.
+
+The following issues are known and, to our knowledge, simply cannot be fixed
+ - `Windows 11` Resizing is slower than on `Windows 10` |
+   Profiling with [VerySleepy](https://github.com/VerySleepy/verysleepy) reveals
+   the slowest part of the complex example to be Microsoft's function
+   responsible for resizing windows...
  - `Windows` Snap-Drag mechanisms are not available |
    Microsoft does not expose an API to control Snap-Drag,
-   and the aforementioned hack used to provide a consistent event-loop
-   behaviour across platforms prevents us from getting access to it normally.
+   and the hack we use to provide a consistent event-loop behaviour across
+   platforms prevents us from getting access to it normally.
  - `macOS` Magnetic window positioning is not available |
    Apple does not expose an API to control magnetic window positioning,
-   and the aforementioned hack used to provide a consistent event-loop
-   behaviour across platforms prevents us from getting access to it normally.
- - `macOS` Frameless windows do not receive mouse movement events |
-   In this case the window cannot be made key or main, and will not receive
-   certain events. This appears to be by design and can't be fixed.
-
-The following issues are known and will not be fixed:
- - `Windows` The window is blurred a few pixels outside its borders |
-   This is the consequence of a bug in the APIs used by Globox to
-   produce the background blur effect. The only way to fix it is to expand
-   the client area and render a custom frame on top of it using DWM APIs,
-   but this would hide some parts of the buffer, which is not acceptable.
-   Another solution would be to switch to a DirectComposition pipeline and
-   reconstruct the acrylic blur effect manually, but this requires using a lot
-   of undocumented DWM functionalities and DirectComposition is only accessible
-   from C++ code, which means we would have to rely on non-portable COM32 hacks.
- - `Windows` MSVC `.dll`s are not available |
-   MSVC does not export any symbol by default and requires that we use a
-   windows-specific syntax or write a lengthy definition file to fix this issue.
-   Since both options are terrible, we chose not to provide MSVC `.dll`s
-   (however we do supply static MSVC `.lib`s, which can replace them perfectly).
- - `macOS` Window resizing modifiers are not available |
-   This is a known limit of the hack used in Globox to work around the
-   limitations of Apple's APIs. Other hacks exist that preserve the
-   expected behaviour but rely on timers, which we do not find acceptable.
-   While implementing this feature manually is also possible, we do not think
-   it is a good idea in practice - for obvious portability concerns, but also
-   because it is far beyond the scope of a windowing library.
+   and the hack we use to provide a consistent event-loop behaviour across
+   platforms prevents us from getting access to it normally.
