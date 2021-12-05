@@ -86,6 +86,21 @@ void** globox_get_wayland_output_data(
 {
 	return &(globox->globox_platform->globox_wayland_output_data);
 }
+struct zxdg_decoration_manager_v1* globox_get_wayland_xdg_decoration_manager(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_wayland_xdg_decoration_manager;
+}
+struct zxdg_toplevel_decoration_v1* globox_get_wayland_xdg_decoration(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_wayland_xdg_decoration;
+}
+struct zxdg_toplevel_decoration_v1_listener globox_get_wayland_xdg_decoration_listener(
+	struct globox* globox)
+{
+	return globox->globox_platform->globox_wayland_xdg_decoration_listener;
+}
 struct zwp_relative_pointer_manager_v1* globox_get_wayland_pointer_manager(
 	struct globox* globox)
 {

@@ -18,6 +18,7 @@ src+=("src/wayland/globox_wayland.c")
 src+=("src/wayland/globox_wayland_callbacks.c")
 
 src+=("res/wayland_headers/xdg-shell-protocol.c")
+src+=("res/wayland_headers/xdg-decoration-protocol.c")
 src+=("res/wayland_headers/kde-blur-protocol.c")
 src+=("res/wayland_headers/zwp-relative-pointer-protocol.c")
 src+=("res/wayland_headers/zwp-pointer-constraints-protocol.c")
