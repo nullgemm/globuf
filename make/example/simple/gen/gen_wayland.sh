@@ -97,6 +97,8 @@ defines+=("-DGLOBOX_CONTEXT_EGL")
 link+=("wayland-egl")
 link+=("egl")
 link+=("glesv2")
+obj+=("res/shaders/gl1/square_vert_gl1.o")
+obj+=("res/shaders/gl1/square_frag_gl1.o")
 	;;
 
 	*)

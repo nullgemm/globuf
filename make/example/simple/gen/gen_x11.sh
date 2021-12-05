@@ -98,6 +98,8 @@ src+=("example/simple/egl.c")
 defines+=("-DGLOBOX_CONTEXT_EGL")
 link+=("egl")
 link+=("glesv2")
+obj+=("res/shaders/gl1/square_vert_gl1.o")
+obj+=("res/shaders/gl1/square_frag_gl1.o")
 	;;
 
 	glx)
@@ -109,6 +111,8 @@ defines+=("-DGLOBOX_CONTEXT_GLX")
 link+=("gl")
 link+=("glesv2")
 link+=("x11 x11-xcb xrender")
+obj+=("res/shaders/gl1/square_vert_gl1.o")
+obj+=("res/shaders/gl1/square_frag_gl1.o")
 	;;
 
 	*)

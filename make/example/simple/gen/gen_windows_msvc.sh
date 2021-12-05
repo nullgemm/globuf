@@ -115,6 +115,8 @@ ldlibs+=("eglproxy.lib")
 ldlibs+=("opengl32.lib")
 default+=("res/egl_headers")
 default+=("bin/eglproxy.dll")
+obj+=("res/shaders/gl1/square_vert_gl1_pe.obj")
+obj+=("res/shaders/gl1/square_frag_gl1_pe.obj")
 	;;
 
 	wgl)
@@ -126,6 +128,8 @@ flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
 ldlibs+=("opengl32.lib")
 default+=("res/egl_headers")
+obj+=("res/shaders/gl1/square_vert_gl1_pe.obj")
+obj+=("res/shaders/gl1/square_frag_gl1_pe.obj")
 	;;
 
 	*)

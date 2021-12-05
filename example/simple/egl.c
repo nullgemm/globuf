@@ -13,6 +13,14 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
+extern unsigned char square_frag_beg;
+extern unsigned char square_frag_end;
+extern unsigned char square_frag_len;
+
+extern unsigned char square_vert_beg;
+extern unsigned char square_vert_end;
+extern unsigned char square_vert_len;
+
 #define VERTEX_ATTR_POSITION 0
 
 #if defined(GLOBOX_PLATFORM_WINDOWS)
@@ -203,28 +211,16 @@ int main(void)
 #endif
 
 	// prepare OpenGL or glES
-	const char* vertex_shader_src =
-		"#version 130\n"
-		"attribute vec4 vPosition;"
-		"void main()"
-		"{"
-		"\tgl_Position = vPosition;"
-		"}";
-
-	const char* fragment_shader_src =
-		"#version 130\n"
-		"precision mediump float;"
-		"void main()"
-		"{"
-		"\tgl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
-		"}";
-
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_shader_src, 0);
+	const char * const square_vert = (char*) &square_vert_beg;
+	GLint square_vert_size = &square_vert_end - &square_vert_beg;
+	glShaderSource(vertex_shader, 1, &square_vert, &square_vert_size);
 	glCompileShader(vertex_shader);
 
 	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_shader_src, 0);
+	const char * const square_frag = (char*) &square_frag_beg;
+	GLint square_frag_size = &square_frag_end - &square_frag_beg;
+	glShaderSource(fragment_shader, 1, &square_frag, &square_frag_size);
 	glCompileShader(fragment_shader);
 
 	GLuint shader_program = glCreateProgram();
