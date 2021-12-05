@@ -1139,7 +1139,7 @@ void globox_platform_events_handle(struct globox* globox)
 
 				ok = SetWindowPos(
 					platform->globox_platform_event_handle,
-					HWND_TOPMOST,
+					0,
 					origin_x,
 					origin_y,
 					platform->globox_windows_outer_width,
@@ -1478,7 +1478,7 @@ void globox_platform_set_state(
 			ok_long = SetWindowLong(
 				platform->globox_platform_event_handle,
 				GWL_EXSTYLE,
-				exstyle | WS_EX_TOPMOST);
+				exstyle);
 
 			if (ok_long == 0)
 			{
