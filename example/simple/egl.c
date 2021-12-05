@@ -88,6 +88,12 @@ void render(struct globox* globox)
 
 		int32_t width = globox_get_width(globox);
 		int32_t height = globox_get_height(globox);
+
+#ifdef GLOBOX_PLATFORM_MACOS
+		double macos_scale = globox_macos_get_egl_scale(globox);
+		width *= macos_scale;
+		height *= macos_scale;
+#endif
 		GLint viewport_rect[4];
 
 		// we can make OpenGL 1 calls without any loader
