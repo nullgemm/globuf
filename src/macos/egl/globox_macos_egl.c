@@ -124,6 +124,9 @@ void globox_context_egl_init(
 	platform->globox_macos_appdelegate_context_callback =
 		appdelegate_egl_callback;
 
+	context->globox_egl_scale =
+		1.0;
+
 	// egl
 	context->globox_egl_display = EGL_NO_DISPLAY;
 	context->globox_egl_context = EGL_NO_CONTEXT;
@@ -362,5 +365,17 @@ void globox_context_egl_copy(
 	globox->globox_height =
 		frame.size.height;
 
+	context->globox_egl_scale =
+		macos_msg_double_none(
+			platform->globox_macos_obj_window,
+			sel_getUid("backingScaleFactor"));
+
 	globox_platform_commit(globox);
+}
+
+// getters
+
+double globox_macos_get_egl_scale(struct globox* globox)
+{
+	return globox->globox_platform->globox_macos_egl.globox_egl_scale;
 }

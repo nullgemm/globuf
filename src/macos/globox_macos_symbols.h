@@ -89,6 +89,7 @@ enum macos_events_window_state
 // objc_msgSend variants
 extern void (*macos_msg_void_none)(id, SEL);
 extern id (*macos_msg_id_none)(id, SEL);
+extern double (*macos_msg_double_none)(id, SEL);
 extern void (*macos_msg_void_bool)(id, SEL, BOOL);
 extern void (*macos_msg_void_id)(id, SEL, id);
 extern void (*macos_msg_void_voidptr)(id, SEL, void*);

@@ -8,6 +8,8 @@ void (*macos_msg_void_none)(id, SEL) =
 	(void (*)(id, SEL)) objc_msgSend;
 id (*macos_msg_id_none)(id, SEL) =
 	(id (*)(id, SEL)) objc_msgSend;
+double (*macos_msg_double_none)(id, SEL) =
+	(double (*)(id, SEL)) objc_msgSend;
 void (*macos_msg_void_bool)(id, SEL, BOOL) =
 	(void (*)(id, SEL, BOOL)) objc_msgSend;
 void (*macos_msg_void_id)(id, SEL, id) =

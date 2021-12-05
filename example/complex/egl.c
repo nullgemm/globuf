@@ -120,6 +120,15 @@ void render(struct globox* globox, struct frame_info* frame)
 
 		int32_t width = globox_get_width(globox);
 		int32_t height = globox_get_height(globox);
+
+		frame->window_width = width;
+		frame->window_height = height;
+
+#ifdef GLOBOX_PLATFORM_MACOS
+		double macos_scale = globox_macos_get_egl_scale(globox);
+		width *= macos_scale;
+		height *= macos_scale;
+#endif
 		GLint viewport_rect[4];
 
 		// we can make OpenGL 1 calls without any loader
@@ -186,10 +195,17 @@ void render(struct globox* globox, struct frame_info* frame)
 			}
 		}
 
-		frame->window_width = width;
-		frame->window_height = height;
 		unsigned title_size = frame->title_size;
 		unsigned border_size = frame->border_size;
+		unsigned button_size = frame->button_size;
+		unsigned button_icon_size = frame->button_icon_size;
+
+#ifdef GLOBOX_PLATFORM_MACOS
+		title_size *= macos_scale;
+		border_size *= macos_scale;
+		button_size *= macos_scale;
+		button_icon_size *= macos_scale;
+#endif
 
 		glUseProgram(shader_program_frame);
 
@@ -251,10 +267,10 @@ void render(struct globox* globox, struct frame_info* frame)
 		hover_loc =
 			glGetUniformLocation(shader_program_frame, "hover");
 
-		glUniform1f(title_size_loc, frame->title_size);
-		glUniform1f(button_size_loc, frame->button_size);
-		glUniform1f(button_icon_size_loc, frame->button_icon_size);
-		glUniform1f(border_size_loc, frame->border_size);
+		glUniform1f(title_size_loc, title_size);
+		glUniform1f(button_size_loc, button_size);
+		glUniform1f(button_icon_size_loc, button_icon_size);
+		glUniform1f(border_size_loc, border_size);
 		glUniform1f(width_loc, width);
 		glUniform1f(height_loc, height);
 		glUniform1f(hover_loc, hover);

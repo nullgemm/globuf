@@ -356,6 +356,10 @@ void globox_wayland_save_serial(struct globox* globox, uint32_t serial);
 #endif
 
 // platform getters 
+#if defined(GLOBOX_PLATFORM_MACOS) && defined(GLOBOX_CONTEXT_EGL)
+double globox_macos_get_egl_scale(struct globox* globox);
+#endif
+
 uint32_t* globox_platform_get_argb(struct globox* globox);
 
 #endif

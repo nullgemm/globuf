@@ -12,6 +12,7 @@ struct globox_macos_egl
 	EGLConfig globox_egl_config;
 	EGLint globox_egl_config_size;
 
+	double globox_egl_scale;
 	id globox_egl_layer;
 };
 
