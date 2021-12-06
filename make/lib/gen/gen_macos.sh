@@ -64,8 +64,10 @@ flags+=("-fPIE")
 flags+=("-O2")
 flags+=("-fsanitize=undefined")
 flags+=("-fsanitize=function")
+flags+=("-fsanitize=address")
 ldflags+=("-fsanitize=undefined")
 ldflags+=("-fsanitize=function")
+ldflags+=("-fsanitize=address")
 	;;
 
 	*)
