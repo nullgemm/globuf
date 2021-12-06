@@ -235,54 +235,6 @@ void globox_platform_create_window(struct globox* globox)
 
 	platform->globox_macos_obj_appdelegate = obj;
 
-	// configure the View for transparency
-	macos_msg_void_bool(
-		platform->globox_macos_obj_view,
-		sel_getUid("setOpaque:"),
-		NO);
-
-	class = objc_getClass("NSColor");
-
-	if (class == Nil)
-	{
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_MACOS_CLASS_GET);
-
-		macos_msg_void_none(
-			(id) platform->globox_macos_obj_appdelegate,
-			sel_getUid("dealloc"));
-
-		return;
-	}
-
-	id color =
-		macos_msg_id_none(
-			(id) class,
-			sel_getUid("clearColor"));
-
-	if (color == Nil)
-	{ 
-		globox_error_throw(
-			globox,
-			GLOBOX_ERROR_MACOS_OBJ_NIL);
-
-		macos_msg_void_none(
-			(id) platform->globox_macos_obj_appdelegate,
-			sel_getUid("dealloc"));
-
-		return;
-	}
-
-	macos_msg_void_id(
-		platform->globox_macos_obj_view,
-		sel_getUid("setBackgroundColor:"),
-		color);
-
-	// run platform hooks here
-	globox_platform_set_title(globox, globox->globox_title);
-	globox_platform_set_state(globox, globox->globox_state);
-
 	// attach the AppDelegate to the NSApp singleton
 	macos_msg_void_voidptr(
 		platform->globox_platform_event_handle,
@@ -314,7 +266,46 @@ void globox_platform_create_window(struct globox* globox)
 
 void globox_platform_hooks(struct globox* globox)
 {
-	// not needed
+	// alias for readability
+	struct globox_platform* platform = globox->globox_platform;
+
+	macos_msg_void_bool(
+		platform->globox_macos_obj_view,
+		sel_getUid("setOpaque:"),
+		NO);
+
+	Class class = objc_getClass("NSColor");
+
+	if (class == Nil)
+	{
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_MACOS_CLASS_GET);
+
+		return;
+	}
+
+	id color =
+		macos_msg_id_none(
+			(id) class,
+			sel_getUid("clearColor"));
+
+	if (color == Nil)
+	{ 
+		globox_error_throw(
+			globox,
+			GLOBOX_ERROR_MACOS_OBJ_NIL);
+
+		return;
+	}
+
+	macos_msg_void_id(
+		platform->globox_macos_obj_view,
+		sel_getUid("setBackgroundColor:"),
+		color);
+
+	globox_platform_set_title(globox, globox->globox_title);
+	globox_platform_set_state(globox, globox->globox_state);
 }
 
 void globox_platform_commit(struct globox* globox)
