@@ -20,7 +20,7 @@ export XDG_RUNTIME_DIR=/scripts/run
 weston -B headless-backend.so &
 sleep 10
 
-WAYLAND_DISPLAY=wayland-0 ./bin/globox_example_wayland_software &
+WAYLAND_DISPLAY=wayland-0 ./bin/globox_example_simple_wayland_software &
 sleep 10
 
 pkill globox

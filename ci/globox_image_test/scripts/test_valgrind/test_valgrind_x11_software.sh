@@ -45,7 +45,7 @@ valgrind \
 	--leak-check=full \
 	--suppressions=../res/valgrind.supp \
 	&> valgrind.log \
-	./globox_example_x11_software &
+	./globox_example_simple_x11_software &
 echo "# wait for the globox example to start"
 sleep 10
 
