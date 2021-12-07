@@ -13,8 +13,8 @@ make -f makefile_lib_x11_software
 ./make/lib/release/release_copy_x11_software.sh
 
 # build example
-./make/example/gen/gen_x11.sh development software static
-make -f makefile_example_x11_software
+./make/example/simple/gen/gen_x11.sh development software static
+make -f makefile_example_simple_x11_software
 cd ./bin || exit
 
 # run the tests
