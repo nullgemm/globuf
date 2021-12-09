@@ -16,4 +16,3 @@ ci/osxcross_build_image/scripts/pkg
 ci/globox_image_osxcross/scripts/sdk
 valgrind.log
 drmemory.log
-.gitmodules
