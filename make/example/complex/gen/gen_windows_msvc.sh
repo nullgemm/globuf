@@ -13,19 +13,48 @@ tag=$(git tag --sort v:refname | tail -n 1)
 echo "getting latest Windows SDK version number from registry..."
 ver_windows_sdk=$(powershell 'Get-ChildItem -Name "hklm:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" | Select -Last 1')
 ver_windows=$(echo "$ver_windows_sdk" | sed "s/\\..*//")
+
+if [ -z "$ver_windows" ]; then
+	echo "couldn't find a compatible Windows SDK installation"
+	exit
+else
+	echo "found Windows SDK version $ver_windows"
+fi
+
 echo "searching for latest Visual Studio version number..."
-ver_visual_studio=$(powershell '& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" /all /latest /products Microsoft.VisualStudio.Product.BuildTools /property catalog_productLineVersion')
+ver_visual_studio=$(powershell '& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" /all /latest /products Microsoft.VisualStudio.Product.BuildTools Microsoft.VisualStudio.Product.Community Microsoft.VisualStudio.Product.Professional Microsoft.VisualStudio.Product.Enterprise /property catalog_productLineVersion')
+
+if [ -z "$ver_visual_studio" ]; then
+	echo "couldn't find a compatible Visual Studio installation (no version number returned)"
+	exit
+else
+	echo "found Visual Studio version $ver_visual_studio"
+fi
+
+echo "searching for latest Visual Studio installation path..."
+path_visual_studio=$(powershell '& "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" /all /latest /products Microsoft.VisualStudio.Product.BuildTools Microsoft.VisualStudio.Product.Community Microsoft.VisualStudio.Product.Professional Microsoft.VisualStudio.Product.Enterprise /property installationPath')
+
+if [ -z "$path_visual_studio" ]; then
+	echo "couldn't find a compatible Visual Studio installation (no installation path returned)"
+	exit
+else
+	echo "found Visual Studio installation at $path_visual_studio"
+fi
+
 echo "searching for latest MSVC version number..."
-ver_msvc=$(powershell 'Get-ChildItem -Name "C:\Program Files (x86)\Microsoft Visual Studio\'$ver_visual_studio'\BuildTools\VC\Tools\MSVC" | Select -Last 1')
+ver_msvc=$(powershell 'Get-ChildItem -Name "'$path_visual_studio'\VC\Tools\MSVC" | Select -Last 1')
 
-# library makefile data
-cc="\"/c/Program Files (x86)/Microsoft Visual Studio/\
-$ver_visual_studio/BuildTools/VC/Tools/MSVC/\
-$ver_msvc/bin/Hostx64/x64/cl.exe\""
+if [ -z "$ver_msvc" ]; then
+	echo "couldn't find a compatible MSVC installation"
+	exit
+else
+	echo "found MSVC version $ver_msvc"
+fi
 
-lib="\"/c/Program Files (x86)/Microsoft Visual Studio/\
-$ver_visual_studio/BuildTools/VC/Tools/MSVC/\
-$ver_msvc/bin/Hostx64/x64/lib.exe\""
+cc="\"$path_visual_studio/\
+VC/Tools/MSVC/$ver_msvc/bin/Hostx64/x64/cl.exe\""
+lib="\"$path_visual_studio/\
+VC/Tools/MSVC/$ver_msvc/bin/Hostx64/x64/lib.exe\""
 
 obj+=("res/icon/iconpix_pe.obj")
 
@@ -37,8 +66,8 @@ flags+=("-I\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Include/$ver_windows_sdk/um\"")
 flags+=("-I\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Include/$ver_windows_sdk/shared\"")
-flags+=("-I\"/c/Program Files (x86)/Microsoft Visual Studio/\
-$ver_visual_studio/BuildTools/VC/Tools/MSVC/$ver_msvc/include\"")
+flags+=("-I\"$path_visual_studio/\
+VC/Tools/MSVC/$ver_msvc/include\"")
 flags+=("-Ires/cursoryx/src")
 flags+=("-Ires/dpishit/src")
 flags+=("-Ires/willis/src")
@@ -65,8 +94,8 @@ defines+=("-DWILLIS_DEBUG")
 ldflags+=("-SUBSYSTEM:windows")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Lib/$ver_windows_sdk/um/x64\"")
-ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Microsoft Visual Studio/\
-$ver_visual_studio/BuildTools/VC/Tools/MSVC/$ver_msvc/lib/spectre/x64\"")
+ldflags+=("-LIBPATH:\"$path_visual_studio/\
+VC/Tools/MSVC/$ver_msvc/lib/x64\"")
 ldflags+=("-LIBPATH:\"/c/Program Files (x86)/Windows Kits/\
 $ver_windows/Lib/$ver_windows_sdk/ucrt/x64\"")
 
