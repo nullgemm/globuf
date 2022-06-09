@@ -7,8 +7,12 @@ cd ../../..
 build=$1
 context=$2
 
+tag=$(git tag --sort v:refname | tail -n 1)
+folder="globox_bin_$tag/lib/globox/windows"
+
 # library makefile data
-name="globox"
+output="make/output"
+name="globox_windows"
 cc="x86_64-w64-mingw32-gcc"
 
 src+=("src/globox.c")
@@ -75,12 +79,14 @@ fi
 case $context in
 	software)
 makefile=makefile_lib_windows_software
+name+="_software"
 src+=("src/windows/software/globox_windows_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
 makefile=makefile_lib_windows_egl
+name+="_egl"
 src+=("src/windows/egl/globox_windows_egl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_EGL")
@@ -93,6 +99,7 @@ default+=("res/eglproxy")
 
 	wgl)
 makefile=makefile_lib_windows_wgl
+name+="_wgl"
 src+=("src/windows/wgl/globox_windows_wgl.c")
 flags+=("-Ires/egl_headers")
 defines+=("-DGLOBOX_CONTEXT_WGL")
@@ -110,60 +117,63 @@ exit 1
 esac
 
 # add the libraries as default targets
-default+=("bin/$name.dll")
-default+=("bin/$name.a")
+default+=("$folder/$name.dll")
+default+=("$folder/$name.a")
 
 # makefile start
+mkdir -p "$output"
+
 { \
 echo ".POSIX:"; \
+echo "FOLDER = $folder";\
 echo "NAME = $name"; \
 echo "CC = $cc"; \
-} > $makefile
+} > "$output/$makefile"
 
 # makefile linking info
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldflags[@]}"; do
-	echo "LDFLAGS+= $flag" >> $makefile
+	echo "LDFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldlibs[@]}"; do
-	echo "LDLIBS+= $flag" >> $makefile
+	echo "LDLIBS+= $flag" >> "$output/$makefile"
 done
 
 # makefile compiler flags
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${flags[@]}"; do
-	echo "CFLAGS+= $flag" >> $makefile
+	echo "CFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for define in "${defines[@]}"; do
-	echo "CFLAGS+= $define" >> $makefile
+	echo "CFLAGS+= $define" >> "$output/$makefile"
 done
 
 # makefile object list
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
 	folder=$(dirname "$file")
 	filename=$(basename "$file" .c)
-	echo "OBJ+= $folder/$filename.o" >> $makefile
+	echo "OBJ+= $folder/$filename.o" >> "$output/$makefile"
 done
 
 # makefile default target
-echo "" >> $makefile
-echo "default:" "${default[@]}" >> $makefile
+echo "" >> "$output/$makefile"
+echo "default:" "${default[@]}" >> "$output/$makefile"
 
 # makefile library targets
-echo "" >> $makefile
-cat make/lib/templates/targets_windows_mingw.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/lib/templates/targets_windows_mingw.make >> "$output/$makefile"
 
 # makefile object targets
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
-	$cc "${defines[@]}" -MM -MG "$file" >> $makefile
+	$cc "${defines[@]}" -MM -MG "$file" >> "$output/$makefile"
 done
 
 # makefile extra targets
-echo "" >> $makefile
-cat make/lib/templates/targets_extra.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/lib/templates/targets_extra.make >> "$output/$makefile"

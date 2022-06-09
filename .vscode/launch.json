@@ -74,7 +74,7 @@
         {
             "type": "cppdbg",
             "request": "launch",
-            "name": "run Windows WGL software complex globox example",
+            "name": "run Windows WGL complex globox example",
             "cwd": "${workspaceFolder}/bin",
             "program": "${workspaceFolder}/bin/globox_example_complex_windows_wgl"
 		},

@@ -9,8 +9,12 @@ context=$2
 toolchain=$3
 current_toolchain=$4
 
+tag=$(git tag --sort v:refname | tail -n 1)
+folder="globox_bin_$tag/lib/globox/macos"
+
 # library makefile data
-name="globox"
+output="make/output"
+name="globox_macos"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
@@ -83,12 +87,14 @@ fi
 
 case $context in
 	software)
+name+="_software"
 makefile="makefile_lib_macos_software"
 src+=("src/macos/software/globox_macos_software.c")
 defines+=("-DGLOBOX_CONTEXT_SOFTWARE")
 	;;
 
 	egl)
+name+="_egl"
 makefile="makefile_lib_macos_egl"
 src+=("src/macos/egl/globox_macos_egl.c")
 flags+=("-Ires/angle/include")
@@ -105,10 +111,6 @@ exit 1
 	;;
 esac
 
-# add the libraries as default targets
-default+=("bin/$name.a")
-default+=("bin/lib$name.dylib")
-
 # toolchain type
 if [ -z "$toolchain" ]; then
 	read -rp "select target toolchain type (osxcross | native): " toolchain
@@ -122,6 +124,7 @@ ar="x86_64-apple-darwin20.2-ar"
 
 	native)
 makefile+="_native"
+name+="_native"
 cc="clang"
 ar="ar"
 	;;
@@ -151,58 +154,65 @@ exit 1
 	;;
 esac
 
+# add the libraries as default targets
+default+=("$folder/$name.a")
+default+=("$folder/lib$name.dylib")
+
 # makefile start
+mkdir -p "$output"
+
 { \
 echo ".POSIX:"; \
+echo "FOLDER = $folder";\
 echo "NAME = $name"; \
 echo "CC = $cc"; \
 echo "AR = $ar"; \
-} > $makefile
+} > "$output/$makefile"
 
 # makefile linking info
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldflags[@]}"; do
-	echo "LDFLAGS+= $flag" >> $makefile
+	echo "LDFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldlibs[@]}"; do
-	echo "LDLIBS+= $flag" >> $makefile
+	echo "LDLIBS+= $flag" >> "$output/$makefile"
 done
 
 # makefile compiler flags
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${flags[@]}"; do
-	echo "CFLAGS+= $flag" >> $makefile
+	echo "CFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for define in "${defines[@]}"; do
-	echo "CFLAGS+= $define" >> $makefile
+	echo "CFLAGS+= $define" >> "$output/$makefile"
 done
 
 # makefile object list
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
 	folder=$(dirname "$file")
 	filename=$(basename "$file" .c)
-	echo "OBJ+= $folder/$filename.o" >> $makefile
+	echo "OBJ+= $folder/$filename.o" >> "$output/$makefile"
 done
 
 # makefile default target
-echo "" >> $makefile
-echo "default:" "${default[@]}" >> $makefile
+echo "" >> "$output/$makefile"
+echo "default:" "${default[@]}" >> "$output/$makefile"
 
 # makefile library targets
-echo "" >> $makefile
-cat make/lib/templates/targets_macos.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/lib/templates/targets_macos.make >> "$output/$makefile"
 
 # makefile object targets
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
-	$cch "${defines[@]}" -MM -MG "$file" >> $makefile
+	$cch "${defines[@]}" -MM -MG "$file" >> "$output/$makefile"
 done
 
 # makefile extra targets
-echo "" >> $makefile
-cat make/lib/templates/targets_extra.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/lib/templates/targets_extra.make >> "$output/$makefile"

@@ -4,6 +4,8 @@
 cd "$(dirname "$0")" || exit
 cd ../../../..
 
+output="make/output"
+
 build=$1
 context=$2
 
@@ -193,69 +195,71 @@ cmd="./$name.exe"
 default+=("bin/\$(NAME)")
 
 # makefile start
+mkdir -p "$output"
+
 { \
 echo ".POSIX:"; \
 echo "NAME = $name"; \
 echo "CMD = $cmd"; \
 echo "CC = $cc"; \
 echo "LIB = $lib"; \
-} > $makefile
+} > "$output/$makefile"
 
 # makefile linking info
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldflags[@]}"; do
-	echo "LDFLAGS+= $flag" >> $makefile
+	echo "LDFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${ldlibs[@]}"; do
-	echo "LDLIBS+= $flag" >> $makefile
+	echo "LDLIBS+= $flag" >> "$output/$makefile"
 done
 
 # makefile compiler flags
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${flags[@]}"; do
-	echo "CFLAGS+= $flag" >> $makefile
+	echo "CFLAGS+= $flag" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for define in "${defines[@]}"; do
-	echo "CFLAGS+= $define" >> $makefile
+	echo "CFLAGS+= $define" >> "$output/$makefile"
 done
 
 # makefile object list
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
 	folder=$(dirname "$file")
 	filename=$(basename "$file" .c)
-	echo "OBJ+= $folder/$filename.obj" >> $makefile
+	echo "OBJ+= $folder/$filename.obj" >> "$output/$makefile"
 done
 
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for prebuilt in "${obj[@]}"; do
-	echo "OBJ_EXTRA+= $prebuilt" >> $makefile
+	echo "OBJ_EXTRA+= $prebuilt" >> "$output/$makefile"
 done
 
 # generate Dr.Memory flags
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for flag in "${drmemory[@]}"; do
-	echo "DRMEMORY+= $flag" >> $makefile
+	echo "DRMEMORY+= $flag" >> "$output/$makefile"
 done
 
 # makefile default target
-echo "" >> $makefile
-echo "default:" "${default[@]}" >> $makefile
+echo "" >> "$output/$makefile"
+echo "default:" "${default[@]}" >> "$output/$makefile"
 
 # makefile linux targets
-echo "" >> $makefile
-cat make/example/complex/templates/targets_windows_msvc.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/example/complex/templates/targets_windows_msvc.make >> "$output/$makefile"
 
 # makefile object targets
-echo "" >> $makefile
+echo "" >> "$output/$makefile"
 for file in "${src[@]}"; do
-	x86_64-w64-mingw32-gcc "${defines[@]}" -MM -MG "$file" >> $makefile
+	x86_64-w64-mingw32-gcc "${defines[@]}" -MM -MG "$file" >> "$output/$makefile"
 done
 
 # makefile extra targets
-echo "" >> $makefile
-cat make/example/complex/templates/targets_extra.make >> $makefile
+echo "" >> "$output/$makefile"
+cat make/example/complex/templates/targets_extra.make >> "$output/$makefile"
