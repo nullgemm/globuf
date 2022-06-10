@@ -2,7 +2,7 @@
 
 # get into the right folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../..
 
 tag=$(git tag --sort v:refname | tail -n 1)
 release=globox_bin_"$tag"
