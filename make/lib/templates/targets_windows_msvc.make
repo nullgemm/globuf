@@ -1,4 +1,4 @@
-bin/$(NAME).lib: $(OBJ)
+$(FOLDER)/$(NAME).lib: $(OBJ)
 	mkdir -p $(@D)
 	$(LIB) -OUT:$@ $^
 
