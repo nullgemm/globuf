@@ -9,6 +9,7 @@ context=$2
 
 tag=$(git tag --sort v:refname | tail -n 1)
 folder="globox_bin_$tag/lib/globox/wayland"
+folder_include="globox_bin_$tag/include"
 
 # library makefile data
 output="make/output"
@@ -140,6 +141,7 @@ mkdir -p "$output"
 { \
 echo ".POSIX:"; \
 echo "FOLDER = $folder";\
+echo "FOLDER_INCLUDE = $folder_include";\
 echo "NAME = $name"; \
 echo "CC = $cc"; \
 } > "$output/$makefile"
