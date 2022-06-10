@@ -556,65 +556,95 @@ make/output/makefile_lib_x11_glx
 # simple example binaries targets
 ## targets for software simple example binaries
 globox_simple_example_macos_software_static: \
+make/output/makefile_lib_macos_software \
 make/output/makefile_example_simple_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_example_simple_macos_software
 
 globox_simple_example_macos_software_native_static: \
+make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_simple_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_example_simple_macos_software_native
 
 globox_simple_example_windows_software_static: \
+make/output/makefile_lib_windows_software \
 make/output/makefile_example_simple_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software
 	$(MAKE) -f make/output/makefile_example_simple_windows_software
 
 globox_simple_example_windows_software_native_static: \
+make/output/makefile_lib_windows_software_native \
 make/output/makefile_example_simple_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native
 	$(MAKE) -f make/output/makefile_example_simple_windows_software_native
 
 globox_simple_example_wayland_software_static: \
+make/output/makefile_lib_wayland_software \
 make/output/makefile_example_simple_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software
 	$(MAKE) -f make/output/makefile_example_simple_wayland_software
 
 globox_simple_example_x11_software_static: \
+make/output/makefile_lib_x11_software \
 make/output/makefile_example_simple_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software
 	$(MAKE) -f make/output/makefile_example_simple_x11_software
 
 
 ## targets for egl simple example binaries
 globox_simple_example_macos_egl_static: \
+make/output/makefile_lib_macos_egl \
 make/output/makefile_example_simple_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_example_simple_macos_egl
 
 globox_simple_example_macos_egl_native_static: \
+make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_simple_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native
 
 globox_simple_example_windows_egl_static: \
+make/output/makefile_lib_windows_egl \
 make/output/makefile_example_simple_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl
 	$(MAKE) -f make/output/makefile_example_simple_windows_egl
 
 globox_simple_example_windows_egl_native_static: \
+make/output/makefile_lib_windows_egl_native \
 make/output/makefile_example_simple_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native
 	$(MAKE) -f make/output/makefile_example_simple_windows_egl_native
 
 globox_simple_example_wayland_egl_static: \
+make/output/makefile_lib_wayland_egl \
 make/output/makefile_example_simple_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl
 	$(MAKE) -f make/output/makefile_example_simple_wayland_egl
 
 globox_simple_example_x11_egl_static: \
+make/output/makefile_lib_x11_egl \
 make/output/makefile_example_simple_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl
 	$(MAKE) -f make/output/makefile_example_simple_x11_egl
 
 
 ## targets for platform-specific gl-binder simple example binaries
 globox_simple_example_windows_wgl_static: \
+make/output/makefile_lib_windows_wgl \
 make/output/makefile_example_simple_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl
 	$(MAKE) -f make/output/makefile_example_simple_windows_wgl
 
 globox_simple_example_windows_wgl_native_static: \
+make/output/makefile_lib_windows_wgl_native \
 make/output/makefile_example_simple_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native
 	$(MAKE) -f make/output/makefile_example_simple_windows_wgl_native
 
 globox_simple_example_x11_glx_static: \
+make/output/makefile_lib_x11_glx \
 make/output/makefile_example_simple_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx
 	$(MAKE) -f make/output/makefile_example_simple_x11_glx
