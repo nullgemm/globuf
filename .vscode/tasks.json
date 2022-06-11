@@ -1,7 +1,5 @@
 {
     "tasks": [
-		// symlinked makefile setting
-		// TODO
 		// library
         // X11 development
         {
