@@ -14,8 +14,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         },
         {
@@ -61,7 +60,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -107,7 +106,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -642,8 +641,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         },
         {
@@ -692,7 +690,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -741,7 +739,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -1308,8 +1306,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         },
         {
@@ -1358,7 +1355,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -1407,7 +1404,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "group": {
-                "kind": "build",
+                "kind": "build"
             }
         },
         {
@@ -1975,6 +1972,116 @@
             "type": "cppbuild",
             "label": "clean generated makefiles",
             "command": "./make/scripts/clean_makefiles.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "get metalANGLE binaries",
+			"command": "./make/scripts/angle_dev_get.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "build regular ANGLE binaries from source",
+			"command": "./make/scripts/angle_dev_make.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "get regular ANGLE binaries from chromium's latest release",
+			"command": "./make/scripts/angle_master_get.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "get EGL",
+			"command": "./make/scripts/egl_get.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "get EGLproxy",
+            "label": "clean generated makefiles",
+			"command": "./make/scripts/eglproxy_get.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "build objconv from source",
+			"command": "./make/scripts/objconv_make.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "binarize icon pixmaps",
+			"command": "./make/scripts/pixmap_bin.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "copy globox headers in the library folder",
+			"command": "./make/scripts/release_headers.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "zip the globox library folder for release",
+			"command": "./make/scripts/release_zip.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "generate Wayland headers",
+			"command": "./make/scripts/wayland_get.sh",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
