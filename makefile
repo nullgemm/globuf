@@ -11,94 +11,139 @@ leak:
 
 ## symlink the makefiles
 alias_lib_macos_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_macos_software
 alias_lib_macos_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_macos_software_native
 alias_lib_windows_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_software
 alias_lib_windows_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_software_native
 alias_lib_wayland_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_wayland_software
 alias_lib_x11_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_x11_software
 alias_lib_macos_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_macos_egl
 alias_lib_macos_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_macos_egl_native
 alias_lib_windows_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_egl
 alias_lib_windows_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_egl_native
 alias_lib_wayland_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_wayland_egl
 alias_lib_x11_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_x11_egl
 alias_lib_windows_wgl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_wgl
 alias_lib_windows_wgl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_windows_wgl_native
 alias_lib_x11_glx:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_lib_x11_glx
 alias_example_simple_macos_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_macos_software
 alias_example_simple_macos_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_macos_software_native
 alias_example_simple_windows_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_software
 alias_example_simple_windows_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_software_native
 alias_example_simple_wayland_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_wayland_software
 alias_example_simple_x11_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_x11_software
 alias_example_simple_macos_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_macos_egl
 alias_example_simple_macos_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_macos_egl_native
 alias_example_simple_windows_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_egl
 alias_example_simple_windows_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_egl_native
 alias_example_simple_wayland_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_wayland_egl
 alias_example_simple_x11_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_x11_egl
 alias_example_simple_windows_wgl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_wgl
 alias_example_simple_windows_wgl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_windows_wgl_native
 alias_example_simple_x11_glx:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_simple_x11_glx
 alias_example_complex_macos_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_macos_software
 alias_example_complex_macos_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_macos_software_native
 alias_example_complex_windows_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_software
 alias_example_complex_windows_software_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_software_native
 alias_example_complex_wayland_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_wayland_software
 alias_example_complex_x11_software:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_x11_software
 alias_example_complex_macos_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_macos_egl
 alias_example_complex_macos_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_macos_egl_native
 alias_example_complex_windows_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_egl
 alias_example_complex_windows_egl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_egl_native
 alias_example_complex_wayland_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_wayland_egl
 alias_example_complex_x11_egl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_x11_egl
 alias_example_complex_windows_wgl:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_wgl
 alias_example_complex_windows_wgl_native:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_windows_wgl_native
 alias_example_complex_x11_glx:
+	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_x11_glx
 
 ## release library aliases
