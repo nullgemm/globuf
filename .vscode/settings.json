@@ -4,290 +4,277 @@
             "name": "Default",
             "makeArgs": []
         },
-		// software
-        {
-            "name": "generate macOS release software library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_macos_software"
-			]
-        },
-        {
-            "name": "generate macOS release software library makefile (native toolchain)",
-            "makeArgs": [
-				"make/output/makefile_lib_macos_software_native"
-			]
-        },
-        {
-            "name": "generate Windows release software library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_software"
-			]
-        },
-        {
-            "name": "generate Windows release software library makefile (native toolchain)",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_software_native"
-			]
-        },
-        {
-            "name": "generate Wayland release software library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_wayland_software"
-			]
-        },
-        {
-            "name": "generate X11 release software library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_x11_software"
-			]
-        },
-		// egl
-        {
-            "name": "generate macOS release egl library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_macos_egl"
-			]
-        },
-        {
-            "name": "generate macOS release egl library makefile (native toolchain)",
-            "makeArgs": [
-				"make/output/makefile_lib_macos_egl_native"
-			]
-        },
-        {
-            "name": "generate Windows release egl library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_egl"
-			]
-        },
-        {
-            "name": "generate Windows release egl library makefile (native toolchain)",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_egl_native"
-			]
-        },
-        {
-            "name": "generate Wayland release egl library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_wayland_egl"
-			]
-        },
-        {
-            "name": "generate X11 release egl library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_x11_egl"
-			]
-        },
-		// platform-specific gl-binder
-        {
-            "name": "generate Windows release wgl library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_wgl"
-			]
-        },
-        {
-            "name": "generate Windows release wgl library makefile (native toolchain)",
-            "makeArgs": [
-				"make/output/makefile_lib_windows_wgl_native"
-			]
-        },
-        {
-            "name": "generate X11 release glx library makefile",
-            "makeArgs": [
-				"make/output/makefile_lib_x11_glx"
-			]
-        },
-
-		// software
-        {
-            "name": "generate macOS development software library makefile",
-            "makeArgs": [
-				"development_makefile_lib_macos_software"
-			]
-        },
-        {
-            "name": "generate macOS development software library makefile (native toolchain)",
-            "makeArgs": [
-				"development_makefile_lib_macos_software_native"
-			]
-        },
-        {
-            "name": "generate Windows development software library makefile",
-            "makeArgs": [
-				"development_makefile_lib_windows_software"
-			]
-        },
-        {
-            "name": "generate Windows development software library makefile (native toolchain)",
-            "makeArgs": [
-				"development_makefile_lib_windows_software_native"
-			]
-        },
-        {
-            "name": "generate Wayland development software library makefile",
-            "makeArgs": [
-				"development_makefile_lib_wayland_software"
-			]
-        },
-        {
-            "name": "generate X11 development software library makefile",
-            "makeArgs": [
-				"development_makefile_lib_x11_software"
-			]
-        },
-		// egl
-        {
-            "name": "generate macOS development egl library makefile",
-            "makeArgs": [
-				"development_makefile_lib_macos_egl"
-			]
-        },
-        {
-            "name": "generate macOS development egl library makefile (native toolchain)",
-            "makeArgs": [
-				"development_makefile_lib_macos_egl_native"
-			]
-        },
-        {
-            "name": "generate Windows development egl library makefile",
-            "makeArgs": [
-				"development_makefile_lib_windows_egl"
-			]
-        },
-        {
-            "name": "generate Windows development egl library makefile (native toolchain)",
-            "makeArgs": [
-				"development_makefile_lib_windows_egl_native"
-			]
-        },
-        {
-            "name": "generate Wayland development egl library makefile",
-            "makeArgs": [
-				"development_makefile_lib_wayland_egl"
-			]
-        },
-        {
-            "name": "generate X11 development egl library makefile",
-            "makeArgs": [
-				"development_makefile_lib_x11_egl"
-			]
-        },
-		// platform-specific gl-binder
-        {
-            "name": "generate Windows development wgl library makefile",
-            "makeArgs": [
-				"development_makefile_lib_windows_wgl"
-			]
-        },
-        {
-            "name": "generate Windows development wgl library makefile (native toolchain)",
-            "makeArgs": [
-				"development_makefile_lib_windows_wgl_native"
-			]
-        },
-        {
-            "name": "generate X11 development glx library makefile",
-            "makeArgs": [
-				"development_makefile_lib_x11_glx"
-			]
-        },
-
-		// software
-        {
-            "name": "generate macOS sanitized software library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_macos_software"
-			]
-        },
-        {
-            "name": "generate macOS sanitized software library makefile (native toolchain)",
-            "makeArgs": [
-				"sanitized_makefile_lib_macos_software_native"
-			]
-        },
-        {
-            "name": "generate Wayland sanitized software library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_wayland_software"
-			]
-        },
-        {
-            "name": "generate X11 sanitized software library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_x11_software"
-			]
-        },
-		// egl
-        {
-            "name": "generate macOS sanitized egl library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_macos_egl"
-			]
-        },
-        {
-            "name": "generate macOS sanitized egl library makefile (native toolchain)",
-            "makeArgs": [
-				"sanitized_makefile_lib_macos_egl_native"
-			]
-        },
-        {
-            "name": "generate Wayland sanitized egl library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_wayland_egl"
-			]
-        },
-        {
-            "name": "generate X11 sanitized egl library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_x11_egl"
-			]
-        },
-		// platform-specific gl-binder
-        {
-            "name": "generate X11 sanitized glx library makefile",
-            "makeArgs": [
-				"sanitized_makefile_lib_x11_glx"
-			]
-        },
-
-		// variant-neutral library building
-
-		// TODO generate makefiles for examples
-		// variant-neutral example building
+		// library building
         {
             "name": "build macOS software example",
             "makeArgs": [
-				"bin/globox_macos_software"
+				"globox_lib_macos_software"
 			]
         },
         {
             "name": "build macOS software example (native toolchain)",
             "makeArgs": [
-				"bin/globox_macos_software_native"
+				"globox_lib_macos_software_native"
 			]
         },
         {
             "name": "build Windows software example",
             "makeArgs": [
-				"bin/globox_windows_software"
+				"globox_lib_windows_software"
 			]
         },
         {
             "name": "build Windows software example (native toolchain)",
             "makeArgs": [
-				"bin/globox_windows_software_native"
+				"globox_lib_windows_software_native"
 			]
         },
         {
             "name": "build Wayland software example",
             "makeArgs": [
-				"bin/globox_wayland_software"
+				"globox_lib_wayland_software"
 			]
         },
         {
             "name": "build X11 software example",
             "makeArgs": [
-				"bin/globox_x11_software_native"
+				"globox_lib_x11_software"
+			]
+        },
+        {
+            "name": "build macOS EGL example",
+            "makeArgs": [
+				"globox_lib_macos_egl"
+			]
+        },
+        {
+            "name": "build macOS EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_lib_macos_egl_native"
+			]
+        },
+        {
+            "name": "build Windows EGL example",
+            "makeArgs": [
+				"globox_lib_windows_egl"
+			]
+        },
+        {
+            "name": "build Windows EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_lib_windows_egl_native"
+			]
+        },
+        {
+            "name": "build Wayland EGL example",
+            "makeArgs": [
+				"globox_lib_wayland_egl"
+			]
+        },
+        {
+            "name": "build X11 EGL example",
+            "makeArgs": [
+				"globox_lib_x11_egl"
+			]
+        },
+        {
+            "name": "build Windows WGL example",
+            "makeArgs": [
+				"globox_lib_windows_wgl"
+			]
+        },
+        {
+            "name": "build Windows WGL example (native toolchain)",
+            "makeArgs": [
+				"globox_lib_windows_wgl_native"
+			]
+        },
+        {
+            "name": "build X11 GLX example",
+            "makeArgs": [
+				"globox_lib_x11_glx"
+			]
+        },
+		// simple example building
+        {
+            "name": "build macOS simple static software example",
+            "makeArgs": [
+				"globox_simple_example_macos_software_static"
+			]
+        },
+        {
+            "name": "build macOS simple static software example (native toolchain)",
+            "makeArgs": [
+				"globox_simple_example_macos_software_native_static"
+			]
+        },
+        {
+            "name": "build Windows simple static software example",
+            "makeArgs": [
+				"globox_simple_example_windows_software_static"
+			]
+        },
+        {
+            "name": "build Windows simple static software example (native toolchain)",
+            "makeArgs": [
+				"globox_simple_example_windows_software_native_static"
+			]
+        },
+        {
+            "name": "build Wayland simple static software example",
+            "makeArgs": [
+				"globox_simple_example_wayland_software_static"
+			]
+        },
+        {
+            "name": "build X11 simple static software example",
+            "makeArgs": [
+				"globox_simple_example_x11_software_static"
+			]
+        },
+        {
+            "name": "build macOS simple static EGL example",
+            "makeArgs": [
+				"globox_simple_example_macos_egl_static"
+			]
+        },
+        {
+            "name": "build macOS simple static EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_simple_example_macos_egl_native_static"
+			]
+        },
+        {
+            "name": "build Windows simple static EGL example",
+            "makeArgs": [
+				"globox_simple_example_windows_egl_static"
+			]
+        },
+        {
+            "name": "build Windows simple static EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_simple_example_windows_egl_native_static"
+			]
+        },
+        {
+            "name": "build Wayland simple static EGL example",
+            "makeArgs": [
+				"globox_simple_example_wayland_egl_static"
+			]
+        },
+        {
+            "name": "build X11 simple static EGL example",
+            "makeArgs": [
+				"globox_simple_example_x11_egl_static"
+			]
+        },
+        {
+            "name": "build Windows simple static WGL example",
+            "makeArgs": [
+				"globox_simple_example_windows_wgl_static"
+			]
+        },
+        {
+            "name": "build Windows simple static WGL example (native toolchain)",
+            "makeArgs": [
+				"globox_simple_example_windows_wgl_native_static"
+			]
+        },
+        {
+            "name": "build X11 simple static GLX example",
+            "makeArgs": [
+				"globox_simple_example_x11_glx_static"
+			]
+        },
+		// complex example building
+        {
+            "name": "build macOS complex static software example",
+            "makeArgs": [
+				"globox_complex_example_macos_software_static"
+			]
+        },
+        {
+            "name": "build macOS complex static software example (native toolchain)",
+            "makeArgs": [
+				"globox_complex_example_macos_software_native_static"
+			]
+        },
+        {
+            "name": "build Windows complex static software example",
+            "makeArgs": [
+				"globox_complex_example_windows_software_static"
+			]
+        },
+        {
+            "name": "build Windows complex static software example (native toolchain)",
+            "makeArgs": [
+				"globox_complex_example_windows_software_native_static"
+			]
+        },
+        {
+            "name": "build Wayland complex static software example",
+            "makeArgs": [
+				"globox_complex_example_wayland_software_static"
+			]
+        },
+        {
+            "name": "build X11 complex static software example",
+            "makeArgs": [
+				"globox_complex_example_x11_software_static"
+			]
+        },
+        {
+            "name": "build macOS complex static EGL example",
+            "makeArgs": [
+				"globox_complex_example_macos_egl_static"
+			]
+        },
+        {
+            "name": "build macOS complex static EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_complex_example_macos_egl_native_static"
+			]
+        },
+        {
+            "name": "build Windows complex static EGL example",
+            "makeArgs": [
+				"globox_complex_example_windows_egl_static"
+			]
+        },
+        {
+            "name": "build Windows complex static EGL example (native toolchain)",
+            "makeArgs": [
+				"globox_complex_example_windows_egl_native_static"
+			]
+        },
+        {
+            "name": "build Wayland complex static EGL example",
+            "makeArgs": [
+				"globox_complex_example_wayland_egl_static"
+			]
+        },
+        {
+            "name": "build X11 complex static EGL example",
+            "makeArgs": [
+				"globox_complex_example_x11_egl_static"
+			]
+        },
+        {
+            "name": "build Windows complex static WGL example",
+            "makeArgs": [
+				"globox_complex_example_windows_wgl_static"
+			]
+        },
+        {
+            "name": "build Windows complex static WGL example (native toolchain)",
+            "makeArgs": [
+				"globox_complex_example_windows_wgl_native_static"
+			]
+        },
+        {
+            "name": "build X11 complex static GLX example",
+            "makeArgs": [
+				"globox_complex_example_x11_glx_static"
 			]
         }
     ]
