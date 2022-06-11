@@ -1,4 +1,106 @@
 # aliases
+## symlinked makefile
+default:
+	$(MAKE) -f make/output/makefile
+
+run:
+	$(MAKE) -f make/output/makefile run
+
+leak:
+	$(MAKE) -f make/output/makefile leak
+
+## symlink the makefiles
+alias_lib_macos_software:
+	make/scripts/makefile_ln.sh makefile_lib_macos_software
+alias_lib_macos_software_native:
+	make/scripts/makefile_ln.sh makefile_lib_macos_software_native
+alias_lib_windows_software:
+	make/scripts/makefile_ln.sh makefile_lib_windows_software
+alias_lib_windows_software_native:
+	make/scripts/makefile_ln.sh makefile_lib_windows_software_native
+alias_lib_wayland_software:
+	make/scripts/makefile_ln.sh makefile_lib_wayland_software
+alias_lib_x11_software:
+	make/scripts/makefile_ln.sh makefile_lib_x11_software
+alias_lib_macos_egl:
+	make/scripts/makefile_ln.sh makefile_lib_macos_egl
+alias_lib_macos_egl_native:
+	make/scripts/makefile_ln.sh makefile_lib_macos_egl_native
+alias_lib_windows_egl:
+	make/scripts/makefile_ln.sh makefile_lib_windows_egl
+alias_lib_windows_egl_native:
+	make/scripts/makefile_ln.sh makefile_lib_windows_egl_native
+alias_lib_wayland_egl:
+	make/scripts/makefile_ln.sh makefile_lib_wayland_egl
+alias_lib_x11_egl:
+	make/scripts/makefile_ln.sh makefile_lib_x11_egl
+alias_lib_windows_wgl:
+	make/scripts/makefile_ln.sh makefile_lib_windows_wgl
+alias_lib_windows_wgl_native:
+	make/scripts/makefile_ln.sh makefile_lib_windows_wgl_native
+alias_lib_x11_glx:
+	make/scripts/makefile_ln.sh makefile_lib_x11_glx
+alias_example_simple_macos_software:
+	make/scripts/makefile_ln.sh makefile_example_simple_macos_software
+alias_example_simple_macos_software_native:
+	make/scripts/makefile_ln.sh makefile_example_simple_macos_software_native
+alias_example_simple_windows_software:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_software
+alias_example_simple_windows_software_native:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_software_native
+alias_example_simple_wayland_software:
+	make/scripts/makefile_ln.sh makefile_example_simple_wayland_software
+alias_example_simple_x11_software:
+	make/scripts/makefile_ln.sh makefile_example_simple_x11_software
+alias_example_simple_macos_egl:
+	make/scripts/makefile_ln.sh makefile_example_simple_macos_egl
+alias_example_simple_macos_egl_native:
+	make/scripts/makefile_ln.sh makefile_example_simple_macos_egl_native
+alias_example_simple_windows_egl:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_egl
+alias_example_simple_windows_egl_native:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_egl_native
+alias_example_simple_wayland_egl:
+	make/scripts/makefile_ln.sh makefile_example_simple_wayland_egl
+alias_example_simple_x11_egl:
+	make/scripts/makefile_ln.sh makefile_example_simple_x11_egl
+alias_example_simple_windows_wgl:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_wgl
+alias_example_simple_windows_wgl_native:
+	make/scripts/makefile_ln.sh makefile_example_simple_windows_wgl_native
+alias_example_simple_x11_glx:
+	make/scripts/makefile_ln.sh makefile_example_simple_x11_glx
+alias_example_complex_macos_software:
+	make/scripts/makefile_ln.sh makefile_example_complex_macos_software
+alias_example_complex_macos_software_native:
+	make/scripts/makefile_ln.sh makefile_example_complex_macos_software_native
+alias_example_complex_windows_software:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_software
+alias_example_complex_windows_software_native:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_software_native
+alias_example_complex_wayland_software:
+	make/scripts/makefile_ln.sh makefile_example_complex_wayland_software
+alias_example_complex_x11_software:
+	make/scripts/makefile_ln.sh makefile_example_complex_x11_software
+alias_example_complex_macos_egl:
+	make/scripts/makefile_ln.sh makefile_example_complex_macos_egl
+alias_example_complex_macos_egl_native:
+	make/scripts/makefile_ln.sh makefile_example_complex_macos_egl_native
+alias_example_complex_windows_egl:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_egl
+alias_example_complex_windows_egl_native:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_egl_native
+alias_example_complex_wayland_egl:
+	make/scripts/makefile_ln.sh makefile_example_complex_wayland_egl
+alias_example_complex_x11_egl:
+	make/scripts/makefile_ln.sh makefile_example_complex_x11_egl
+alias_example_complex_windows_wgl:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_wgl
+alias_example_complex_windows_wgl_native:
+	make/scripts/makefile_ln.sh makefile_example_complex_windows_wgl_native
+alias_example_complex_x11_glx:
+	make/scripts/makefile_ln.sh makefile_example_complex_x11_glx
+
 ## release library aliases
 release_makefile_lib_macos_software: \
 make/output/makefile_lib_macos_software
@@ -1017,9 +1119,491 @@ make/output/makefile_example_complex_x11_glx
 
 
 
+# simple example run targets
+## targets for software simple example run
+run_globox_simple_example_macos_software_static: \
+make/output/makefile_lib_macos_software \
+make/output/makefile_example_simple_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
+	$(MAKE) -f make/output/makefile_lib_macos_software headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_software run
+
+run_globox_simple_example_macos_software_native_static: \
+make/output/makefile_lib_macos_software_native \
+make/output/makefile_example_simple_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_software_native run
+
+run_globox_simple_example_windows_software_static: \
+make/output/makefile_lib_windows_software \
+make/output/makefile_example_simple_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_software run
+
+run_globox_simple_example_windows_software_native_static: \
+make/output/makefile_lib_windows_software_native \
+make/output/makefile_example_simple_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_software_native run
+
+run_globox_simple_example_wayland_software_static: \
+make/output/makefile_lib_wayland_software \
+make/output/makefile_example_simple_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software headers
+	$(MAKE) -f make/output/makefile_example_simple_wayland_software run
+
+run_globox_simple_example_x11_software_static: \
+make/output/makefile_lib_x11_software \
+make/output/makefile_example_simple_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_software run
+
+
+## targets for egl simple example run
+run_globox_simple_example_macos_egl_static: \
+make/output/makefile_lib_macos_egl \
+make/output/makefile_example_simple_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
+	$(MAKE) -f make/output/makefile_lib_macos_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_egl run
+
+run_globox_simple_example_macos_egl_native_static: \
+make/output/makefile_lib_macos_egl_native \
+make/output/makefile_example_simple_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native run
+
+run_globox_simple_example_windows_egl_static: \
+make/output/makefile_lib_windows_egl \
+make/output/makefile_example_simple_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_egl run
+
+run_globox_simple_example_windows_egl_native_static: \
+make/output/makefile_lib_windows_egl_native \
+make/output/makefile_example_simple_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_egl_native run
+
+run_globox_simple_example_wayland_egl_static: \
+make/output/makefile_lib_wayland_egl \
+make/output/makefile_example_simple_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_wayland_egl run
+
+run_globox_simple_example_x11_egl_static: \
+make/output/makefile_lib_x11_egl \
+make/output/makefile_example_simple_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_egl run
+
+
+## targets for platform-specific gl-binder simple example run
+run_globox_simple_example_windows_wgl_static: \
+make/output/makefile_lib_windows_wgl \
+make/output/makefile_example_simple_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_wgl run
+
+run_globox_simple_example_windows_wgl_native_static: \
+make/output/makefile_lib_windows_wgl_native \
+make/output/makefile_example_simple_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_wgl_native run
+
+run_globox_simple_example_x11_glx_static: \
+make/output/makefile_lib_x11_glx \
+make/output/makefile_example_simple_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_glx run
+
+
+
+# complex example run targets
+## targets for software complex example run
+run_globox_complex_example_macos_software_static: \
+make/output/makefile_lib_macos_software \
+make/output/makefile_example_complex_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
+	$(MAKE) -f make/output/makefile_lib_macos_software headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_software run
+
+run_globox_complex_example_macos_software_native_static: \
+make/output/makefile_lib_macos_software_native \
+make/output/makefile_example_complex_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_software_native run
+
+run_globox_complex_example_windows_software_static: \
+make/output/makefile_lib_windows_software \
+make/output/makefile_example_complex_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_software run
+
+run_globox_complex_example_windows_software_native_static: \
+make/output/makefile_lib_windows_software_native \
+make/output/makefile_example_complex_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_software_native run
+
+run_globox_complex_example_wayland_software_static: \
+make/output/makefile_lib_wayland_software \
+make/output/makefile_example_complex_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software headers
+	$(MAKE) -f make/output/makefile_example_complex_wayland_software run
+
+run_globox_complex_example_x11_software_static: \
+make/output/makefile_lib_x11_software \
+make/output/makefile_example_complex_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_software run
+
+
+## targets for egl complex example run
+run_globox_complex_example_macos_egl_static: \
+make/output/makefile_lib_macos_egl \
+make/output/makefile_example_complex_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
+	$(MAKE) -f make/output/makefile_lib_macos_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_egl run
+
+run_globox_complex_example_macos_egl_native_static: \
+make/output/makefile_lib_macos_egl_native \
+make/output/makefile_example_complex_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_egl_native run
+
+run_globox_complex_example_windows_egl_static: \
+make/output/makefile_lib_windows_egl \
+make/output/makefile_example_complex_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_egl run
+
+run_globox_complex_example_windows_egl_native_static: \
+make/output/makefile_lib_windows_egl_native \
+make/output/makefile_example_complex_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_egl_native run
+
+run_globox_complex_example_wayland_egl_static: \
+make/output/makefile_lib_wayland_egl \
+make/output/makefile_example_complex_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_wayland_egl run
+
+run_globox_complex_example_x11_egl_static: \
+make/output/makefile_lib_x11_egl \
+make/output/makefile_example_complex_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_egl run
+
+
+## targets for platform-specific gl-binder complex example run
+run_globox_complex_example_windows_wgl_static: \
+make/output/makefile_lib_windows_wgl \
+make/output/makefile_example_complex_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_wgl run
+
+run_globox_complex_example_windows_wgl_native_static: \
+make/output/makefile_lib_windows_wgl_native \
+make/output/makefile_example_complex_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_wgl_native run
+
+run_globox_complex_example_x11_glx_static: \
+make/output/makefile_lib_x11_glx \
+make/output/makefile_example_complex_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_glx run
+
+
+
+# simple example leak targets
+## targets for software simple example leak
+leak_globox_simple_example_macos_software_static: \
+make/output/makefile_lib_macos_software \
+make/output/makefile_example_simple_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
+	$(MAKE) -f make/output/makefile_lib_macos_software headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_software leak
+
+leak_globox_simple_example_macos_software_native_static: \
+make/output/makefile_lib_macos_software_native \
+make/output/makefile_example_simple_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_software_native leak
+
+leak_globox_simple_example_windows_software_static: \
+make/output/makefile_lib_windows_software \
+make/output/makefile_example_simple_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_software leak
+
+leak_globox_simple_example_windows_software_native_static: \
+make/output/makefile_lib_windows_software_native \
+make/output/makefile_example_simple_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_software_native leak
+
+leak_globox_simple_example_wayland_software_static: \
+make/output/makefile_lib_wayland_software \
+make/output/makefile_example_simple_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software headers
+	$(MAKE) -f make/output/makefile_example_simple_wayland_software leak
+
+leak_globox_simple_example_x11_software_static: \
+make/output/makefile_lib_x11_software \
+make/output/makefile_example_simple_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_software leak
+
+
+## targets for egl simple example leak
+leak_globox_simple_example_macos_egl_static: \
+make/output/makefile_lib_macos_egl \
+make/output/makefile_example_simple_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
+	$(MAKE) -f make/output/makefile_lib_macos_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_egl leak
+
+leak_globox_simple_example_macos_egl_native_static: \
+make/output/makefile_lib_macos_egl_native \
+make/output/makefile_example_simple_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native leak
+
+leak_globox_simple_example_windows_egl_static: \
+make/output/makefile_lib_windows_egl \
+make/output/makefile_example_simple_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_egl leak
+
+leak_globox_simple_example_windows_egl_native_static: \
+make/output/makefile_lib_windows_egl_native \
+make/output/makefile_example_simple_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_egl_native leak
+
+leak_globox_simple_example_wayland_egl_static: \
+make/output/makefile_lib_wayland_egl \
+make/output/makefile_example_simple_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_wayland_egl leak
+
+leak_globox_simple_example_x11_egl_static: \
+make/output/makefile_lib_x11_egl \
+make/output/makefile_example_simple_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_egl leak
+
+
+## targets for platform-specific gl-binder simple example leak
+leak_globox_simple_example_windows_wgl_static: \
+make/output/makefile_lib_windows_wgl \
+make/output/makefile_example_simple_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_wgl leak
+
+leak_globox_simple_example_windows_wgl_native_static: \
+make/output/makefile_lib_windows_wgl_native \
+make/output/makefile_example_simple_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native headers
+	$(MAKE) -f make/output/makefile_example_simple_windows_wgl_native leak
+
+leak_globox_simple_example_x11_glx_static: \
+make/output/makefile_lib_x11_glx \
+make/output/makefile_example_simple_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx headers
+	$(MAKE) -f make/output/makefile_example_simple_x11_glx leak
+
+
+
+# complex example leak targets
+## targets for software complex example leak
+leak_globox_complex_example_macos_software_static: \
+make/output/makefile_lib_macos_software \
+make/output/makefile_example_complex_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
+	$(MAKE) -f make/output/makefile_lib_macos_software headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_software leak
+
+leak_globox_complex_example_macos_software_native_static: \
+make/output/makefile_lib_macos_software_native \
+make/output/makefile_example_complex_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_software_native leak
+
+leak_globox_complex_example_windows_software_static: \
+make/output/makefile_lib_windows_software \
+make/output/makefile_example_complex_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software
+	$(MAKE) -f make/output/makefile_lib_windows_software headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_software leak
+
+leak_globox_complex_example_windows_software_native_static: \
+make/output/makefile_lib_windows_software_native \
+make/output/makefile_example_complex_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native
+	$(MAKE) -f make/output/makefile_lib_windows_software_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_software_native leak
+
+leak_globox_complex_example_wayland_software_static: \
+make/output/makefile_lib_wayland_software \
+make/output/makefile_example_complex_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software
+	$(MAKE) -f make/output/makefile_lib_wayland_software headers
+	$(MAKE) -f make/output/makefile_example_complex_wayland_software leak
+
+leak_globox_complex_example_x11_software_static: \
+make/output/makefile_lib_x11_software \
+make/output/makefile_example_complex_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software
+	$(MAKE) -f make/output/makefile_lib_x11_software headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_software leak
+
+
+## targets for egl complex example leak
+leak_globox_complex_example_macos_egl_static: \
+make/output/makefile_lib_macos_egl \
+make/output/makefile_example_complex_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
+	$(MAKE) -f make/output/makefile_lib_macos_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_egl leak
+
+leak_globox_complex_example_macos_egl_native_static: \
+make/output/makefile_lib_macos_egl_native \
+make/output/makefile_example_complex_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_macos_egl_native leak
+
+leak_globox_complex_example_windows_egl_static: \
+make/output/makefile_lib_windows_egl \
+make/output/makefile_example_complex_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl
+	$(MAKE) -f make/output/makefile_lib_windows_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_egl leak
+
+leak_globox_complex_example_windows_egl_native_static: \
+make/output/makefile_lib_windows_egl_native \
+make/output/makefile_example_complex_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native
+	$(MAKE) -f make/output/makefile_lib_windows_egl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_egl_native leak
+
+leak_globox_complex_example_wayland_egl_static: \
+make/output/makefile_lib_wayland_egl \
+make/output/makefile_example_complex_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl
+	$(MAKE) -f make/output/makefile_lib_wayland_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_wayland_egl leak
+
+leak_globox_complex_example_x11_egl_static: \
+make/output/makefile_lib_x11_egl \
+make/output/makefile_example_complex_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl
+	$(MAKE) -f make/output/makefile_lib_x11_egl headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_egl leak
+
+
+## targets for platform-specific gl-binder complex example leak
+leak_globox_complex_example_windows_wgl_static: \
+make/output/makefile_lib_windows_wgl \
+make/output/makefile_example_complex_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl
+	$(MAKE) -f make/output/makefile_lib_windows_wgl headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_wgl leak
+
+leak_globox_complex_example_windows_wgl_native_static: \
+make/output/makefile_lib_windows_wgl_native \
+make/output/makefile_example_complex_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native
+	$(MAKE) -f make/output/makefile_lib_windows_wgl_native headers
+	$(MAKE) -f make/output/makefile_example_complex_windows_wgl_native leak
+
+leak_globox_complex_example_x11_glx_static: \
+make/output/makefile_lib_x11_glx \
+make/output/makefile_example_complex_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx
+	$(MAKE) -f make/output/makefile_lib_x11_glx headers
+	$(MAKE) -f make/output/makefile_example_complex_x11_glx leak
+
+
+
 # utils
 clean:
 	make/scripts/clean.sh
 
 clean_makefiles:
 	make/scripts/clean_makefiles.sh
+
+angle_dev_get:
+	make/scripts/angle_dev_get.sh
+
+angle_dev_make:
+	make/scripts/angle_dev_make.sh
+
+angle_master_get:
+	make/scripts/angle_master_get.sh
+
+egl_get:
+	make/scripts/egl_get.sh
+
+eglproxy_get:
+	make/scripts/eglproxy_get.sh
+
+objconv_make:
+	make/scripts/objconv_make.sh
+
+pixmap_bin:
+	make/scripts/pixmap_bin.sh
+
+release_headers:
+	make/scripts/release_headers.sh
+
+release_zip:
+	make/scripts/release_zip.sh
+
+wayland_get:
+	make/scripts/wayland_get.sh

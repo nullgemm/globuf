@@ -1,8 +1,21 @@
 {
     "makefile.configurations": [
+		// make using the symlinked makefile in make/output
         {
             "name": "Default",
             "makeArgs": []
+        },
+        {
+            "name": "Default run",
+            "makeArgs": [
+				"run"
+			]
+        },
+        {
+            "name": "Default leak",
+            "makeArgs": [
+				"leak"
+			]
         },
 		// library building
         {
@@ -275,6 +288,188 @@
             "name": "build X11 complex static GLX example",
             "makeArgs": [
 				"globox_complex_example_x11_glx_static"
+			]
+        },
+		// leak simple
+        {
+            "name": "run macOS simple static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_macos_software_static"
+			]
+        },
+        {
+            "name": "run macOS simple static software example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_simple_example_macos_software_native_static"
+			]
+        },
+        {
+            "name": "run Windows simple static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_software_static"
+			]
+        },
+        {
+            "name": "run Windows simple static software example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_software_native_static"
+			]
+        },
+        {
+            "name": "run Wayland simple static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_wayland_software_static"
+			]
+        },
+        {
+            "name": "run X11 simple static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_x11_software_static"
+			]
+        },
+        {
+            "name": "run macOS simple static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_macos_egl_static"
+			]
+        },
+        {
+            "name": "run macOS simple static EGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_simple_example_macos_egl_native_static"
+			]
+        },
+        {
+            "name": "run Windows simple static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_egl_static"
+			]
+        },
+        {
+            "name": "run Windows simple static EGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_egl_native_static"
+			]
+        },
+        {
+            "name": "run Wayland simple static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_wayland_egl_static"
+			]
+        },
+        {
+            "name": "run X11 simple static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_x11_egl_static"
+			]
+        },
+        {
+            "name": "run Windows simple static WGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_wgl_static"
+			]
+        },
+        {
+            "name": "run Windows simple static WGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_simple_example_windows_wgl_native_static"
+			]
+        },
+        {
+            "name": "run Windows simple static GLX example with valgrind",
+            "makeArgs": [
+				"leak_globox_simple_example_x11_glx_static"
+			]
+        },
+		// leak complex
+        {
+            "name": "run macOS complex static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_macos_software_static"
+			]
+        },
+        {
+            "name": "run macOS complex static software example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_complex_example_macos_software_native_static"
+			]
+        },
+        {
+            "name": "run Windows complex static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_software_static"
+			]
+        },
+        {
+            "name": "run Windows macOS complex static software example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_software_native_static"
+			]
+        },
+        {
+            "name": "run Wayland complex static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_wayland_software_static"
+			]
+        },
+        {
+            "name": "run X11 complex static software example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_x11_software_static"
+			]
+        },
+        {
+            "name": "run macOS complex static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_macos_egl_static"
+			]
+        },
+        {
+            "name": "run macOS complex static EGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_complex_example_macos_egl_native_static"
+			]
+        },
+        {
+            "name": "run Windows complex static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_egl_static"
+			]
+        },
+        {
+            "name": "run Windows complex static EGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_egl_native_static"
+			]
+        },
+        {
+            "name": "run Wayland complex static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_wayland_egl_static"
+			]
+        },
+        {
+            "name": "run X11 complex static EGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_x11_egl_static"
+			]
+        },
+        {
+            "name": "run Windows complex static WGL example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_wgl_static"
+			]
+        },
+        {
+            "name": "run Windows complex static WGL example with valgrind (native toolchain)",
+            "makeArgs": [
+				"leak_globox_complex_example_windows_wgl_native_static"
+			]
+        },
+        {
+            "name": "run X11 complex static GLX example with valgrind",
+            "makeArgs": [
+				"leak_globox_complex_example_x11_glx_static"
 			]
         }
     ]
