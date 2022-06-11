@@ -383,7 +383,7 @@ make/output/makefile_example_simple_windows_software:
 	make/example/simple/gen/gen_windows_mingw.sh release software static
 
 make/output/makefile_example_simple_windows_software_native:
-	make/example/simple/gen/gen_windows_msvc.sh release software static
+	make/example/simple/gen/gen_windows_msvc.sh release software
 
 make/output/makefile_example_simple_wayland_software:
 	make/example/simple/gen/gen_wayland.sh release software static
@@ -401,7 +401,7 @@ make/output/makefile_example_simple_windows_egl:
 	make/example/simple/gen/gen_windows_mingw.sh release egl static
 
 make/output/makefile_example_simple_windows_egl_native:
-	make/example/simple/gen/gen_windows_msvc.sh release egl static
+	make/example/simple/gen/gen_windows_msvc.sh release egl
 
 make/output/makefile_example_simple_wayland_egl:
 	make/example/simple/gen/gen_wayland.sh release egl static
@@ -413,7 +413,7 @@ make/output/makefile_example_simple_windows_wgl:
 	make/example/simple/gen/gen_windows_mingw.sh release wgl static
 
 make/output/makefile_example_simple_windows_wgl_native:
-	make/example/simple/gen/gen_windows_msvc.sh release wgl static
+	make/example/simple/gen/gen_windows_msvc.sh release wgl
 
 make/output/makefile_example_simple_x11_glx:
 	make/example/simple/gen/gen_x11.sh release glx static
@@ -430,7 +430,7 @@ development_makefile_example_simple_windows_software_static:
 	make/example/simple/gen/gen_windows_mingw.sh development software static
 
 development_makefile_example_simple_windows_software_native_static:
-	make/example/simple/gen/gen_windows_msvc.sh development software static
+	make/example/simple/gen/gen_windows_msvc.sh development software
 
 development_makefile_example_simple_wayland_software_static:
 	make/example/simple/gen/gen_wayland.sh development software static
@@ -448,7 +448,7 @@ development_makefile_example_simple_windows_egl_static:
 	make/example/simple/gen/gen_windows_mingw.sh development egl static
 
 development_makefile_example_simple_windows_egl_native_static:
-	make/example/simple/gen/gen_windows_msvc.sh development egl static
+	make/example/simple/gen/gen_windows_msvc.sh development egl
 
 development_makefile_example_simple_wayland_egl_static:
 	make/example/simple/gen/gen_wayland.sh development egl static
@@ -460,7 +460,7 @@ development_makefile_example_simple_windows_wgl_static:
 	make/example/simple/gen/gen_windows_mingw.sh development wgl static
 
 development_makefile_example_simple_windows_wgl_native_static:
-	make/example/simple/gen/gen_windows_msvc.sh development wgl static
+	make/example/simple/gen/gen_windows_msvc.sh development wgl
 
 development_makefile_example_simple_x11_glx_static:
 	make/example/simple/gen/gen_x11.sh development glx static
@@ -508,7 +508,7 @@ make/output/makefile_example_simple_windows_software_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release software shared
 
 make/output/makefile_example_simple_windows_software_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh release software shared
+	make/example/simple/gen/gen_windows_msvc.sh release software
 
 make/output/makefile_example_simple_wayland_software_shared:
 	make/example/simple/gen/gen_wayland.sh release software shared
@@ -526,7 +526,7 @@ make/output/makefile_example_simple_windows_egl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release egl shared
 
 make/output/makefile_example_simple_windows_egl_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh release egl shared
+	make/example/simple/gen/gen_windows_msvc.sh release egl
 
 make/output/makefile_example_simple_wayland_egl_shared:
 	make/example/simple/gen/gen_wayland.sh release egl shared
@@ -538,7 +538,7 @@ make/output/makefile_example_simple_windows_wgl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release wgl shared
 
 make/output/makefile_example_simple_windows_wgl_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh release wgl shared
+	make/example/simple/gen/gen_windows_msvc.sh release wgl
 
 make/output/makefile_example_simple_x11_glx_shared:
 	make/example/simple/gen/gen_x11.sh release glx shared
@@ -555,7 +555,7 @@ development_makefile_example_simple_windows_software_shared:
 	make/example/simple/gen/gen_windows_mingw.sh development software shared
 
 development_makefile_example_simple_windows_software_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh development software shared
+	make/example/simple/gen/gen_windows_msvc.sh development software
 
 development_makefile_example_simple_wayland_software_shared:
 	make/example/simple/gen/gen_wayland.sh development software shared
@@ -573,7 +573,7 @@ development_makefile_example_simple_windows_egl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh development egl shared
 
 development_makefile_example_simple_windows_egl_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh development egl shared
+	make/example/simple/gen/gen_windows_msvc.sh development egl
 
 development_makefile_example_simple_wayland_egl_shared:
 	make/example/simple/gen/gen_wayland.sh development egl shared
@@ -585,7 +585,7 @@ development_makefile_example_simple_windows_wgl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh development wgl shared
 
 development_makefile_example_simple_windows_wgl_native_shared:
-	make/example/simple/gen/gen_windows_msvc.sh development wgl shared
+	make/example/simple/gen/gen_windows_msvc.sh development wgl
 
 development_makefile_example_simple_x11_glx_shared:
 	make/example/simple/gen/gen_x11.sh development glx shared
@@ -633,7 +633,7 @@ make/output/makefile_example_complex_windows_software:
 	make/example/complex/gen/gen_windows_mingw.sh release software static
 
 make/output/makefile_example_complex_windows_software_native:
-	make/example/complex/gen/gen_windows_msvc.sh release software static
+	make/example/complex/gen/gen_windows_msvc.sh release software
 
 make/output/makefile_example_complex_wayland_software:
 	make/example/complex/gen/gen_wayland.sh release software static
@@ -651,7 +651,7 @@ make/output/makefile_example_complex_windows_egl:
 	make/example/complex/gen/gen_windows_mingw.sh release egl static
 
 make/output/makefile_example_complex_windows_egl_native:
-	make/example/complex/gen/gen_windows_msvc.sh release egl static
+	make/example/complex/gen/gen_windows_msvc.sh release egl
 
 make/output/makefile_example_complex_wayland_egl:
 	make/example/complex/gen/gen_wayland.sh release egl static
@@ -663,7 +663,7 @@ make/output/makefile_example_complex_windows_wgl:
 	make/example/complex/gen/gen_windows_mingw.sh release wgl static
 
 make/output/makefile_example_complex_windows_wgl_native:
-	make/example/complex/gen/gen_windows_msvc.sh release wgl static
+	make/example/complex/gen/gen_windows_msvc.sh release wgl
 
 make/output/makefile_example_complex_x11_glx:
 	make/example/complex/gen/gen_x11.sh release glx static
@@ -680,7 +680,7 @@ development_makefile_example_complex_windows_software_static:
 	make/example/complex/gen/gen_windows_mingw.sh development software static
 
 development_makefile_example_complex_windows_software_native_static:
-	make/example/complex/gen/gen_windows_msvc.sh development software static
+	make/example/complex/gen/gen_windows_msvc.sh development software
 
 development_makefile_example_complex_wayland_software_static:
 	make/example/complex/gen/gen_wayland.sh development software static
@@ -698,7 +698,7 @@ development_makefile_example_complex_windows_egl_static:
 	make/example/complex/gen/gen_windows_mingw.sh development egl static
 
 development_makefile_example_complex_windows_egl_native_static:
-	make/example/complex/gen/gen_windows_msvc.sh development egl static
+	make/example/complex/gen/gen_windows_msvc.sh development egl
 
 development_makefile_example_complex_wayland_egl_static:
 	make/example/complex/gen/gen_wayland.sh development egl static
@@ -710,7 +710,7 @@ development_makefile_example_complex_windows_wgl_static:
 	make/example/complex/gen/gen_windows_mingw.sh development wgl static
 
 development_makefile_example_complex_windows_wgl_native_static:
-	make/example/complex/gen/gen_windows_msvc.sh development wgl static
+	make/example/complex/gen/gen_windows_msvc.sh development wgl
 
 development_makefile_example_complex_x11_glx_static:
 	make/example/complex/gen/gen_x11.sh development glx static
@@ -758,7 +758,7 @@ make/output/makefile_example_complex_windows_software_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release software shared
 
 make/output/makefile_example_complex_windows_software_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh release software shared
+	make/example/complex/gen/gen_windows_msvc.sh release software
 
 make/output/makefile_example_complex_wayland_software_shared:
 	make/example/complex/gen/gen_wayland.sh release software shared
@@ -776,7 +776,7 @@ make/output/makefile_example_complex_windows_egl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release egl shared
 
 make/output/makefile_example_complex_windows_egl_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh release egl shared
+	make/example/complex/gen/gen_windows_msvc.sh release egl
 
 make/output/makefile_example_complex_wayland_egl_shared:
 	make/example/complex/gen/gen_wayland.sh release egl shared
@@ -788,7 +788,7 @@ make/output/makefile_example_complex_windows_wgl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release wgl shared
 
 make/output/makefile_example_complex_windows_wgl_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh release wgl shared
+	make/example/complex/gen/gen_windows_msvc.sh release wgl
 
 make/output/makefile_example_complex_x11_glx_shared:
 	make/example/complex/gen/gen_x11.sh release glx shared
@@ -805,7 +805,7 @@ development_makefile_example_complex_windows_software_shared:
 	make/example/complex/gen/gen_windows_mingw.sh development software shared
 
 development_makefile_example_complex_windows_software_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh development software shared
+	make/example/complex/gen/gen_windows_msvc.sh development software
 
 development_makefile_example_complex_wayland_software_shared:
 	make/example/complex/gen/gen_wayland.sh development software shared
@@ -823,7 +823,7 @@ development_makefile_example_complex_windows_egl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh development egl shared
 
 development_makefile_example_complex_windows_egl_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh development egl shared
+	make/example/complex/gen/gen_windows_msvc.sh development egl
 
 development_makefile_example_complex_wayland_egl_shared:
 	make/example/complex/gen/gen_wayland.sh development egl shared
@@ -835,7 +835,7 @@ development_makefile_example_complex_windows_wgl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh development wgl shared
 
 development_makefile_example_complex_windows_wgl_native_shared:
-	make/example/complex/gen/gen_windows_msvc.sh development wgl shared
+	make/example/complex/gen/gen_windows_msvc.sh development wgl
 
 development_makefile_example_complex_x11_glx_shared:
 	make/example/complex/gen/gen_x11.sh development glx shared

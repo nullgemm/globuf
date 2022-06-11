@@ -783,8 +783,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "software",
-				"static"
+                "software"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -799,8 +798,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "egl",
-				"static"
+                "egl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -815,8 +813,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "wgl",
-				"static"
+                "wgl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -832,8 +829,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "software",
-				"static"
+                "software"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -848,8 +844,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "egl",
-				"static"
+                "egl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -864,8 +859,7 @@
             "command": "./make/example/simple/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "wgl",
-				"static"
+                "wgl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1448,8 +1442,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "software",
-				"static"
+                "software"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1464,8 +1457,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "egl",
-				"static"
+                "egl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1480,8 +1472,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "development",
-                "wgl",
-				"static"
+                "wgl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1497,8 +1488,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "software",
-				"static"
+                "software"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1513,8 +1503,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "egl",
-				"static"
+                "egl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -1529,8 +1518,7 @@
             "command": "./make/example/complex/gen/gen_windows_msvc.sh",
             "args": [
                 "release",
-                "wgl",
-				"static"
+                "wgl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
