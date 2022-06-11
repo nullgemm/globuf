@@ -2,7 +2,7 @@
 
 # get into the right folder
 cd "$(dirname "$0")" || exit
-cd ../../..
+cd ../..
 
 ./make/lib/gen/gen_macos.sh release software osxcross osxcross
 
