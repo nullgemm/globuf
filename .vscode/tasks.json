@@ -2014,8 +2014,8 @@
             }
         },
         {
-            "type": "get EGLproxy",
-            "label": "clean generated makefiles",
+            "type": "cppbuild",
+            "label": "get EGLproxy",
 			"command": "./make/scripts/eglproxy_get.sh",
             "options": {
                 "cwd": "${workspaceFolder}"
