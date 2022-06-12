@@ -1,476 +1,52 @@
 {
     "makefile.configurations": [
-		// make using the symlinked makefile in make/output
         {
             "name": "Default",
             "makeArgs": []
-        },
-        {
-            "name": "Default run",
-            "makeArgs": [
-				"run"
-			]
-        },
-        {
-            "name": "Default leak",
-            "makeArgs": [
-				"leak"
-			]
-        },
-		// library building
-        {
-            "name": "build macOS software example",
-            "makeArgs": [
-				"globox_lib_macos_software"
-			]
-        },
-        {
-            "name": "build macOS software example (native toolchain)",
-            "makeArgs": [
-				"globox_lib_macos_software_native"
-			]
-        },
-        {
-            "name": "build Windows software example",
-            "makeArgs": [
-				"globox_lib_windows_software"
-			]
-        },
-        {
-            "name": "build Windows software example (native toolchain)",
-            "makeArgs": [
-				"globox_lib_windows_software_native"
-			]
-        },
-        {
-            "name": "build Wayland software example",
-            "makeArgs": [
-				"globox_lib_wayland_software"
-			]
-        },
-        {
-            "name": "build X11 software example",
-            "makeArgs": [
-				"globox_lib_x11_software"
-			]
-        },
-        {
-            "name": "build macOS EGL example",
-            "makeArgs": [
-				"globox_lib_macos_egl"
-			]
-        },
-        {
-            "name": "build macOS EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_lib_macos_egl_native"
-			]
-        },
-        {
-            "name": "build Windows EGL example",
-            "makeArgs": [
-				"globox_lib_windows_egl"
-			]
-        },
-        {
-            "name": "build Windows EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_lib_windows_egl_native"
-			]
-        },
-        {
-            "name": "build Wayland EGL example",
-            "makeArgs": [
-				"globox_lib_wayland_egl"
-			]
-        },
-        {
-            "name": "build X11 EGL example",
-            "makeArgs": [
-				"globox_lib_x11_egl"
-			]
-        },
-        {
-            "name": "build Windows WGL example",
-            "makeArgs": [
-				"globox_lib_windows_wgl"
-			]
-        },
-        {
-            "name": "build Windows WGL example (native toolchain)",
-            "makeArgs": [
-				"globox_lib_windows_wgl_native"
-			]
-        },
-        {
-            "name": "build X11 GLX example",
-            "makeArgs": [
-				"globox_lib_x11_glx"
-			]
-        },
-		// simple example building
-        {
-            "name": "build macOS simple static software example",
-            "makeArgs": [
-				"globox_simple_example_macos_software_static"
-			]
-        },
-        {
-            "name": "build macOS simple static software example (native toolchain)",
-            "makeArgs": [
-				"globox_simple_example_macos_software_native_static"
-			]
-        },
-        {
-            "name": "build Windows simple static software example",
-            "makeArgs": [
-				"globox_simple_example_windows_software_static"
-			]
-        },
-        {
-            "name": "build Windows simple static software example (native toolchain)",
-            "makeArgs": [
-				"globox_simple_example_windows_software_native_static"
-			]
-        },
-        {
-            "name": "build Wayland simple static software example",
-            "makeArgs": [
-				"globox_simple_example_wayland_software_static"
-			]
-        },
-        {
-            "name": "build X11 simple static software example",
-            "makeArgs": [
-				"globox_simple_example_x11_software_static"
-			]
-        },
-        {
-            "name": "build macOS simple static EGL example",
-            "makeArgs": [
-				"globox_simple_example_macos_egl_static"
-			]
-        },
-        {
-            "name": "build macOS simple static EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_simple_example_macos_egl_native_static"
-			]
-        },
-        {
-            "name": "build Windows simple static EGL example",
-            "makeArgs": [
-				"globox_simple_example_windows_egl_static"
-			]
-        },
-        {
-            "name": "build Windows simple static EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_simple_example_windows_egl_native_static"
-			]
-        },
-        {
-            "name": "build Wayland simple static EGL example",
-            "makeArgs": [
-				"globox_simple_example_wayland_egl_static"
-			]
-        },
-        {
-            "name": "build X11 simple static EGL example",
-            "makeArgs": [
-				"globox_simple_example_x11_egl_static"
-			]
-        },
-        {
-            "name": "build Windows simple static WGL example",
-            "makeArgs": [
-				"globox_simple_example_windows_wgl_static"
-			]
-        },
-        {
-            "name": "build Windows simple static WGL example (native toolchain)",
-            "makeArgs": [
-				"globox_simple_example_windows_wgl_native_static"
-			]
-        },
-        {
-            "name": "build X11 simple static GLX example",
-            "makeArgs": [
-				"globox_simple_example_x11_glx_static"
-			]
-        },
-		// complex example building
-        {
-            "name": "build macOS complex static software example",
-            "makeArgs": [
-				"globox_complex_example_macos_software_static"
-			]
-        },
-        {
-            "name": "build macOS complex static software example (native toolchain)",
-            "makeArgs": [
-				"globox_complex_example_macos_software_native_static"
-			]
-        },
-        {
-            "name": "build Windows complex static software example",
-            "makeArgs": [
-				"globox_complex_example_windows_software_static"
-			]
-        },
-        {
-            "name": "build Windows complex static software example (native toolchain)",
-            "makeArgs": [
-				"globox_complex_example_windows_software_native_static"
-			]
-        },
-        {
-            "name": "build Wayland complex static software example",
-            "makeArgs": [
-				"globox_complex_example_wayland_software_static"
-			]
-        },
-        {
-            "name": "build X11 complex static software example",
-            "makeArgs": [
-				"globox_complex_example_x11_software_static"
-			]
-        },
-        {
-            "name": "build macOS complex static EGL example",
-            "makeArgs": [
-				"globox_complex_example_macos_egl_static"
-			]
-        },
-        {
-            "name": "build macOS complex static EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_complex_example_macos_egl_native_static"
-			]
-        },
-        {
-            "name": "build Windows complex static EGL example",
-            "makeArgs": [
-				"globox_complex_example_windows_egl_static"
-			]
-        },
-        {
-            "name": "build Windows complex static EGL example (native toolchain)",
-            "makeArgs": [
-				"globox_complex_example_windows_egl_native_static"
-			]
-        },
-        {
-            "name": "build Wayland complex static EGL example",
-            "makeArgs": [
-				"globox_complex_example_wayland_egl_static"
-			]
-        },
-        {
-            "name": "build X11 complex static EGL example",
-            "makeArgs": [
-				"globox_complex_example_x11_egl_static"
-			]
-        },
-        {
-            "name": "build Windows complex static WGL example",
-            "makeArgs": [
-				"globox_complex_example_windows_wgl_static"
-			]
-        },
-        {
-            "name": "build Windows complex static WGL example (native toolchain)",
-            "makeArgs": [
-				"globox_complex_example_windows_wgl_native_static"
-			]
-        },
-        {
-            "name": "build X11 complex static GLX example",
-            "makeArgs": [
-				"globox_complex_example_x11_glx_static"
-			]
-        },
-		// leak simple
-        {
-            "name": "run macOS simple static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_macos_software_static"
-			]
-        },
-        {
-            "name": "run macOS simple static software example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_simple_example_macos_software_native_static"
-			]
-        },
-        {
-            "name": "run Windows simple static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_software_static"
-			]
-        },
-        {
-            "name": "run Windows simple static software example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_software_native_static"
-			]
-        },
-        {
-            "name": "run Wayland simple static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_wayland_software_static"
-			]
-        },
-        {
-            "name": "run X11 simple static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_x11_software_static"
-			]
-        },
-        {
-            "name": "run macOS simple static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_macos_egl_static"
-			]
-        },
-        {
-            "name": "run macOS simple static EGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_simple_example_macos_egl_native_static"
-			]
-        },
-        {
-            "name": "run Windows simple static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_egl_static"
-			]
-        },
-        {
-            "name": "run Windows simple static EGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_egl_native_static"
-			]
-        },
-        {
-            "name": "run Wayland simple static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_wayland_egl_static"
-			]
-        },
-        {
-            "name": "run X11 simple static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_x11_egl_static"
-			]
-        },
-        {
-            "name": "run Windows simple static WGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_wgl_static"
-			]
-        },
-        {
-            "name": "run Windows simple static WGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_simple_example_windows_wgl_native_static"
-			]
-        },
-        {
-            "name": "run Windows simple static GLX example with valgrind",
-            "makeArgs": [
-				"leak_globox_simple_example_x11_glx_static"
-			]
-        },
-		// leak complex
-        {
-            "name": "run macOS complex static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_macos_software_static"
-			]
-        },
-        {
-            "name": "run macOS complex static software example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_complex_example_macos_software_native_static"
-			]
-        },
-        {
-            "name": "run Windows complex static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_software_static"
-			]
-        },
-        {
-            "name": "run Windows macOS complex static software example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_software_native_static"
-			]
-        },
-        {
-            "name": "run Wayland complex static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_wayland_software_static"
-			]
-        },
-        {
-            "name": "run X11 complex static software example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_x11_software_static"
-			]
-        },
-        {
-            "name": "run macOS complex static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_macos_egl_static"
-			]
-        },
-        {
-            "name": "run macOS complex static EGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_complex_example_macos_egl_native_static"
-			]
-        },
-        {
-            "name": "run Windows complex static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_egl_static"
-			]
-        },
-        {
-            "name": "run Windows complex static EGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_egl_native_static"
-			]
-        },
-        {
-            "name": "run Wayland complex static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_wayland_egl_static"
-			]
-        },
-        {
-            "name": "run X11 complex static EGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_x11_egl_static"
-			]
-        },
-        {
-            "name": "run Windows complex static WGL example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_wgl_static"
-			]
-        },
-        {
-            "name": "run Windows complex static WGL example with valgrind (native toolchain)",
-            "makeArgs": [
-				"leak_globox_complex_example_windows_wgl_native_static"
-			]
-        },
-        {
-            "name": "run X11 complex static GLX example with valgrind",
-            "makeArgs": [
-				"leak_globox_complex_example_x11_glx_static"
-			]
         }
+    ],
+    "makefile.launchConfigurations": [
+        {
+            "name": "run X11 software complex globox example",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_software",
+            "binaryArgs": []
+		},
+        {
+            "name": "run X11 EGL complex globox example",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_egl",
+            "binaryArgs": []
+		},
+        {
+            "name": "run X11 GLX complex globox example",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_glx",
+            "binaryArgs": []
+		},
+        {
+            "name": "run Windows software complex globox example (native toolchain)",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_software_native",
+            "binaryArgs": []
+		},
+        {
+            "name": "run Windows EGL complex globox example (native toolchain)",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_egl_native",
+            "binaryArgs": []
+		},
+        {
+            "name": "run Windows WGL complex globox example (native toolchain)",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_wgl_native",
+            "binaryArgs": []
+		},
+        {
+            "name": "run Wayland software complex globox example",
+            "cwd": "${workspaceFolder}/bin",
+            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_wayland_software",
+            "binaryArgs": []
+		}
     ]
 }
