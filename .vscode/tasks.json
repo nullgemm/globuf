@@ -1,5 +1,769 @@
 {
 	"tasks": [
+		// # utils
+		{
+			"type": "cppbuild",
+			"label": "get metalANGLE binaries",
+			"command": "./make/scripts/angle_dev_get.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "build regular ANGLE binaries from source",
+			"command": "./make/scripts/angle_dev_make.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "get regular ANGLE binaries from chromium's latest release",
+			"command": "./make/scripts/angle_master_get.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "clean compiled objects",
+			"command": "./make/scripts/clean.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "clean generated makefiles",
+			"command": "./make/scripts/clean_makefiles.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "get EGL",
+			"command": "./make/scripts/egl_get.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "get EGLproxy",
+			"command": "./make/scripts/eglproxy_get.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "build objconv from source",
+			"command": "./make/scripts/objconv_make.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "binarize icon pixmaps",
+			"command": "./make/scripts/pixmap_bin.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "copy globox headers in the library folder",
+			"command": "./make/scripts/release_headers.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "zip the globox library folder for release",
+			"command": "./make/scripts/release_zip.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland headers",
+			"command": "./make/scripts/wayland_get.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// # symlinks
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS software library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_macos_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS software library (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_macos_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows software library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows library (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland software library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_wayland_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 software library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_x11_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS EGL library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_macos_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS EGL library (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_macos_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows EGL library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows EGL library (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland EGL library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_wayland_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 EGL library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_x11_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows WGL library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows WGL library (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_windows_wgl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 GLX library",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_lib_x11_glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS simple software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_macos_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS simple software example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_macos_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple software example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland simple software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_wayland_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 simple software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_x11_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS simple EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_macos_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS simple EGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_macos_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple EGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland simple EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_wayland_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 simple EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_x11_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple WGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows simple WGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_windows_wgl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 simple GLX example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_simple_x11_glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS complex software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_macos_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS complex software example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_macos_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows complex software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows complex software example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_software_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland complex software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_wayland_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 complex software example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_x11_software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS complex EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_macos_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to macOS complex EGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_macos_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows complex EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows complex EGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_egl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Wayland complex EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_wayland_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 complex EGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_x11_egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows WGL example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to Windows complex WGL example (native toolchain)",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_windows_wgl_native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "symlink default makefile to X11 complex GLX example",
+			"command": "./make/scripts/makefile_ln.sh",
+			"args": [
+				"makefile_example_complex_x11_glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
 		// # library
 		// ## development
 		// ### software
@@ -3054,770 +3818,6 @@
 				"sanitized",
 				"glx",
 				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// # utils
-		{
-			"type": "cppbuild",
-			"label": "clean compiled objects",
-			"command": "./make/scripts/clean.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "clean generated makefiles",
-			"command": "./make/scripts/clean_makefiles.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "get metalANGLE binaries",
-			"command": "./make/scripts/angle_dev_get.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "build regular ANGLE binaries from source",
-			"command": "./make/scripts/angle_dev_make.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "get regular ANGLE binaries from chromium's latest release",
-			"command": "./make/scripts/angle_master_get.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "get EGL",
-			"command": "./make/scripts/egl_get.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "get EGLproxy",
-			"command": "./make/scripts/eglproxy_get.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "build objconv from source",
-			"command": "./make/scripts/objconv_make.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "binarize icon pixmaps",
-			"command": "./make/scripts/pixmap_bin.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "copy globox headers in the library folder",
-			"command": "./make/scripts/release_headers.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "zip the globox library folder for release",
-			"command": "./make/scripts/release_zip.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland headers",
-			"command": "./make/scripts/wayland_get.sh",
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// # symlinks
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS software library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_macos_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS software library (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_macos_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows software library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows library (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland software library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_wayland_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 software library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_x11_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS EGL library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_macos_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS EGL library (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_macos_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows EGL library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows EGL library (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland EGL library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_wayland_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 EGL library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_x11_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows WGL library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows WGL library (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_windows_wgl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 GLX library",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_lib_x11_glx"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS simple software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_macos_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS simple software example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_macos_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple software example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland simple software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_wayland_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 simple software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_x11_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS simple EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_macos_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS simple EGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_macos_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple EGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland simple EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_wayland_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 simple EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_x11_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple WGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows simple WGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_windows_wgl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 simple GLX example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_simple_x11_glx"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS complex software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_macos_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS complex software example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_macos_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows complex software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows complex software example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_software_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland complex software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_wayland_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 complex software example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_x11_software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS complex EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_macos_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to macOS complex EGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_macos_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows complex EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows complex EGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_egl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Wayland complex EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_wayland_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 complex EGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_x11_egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows WGL example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to Windows complex WGL example (native toolchain)",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_windows_wgl_native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "symlink default makefile to X11 complex GLX example",
-			"command": "./make/scripts/makefile_ln.sh",
-			"args": [
-				"makefile_example_complex_x11_glx"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
