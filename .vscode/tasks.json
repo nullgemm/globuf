@@ -1,11 +1,46 @@
 {
 	"tasks": [
-		// library
-		// X11 development
+		// # library
+		// ## development
+		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate X11 development software library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
+			"label": "generate macOS development software library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development software library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development software library makefile",
+			"command": "./make/lib/gen/gen_windows_mingw.sh",
 			"args": [
 				"development",
 				"software"
@@ -17,129 +52,6 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development EGL library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development GLX library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"glx"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 release
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release software library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release EGL library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release GLX library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"glx"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized software library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized EGL library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized GLX library makefile",
-			"command": "./make/lib/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"glx"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows development (native toolchain)
 		{
 			"type": "cppbuild",
 			"label": "generate Windows development software library makefile (native toolchain)",
@@ -157,83 +69,6 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Windows development EGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development WGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows release (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release software library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release EGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release WGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland development
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland development software library makefile",
 			"command": "./make/lib/gen/gen_wayland.sh",
 			"args": [
@@ -249,89 +84,46 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland development EGL library makefile",
-			"command": "./make/lib/gen/gen_wayland.sh",
-			"args": [
-				"development",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland release
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release software library makefile",
-			"command": "./make/lib/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release EGL library makefile",
-			"command": "./make/lib/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized software library makefile",
-			"command": "./make/lib/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized EGL library makefile",
-			"command": "./make/lib/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows development
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development software library makefile",
-			"command": "./make/lib/gen/gen_windows_mingw.sh",
+			"label": "generate X11 development software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
 			"args": [
 				"development",
 				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development EGL library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"native",
+				"native"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -357,6 +149,52 @@
 		},
 		{
 			"type": "cppbuild",
+			"label": "generate Windows development EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_windows_msvc.sh",
+			"args": [
+				"development",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
 			"label": "generate Windows development WGL library makefile",
 			"command": "./make/lib/gen/gen_windows_mingw.sh",
 			"args": [
@@ -370,43 +208,12 @@
 				"kind": "build"
 			}
 		},
-		// Windows release
 		{
 			"type": "cppbuild",
-			"label": "generate Windows release software library makefile",
-			"command": "./make/lib/gen/gen_windows_mingw.sh",
+			"label": "generate Windows development WGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_windows_msvc.sh",
 			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release EGL library makefile",
-			"command": "./make/lib/gen/gen_windows_mingw.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release WGL library makefile",
-			"command": "./make/lib/gen/gen_windows_mingw.sh",
-			"args": [
-				"release",
+				"development",
 				"wgl"
 			],
 			"options": {
@@ -416,16 +223,13 @@
 				"kind": "build"
 			}
 		},
-		// macOS development
 		{
 			"type": "cppbuild",
-			"label": "generate macOS development software library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
+			"label": "generate X11 development GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
 			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross"
+				"development",
+				"glx"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -434,24 +238,8 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development EGL library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release
+		// ## release
+		// ### software
 		{
 			"type": "cppbuild",
 			"label": "generate macOS release software library makefile",
@@ -471,94 +259,6 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS release EGL globox makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized software library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized EGL library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS development (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development software library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"native",
-				"native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development EGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"native",
-				"native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release (native toolchain)
-		{
-			"type": "cppbuild",
 			"label": "generate macOS release software library makefile (native toolchain)",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
@@ -566,6 +266,84 @@
 				"software",
 				"native",
 				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release software library makefile",
+			"command": "./make/lib/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release software library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release software library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release EGL globox makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"osxcross",
+				"osxcross"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -591,16 +369,188 @@
 				"kind": "build"
 			}
 		},
-		// macOS sanitized (native toolchain)
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release EGL library makefile",
+			"command": "./make/lib/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release WGL library makefile",
+			"command": "./make/lib/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release WGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized software library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
 		{
 			"type": "cppbuild",
 			"label": "generate macOS sanitized software library makefile (native toolchain)",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"software",
 				"native",
 				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized software library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized EGL library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"osxcross",
+				"osxcross"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -614,7 +564,7 @@
 			"label": "generate macOS sanitized EGL library makefile (native toolchain)",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"egl",
 				"native",
 				"native"
@@ -626,12 +576,95 @@
 				"kind": "build"
 			}
 		},
-		// simple example
-		// X11 development
 		{
 			"type": "cppbuild",
-			"label": "generate X11 development simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
+			"label": "generate Wayland sanitized EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// # simple example (static)
+		// ## development
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple static software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
 			"args": [
 				"development",
 				"software",
@@ -644,137 +677,6 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development simple static GLX example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"glx",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 release
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release simple static GLX example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"glx",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static GLX example makefile",
-			"command": "./make/example/simple/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"glx",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows development (native toolchain)
 		{
 			"type": "cppbuild",
 			"label": "generate Windows development simple static software example makefile (native toolchain)",
@@ -790,83 +692,6 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development simple static EGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development simple static WGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows release (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release simple static software example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release simple static EGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release simple static WGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland development
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland development simple static software example makefile",
@@ -885,94 +710,48 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland development simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_wayland.sh",
-			"args": [
-				"development",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland release
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows development
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"label": "generate X11 development simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
 				"development",
 				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"native",
+				"native",
 				"static"
 			],
 			"options": {
@@ -1000,6 +779,54 @@
 		},
 		{
 			"type": "cppbuild",
+			"label": "generate Windows development simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
+			"args": [
+				"development",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
 			"label": "generate Windows development simple static WGL example makefile",
 			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
 			"args": [
@@ -1014,15 +841,13 @@
 				"kind": "build"
 			}
 		},
-		// Windows release
 		{
 			"type": "cppbuild",
-			"label": "generate Windows release simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"label": "generate Windows development simple static WGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
 			"args": [
-				"release",
-				"software",
-				"static"
+				"development",
+				"wgl"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -1033,11 +858,11 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Windows release simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"label": "generate X11 development simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"release",
-				"egl",
+				"development",
+				"glx",
 				"static"
 			],
 			"options": {
@@ -1047,60 +872,8 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release simple static WGL example makefile",
-			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
-			"args": [
-				"release",
-				"wgl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS development
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release
+		// ## release
+		// ### software
 		{
 			"type": "cppbuild",
 			"label": "generate macOS release simple static software example makefile",
@@ -1121,99 +894,6 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS release simple static EGL globox makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS development (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development simple static software example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development simple static EGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release (native toolchain)
-		{
-			"type": "cppbuild",
 			"label": "generate macOS release simple static software example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
@@ -1221,6 +901,88 @@
 				"software",
 				"native",
 				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release simple static EGL globox makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"osxcross",
+				"osxcross",
 				"static"
 			],
 			"options": {
@@ -1248,16 +1010,197 @@
 				"kind": "build"
 			}
 		},
-		// macOS sanitized (native toolchain)
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static WGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"wgl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple static WGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
 		{
 			"type": "cppbuild",
 			"label": "generate macOS sanitized simple static software example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"software",
 				"native",
 				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"osxcross",
+				"osxcross",
 				"static"
 			],
 			"options": {
@@ -1272,7 +1215,7 @@
 			"label": "generate macOS sanitized simple static EGL example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"egl",
 				"native",
 				"native",
@@ -1285,126 +1228,10 @@
 				"kind": "build"
 			}
 		},
-		// complex example
-		// X11 development
 		{
 			"type": "cppbuild",
-			"label": "generate X11 development complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 development complex static GLX example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"development",
-				"glx",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 release
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 release complex static GLX example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"release",
-				"glx",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// X11 sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
-			"args": [
-				"sanitized",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
+			"label": "generate Wayland sanitized simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
 				"sanitized",
 				"egl",
@@ -1419,8 +1246,25 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static GLX example makefile",
-			"command": "./make/example/complex/gen/gen_x11.sh",
+			"label": "generate X11 sanitized simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
 				"sanitized",
 				"glx",
@@ -1433,7 +1277,61 @@
 				"kind": "build"
 			}
 		},
-		// Windows development (native toolchain)
+		// # complex example (static)
+		// ## development
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex static software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
 		{
 			"type": "cppbuild",
 			"label": "generate Windows development complex static software example makefile (native toolchain)",
@@ -1449,83 +1347,6 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development complex static EGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development complex static WGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
-			"args": [
-				"development",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows release (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release complex static software example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"software"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release complex static EGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"egl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release complex static WGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
-			"args": [
-				"release",
-				"wgl"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland development
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland development complex static software example makefile",
@@ -1544,94 +1365,48 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland development complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_wayland.sh",
-			"args": [
-				"development",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland release
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland release complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_wayland.sh",
-			"args": [
-				"release",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Wayland sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"software",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_wayland.sh",
-			"args": [
-				"sanitized",
-				"egl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// Windows development
-		{
-			"type": "cppbuild",
-			"label": "generate Windows development complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"label": "generate X11 development complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
 				"development",
 				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"native",
+				"native",
 				"static"
 			],
 			"options": {
@@ -1659,6 +1434,54 @@
 		},
 		{
 			"type": "cppbuild",
+			"label": "generate Windows development complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
+			"args": [
+				"development",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
 			"label": "generate Windows development complex static WGL example makefile",
 			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
 			"args": [
@@ -1673,15 +1496,13 @@
 				"kind": "build"
 			}
 		},
-		// Windows release
 		{
 			"type": "cppbuild",
-			"label": "generate Windows release complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"label": "generate Windows development complex static WGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
 			"args": [
-				"release",
-				"software",
-				"static"
+				"development",
+				"wgl"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -1692,11 +1513,11 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Windows release complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"label": "generate X11 development complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"release",
-				"egl",
+				"development",
+				"glx",
 				"static"
 			],
 			"options": {
@@ -1706,60 +1527,8 @@
 				"kind": "build"
 			}
 		},
-		{
-			"type": "cppbuild",
-			"label": "generate Windows release complex static WGL example makefile",
-			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
-			"args": [
-				"release",
-				"wgl",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS development
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release
+		// ## release
+		// ### software
 		{
 			"type": "cppbuild",
 			"label": "generate macOS release complex static software example makefile",
@@ -1780,99 +1549,6 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS release complex static EGL globox makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS sanitized
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS development (native toolchain)
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development complex static software example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"software",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS development complex static EGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"release",
-				"egl",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		// macOS release (native toolchain)
-		{
-			"type": "cppbuild",
 			"label": "generate macOS release complex static software example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
@@ -1880,6 +1556,88 @@
 				"software",
 				"native",
 				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release complex static EGL globox makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"osxcross",
+				"osxcross",
 				"static"
 			],
 			"options": {
@@ -1907,13 +1665,143 @@
 				"kind": "build"
 			}
 		},
-		// macOS sanitized (native toolchain)
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static WGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"wgl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex static WGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_windows_msvc.sh",
+			"args": [
+				"release",
+				"wgl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
 		{
 			"type": "cppbuild",
 			"label": "generate macOS sanitized complex static software example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"software",
 				"native",
 				"native",
@@ -1928,10 +1816,61 @@
 		},
 		{
 			"type": "cppbuild",
+			"label": "generate Wayland sanitized complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
 			"label": "generate macOS sanitized complex static EGL example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"release",
+				"sanitized",
 				"egl",
 				"native",
 				"native",
@@ -1944,7 +1883,1186 @@
 				"kind": "build"
 			}
 		},
-		// utils
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// # simple example (shared)
+		// ## development
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development simple shared WGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"wgl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## release
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release simple shared EGL globox makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release simple shared WGL example makefile",
+			"command": "./make/example/simple/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"wgl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// # complex example (shared)
+		// ## development
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS development complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"development",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland development complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows development complex shared WGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"development",
+				"wgl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 development complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"development",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## release
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release complex shared EGL globox makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS release complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"release",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland release complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate Windows release complex shared WGL example makefile",
+			"command": "./make/example/complex/gen/gen_windows_mingw.sh",
+			"args": [
+				"release",
+				"wgl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 release complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"release",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// # utils
 		{
 			"type": "cppbuild",
 			"label": "clean compiled objects",
@@ -2077,7 +3195,7 @@
 				"kind": "build"
 			}
 		},
-		// aliases symlinks
+		// # symlinks
 		{
 			"type": "cppbuild",
 			"label": "symlink default makefile to macOS software library",
