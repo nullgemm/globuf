@@ -1,117 +1,8 @@
 {
 	"version": "0.2.0",
 	"configurations": [
-		// complex example
-		// software
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run macOS software complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_macos_software"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run macOS software complex globox example (native toolchain)",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_macos_software_native"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows software complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_software"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows software complex globox example (native toolchain)",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_software_native"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Wayland software complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_wayland_software"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run X11 software complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_x11_software"
-		},
-		// EGL
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run macOS EGL complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_macos_egl"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run macOS EGL complex globox example (native toolchain)",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_macos_egl_native"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows EGL complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_egl"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows EGL complex globox example (native toolchain)",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_egl_native"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Wayland EGL complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_wayland_egl"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run X11 EGL complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_x11_egl"
-		},
-		// platform-specific loader
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows WGL complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_wgl"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run Windows WGL complex globox example (native toolchain)",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_windows_wgl_native"
-		},
-		{
-			"type": "cppdbg",
-			"request": "launch",
-			"name": "run X11 GLX complex globox example",
-			"cwd": "${workspaceFolder}/bin",
-			"program": "${workspaceFolder}/bin/globox_example_complex_x11_glx"
-		},
-		// simple example
-		// software
+		// # simple example
+		// ## software
 		{
 			"type": "cppdbg",
 			"request": "launch",
@@ -154,7 +45,7 @@
 			"cwd": "${workspaceFolder}/bin",
 			"program": "${workspaceFolder}/bin/globox_example_simple_x11_software"
 		},
-		// EGL
+		// ## EGL
 		{
 			"type": "cppdbg",
 			"request": "launch",
@@ -197,7 +88,7 @@
 			"cwd": "${workspaceFolder}/bin",
 			"program": "${workspaceFolder}/bin/globox_example_simple_x11_egl"
 		},
-		// platform-specific loader
+		// ## platform-specific loader
 		{
 			"type": "cppdbg",
 			"request": "launch",
@@ -218,6 +109,115 @@
 			"name": "run X11 GLX simple globox example",
 			"cwd": "${workspaceFolder}/bin",
 			"program": "${workspaceFolder}/bin/globox_example_simple_x11_glx"
+		},
+		// # complex example
+		// ## software
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run macOS software complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_macos_software"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run macOS software complex globox example (native toolchain)",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_macos_software_native"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows software complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_software"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows software complex globox example (native toolchain)",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_software_native"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Wayland software complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_wayland_software"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run X11 software complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_x11_software"
+		},
+		// ## EGL
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run macOS EGL complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_macos_egl"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run macOS EGL complex globox example (native toolchain)",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_macos_egl_native"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows EGL complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_egl"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows EGL complex globox example (native toolchain)",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_egl_native"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Wayland EGL complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_wayland_egl"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run X11 EGL complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_x11_egl"
+		},
+		// ## platform-specific loader
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows WGL complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_wgl"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run Windows WGL complex globox example (native toolchain)",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_windows_wgl_native"
+		},
+		{
+			"type": "cppdbg",
+			"request": "launch",
+			"name": "run X11 GLX complex globox example",
+			"cwd": "${workspaceFolder}/bin",
+			"program": "${workspaceFolder}/bin/globox_example_complex_x11_glx"
 		}
 	]
 }
