@@ -1,3 +1,42 @@
+# utils
+angle_dev_get:
+	make/scripts/angle_dev_get.sh
+
+angle_dev_make:
+	make/scripts/angle_dev_make.sh
+
+angle_master_get:
+	make/scripts/angle_master_get.sh
+
+clean:
+	make/scripts/clean.sh
+
+clean_makefiles:
+	make/scripts/clean_makefiles.sh
+
+egl_get:
+	make/scripts/egl_get.sh
+
+eglproxy_get:
+	make/scripts/eglproxy_get.sh
+
+objconv_make:
+	make/scripts/objconv_make.sh
+
+pixmap_bin:
+	make/scripts/pixmap_bin.sh
+
+release_headers:
+	make/scripts/release_headers.sh
+
+release_zip:
+	make/scripts/release_zip.sh
+
+wayland_get:
+	make/scripts/wayland_get.sh
+
+
+
 # aliases
 ## symlinked makefile
 default:
@@ -8,6 +47,7 @@ run:
 
 leak:
 	$(MAKE) -f make/output/makefile leak
+
 
 ## symlink the makefiles
 alias_lib_macos_software:
@@ -1515,42 +1555,3 @@ make/output/makefile_example_complex_x11_glx
 	$(MAKE) -f make/output/makefile_lib_x11_glx
 	$(MAKE) -f make/output/makefile_lib_x11_glx headers
 	$(MAKE) -f make/output/makefile_example_complex_x11_glx leak
-
-
-
-# utils
-clean:
-	make/scripts/clean.sh
-
-clean_makefiles:
-	make/scripts/clean_makefiles.sh
-
-angle_dev_get:
-	make/scripts/angle_dev_get.sh
-
-angle_dev_make:
-	make/scripts/angle_dev_make.sh
-
-angle_master_get:
-	make/scripts/angle_master_get.sh
-
-egl_get:
-	make/scripts/egl_get.sh
-
-eglproxy_get:
-	make/scripts/eglproxy_get.sh
-
-objconv_make:
-	make/scripts/objconv_make.sh
-
-pixmap_bin:
-	make/scripts/pixmap_bin.sh
-
-release_headers:
-	make/scripts/release_headers.sh
-
-release_zip:
-	make/scripts/release_zip.sh
-
-wayland_get:
-	make/scripts/wayland_get.sh
