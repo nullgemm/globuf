@@ -118,6 +118,7 @@ exit 1
 esac
 
 # add the libraries as default targets
+name+="_mingw"
 default+=("$folder/$name.dll")
 default+=("$folder/$name.a")
 

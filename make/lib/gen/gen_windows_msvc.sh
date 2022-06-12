@@ -176,6 +176,7 @@ exit 1
 esac
 
 # add the libraries as default targets
+name+="_msvc"
 default+=("$folder/$name.lib")
 
 # makefile start
