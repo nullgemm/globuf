@@ -4,12 +4,5 @@
 			"name": "Default",
 			"makeArgs": []
 		}
-	],
-	"makefile.launchConfigurations": [
-		{
-			"cwd": "/home/nullgemm/downloads/globox/bin",
-			"binaryPath": "/home/nullgemm/downloads/globox/bin/globox_example_complex_x11_glx",
-			"binaryArgs": []
-		}
 	]
 }
