@@ -146,151 +146,53 @@ alias_example_complex_x11_glx:
 	mkdir -p make/output
 	make/scripts/makefile_ln.sh makefile_example_complex_x11_glx
 
-## release library aliases
-release_makefile_lib_macos_software: \
-make/output/makefile_lib_macos_software
-release_makefile_lib_macos_software_native: \
-make/output/makefile_lib_macos_software_native
-release_makefile_lib_windows_software: \
-make/output/makefile_lib_windows_software
-release_makefile_lib_windows_software_native: \
-make/output/makefile_lib_windows_software_native
-release_makefile_lib_wayland_software: \
-make/output/makefile_lib_wayland_software
-release_makefile_lib_x11_software: \
-make/output/makefile_lib_x11_software
-release_makefile_lib_macos_egl: \
-make/output/makefile_lib_macos_egl
-release_makefile_lib_macos_egl_native: \
-make/output/makefile_lib_macos_egl_native
-release_makefile_lib_windows_egl: \
-make/output/makefile_lib_windows_egl
-release_makefile_lib_windows_egl_native: \
-make/output/makefile_lib_windows_egl_native
-release_makefile_lib_wayland_egl: \
-make/output/makefile_lib_wayland_egl
-release_makefile_lib_x11_egl: \
-make/output/makefile_lib_x11_egl
-release_makefile_lib_windows_wgl: \
-make/output/makefile_lib_windows_wgl
-release_makefile_lib_windows_wgl_native: \
-make/output/makefile_lib_windows_wgl_native
-release_makefile_lib_x11_glx: \
-make/output/makefile_lib_x11_glx
-
-
-## release simple example aliases (static)
-release_makefile_example_simple_macos_software_static: \
-make/output/makefile_example_simple_macos_software
-release_makefile_example_simple_macos_software_native_static: \
-make/output/makefile_example_simple_macos_software_native
-release_makefile_example_simple_windows_software_static: \
-make/output/makefile_example_simple_windows_software
-release_makefile_example_simple_windows_software_native_static: \
-make/output/makefile_example_simple_windows_software_native
-release_makefile_example_simple_wayland_software_static: \
-make/output/makefile_example_simple_wayland_software
-release_makefile_example_simple_x11_software_static: \
-make/output/makefile_example_simple_x11_software
-release_makefile_example_simple_macos_egl_static: \
-make/output/makefile_example_simple_macos_egl
-release_makefile_example_simple_macos_egl_native_static: \
-make/output/makefile_example_simple_macos_egl_native
-release_makefile_example_simple_windows_egl_static: \
-make/output/makefile_example_simple_windows_egl
-release_makefile_example_simple_windows_egl_native_static: \
-make/output/makefile_example_simple_windows_egl_native
-release_makefile_example_simple_wayland_egl_static: \
-make/output/makefile_example_simple_wayland_egl
-release_makefile_example_simple_x11_egl_static: \
-make/output/makefile_example_simple_x11_egl
-release_makefile_example_simple_windows_wgl_static: \
-make/output/makefile_example_simple_windows_wgl
-release_makefile_example_simple_windows_wgl_native_static: \
-make/output/makefile_example_simple_windows_wgl_native
-release_makefile_example_simple_x11_glx_static: \
-make/output/makefile_example_simple_x11_glx
-
-
-## release complex example aliases (static)
-release_makefile_example_complex_macos_software_static: \
-make/output/makefile_example_complex_macos_software
-release_makefile_example_complex_macos_software_native_static: \
-make/output/makefile_example_complex_macos_software_native
-release_makefile_example_complex_windows_software_static: \
-make/output/makefile_example_complex_windows_software
-release_makefile_example_complex_windows_software_native_static: \
-make/output/makefile_example_complex_windows_software_native
-release_makefile_example_complex_wayland_software_static: \
-make/output/makefile_example_complex_wayland_software
-release_makefile_example_complex_x11_software_static: \
-make/output/makefile_example_complex_x11_software
-release_makefile_example_complex_macos_egl_static: \
-make/output/makefile_example_complex_macos_egl
-release_makefile_example_complex_macos_egl_native_static: \
-make/output/makefile_example_complex_macos_egl_native
-release_makefile_example_complex_windows_egl_static: \
-make/output/makefile_example_complex_windows_egl
-release_makefile_example_complex_windows_egl_native_static: \
-make/output/makefile_example_complex_windows_egl_native
-release_makefile_example_complex_wayland_egl_static: \
-make/output/makefile_example_complex_wayland_egl
-release_makefile_example_complex_x11_egl_static: \
-make/output/makefile_example_complex_x11_egl
-release_makefile_example_complex_windows_wgl_static: \
-make/output/makefile_example_complex_windows_wgl
-release_makefile_example_complex_windows_wgl_native_static: \
-make/output/makefile_example_complex_windows_wgl_native
-release_makefile_example_complex_x11_glx_static: \
-make/output/makefile_example_complex_x11_glx
-
 
 
 # library makefiles targets
 ## named & regular makefile targets for release library builds
-make/output/makefile_lib_macos_software:
+release_makefile_lib_macos_software:
 	make/lib/gen/gen_macos.sh release software osxcross osxcross
 
-make/output/makefile_lib_macos_software_native:
+release_makefile_lib_macos_software_native:
 	make/lib/gen/gen_macos.sh release software native native
 
-make/output/makefile_lib_windows_software:
+release_makefile_lib_windows_software:
 	make/lib/gen/gen_windows_mingw.sh release software
 
-make/output/makefile_lib_windows_software_native:
+release_makefile_lib_windows_software_native:
 	make/lib/gen/gen_windows_msvc.sh release software
 
-make/output/makefile_lib_wayland_software:
+release_makefile_lib_wayland_software:
 	make/lib/gen/gen_wayland.sh release software
 
-make/output/makefile_lib_x11_software:
+release_makefile_lib_x11_software:
 	make/lib/gen/gen_x11.sh release software
 
-make/output/makefile_lib_macos_egl:
+release_makefile_lib_macos_egl:
 	make/lib/gen/gen_macos.sh release egl osxcross osxcross
 
-make/output/makefile_lib_macos_egl_native:
+release_makefile_lib_macos_egl_native:
 	make/lib/gen/gen_macos.sh release egl native native
 
-make/output/makefile_lib_windows_egl:
+release_makefile_lib_windows_egl:
 	make/lib/gen/gen_windows_mingw.sh release egl
 
-make/output/makefile_lib_windows_egl_native:
+release_makefile_lib_windows_egl_native:
 	make/lib/gen/gen_windows_msvc.sh release egl
 
-make/output/makefile_lib_wayland_egl:
+release_makefile_lib_wayland_egl:
 	make/lib/gen/gen_wayland.sh release egl
 
-make/output/makefile_lib_x11_egl:
+release_makefile_lib_x11_egl:
 	make/lib/gen/gen_x11.sh release egl
 
-make/output/makefile_lib_windows_wgl:
+release_makefile_lib_windows_wgl:
 	make/lib/gen/gen_windows_mingw.sh release wgl
 
-make/output/makefile_lib_windows_wgl_native:
+release_makefile_lib_windows_wgl_native:
 	make/lib/gen/gen_windows_msvc.sh release wgl
 
-make/output/makefile_lib_x11_glx:
+release_makefile_lib_x11_glx:
 	make/lib/gen/gen_x11.sh release glx
 
 
@@ -373,49 +275,49 @@ sanitized_makefile_lib_x11_glx:
 
 # simple example makefiles targets (static)
 ## named & regular makefile targets for release simple example builds (static)
-make/output/makefile_example_simple_macos_software:
+release_makefile_example_simple_macos_software_static:
 	make/example/simple/gen/gen_macos.sh release software osxcross osxcross static
 
-make/output/makefile_example_simple_macos_software_native:
+release_makefile_example_simple_macos_software_native_static:
 	make/example/simple/gen/gen_macos.sh release software native native static
 
-make/output/makefile_example_simple_windows_software:
+release_makefile_example_simple_windows_software_static:
 	make/example/simple/gen/gen_windows_mingw.sh release software static
 
-make/output/makefile_example_simple_windows_software_native:
+release_makefile_example_simple_windows_software_native_static:
 	make/example/simple/gen/gen_windows_msvc.sh release software
 
-make/output/makefile_example_simple_wayland_software:
+release_makefile_example_simple_wayland_software_static:
 	make/example/simple/gen/gen_wayland.sh release software static
 
-make/output/makefile_example_simple_x11_software:
+release_makefile_example_simple_x11_software_static:
 	make/example/simple/gen/gen_x11.sh release software static
 
-make/output/makefile_example_simple_macos_egl:
+release_makefile_example_simple_macos_egl_static:
 	make/example/simple/gen/gen_macos.sh release egl osxcross osxcross static
 
-make/output/makefile_example_simple_macos_egl_native:
+release_makefile_example_simple_macos_egl_native_static:
 	make/example/simple/gen/gen_macos.sh release egl native native static
 
-make/output/makefile_example_simple_windows_egl:
+release_makefile_example_simple_windows_egl_static:
 	make/example/simple/gen/gen_windows_mingw.sh release egl static
 
-make/output/makefile_example_simple_windows_egl_native:
+release_makefile_example_simple_windows_egl_native_static:
 	make/example/simple/gen/gen_windows_msvc.sh release egl
 
-make/output/makefile_example_simple_wayland_egl:
+release_makefile_example_simple_wayland_egl_static:
 	make/example/simple/gen/gen_wayland.sh release egl static
 
-make/output/makefile_example_simple_x11_egl:
+release_makefile_example_simple_x11_egl_static:
 	make/example/simple/gen/gen_x11.sh release egl static
 
-make/output/makefile_example_simple_windows_wgl:
+release_makefile_example_simple_windows_wgl_static:
 	make/example/simple/gen/gen_windows_mingw.sh release wgl static
 
-make/output/makefile_example_simple_windows_wgl_native:
+release_makefile_example_simple_windows_wgl_native_static:
 	make/example/simple/gen/gen_windows_msvc.sh release wgl
 
-make/output/makefile_example_simple_x11_glx:
+release_makefile_example_simple_x11_glx_static:
 	make/example/simple/gen/gen_x11.sh release glx static
 
 
@@ -498,49 +400,49 @@ sanitized_makefile_example_simple_x11_glx_static:
 
 # simple example makefiles targets (shared)
 ## named & regular makefile targets for release simple example builds (shared)
-make/output/makefile_example_simple_macos_software_shared:
+release_makefile_example_simple_macos_software_shared:
 	make/example/simple/gen/gen_macos.sh release software osxcross osxcross shared
 
-make/output/makefile_example_simple_macos_software_native_shared:
+release_makefile_example_simple_macos_software_native_shared:
 	make/example/simple/gen/gen_macos.sh release software native native shared
 
-make/output/makefile_example_simple_windows_software_shared:
+release_makefile_example_simple_windows_software_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release software shared
 
-make/output/makefile_example_simple_windows_software_native_shared:
+release_makefile_example_simple_windows_software_native_shared:
 	make/example/simple/gen/gen_windows_msvc.sh release software
 
-make/output/makefile_example_simple_wayland_software_shared:
+release_makefile_example_simple_wayland_software_shared:
 	make/example/simple/gen/gen_wayland.sh release software shared
 
-make/output/makefile_example_simple_x11_software_shared:
+release_makefile_example_simple_x11_software_shared:
 	make/example/simple/gen/gen_x11.sh release software shared
 
-make/output/makefile_example_simple_macos_egl_shared:
+release_makefile_example_simple_macos_egl_shared:
 	make/example/simple/gen/gen_macos.sh release egl osxcross osxcross shared
 
-make/output/makefile_example_simple_macos_egl_native_shared:
+release_makefile_example_simple_macos_egl_native_shared:
 	make/example/simple/gen/gen_macos.sh release egl native native shared
 
-make/output/makefile_example_simple_windows_egl_shared:
+release_makefile_example_simple_windows_egl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release egl shared
 
-make/output/makefile_example_simple_windows_egl_native_shared:
+release_makefile_example_simple_windows_egl_native_shared:
 	make/example/simple/gen/gen_windows_msvc.sh release egl
 
-make/output/makefile_example_simple_wayland_egl_shared:
+release_makefile_example_simple_wayland_egl_shared:
 	make/example/simple/gen/gen_wayland.sh release egl shared
 
-make/output/makefile_example_simple_x11_egl_shared:
+release_makefile_example_simple_x11_egl_shared:
 	make/example/simple/gen/gen_x11.sh release egl shared
 
-make/output/makefile_example_simple_windows_wgl_shared:
+release_makefile_example_simple_windows_wgl_shared:
 	make/example/simple/gen/gen_windows_mingw.sh release wgl shared
 
-make/output/makefile_example_simple_windows_wgl_native_shared:
+release_makefile_example_simple_windows_wgl_native_shared:
 	make/example/simple/gen/gen_windows_msvc.sh release wgl
 
-make/output/makefile_example_simple_x11_glx_shared:
+release_makefile_example_simple_x11_glx_shared:
 	make/example/simple/gen/gen_x11.sh release glx shared
 
 
@@ -623,49 +525,49 @@ sanitized_makefile_example_simple_x11_glx_shared:
 
 # complex example makefiles targets (static)
 ## named & regular makefile targets for release complex example builds (static)
-make/output/makefile_example_complex_macos_software:
+release_makefile_example_complex_macos_software_static:
 	make/example/complex/gen/gen_macos.sh release software osxcross osxcross static
 
-make/output/makefile_example_complex_macos_software_native:
+release_makefile_example_complex_macos_software_native_static:
 	make/example/complex/gen/gen_macos.sh release software native native static
 
-make/output/makefile_example_complex_windows_software:
+release_makefile_example_complex_windows_software_static:
 	make/example/complex/gen/gen_windows_mingw.sh release software static
 
-make/output/makefile_example_complex_windows_software_native:
+release_makefile_example_complex_windows_software_native_static:
 	make/example/complex/gen/gen_windows_msvc.sh release software
 
-make/output/makefile_example_complex_wayland_software:
+release_makefile_example_complex_wayland_software_static:
 	make/example/complex/gen/gen_wayland.sh release software static
 
-make/output/makefile_example_complex_x11_software:
+release_makefile_example_complex_x11_software_static:
 	make/example/complex/gen/gen_x11.sh release software static
 
-make/output/makefile_example_complex_macos_egl:
+release_makefile_example_complex_macos_egl_static:
 	make/example/complex/gen/gen_macos.sh release egl osxcross osxcross static
 
-make/output/makefile_example_complex_macos_egl_native:
+release_makefile_example_complex_macos_egl_native_static:
 	make/example/complex/gen/gen_macos.sh release egl native native static
 
-make/output/makefile_example_complex_windows_egl:
+release_makefile_example_complex_windows_egl_static:
 	make/example/complex/gen/gen_windows_mingw.sh release egl static
 
-make/output/makefile_example_complex_windows_egl_native:
+release_makefile_example_complex_windows_egl_native_static:
 	make/example/complex/gen/gen_windows_msvc.sh release egl
 
-make/output/makefile_example_complex_wayland_egl:
+release_makefile_example_complex_wayland_egl_static:
 	make/example/complex/gen/gen_wayland.sh release egl static
 
-make/output/makefile_example_complex_x11_egl:
+release_makefile_example_complex_x11_egl_static:
 	make/example/complex/gen/gen_x11.sh release egl static
 
-make/output/makefile_example_complex_windows_wgl:
+release_makefile_example_complex_windows_wgl_static:
 	make/example/complex/gen/gen_windows_mingw.sh release wgl static
 
-make/output/makefile_example_complex_windows_wgl_native:
+release_makefile_example_complex_windows_wgl_native_static:
 	make/example/complex/gen/gen_windows_msvc.sh release wgl
 
-make/output/makefile_example_complex_x11_glx:
+release_makefile_example_complex_x11_glx_static:
 	make/example/complex/gen/gen_x11.sh release glx static
 
 
@@ -748,49 +650,49 @@ sanitized_makefile_example_complex_x11_glx_static:
 
 # complex example makefiles targets (shared)
 ## named & regular makefile targets for release complex example builds (shared)
-make/output/makefile_example_complex_macos_software_shared:
+release_makefile_example_complex_macos_software_shared:
 	make/example/complex/gen/gen_macos.sh release software osxcross osxcross shared
 
-make/output/makefile_example_complex_macos_software_native_shared:
+release_makefile_example_complex_macos_software_native_shared:
 	make/example/complex/gen/gen_macos.sh release software native native shared
 
-make/output/makefile_example_complex_windows_software_shared:
+release_makefile_example_complex_windows_software_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release software shared
 
-make/output/makefile_example_complex_windows_software_native_shared:
+release_makefile_example_complex_windows_software_native_shared:
 	make/example/complex/gen/gen_windows_msvc.sh release software
 
-make/output/makefile_example_complex_wayland_software_shared:
+release_makefile_example_complex_wayland_software_shared:
 	make/example/complex/gen/gen_wayland.sh release software shared
 
-make/output/makefile_example_complex_x11_software_shared:
+release_makefile_example_complex_x11_software_shared:
 	make/example/complex/gen/gen_x11.sh release software shared
 
-make/output/makefile_example_complex_macos_egl_shared:
+release_makefile_example_complex_macos_egl_shared:
 	make/example/complex/gen/gen_macos.sh release egl osxcross osxcross shared
 
-make/output/makefile_example_complex_macos_egl_native_shared:
+release_makefile_example_complex_macos_egl_native_shared:
 	make/example/complex/gen/gen_macos.sh release egl native native shared
 
-make/output/makefile_example_complex_windows_egl_shared:
+release_makefile_example_complex_windows_egl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release egl shared
 
-make/output/makefile_example_complex_windows_egl_native_shared:
+release_makefile_example_complex_windows_egl_native_shared:
 	make/example/complex/gen/gen_windows_msvc.sh release egl
 
-make/output/makefile_example_complex_wayland_egl_shared:
+release_makefile_example_complex_wayland_egl_shared:
 	make/example/complex/gen/gen_wayland.sh release egl shared
 
-make/output/makefile_example_complex_x11_egl_shared:
+release_makefile_example_complex_x11_egl_shared:
 	make/example/complex/gen/gen_x11.sh release egl shared
 
-make/output/makefile_example_complex_windows_wgl_shared:
+release_makefile_example_complex_windows_wgl_shared:
 	make/example/complex/gen/gen_windows_mingw.sh release wgl shared
 
-make/output/makefile_example_complex_windows_wgl_native_shared:
+release_makefile_example_complex_windows_wgl_native_shared:
 	make/example/complex/gen/gen_windows_msvc.sh release wgl
 
-make/output/makefile_example_complex_x11_glx_shared:
+release_makefile_example_complex_x11_glx_shared:
 	make/example/complex/gen/gen_x11.sh release glx shared
 
 
