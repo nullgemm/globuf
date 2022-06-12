@@ -4,49 +4,5 @@
             "name": "Default",
             "makeArgs": []
         }
-    ],
-    "makefile.launchConfigurations": [
-        {
-            "name": "run X11 software complex globox example",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_software",
-            "binaryArgs": []
-		},
-        {
-            "name": "run X11 EGL complex globox example",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_egl",
-            "binaryArgs": []
-		},
-        {
-            "name": "run X11 GLX complex globox example",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_x11_glx",
-            "binaryArgs": []
-		},
-        {
-            "name": "run Windows software complex globox example (native toolchain)",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_software_native",
-            "binaryArgs": []
-		},
-        {
-            "name": "run Windows EGL complex globox example (native toolchain)",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_egl_native",
-            "binaryArgs": []
-		},
-        {
-            "name": "run Windows WGL complex globox example (native toolchain)",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_windows_wgl_native",
-            "binaryArgs": []
-		},
-        {
-            "name": "run Wayland software complex globox example",
-            "cwd": "${workspaceFolder}/bin",
-            "binaryPath": "${workspaceFolder}/bin/globox_example_complex_wayland_software",
-            "binaryArgs": []
-		}
     ]
 }
