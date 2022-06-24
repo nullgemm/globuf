@@ -2,6 +2,7 @@ bin
 inc
 *.o
 *.obj
+make/output
 makefile_*
 globox_bin_v*
 res/angle

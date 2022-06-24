@@ -284,32 +284,86 @@ makefile_development_lib_x11_glx:
 
 
 ## named makefile targets for sanitized library builds
-makefile_sanitized_lib_macos_software:
-	make/lib/gen/gen_macos.sh sanitized software osxcross osxcross
+makefile_sanitized_memory_undefined_lib_macos_software:
+	make/lib/gen/gen_macos.sh sanitized_memory_undefined software osxcross osxcross
 
-makefile_sanitized_lib_macos_software_native:
-	make/lib/gen/gen_macos.sh sanitized software native native
+makefile_sanitized_memory_undefined_lib_macos_software_native:
+	make/lib/gen/gen_macos.sh sanitized_memory_undefined software native native
 
-makefile_sanitized_lib_wayland_software:
-	make/lib/gen/gen_wayland.sh sanitized software
+makefile_sanitized_memory_undefined_lib_wayland_software:
+	make/lib/gen/gen_wayland.sh sanitized_memory_undefined software
 
-makefile_sanitized_lib_x11_software:
-	make/lib/gen/gen_x11.sh sanitized software
+makefile_sanitized_memory_undefined_lib_x11_software:
+	make/lib/gen/gen_x11.sh sanitized_memory_undefined software
 
-makefile_sanitized_lib_macos_egl:
-	make/lib/gen/gen_macos.sh sanitized egl osxcross osxcross
+makefile_sanitized_memory_undefined_lib_macos_egl:
+	make/lib/gen/gen_macos.sh sanitized_memory_undefined egl osxcross osxcross
 
-makefile_sanitized_lib_macos_egl_native:
-	make/lib/gen/gen_macos.sh sanitized egl native native
+makefile_sanitized_memory_undefined_lib_macos_egl_native:
+	make/lib/gen/gen_macos.sh sanitized_memory_undefined egl native native
 
-makefile_sanitized_lib_wayland_egl:
-	make/lib/gen/gen_wayland.sh sanitized egl
+makefile_sanitized_memory_undefined_lib_wayland_egl:
+	make/lib/gen/gen_wayland.sh sanitized_memory_undefined egl
 
-makefile_sanitized_lib_x11_egl:
-	make/lib/gen/gen_x11.sh sanitized egl
+makefile_sanitized_memory_undefined_lib_x11_egl:
+	make/lib/gen/gen_x11.sh sanitized_memory_undefined egl
 
-makefile_sanitized_lib_x11_glx:
-	make/lib/gen/gen_x11.sh sanitized glx
+makefile_sanitized_memory_undefined_lib_x11_glx:
+	make/lib/gen/gen_x11.sh sanitized_memory_undefined glx
+
+makefile_sanitized_address_lib_macos_software:
+	make/lib/gen/gen_macos.sh sanitized_address software osxcross osxcross
+
+makefile_sanitized_address_lib_macos_software_native:
+	make/lib/gen/gen_macos.sh sanitized_address software native native
+
+makefile_sanitized_address_lib_wayland_software:
+	make/lib/gen/gen_wayland.sh sanitized_address software
+
+makefile_sanitized_address_lib_x11_software:
+	make/lib/gen/gen_x11.sh sanitized_address software
+
+makefile_sanitized_address_lib_macos_egl:
+	make/lib/gen/gen_macos.sh sanitized_address egl osxcross osxcross
+
+makefile_sanitized_address_lib_macos_egl_native:
+	make/lib/gen/gen_macos.sh sanitized_address egl native native
+
+makefile_sanitized_address_lib_wayland_egl:
+	make/lib/gen/gen_wayland.sh sanitized_address egl
+
+makefile_sanitized_address_lib_x11_egl:
+	make/lib/gen/gen_x11.sh sanitized_address egl
+
+makefile_sanitized_address_lib_x11_glx:
+	make/lib/gen/gen_x11.sh sanitized_address glx
+
+makefile_sanitized_thread_lib_macos_software:
+	make/lib/gen/gen_macos.sh sanitized_thread software osxcross osxcross
+
+makefile_sanitized_thread_lib_macos_software_native:
+	make/lib/gen/gen_macos.sh sanitized_thread software native native
+
+makefile_sanitized_thread_lib_wayland_software:
+	make/lib/gen/gen_wayland.sh sanitized_thread software
+
+makefile_sanitized_thread_lib_x11_software:
+	make/lib/gen/gen_x11.sh sanitized_thread software
+
+makefile_sanitized_thread_lib_macos_egl:
+	make/lib/gen/gen_macos.sh sanitized_thread egl osxcross osxcross
+
+makefile_sanitized_thread_lib_macos_egl_native:
+	make/lib/gen/gen_macos.sh sanitized_thread egl native native
+
+makefile_sanitized_thread_lib_wayland_egl:
+	make/lib/gen/gen_wayland.sh sanitized_thread egl
+
+makefile_sanitized_thread_lib_x11_egl:
+	make/lib/gen/gen_x11.sh sanitized_thread egl
+
+makefile_sanitized_thread_lib_x11_glx:
+	make/lib/gen/gen_x11.sh sanitized_thread glx
 
 
 
@@ -409,32 +463,86 @@ makefile_development_example_simple_x11_glx_static:
 
 
 ## named makefile targets for sanitized simple example builds (static)
-makefile_sanitized_example_simple_macos_software_static:
-	make/example/simple/gen/gen_macos.sh sanitized software osxcross osxcross static
+makefile_sanitized_memory_undefined_example_simple_macos_software_static:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined software osxcross osxcross static
 
-makefile_sanitized_example_simple_macos_software_native_static:
-	make/example/simple/gen/gen_macos.sh sanitized software native native static
+makefile_sanitized_memory_undefined_example_simple_macos_software_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined software native native static
 
-makefile_sanitized_example_simple_wayland_software_static:
-	make/example/simple/gen/gen_wayland.sh sanitized software static
+makefile_sanitized_memory_undefined_example_simple_wayland_software_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_memory_undefined software static
 
-makefile_sanitized_example_simple_x11_software_static:
-	make/example/simple/gen/gen_x11.sh sanitized software static
+makefile_sanitized_memory_undefined_example_simple_x11_software_static:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined software static
 
-makefile_sanitized_example_simple_macos_egl_static:
-	make/example/simple/gen/gen_macos.sh sanitized egl osxcross osxcross static
+makefile_sanitized_memory_undefined_example_simple_macos_egl_static:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined egl osxcross osxcross static
 
-makefile_sanitized_example_simple_macos_egl_native_static:
-	make/example/simple/gen/gen_macos.sh sanitized egl native native static
+makefile_sanitized_memory_undefined_example_simple_macos_egl_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined egl native native static
 
-makefile_sanitized_example_simple_wayland_egl_static:
-	make/example/simple/gen/gen_wayland.sh sanitized egl static
+makefile_sanitized_memory_undefined_example_simple_wayland_egl_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_memory_undefined egl static
 
-makefile_sanitized_example_simple_x11_egl_static:
-	make/example/simple/gen/gen_x11.sh sanitized egl static
+makefile_sanitized_memory_undefined_example_simple_x11_egl_static:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined egl static
 
-makefile_sanitized_example_simple_x11_glx_static:
-	make/example/simple/gen/gen_x11.sh sanitized glx static
+makefile_sanitized_memory_undefined_example_simple_x11_glx_static:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined glx static
+
+makefile_sanitized_address_example_simple_macos_software_static:
+	make/example/simple/gen/gen_macos.sh sanitized_address software osxcross osxcross static
+
+makefile_sanitized_address_example_simple_macos_software_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_address software native native static
+
+makefile_sanitized_address_example_simple_wayland_software_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_address software static
+
+makefile_sanitized_address_example_simple_x11_software_static:
+	make/example/simple/gen/gen_x11.sh sanitized_address software static
+
+makefile_sanitized_address_example_simple_macos_egl_static:
+	make/example/simple/gen/gen_macos.sh sanitized_address egl osxcross osxcross static
+
+makefile_sanitized_address_example_simple_macos_egl_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_address egl native native static
+
+makefile_sanitized_address_example_simple_wayland_egl_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_address egl static
+
+makefile_sanitized_address_example_simple_x11_egl_static:
+	make/example/simple/gen/gen_x11.sh sanitized_address egl static
+
+makefile_sanitized_address_example_simple_x11_glx_static:
+	make/example/simple/gen/gen_x11.sh sanitized_address glx static
+
+makefile_sanitized_thread_example_simple_macos_software_static:
+	make/example/simple/gen/gen_macos.sh sanitized_thread software osxcross osxcross static
+
+makefile_sanitized_thread_example_simple_macos_software_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_thread software native native static
+
+makefile_sanitized_thread_example_simple_wayland_software_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_thread software static
+
+makefile_sanitized_thread_example_simple_x11_software_static:
+	make/example/simple/gen/gen_x11.sh sanitized_thread software static
+
+makefile_sanitized_thread_example_simple_macos_egl_static:
+	make/example/simple/gen/gen_macos.sh sanitized_thread egl osxcross osxcross static
+
+makefile_sanitized_thread_example_simple_macos_egl_native_static:
+	make/example/simple/gen/gen_macos.sh sanitized_thread egl native native static
+
+makefile_sanitized_thread_example_simple_wayland_egl_static:
+	make/example/simple/gen/gen_wayland.sh sanitized_thread egl static
+
+makefile_sanitized_thread_example_simple_x11_egl_static:
+	make/example/simple/gen/gen_x11.sh sanitized_thread egl static
+
+makefile_sanitized_thread_example_simple_x11_glx_static:
+	make/example/simple/gen/gen_x11.sh sanitized_thread glx static
 
 
 
@@ -534,32 +642,86 @@ makefile_development_example_simple_x11_glx_shared:
 
 
 ## named makefile targets for sanitized simple example builds (shared)
-makefile_sanitized_example_simple_macos_software_shared:
-	make/example/simple/gen/gen_macos.sh sanitized software osxcross osxcross shared
+makefile_sanitized_memory_undefined_example_simple_macos_software_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined software osxcross osxcross shared
 
-makefile_sanitized_example_simple_macos_software_native_shared:
-	make/example/simple/gen/gen_macos.sh sanitized software native native shared
+makefile_sanitized_memory_undefined_example_simple_macos_software_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined software native native shared
 
-makefile_sanitized_example_simple_wayland_software_shared:
-	make/example/simple/gen/gen_wayland.sh sanitized software shared
+makefile_sanitized_memory_undefined_example_simple_wayland_software_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_memory_undefined software shared
 
-makefile_sanitized_example_simple_x11_software_shared:
-	make/example/simple/gen/gen_x11.sh sanitized software shared
+makefile_sanitized_memory_undefined_example_simple_x11_software_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined software shared
 
-makefile_sanitized_example_simple_macos_egl_shared:
-	make/example/simple/gen/gen_macos.sh sanitized egl osxcross osxcross shared
+makefile_sanitized_memory_undefined_example_simple_macos_egl_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined egl osxcross osxcross shared
 
-makefile_sanitized_example_simple_macos_egl_native_shared:
-	make/example/simple/gen/gen_macos.sh sanitized egl native native shared
+makefile_sanitized_memory_undefined_example_simple_macos_egl_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_memory_undefined egl native native shared
 
-makefile_sanitized_example_simple_wayland_egl_shared:
-	make/example/simple/gen/gen_wayland.sh sanitized egl shared
+makefile_sanitized_memory_undefined_example_simple_wayland_egl_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_memory_undefined egl shared
 
-makefile_sanitized_example_simple_x11_egl_shared:
-	make/example/simple/gen/gen_x11.sh sanitized egl shared
+makefile_sanitized_memory_undefined_example_simple_x11_egl_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined egl shared
 
-makefile_sanitized_example_simple_x11_glx_shared:
-	make/example/simple/gen/gen_x11.sh sanitized glx shared
+makefile_sanitized_memory_undefined_example_simple_x11_glx_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_memory_undefined glx shared
+
+makefile_sanitized_address_example_simple_macos_software_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_address software osxcross osxcross shared
+
+makefile_sanitized_address_example_simple_macos_software_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_address software native native shared
+
+makefile_sanitized_address_example_simple_wayland_software_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_address software shared
+
+makefile_sanitized_address_example_simple_x11_software_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_address software shared
+
+makefile_sanitized_address_example_simple_macos_egl_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_address egl osxcross osxcross shared
+
+makefile_sanitized_address_example_simple_macos_egl_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_address egl native native shared
+
+makefile_sanitized_address_example_simple_wayland_egl_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_address egl shared
+
+makefile_sanitized_address_example_simple_x11_egl_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_address egl shared
+
+makefile_sanitized_address_example_simple_x11_glx_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_address glx shared
+
+makefile_sanitized_thread_example_simple_macos_software_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_thread software osxcross osxcross shared
+
+makefile_sanitized_thread_example_simple_macos_software_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_thread software native native shared
+
+makefile_sanitized_thread_example_simple_wayland_software_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_thread software shared
+
+makefile_sanitized_thread_example_simple_x11_software_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_thread software shared
+
+makefile_sanitized_thread_example_simple_macos_egl_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_thread egl osxcross osxcross shared
+
+makefile_sanitized_thread_example_simple_macos_egl_native_shared:
+	make/example/simple/gen/gen_macos.sh sanitized_thread egl native native shared
+
+makefile_sanitized_thread_example_simple_wayland_egl_shared:
+	make/example/simple/gen/gen_wayland.sh sanitized_thread egl shared
+
+makefile_sanitized_thread_example_simple_x11_egl_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_thread egl shared
+
+makefile_sanitized_thread_example_simple_x11_glx_shared:
+	make/example/simple/gen/gen_x11.sh sanitized_thread glx shared
 
 
 
@@ -659,32 +821,86 @@ makefile_development_example_complex_x11_glx_static:
 
 
 ## named makefile targets for sanitized complex example builds (static)
-makefile_sanitized_example_complex_macos_software_static:
-	make/example/complex/gen/gen_macos.sh sanitized software osxcross osxcross static
+makefile_sanitized_memory_undefined_example_complex_macos_software_static:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined software osxcross osxcross static
 
-makefile_sanitized_example_complex_macos_software_native_static:
-	make/example/complex/gen/gen_macos.sh sanitized software native native static
+makefile_sanitized_memory_undefined_example_complex_macos_software_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined software native native static
 
-makefile_sanitized_example_complex_wayland_software_static:
-	make/example/complex/gen/gen_wayland.sh sanitized software static
+makefile_sanitized_memory_undefined_example_complex_wayland_software_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_memory_undefined software static
 
-makefile_sanitized_example_complex_x11_software_static:
-	make/example/complex/gen/gen_x11.sh sanitized software static
+makefile_sanitized_memory_undefined_example_complex_x11_software_static:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined software static
 
-makefile_sanitized_example_complex_macos_egl_static:
-	make/example/complex/gen/gen_macos.sh sanitized egl osxcross osxcross static
+makefile_sanitized_memory_undefined_example_complex_macos_egl_static:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined egl osxcross osxcross static
 
-makefile_sanitized_example_complex_macos_egl_native_static:
-	make/example/complex/gen/gen_macos.sh sanitized egl native native static
+makefile_sanitized_memory_undefined_example_complex_macos_egl_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined egl native native static
 
-makefile_sanitized_example_complex_wayland_egl_static:
-	make/example/complex/gen/gen_wayland.sh sanitized egl static
+makefile_sanitized_memory_undefined_example_complex_wayland_egl_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_memory_undefined egl static
 
-makefile_sanitized_example_complex_x11_egl_static:
-	make/example/complex/gen/gen_x11.sh sanitized egl static
+makefile_sanitized_memory_undefined_example_complex_x11_egl_static:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined egl static
 
-makefile_sanitized_example_complex_x11_glx_static:
-	make/example/complex/gen/gen_x11.sh sanitized glx static
+makefile_sanitized_memory_undefined_example_complex_x11_glx_static:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined glx static
+
+makefile_sanitized_address_example_complex_macos_software_static:
+	make/example/complex/gen/gen_macos.sh sanitized_address software osxcross osxcross static
+
+makefile_sanitized_address_example_complex_macos_software_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_address software native native static
+
+makefile_sanitized_address_example_complex_wayland_software_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_address software static
+
+makefile_sanitized_address_example_complex_x11_software_static:
+	make/example/complex/gen/gen_x11.sh sanitized_address software static
+
+makefile_sanitized_address_example_complex_macos_egl_static:
+	make/example/complex/gen/gen_macos.sh sanitized_address egl osxcross osxcross static
+
+makefile_sanitized_address_example_complex_macos_egl_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_address egl native native static
+
+makefile_sanitized_address_example_complex_wayland_egl_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_address egl static
+
+makefile_sanitized_address_example_complex_x11_egl_static:
+	make/example/complex/gen/gen_x11.sh sanitized_address egl static
+
+makefile_sanitized_address_example_complex_x11_glx_static:
+	make/example/complex/gen/gen_x11.sh sanitized_address glx static
+
+makefile_sanitized_thread_example_complex_macos_software_static:
+	make/example/complex/gen/gen_macos.sh sanitized_thread software osxcross osxcross static
+
+makefile_sanitized_thread_example_complex_macos_software_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_thread software native native static
+
+makefile_sanitized_thread_example_complex_wayland_software_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_thread software static
+
+makefile_sanitized_thread_example_complex_x11_software_static:
+	make/example/complex/gen/gen_x11.sh sanitized_thread software static
+
+makefile_sanitized_thread_example_complex_macos_egl_static:
+	make/example/complex/gen/gen_macos.sh sanitized_thread egl osxcross osxcross static
+
+makefile_sanitized_thread_example_complex_macos_egl_native_static:
+	make/example/complex/gen/gen_macos.sh sanitized_thread egl native native static
+
+makefile_sanitized_thread_example_complex_wayland_egl_static:
+	make/example/complex/gen/gen_wayland.sh sanitized_thread egl static
+
+makefile_sanitized_thread_example_complex_x11_egl_static:
+	make/example/complex/gen/gen_x11.sh sanitized_thread egl static
+
+makefile_sanitized_thread_example_complex_x11_glx_static:
+	make/example/complex/gen/gen_x11.sh sanitized_thread glx static
 
 
 
@@ -784,32 +1000,86 @@ makefile_development_example_complex_x11_glx_shared:
 
 
 ## named makefile targets for sanitized complex example builds (shared)
-makefile_sanitized_example_complex_macos_software_shared:
-	make/example/complex/gen/gen_macos.sh sanitized software osxcross osxcross shared
+makefile_sanitized_memory_undefined_example_complex_macos_software_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined software osxcross osxcross shared
 
-makefile_sanitized_example_complex_macos_software_native_shared:
-	make/example/complex/gen/gen_macos.sh sanitized software native native shared
+makefile_sanitized_memory_undefined_example_complex_macos_software_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined software native native shared
 
-makefile_sanitized_example_complex_wayland_software_shared:
-	make/example/complex/gen/gen_wayland.sh sanitized software shared
+makefile_sanitized_memory_undefined_example_complex_wayland_software_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_memory_undefined software shared
 
-makefile_sanitized_example_complex_x11_software_shared:
-	make/example/complex/gen/gen_x11.sh sanitized software shared
+makefile_sanitized_memory_undefined_example_complex_x11_software_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined software shared
 
-makefile_sanitized_example_complex_macos_egl_shared:
-	make/example/complex/gen/gen_macos.sh sanitized egl osxcross osxcross shared
+makefile_sanitized_memory_undefined_example_complex_macos_egl_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined egl osxcross osxcross shared
 
-makefile_sanitized_example_complex_macos_egl_native_shared:
-	make/example/complex/gen/gen_macos.sh sanitized egl native native shared
+makefile_sanitized_memory_undefined_example_complex_macos_egl_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_memory_undefined egl native native shared
 
-makefile_sanitized_example_complex_wayland_egl_shared:
-	make/example/complex/gen/gen_wayland.sh sanitized egl shared
+makefile_sanitized_memory_undefined_example_complex_wayland_egl_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_memory_undefined egl shared
 
-makefile_sanitized_example_complex_x11_egl_shared:
-	make/example/complex/gen/gen_x11.sh sanitized egl shared
+makefile_sanitized_memory_undefined_example_complex_x11_egl_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined egl shared
 
-makefile_sanitized_example_complex_x11_glx_shared:
-	make/example/complex/gen/gen_x11.sh sanitized glx shared
+makefile_sanitized_memory_undefined_example_complex_x11_glx_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_memory_undefined glx shared
+
+makefile_sanitized_address_example_complex_macos_software_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_address software osxcross osxcross shared
+
+makefile_sanitized_address_example_complex_macos_software_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_address software native native shared
+
+makefile_sanitized_address_example_complex_wayland_software_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_address software shared
+
+makefile_sanitized_address_example_complex_x11_software_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_address software shared
+
+makefile_sanitized_address_example_complex_macos_egl_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_address egl osxcross osxcross shared
+
+makefile_sanitized_address_example_complex_macos_egl_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_address egl native native shared
+
+makefile_sanitized_address_example_complex_wayland_egl_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_address egl shared
+
+makefile_sanitized_address_example_complex_x11_egl_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_address egl shared
+
+makefile_sanitized_address_example_complex_x11_glx_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_address glx shared
+
+makefile_sanitized_thread_example_complex_macos_software_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_thread software osxcross osxcross shared
+
+makefile_sanitized_thread_example_complex_macos_software_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_thread software native native shared
+
+makefile_sanitized_thread_example_complex_wayland_software_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_thread software shared
+
+makefile_sanitized_thread_example_complex_x11_software_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_thread software shared
+
+makefile_sanitized_thread_example_complex_macos_egl_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_thread egl osxcross osxcross shared
+
+makefile_sanitized_thread_example_complex_macos_egl_native_shared:
+	make/example/complex/gen/gen_macos.sh sanitized_thread egl native native shared
+
+makefile_sanitized_thread_example_complex_wayland_egl_shared:
+	make/example/complex/gen/gen_wayland.sh sanitized_thread egl shared
+
+makefile_sanitized_thread_example_complex_x11_egl_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_thread egl shared
+
+makefile_sanitized_thread_example_complex_x11_glx_shared:
+	make/example/complex/gen/gen_x11.sh sanitized_thread glx shared
 
 
 
@@ -821,7 +1091,7 @@ make/output/makefile_lib_macos_software
 
 build_lib_macos_software_native: \
 make/output/makefile_lib_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 
 build_lib_windows_software: \
 make/output/makefile_lib_windows_software
@@ -847,7 +1117,7 @@ make/output/makefile_lib_macos_egl
 
 build_lib_macos_egl_native: \
 make/output/makefile_lib_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 
 build_lib_windows_egl: \
 make/output/makefile_lib_windows_egl
@@ -887,14 +1157,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_simple_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software
 
 build_example_simple_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_simple_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software_native
 
 build_example_simple_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -931,14 +1201,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_simple_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl
 
 build_example_simple_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_simple_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl_native
 
 build_example_simple_windows_egl_static: \
 make/output/makefile_lib_windows_egl \
@@ -1000,14 +1270,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_complex_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software
 
 build_example_complex_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_complex_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software_native
 
 build_example_complex_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -1044,14 +1314,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_complex_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl
 
 build_example_complex_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_complex_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl_native
 
 build_example_complex_windows_egl_static: \
 make/output/makefile_lib_windows_egl \
@@ -1113,14 +1383,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_simple_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software run
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software run
 
 run_example_simple_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_simple_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software_native run
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software_native run
 
 run_example_simple_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -1157,14 +1427,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_simple_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl run
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl run
 
 run_example_simple_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_simple_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native run
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl_native run
 
 run_example_simple_windows_egl_static: \
 make/output/makefile_lib_windows_egl \
@@ -1226,14 +1496,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_complex_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software run
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software run
 
 run_example_complex_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_complex_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software_native run
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software_native run
 
 run_example_complex_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -1270,14 +1540,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_complex_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl run
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl run
 
 run_example_complex_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_complex_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl_native run
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl_native run
 
 run_example_complex_windows_egl_static: \
 make/output/makefile_lib_windows_egl \
@@ -1339,14 +1609,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_simple_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software leak
 
 leak_example_simple_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_simple_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_software_native leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_software_native leak
 
 leak_example_simple_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -1383,14 +1653,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_simple_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl leak
 
 leak_example_simple_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_simple_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_simple_macos_egl_native leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_simple_macos_egl_native leak
 
 leak_example_simple_windows_egl_static: \
 make/output/makefile_lib_windows_egl \
@@ -1452,14 +1722,14 @@ make/output/makefile_lib_macos_software \
 make/output/makefile_example_complex_macos_software
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software
 	$(MAKE) -f make/output/makefile_lib_macos_software headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software leak
 
 leak_example_complex_macos_software_native_static: \
 make/output/makefile_lib_macos_software_native \
 make/output/makefile_example_complex_macos_software_native
-	$(MAKE) -f make/output/makefile_lib_macos_software_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_software_native
 	$(MAKE) -f make/output/makefile_lib_macos_software_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_software_native leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_software_native leak
 
 leak_example_complex_windows_software_static: \
 make/output/makefile_lib_windows_software \
@@ -1496,14 +1766,14 @@ make/output/makefile_lib_macos_egl \
 make/output/makefile_example_complex_macos_egl
 	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl
 	$(MAKE) -f make/output/makefile_lib_macos_egl headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl leak
 
 leak_example_complex_macos_egl_native_static: \
 make/output/makefile_lib_macos_egl_native \
 make/output/makefile_example_complex_macos_egl_native
-	$(MAKE) -f make/output/makefile_lib_macos_egl_native
+	make/scripts/run_osxcross.sh make/output/makefile_lib_macos_egl_native
 	$(MAKE) -f make/output/makefile_lib_macos_egl_native headers
-	$(MAKE) -f make/output/makefile_example_complex_macos_egl_native leak
+	make/scripts/run_osxcross.sh make/output/makefile_example_complex_macos_egl_native leak
 
 leak_example_complex_windows_egl_static: \
 make/output/makefile_lib_windows_egl \

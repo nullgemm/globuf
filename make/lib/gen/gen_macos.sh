@@ -62,17 +62,51 @@ flags+=("-fPIE")
 flags+=("-O2")
 	;;
 
-	sanitized)
+	sanitized_memory_undefined)
 flags+=("-g")
+flags+=("-O1")
 flags+=("-fno-omit-frame-pointer")
-flags+=("-fPIE")
-flags+=("-O2")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=memory")
+flags+=("-fsanitize-memory-track-origins=2")
 flags+=("-fsanitize=undefined")
-flags+=("-fsanitize=function")
-flags+=("-fsanitize=address")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=memory")
+ldflags+=("-fsanitize-memory-track-origins=2")
 ldflags+=("-fsanitize=undefined")
-ldflags+=("-fsanitize=function")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_address)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=address")
+flags+=("-fsanitize-address-use-after-return=always")
+flags+=("-fsanitize-address-use-after-scope")
+flags+=("-fsanitize-recover=all")
+
 ldflags+=("-fsanitize=address")
+ldflags+=("-fsanitize-address-use-after-return=always")
+ldflags+=("-fsanitize-address-use-after-scope")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_thread)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=thread")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=thread")
+ldflags+=("-fsanitize-recover=all")
 	;;
 
 	*)
