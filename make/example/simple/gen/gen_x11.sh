@@ -59,11 +59,23 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=memory")
 flags+=("-fsanitize-memory-track-origins=2")
-flags+=("-fsanitize=undefined")
 flags+=("-fsanitize-recover=all")
 
 ldflags+=("-fsanitize=memory")
 ldflags+=("-fsanitize-memory-track-origins=2")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_undefined)
+cc="clang"
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=undefined")
+flags+=("-fsanitize-recover=all")
+
 ldflags+=("-fsanitize=undefined")
 ldflags+=("-fsanitize-recover=all")
 	;;
