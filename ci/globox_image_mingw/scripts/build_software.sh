@@ -4,4 +4,5 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # test build
-./make/lib/release/release_build_mingw_software.sh
+make makefile_release_lib_windows_software
+make build_lib_windows_software

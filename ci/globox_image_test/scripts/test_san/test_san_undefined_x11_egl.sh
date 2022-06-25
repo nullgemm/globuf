@@ -5,16 +5,13 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # build lib
-./make/lib/gen/gen_x11.sh sanitized software
-make -f makefile_lib_x11_software
-
-# copy lib
-./make/lib/release/release_headers.sh
-./make/lib/release/release_copy_x11_software.sh
+make makefile_sanitized_undefined_lib_x11_egl
+make build_lib_x11_egl
+make release_headers
 
 # build example
-./make/example/simple/gen/gen_x11.sh sanitized software static
-make -f makefile_example_simple_x11_software
+make makefile_sanitized_undefined_example_simple_x11_egl_static
+make build_example_simple_x11_egl_static 
 cd ./bin || exit
 
 # run the tests
@@ -38,7 +35,7 @@ echo "# wait for the window manager to start"
 sleep 10
 
 echo "# start the globox example"
-./globox_example_simple_x11_software &
+./globox_example_simple_x11_egl &
 echo "# wait for the globox example to start"
 sleep 10
 

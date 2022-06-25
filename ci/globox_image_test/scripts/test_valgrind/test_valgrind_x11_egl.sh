@@ -5,16 +5,13 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # build lib
-./make/lib/gen/gen_x11.sh development egl
-make -f makefile_lib_x11_egl
-
-# copy lib
-./make/lib/release/release_headers.sh
-./make/lib/release/release_copy_x11_egl.sh
+make makefile_development_lib_x11_egl
+make build_lib_x11_egl
+make release_headers
 
 # build example
-./make/example/simple/gen/gen_x11.sh development egl static
-make -f makefile_example_simple_x11_egl
+make makefile_development_example_simple_x11_egl_static
+make build_example_simple_x11_egl_static 
 cd ./bin || exit
 
 # run the tests

@@ -4,4 +4,5 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # test build
-./make/lib/release/release_build_x11_glx.sh
+make makefile_release_lib_x11_glx
+make build_lib_x11_glx

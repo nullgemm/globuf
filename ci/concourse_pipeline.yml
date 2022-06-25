@@ -241,9 +241,9 @@ jobs:
             GIT_REPO_URL: globox_image_test
           run:
             path: /scripts/test_infer/test_infer_x11_software.sh
-  - name: globox_test_san_wayland_egl
+  - name: globox_test_san_memory_wayland_egl
     plan:
-      - task: globox_test_san_wayland_egl_task
+      - task: globox_test_san_memory_wayland_egl_task
         config:
           platform: linux
           image_resource:
@@ -255,10 +255,10 @@ jobs:
           params:
             GIT_REPO_URL: globox_image_test
           run:
-            path: /scripts/test_san/test_san_wayland_egl.sh
-  - name: globox_test_san_wayland_software
+            path: /scripts/test_san/test_san_memory_wayland_egl.sh
+  - name: globox_test_san_memory_wayland_software
     plan:
-      - task: globox_test_san_wayland_software_task
+      - task: globox_test_san_memory_wayland_software_task
         config:
           platform: linux
           image_resource:
@@ -270,10 +270,10 @@ jobs:
           params:
             GIT_REPO_URL: globox_image_test
           run:
-            path: /scripts/test_san/test_san_wayland_software.sh
-  - name: globox_test_san_x11_egl
+            path: /scripts/test_san/test_san_memory_wayland_software.sh
+  - name: globox_test_san_memory_x11_egl
     plan:
-      - task: globox_test_san_x11_egl_task
+      - task: globox_test_san_memory_x11_egl_task
         config:
           platform: linux
           image_resource:
@@ -285,10 +285,10 @@ jobs:
           params:
             GIT_REPO_URL: globox_image_test
           run:
-            path: /scripts/test_san/test_san_x11_egl.sh
-  - name: globox_test_san_x11_software
+            path: /scripts/test_san/test_san_memory_x11_egl.sh
+  - name: globox_test_san_memory_x11_software
     plan:
-      - task: globox_test_san_x11_software_task
+      - task: globox_test_san_memory_x11_software_task
         config:
           platform: linux
           image_resource:
@@ -300,7 +300,187 @@ jobs:
           params:
             GIT_REPO_URL: globox_image_test
           run:
-            path: /scripts/test_san/test_san_x11_software.sh
+            path: /scripts/test_san/test_san_memory_x11_software.sh
+  - name: globox_test_san_undefined_wayland_egl
+    plan:
+      - task: globox_test_san_undefined_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_undefined_wayland_egl.sh
+  - name: globox_test_san_undefined_wayland_software
+    plan:
+      - task: globox_test_san_undefined_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_undefined_wayland_software.sh
+  - name: globox_test_san_undefined_x11_egl
+    plan:
+      - task: globox_test_san_undefined_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_undefined_x11_egl.sh
+  - name: globox_test_san_undefined_x11_software
+    plan:
+      - task: globox_test_san_undefined_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_undefined_x11_software.sh
+  - name: globox_test_san_address_wayland_egl
+    plan:
+      - task: globox_test_san_address_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_address_wayland_egl.sh
+  - name: globox_test_san_address_wayland_software
+    plan:
+      - task: globox_test_san_address_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_address_wayland_software.sh
+  - name: globox_test_san_address_x11_egl
+    plan:
+      - task: globox_test_san_address_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_address_x11_egl.sh
+  - name: globox_test_san_address_x11_software
+    plan:
+      - task: globox_test_san_address_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_address_x11_software.sh
+  - name: globox_test_san_thread_wayland_egl
+    plan:
+      - task: globox_test_san_thread_wayland_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_thread_wayland_egl.sh
+  - name: globox_test_san_thread_wayland_software
+    plan:
+      - task: globox_test_san_thread_wayland_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_thread_wayland_software.sh
+  - name: globox_test_san_thread_x11_egl
+    plan:
+      - task: globox_test_san_thread_x11_egl_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_thread_x11_egl.sh
+  - name: globox_test_san_thread_x11_software
+    plan:
+      - task: globox_test_san_thread_x11_software_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_test
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_test
+          run:
+            path: /scripts/test_san/test_san_thread_x11_software.sh
   - name: globox_test_valgrind_x11_egl
     plan:
       - task: globox_test_valgrind_x11_egl_task

@@ -3,5 +3,5 @@
 git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
-./make/lib/gen/gen_wayland.sh development egl
-/scripts/infer/bin/infer run -- make -f makefile_lib_wayland_egl
+make makefile_development_lib_wayland_egl
+/scripts/infer/bin/infer run -- make build_lib_wayland_egl

@@ -5,13 +5,13 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # build lib
-make makefile_development_lib_x11_software
-make build_lib_x11_software
+make makefile_sanitized_address_lib_x11_egl
+make build_lib_x11_egl
 make release_headers
 
 # build example
-make makefile_development_example_simple_x11_software_static
-make build_example_simple_x11_software_static 
+make makefile_sanitized_address_example_simple_x11_egl_static
+make build_example_simple_x11_egl_static 
 cd ./bin || exit
 
 # run the tests
@@ -35,14 +35,7 @@ echo "# wait for the window manager to start"
 sleep 10
 
 echo "# start the globox example"
-valgrind \
-	--show-error-list=yes \
-	--show-leak-kinds=all \
-	--track-origins=yes \
-	--leak-check=full \
-	--suppressions=../res/valgrind.supp \
-	&> valgrind.log \
-	./globox_example_simple_x11_software &
+./globox_example_simple_x11_egl &
 echo "# wait for the globox example to start"
 sleep 10
 
@@ -70,6 +63,3 @@ echo "# close the X server"
 pkill Xorg
 echo "# wait for the X server process to end"
 sleep 10
-
-echo "# reset the terminal and print valgrind log"
-cat valgrind.log

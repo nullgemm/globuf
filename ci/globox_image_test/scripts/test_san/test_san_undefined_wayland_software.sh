@@ -4,16 +4,13 @@ git clone https://github.com/nullgemm/globox.git
 cd globox || exit
 
 # build lib
-./make/lib/gen/gen_wayland.sh sanitized software
-make -f makefile_lib_wayland_software
-
-# copy lib
-./make/lib/release/release_headers.sh
-./make/lib/release/release_copy_wayland_software.sh
+make makefile_sanitized_undefined_lib_wayland_software
+make build_lib_wayland_software
+make release_headers
 
 # build example
-./make/example/simple/gen/gen_wayland.sh sanitized software static
-make -f makefile_example_simple_wayland_software
+make makefile_sanitized_undefined_example_simple_wayland_software_static
+make build_example_simple_wayland_software_static 
 
 # run example
 export XDG_RUNTIME_DIR=/scripts/run
