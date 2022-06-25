@@ -1239,14 +1239,14 @@
 				"kind": "build"
 			}
 		},
-		// ## sanitized
+		// ## sanitized memory
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized software library makefile",
+			"label": "generate macOS sanitized memory software library makefile",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"osxcross",
 				"osxcross"
@@ -1260,10 +1260,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized software library makefile (native toolchain)",
+			"label": "generate macOS sanitized memory software library makefile (native toolchain)",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"native",
 				"native"
@@ -1277,10 +1277,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized software library makefile",
+			"label": "generate Wayland sanitized memory software library makefile",
 			"command": "./make/lib/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software"
 			],
 			"options": {
@@ -1292,10 +1292,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized software library makefile",
+			"label": "generate X11 sanitized memory software library makefile",
 			"command": "./make/lib/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software"
 			],
 			"options": {
@@ -1308,10 +1308,10 @@
 		// ### EGL
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized EGL library makefile",
+			"label": "generate macOS sanitized memory EGL library makefile",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"osxcross",
 				"osxcross"
@@ -1325,10 +1325,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized EGL library makefile (native toolchain)",
+			"label": "generate macOS sanitized memory EGL library makefile (native toolchain)",
 			"command": "./make/lib/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"native",
 				"native"
@@ -1342,10 +1342,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized EGL library makefile",
+			"label": "generate Wayland sanitized memory EGL library makefile",
 			"command": "./make/lib/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl"
 			],
 			"options": {
@@ -1357,10 +1357,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized EGL library makefile",
+			"label": "generate X11 sanitized memory EGL library makefile",
 			"command": "./make/lib/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl"
 			],
 			"options": {
@@ -1373,10 +1373,451 @@
 		// ### platform-specific loader
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized GLX library makefile",
+			"label": "generate X11 sanitized memory GLX library makefile",
 			"command": "./make/lib/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
+				"glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized undefined
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined software library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined software library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined software library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined EGL library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized address
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address software library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address software library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address software library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address EGL library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"glx"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized thread
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread software library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread software library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread software library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread software library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"software"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread EGL library makefile",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"osxcross",
+				"osxcross"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread EGL library makefile (native toolchain)",
+			"command": "./make/lib/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"native",
+				"native"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread EGL library makefile",
+			"command": "./make/lib/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread EGL library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"egl"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread GLX library makefile",
+			"command": "./make/lib/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
 				"glx"
 			],
 			"options": {
@@ -1885,14 +2326,14 @@
 				"kind": "build"
 			}
 		},
-		// ## sanitized
+		// ## sanitized memory
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static software example makefile",
+			"label": "generate macOS sanitized memory simple static software example makefile",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"osxcross",
 				"osxcross",
@@ -1907,10 +2348,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static software example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory simple static software example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"native",
 				"native",
@@ -1925,10 +2366,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple static software example makefile",
+			"label": "generate Wayland sanitized memory simple static software example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"static"
 			],
@@ -1941,10 +2382,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static software example makefile",
+			"label": "generate X11 sanitized memory simple static software example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"static"
 			],
@@ -1958,10 +2399,10 @@
 		// ### EGL
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static EGL example makefile",
+			"label": "generate macOS sanitized memory simple static EGL example makefile",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"osxcross",
 				"osxcross",
@@ -1976,10 +2417,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple static EGL example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory simple static EGL example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"native",
 				"native",
@@ -1994,10 +2435,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple static EGL example makefile",
+			"label": "generate Wayland sanitized memory simple static EGL example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"static"
 			],
@@ -2010,10 +2451,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static EGL example makefile",
+			"label": "generate X11 sanitized memory simple static EGL example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"static"
 			],
@@ -2027,10 +2468,478 @@
 		// ### platform-specific loader
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple static GLX example makefile",
+			"label": "generate X11 sanitized memory simple static GLX example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized undefined
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple static software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized address
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple static software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized thread
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple static software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple static software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple static EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple static EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple static GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
 				"glx",
 				"static"
 			],
@@ -2540,14 +3449,14 @@
 				"kind": "build"
 			}
 		},
-		// ## sanitized
+		// ## sanitized memory
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static software example makefile",
+			"label": "generate macOS sanitized memory complex static software example makefile",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"osxcross",
 				"osxcross",
@@ -2562,10 +3471,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static software example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory complex static software example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"native",
 				"native",
@@ -2580,10 +3489,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex static software example makefile",
+			"label": "generate Wayland sanitized memory complex static software example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"static"
 			],
@@ -2596,10 +3505,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static software example makefile",
+			"label": "generate X11 sanitized memory complex static software example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"static"
 			],
@@ -2613,10 +3522,10 @@
 		// ### EGL
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static EGL example makefile",
+			"label": "generate macOS sanitized memory complex static EGL example makefile",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"osxcross",
 				"osxcross",
@@ -2631,10 +3540,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex static EGL example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory complex static EGL example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"native",
 				"native",
@@ -2649,10 +3558,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex static EGL example makefile",
+			"label": "generate Wayland sanitized memory complex static EGL example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"static"
 			],
@@ -2665,10 +3574,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static EGL example makefile",
+			"label": "generate X11 sanitized memory complex static EGL example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"static"
 			],
@@ -2682,10 +3591,478 @@
 		// ### platform-specific loader
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex static GLX example makefile",
+			"label": "generate X11 sanitized memory complex static GLX example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized undefined
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex static software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized address
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex static software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"glx",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized thread
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex static software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex static software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex static EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"native",
+				"native",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex static EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"static"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex static GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
 				"glx",
 				"static"
 			],
@@ -3105,14 +4482,14 @@
 				"kind": "build"
 			}
 		},
-		// ## sanitized
+		// ## sanitized memory
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple shared software example makefile",
+			"label": "generate macOS sanitized memory simple shared software example makefile",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"osxcross",
 				"osxcross",
@@ -3127,10 +4504,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple shared software example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory simple shared software example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"native",
 				"native",
@@ -3145,10 +4522,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple shared software example makefile",
+			"label": "generate Wayland sanitized memory simple shared software example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"shared"
 			],
@@ -3161,10 +4538,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple shared software example makefile",
+			"label": "generate X11 sanitized memory simple shared software example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"shared"
 			],
@@ -3178,10 +4555,10 @@
 		// ### EGL
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple shared EGL example makefile",
+			"label": "generate macOS sanitized memory simple shared EGL example makefile",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"osxcross",
 				"osxcross",
@@ -3196,10 +4573,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized simple shared EGL example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory simple shared EGL example makefile (native toolchain)",
 			"command": "./make/example/simple/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"native",
 				"native",
@@ -3214,10 +4591,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized simple shared EGL example makefile",
+			"label": "generate Wayland sanitized memory simple shared EGL example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"shared"
 			],
@@ -3230,10 +4607,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple shared EGL example makefile",
+			"label": "generate X11 sanitized memory simple shared EGL example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"shared"
 			],
@@ -3247,10 +4624,478 @@
 		// ### platform-specific loader
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized simple shared GLX example makefile",
+			"label": "generate X11 sanitized memory simple shared GLX example makefile",
 			"command": "./make/example/simple/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized undefined
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized address
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized thread
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple shared software example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple shared software example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread simple shared EGL example makefile (native toolchain)",
+			"command": "./make/example/simple/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple shared EGL example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread simple shared GLX example makefile",
+			"command": "./make/example/simple/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
 				"glx",
 				"shared"
 			],
@@ -3670,14 +5515,14 @@
 				"kind": "build"
 			}
 		},
-		// ## sanitized
+		// ## sanitized memory
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex shared software example makefile",
+			"label": "generate macOS sanitized memory complex shared software example makefile",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"osxcross",
 				"osxcross",
@@ -3692,10 +5537,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex shared software example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory complex shared software example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"native",
 				"native",
@@ -3710,10 +5555,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex shared software example makefile",
+			"label": "generate Wayland sanitized memory complex shared software example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"shared"
 			],
@@ -3726,10 +5571,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex shared software example makefile",
+			"label": "generate X11 sanitized memory complex shared software example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"software",
 				"shared"
 			],
@@ -3743,10 +5588,10 @@
 		// ### EGL
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex shared EGL example makefile",
+			"label": "generate macOS sanitized memory complex shared EGL example makefile",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"osxcross",
 				"osxcross",
@@ -3761,10 +5606,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized complex shared EGL example makefile (native toolchain)",
+			"label": "generate macOS sanitized memory complex shared EGL example makefile (native toolchain)",
 			"command": "./make/example/complex/gen/gen_macos.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"native",
 				"native",
@@ -3779,10 +5624,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate Wayland sanitized complex shared EGL example makefile",
+			"label": "generate Wayland sanitized memory complex shared EGL example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"shared"
 			],
@@ -3795,10 +5640,10 @@
 		},
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex shared EGL example makefile",
+			"label": "generate X11 sanitized memory complex shared EGL example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
 				"egl",
 				"shared"
 			],
@@ -3812,10 +5657,478 @@
 		// ### platform-specific loader
 		{
 			"type": "cppbuild",
-			"label": "generate X11 sanitized complex shared GLX example makefile",
+			"label": "generate X11 sanitized memory complex shared GLX example makefile",
 			"command": "./make/example/complex/gen/gen_x11.sh",
 			"args": [
-				"sanitized",
+				"sanitized_memory",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized undefined
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized undefined complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized undefined complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized undefined complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_undefined",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized address
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized address complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized address complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized address complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_address",
+				"glx",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ## sanitized thread
+		// ### software
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex shared software example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex shared software example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"software",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### EGL
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"osxcross",
+				"osxcross",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate macOS sanitized thread complex shared EGL example makefile (native toolchain)",
+			"command": "./make/example/complex/gen/gen_macos.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"native",
+				"native",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate Wayland sanitized thread complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_wayland.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex shared EGL example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
+				"egl",
+				"shared"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build"
+			}
+		},
+		// ### platform-specific loader
+		{
+			"type": "cppbuild",
+			"label": "generate X11 sanitized thread complex shared GLX example makefile",
+			"command": "./make/example/complex/gen/gen_x11.sh",
+			"args": [
+				"sanitized_thread",
 				"glx",
 				"shared"
 			],
