@@ -50,7 +50,7 @@ ldflags+=("-z relro")
 ldflags+=("-z now")
 	;;
 
-	sanitized_memory_undefined)
+	sanitized_memory)
 cc="clang"
 flags+=("-g")
 flags+=("-O1")
