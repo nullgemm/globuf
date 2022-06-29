@@ -1,4 +1,28 @@
 jobs:
+  - name: globox_build_msvc_software
+    plan:
+      - task: globox_build_msvc_software_task
+        config:
+          platform: windows
+          run:
+            path: cmd.exe
+            args: ["/C", "C:\\git-sdk-64\\usr\\bin\\bash.exe", "--login", "C:\\Users\\nullgemm\\Documents\\concourse\\bin\\globox_scripts_msvc\\build_software.sh"]
+  - name: globox_build_msvc_egl
+    plan:
+      - task: globox_build_msvc_egl_task
+        config:
+          platform: windows
+          run:
+            path: cmd.exe
+            args: ["/C", "C:\\git-sdk-64\\usr\\bin\\bash.exe", "--login", "C:\\Users\\nullgemm\\Documents\\concourse\\bin\\globox_scripts_msvc\\build_egl.sh"]
+  - name: globox_build_msvc_wgl
+    plan:
+      - task: globox_build_msvc_wgl_task
+        config:
+          platform: windows
+          run:
+            path: cmd.exe
+            args: ["/C", "C:\\git-sdk-64\\usr\\bin\\bash.exe", "--login", "C:\\Users\\nullgemm\\Documents\\concourse\\bin\\globox_scripts_msvc\\build_wgl.sh"]
   - name: globox_build_wayland_egl
     plan:
       - task: globox_build_wayland_egl_task
