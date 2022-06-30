@@ -1,4 +1,20 @@
 jobs:
+  - name: globox_build_macos_software
+    plan:
+      - task: globox_build_macos_software_task
+        config:
+          platform: darwin
+          run:
+            path: /bin/bash
+            args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_macos/build_software.sh"]
+  - name: globox_build_macos_egl
+    plan:
+      - task: globox_build_macos_egl_task
+        config:
+          platform: darwin
+          run:
+            path: /bin/bash
+            args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_macos/build_egl.sh"]
   - name: globox_build_msvc_software
     plan:
       - task: globox_build_msvc_software_task
