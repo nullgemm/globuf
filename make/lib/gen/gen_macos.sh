@@ -165,7 +165,7 @@ fi
 case $toolchain in
 	osxcross)
 cc="o64-clang"
-ar="x86_64-apple-darwin20.2-ar"
+ar="x86_64-apple-darwin21.4-ar"
 	;;
 
 	native)
