@@ -108,12 +108,10 @@ flags+=("-fno-omit-frame-pointer")
 flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=address")
-flags+=("-fsanitize-address-use-after-return=always")
 flags+=("-fsanitize-address-use-after-scope")
 flags+=("-fsanitize-recover=all")
 
 ldflags+=("-fsanitize=address")
-ldflags+=("-fsanitize-address-use-after-return=always")
 ldflags+=("-fsanitize-address-use-after-scope")
 ldflags+=("-fsanitize-recover=all")
 	;;
