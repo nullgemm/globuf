@@ -15,6 +15,7 @@ folder_include="globox_bin_$tag/include"
 output="make/output"
 name="globox_windows"
 cc="x86_64-w64-mingw32-gcc"
+ar="x86_64-w64-mingw32-ar"
 
 src+=("src/globox.c")
 src+=("src/globox_error.c")
@@ -131,6 +132,7 @@ echo "FOLDER = $folder";\
 echo "FOLDER_INCLUDE = $folder_include";\
 echo "NAME = $name"; \
 echo "CC = $cc"; \
+echo "AR = $ar"; \
 } > "$output/$makefile"
 
 # makefile linking info

@@ -14,6 +14,7 @@ tag=$(git tag --sort v:refname | tail -n 1)
 
 # library makefile data
 cc="x86_64-w64-mingw32-gcc"
+ar="x86_64-w64-mingw32-ar"
 obj+=("res/icon/iconpix_pe.o")
 
 flags+=("-std=c99" "-pedantic")
@@ -146,6 +147,7 @@ echo ".POSIX:"; \
 echo "NAME = $name"; \
 echo "CMD = $cmd"; \
 echo "CC = $cc"; \
+echo "AR = $ar"; \
 } > "$output/$makefile"
 
 # makefile linking info
