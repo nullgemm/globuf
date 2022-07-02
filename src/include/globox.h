@@ -5,8 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// types
-
+// # types
 // private!
 struct globox;
 
@@ -176,8 +175,7 @@ enum globox_error
 	GLOBOX_ERROR_MACOS_EGL_FAIL,
 };
 
-// structures
-
+// # structures
 // use callback setters to make configuration easier for the user of the library
 struct globox_config
 {
@@ -218,19 +216,29 @@ struct globox_backend_callbacks_entry
 	void (*backend_callback_destroy)(struct globox* context, void* data);
 };
 
-// functions
-
-// lifecycle
+// # functions
+// ## lifecycle
+// allocate base resources and make initial checks
 void globox_init(struct globox* context);
+// free base resources
 void globox_clean(struct globox* context);
+
+// create the window without displaying it and call all window feature callbacks
 void globox_window_create(struct globox* context);
+// destroy the window object entirely
 void globox_window_destroy(struct globox* context);
 
+// start displaying the window and running the loop
+void globox_window_start(struct globox* context);
+// close the window if still open and stop the loop
+void globox_window_stop(struct globox* context);
+
+// set base configuration
 void globox_config(
 	struct globox* context,
 	struct globox_config* config);
 
-// interactions
+// ## interactions
 void globox_interact(
 	struct globox* context,
 	enum globox_interaction action);
@@ -248,14 +256,14 @@ void globox_set_state(
 	struct globox* context,
 	enum globox_state state); 
 
-// errors
+// ## errors
 bool globox_error_catch(struct globox* context);
 void globox_error_reset(struct globox* context);
 void globox_error_log(struct globox* context);
 const char* globox_error_get_message(struct globox* context);
 enum globox_error globox_error_get_code(struct globox* context);
 
-// window feature setters
+// ## window feature setters
 void globox_window_feature_set_x_init(int x_init);
 void globox_window_feature_set_y_init(int y_init);
 void globox_window_feature_set_width_init(unsigned width_init);
@@ -264,7 +272,7 @@ void globox_window_feature_set_title(const char* title);
 void globox_window_feature_set_framed(bool framed);
 void globox_window_feature_set_background(enum globox_background background);
 
-// window feature callback setters
+// ## window feature callback setters
 void globox_window_feature_callback_set_x_init(void (*callback)(struct globox* context, int x_init));
 void globox_window_feature_callback_set_y_init(void (*callback)(struct globox* context, int y_init));
 void globox_window_feature_callback_set_width_init(void (*callback)(struct globox* context, unsigned width_init));
