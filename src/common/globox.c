@@ -1,6 +1,7 @@
 #include "include/globox.h"
 #include "common/globox_private.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 
 struct globox
@@ -13,43 +14,22 @@ struct globox
 	struct globox_event_handlers event_handlers;
 	struct globox_backend_callbacks backend_callbacks;
 
-	// various common details
-	enum globox_state state;
-	enum globox_interaction interaction;
-
-	enum globox_error error;
-	char* error_messages[GLOBOX_ERROR_SIZE];
-};
-
-// use callback setters to make configuration easier for the user of the library
-struct globox_config
-{
+	// common details set using the window feature transaction system
 	int x_init;
 	int y_init;
 	unsigned width_init;
 	unsigned height_init;
-
-	char* title;
+	const char* title;
 	bool framed;
-	bool blurred;
-	bool transparent;
-	enum globox_backend backend;
+	enum globox_background background;
 
-	size_t backend_callbacks_setter_count;
-	void** backend_callbacks_setter_data;
-	void (**backend_callbacks_setter)(
-		struct globox_backend_callbacks_entry* entry,
-		enum globox_platform,
-		enum globox_backend,
-		void* data);
+	// other common details not directly available prior to window creation
+	enum globox_state state;
+	enum globox_interaction interaction;
 
-	size_t event_handler_setter_count;
-	void** event_handler_setter_data;
-	void (**event_handler_setter)(
-		struct globox_event_handlers_entry* entry,
-		enum globox_platform,
-		enum globox_backend,
-		void* data);
+	// error handling
+	enum globox_error error;
+	char* error_messages[GLOBOX_ERROR_SIZE];
 };
 
 // use composition for optimized accesses

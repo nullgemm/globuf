@@ -1,26 +1,14 @@
 #ifndef H_GLOBOX
 #define H_GLOBOX
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-// private structs
+// types
+
+// private!
 struct globox;
-struct globox_config;
-
-// public structs
-// use dedicated structures for callback setters to avoid exposing composition
-struct globox_event_handlers_entry
-{
-	void (*event_handler)(void* event, void* data);
-};
-
-struct globox_backend_callbacks_entry
-{
-	void* backend_callback_data;
-	void (*backend_callback_create)(struct globox* context, void* data);
-	void (*backend_callback_destroy)(struct globox* context, void* data);
-};
 
 enum globox_platform
 {
@@ -44,6 +32,24 @@ enum globox_state
 	GLOBOX_STATE_MAXIMIZED,
 	GLOBOX_STATE_FULLSCREEN,
 	GLOBOX_STATE_CLOSED,
+};
+
+enum globox_background
+{
+	GLOBOX_BACKGROUND_OPAQUE = 0,
+	GLOBOX_BACKGROUND_BLURRED,
+	GLOBOX_BACKGROUND_TRANSPARENT,
+};
+
+enum globox_window_feature
+{
+	GLOBOX_WINDOW_FEATURE_X_INIT = 0,
+	GLOBOX_WINDOW_FEATURE_Y_INIT,
+	GLOBOX_WINDOW_FEATURE_WIDTH_INIT,
+	GLOBOX_WINDOW_FEATURE_HEIGHT_INIT,
+	GLOBOX_WINDOW_FEATURE_TITLE,
+	GLOBOX_WINDOW_FEATURE_FRAMED,
+	GLOBOX_WINDOW_FEATURE_BACKGROUND,
 };
 
 enum globox_interaction
@@ -170,6 +176,49 @@ enum globox_error
 	GLOBOX_ERROR_MACOS_EGL_FAIL,
 };
 
+// structures
+
+// use callback setters to make configuration easier for the user of the library
+struct globox_config
+{
+	enum globox_backend backend;
+	void* window_feature_registry_data;
+	void (*window_feature_registry)(
+		struct globox* context,
+		enum globox_window_feature feature,
+		void* data);
+
+	size_t backend_callbacks_setter_count;
+	void** backend_callbacks_setter_data;
+	void (**backend_callbacks_setter)(
+		struct globox_backend_callbacks_entry* entry,
+		enum globox_platform,
+		enum globox_backend,
+		void* data);
+
+	size_t event_handler_setter_count;
+	void** event_handler_setter_data;
+	void (**event_handler_setter)(
+		struct globox_event_handlers_entry* entry,
+		enum globox_platform,
+		enum globox_backend,
+		void* data);
+};
+
+// use dedicated structures for callback setters to avoid exposing composition
+struct globox_event_handlers_entry
+{
+	void (*event_handler)(void* event, void* data);
+};
+
+struct globox_backend_callbacks_entry
+{
+	void* backend_callback_data;
+	void (*backend_callback_create)(struct globox* context, void* data);
+	void (*backend_callback_destroy)(struct globox* context, void* data);
+};
+
+// functions
 
 // lifecycle
 void globox_init(struct globox* context);
@@ -206,7 +255,22 @@ void globox_error_log(struct globox* context);
 const char* globox_error_get_message(struct globox* context);
 enum globox_error globox_error_get_code(struct globox* context);
 
-// getters
-//TODO
+// window feature setters
+void globox_window_feature_set_x_init(int x_init);
+void globox_window_feature_set_y_init(int y_init);
+void globox_window_feature_set_width_init(unsigned width_init);
+void globox_window_feature_set_height_init(unsigned height_init);
+void globox_window_feature_set_title(const char* title);
+void globox_window_feature_set_framed(bool framed);
+void globox_window_feature_set_background(enum globox_background background);
+
+// window feature callback setters
+void globox_window_feature_callback_set_x_init(void (*callback)(struct globox* context, int x_init));
+void globox_window_feature_callback_set_y_init(void (*callback)(struct globox* context, int y_init));
+void globox_window_feature_callback_set_width_init(void (*callback)(struct globox* context, unsigned width_init));
+void globox_window_feature_callback_set_height_init(void (*callback)(struct globox* context, unsigned height_init));
+void globox_window_feature_callback_set_title(void (*callback)(struct globox* context, const char* title));
+void globox_window_feature_callback_set_framed(void (*callback)(struct globox* context, bool framed));
+void globox_window_feature_callback_set_background(void (*callback)(struct globox* context, enum globox_background background));
 
 #endif
