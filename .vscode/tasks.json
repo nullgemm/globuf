@@ -1243,40 +1243,6 @@
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized memory software library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory software library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"native",
-				"native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory software library makefile",
 			"command": "./make/lib/gen/gen_wayland.sh",
 			"args": [
@@ -1306,40 +1272,6 @@
 			}
 		},
 		// ### EGL
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory EGL library makefile",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"osxcross",
-				"osxcross"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory EGL library makefile (native toolchain)",
-			"command": "./make/lib/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"native",
-				"native"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory EGL library makefile",
@@ -2330,42 +2262,6 @@
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple static software example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple static software example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory simple static software example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
@@ -2397,42 +2293,6 @@
 			}
 		},
 		// ### EGL
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple static EGL example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple static EGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory simple static EGL example makefile",
@@ -3453,42 +3313,6 @@
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex static software example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex static software example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory complex static software example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
@@ -3520,42 +3344,6 @@
 			}
 		},
 		// ### EGL
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex static EGL example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex static EGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"native",
-				"native",
-				"static"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory complex static EGL example makefile",
@@ -4486,42 +4274,6 @@
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple shared software example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"osxcross",
-				"osxcross",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple shared software example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"native",
-				"native",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory simple shared software example makefile",
 			"command": "./make/example/simple/gen/gen_wayland.sh",
 			"args": [
@@ -4553,42 +4305,6 @@
 			}
 		},
 		// ### EGL
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple shared EGL example makefile",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory simple shared EGL example makefile (native toolchain)",
-			"command": "./make/example/simple/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"native",
-				"native",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory simple shared EGL example makefile",
@@ -5519,42 +5235,6 @@
 		// ### software
 		{
 			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex shared software example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"osxcross",
-				"osxcross",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex shared software example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"software",
-				"native",
-				"native",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory complex shared software example makefile",
 			"command": "./make/example/complex/gen/gen_wayland.sh",
 			"args": [
@@ -5586,42 +5266,6 @@
 			}
 		},
 		// ### EGL
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex shared EGL example makefile",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"osxcross",
-				"osxcross",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
-		{
-			"type": "cppbuild",
-			"label": "generate macOS sanitized memory complex shared EGL example makefile (native toolchain)",
-			"command": "./make/example/complex/gen/gen_macos.sh",
-			"args": [
-				"sanitized_memory",
-				"egl",
-				"native",
-				"native",
-				"shared"
-			],
-			"options": {
-				"cwd": "${workspaceFolder}"
-			},
-			"group": {
-				"kind": "build"
-			}
-		},
 		{
 			"type": "cppbuild",
 			"label": "generate Wayland sanitized memory complex shared EGL example makefile",

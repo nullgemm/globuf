@@ -284,23 +284,11 @@ makefile_development_lib_x11_glx:
 
 
 ## named makefile targets for sanitized library builds
-makefile_sanitized_memory_lib_macos_software:
-	make/lib/gen/gen_macos.sh sanitized_memory software osxcross osxcross
-
-makefile_sanitized_memory_lib_macos_software_native:
-	make/lib/gen/gen_macos.sh sanitized_memory software native native
-
 makefile_sanitized_memory_lib_wayland_software:
 	make/lib/gen/gen_wayland.sh sanitized_memory software
 
 makefile_sanitized_memory_lib_x11_software:
 	make/lib/gen/gen_x11.sh sanitized_memory software
-
-makefile_sanitized_memory_lib_macos_egl:
-	make/lib/gen/gen_macos.sh sanitized_memory egl osxcross osxcross
-
-makefile_sanitized_memory_lib_macos_egl_native:
-	make/lib/gen/gen_macos.sh sanitized_memory egl native native
 
 makefile_sanitized_memory_lib_wayland_egl:
 	make/lib/gen/gen_wayland.sh sanitized_memory egl
@@ -490,23 +478,11 @@ makefile_development_example_simple_x11_glx_static:
 
 
 ## named makefile targets for sanitized simple example builds (static)
-makefile_sanitized_memory_example_simple_macos_software_static:
-	make/example/simple/gen/gen_macos.sh sanitized_memory software osxcross osxcross static
-
-makefile_sanitized_memory_example_simple_macos_software_native_static:
-	make/example/simple/gen/gen_macos.sh sanitized_memory software native native static
-
 makefile_sanitized_memory_example_simple_wayland_software_static:
 	make/example/simple/gen/gen_wayland.sh sanitized_memory software static
 
 makefile_sanitized_memory_example_simple_x11_software_static:
 	make/example/simple/gen/gen_x11.sh sanitized_memory software static
-
-makefile_sanitized_memory_example_simple_macos_egl_static:
-	make/example/simple/gen/gen_macos.sh sanitized_memory egl osxcross osxcross static
-
-makefile_sanitized_memory_example_simple_macos_egl_native_static:
-	make/example/simple/gen/gen_macos.sh sanitized_memory egl native native static
 
 makefile_sanitized_memory_example_simple_wayland_egl_static:
 	make/example/simple/gen/gen_wayland.sh sanitized_memory egl static
@@ -696,23 +672,11 @@ makefile_development_example_simple_x11_glx_shared:
 
 
 ## named makefile targets for sanitized simple example builds (shared)
-makefile_sanitized_memory_example_simple_macos_software_shared:
-	make/example/simple/gen/gen_macos.sh sanitized_memory software osxcross osxcross shared
-
-makefile_sanitized_memory_example_simple_macos_software_native_shared:
-	make/example/simple/gen/gen_macos.sh sanitized_memory software native native shared
-
 makefile_sanitized_memory_example_simple_wayland_software_shared:
 	make/example/simple/gen/gen_wayland.sh sanitized_memory software shared
 
 makefile_sanitized_memory_example_simple_x11_software_shared:
 	make/example/simple/gen/gen_x11.sh sanitized_memory software shared
-
-makefile_sanitized_memory_example_simple_macos_egl_shared:
-	make/example/simple/gen/gen_macos.sh sanitized_memory egl osxcross osxcross shared
-
-makefile_sanitized_memory_example_simple_macos_egl_native_shared:
-	make/example/simple/gen/gen_macos.sh sanitized_memory egl native native shared
 
 makefile_sanitized_memory_example_simple_wayland_egl_shared:
 	make/example/simple/gen/gen_wayland.sh sanitized_memory egl shared
@@ -902,23 +866,11 @@ makefile_development_example_complex_x11_glx_static:
 
 
 ## named makefile targets for sanitized complex example builds (static)
-makefile_sanitized_memory_example_complex_macos_software_static:
-	make/example/complex/gen/gen_macos.sh sanitized_memory software osxcross osxcross static
-
-makefile_sanitized_memory_example_complex_macos_software_native_static:
-	make/example/complex/gen/gen_macos.sh sanitized_memory software native native static
-
 makefile_sanitized_memory_example_complex_wayland_software_static:
 	make/example/complex/gen/gen_wayland.sh sanitized_memory software static
 
 makefile_sanitized_memory_example_complex_x11_software_static:
 	make/example/complex/gen/gen_x11.sh sanitized_memory software static
-
-makefile_sanitized_memory_example_complex_macos_egl_static:
-	make/example/complex/gen/gen_macos.sh sanitized_memory egl osxcross osxcross static
-
-makefile_sanitized_memory_example_complex_macos_egl_native_static:
-	make/example/complex/gen/gen_macos.sh sanitized_memory egl native native static
 
 makefile_sanitized_memory_example_complex_wayland_egl_static:
 	make/example/complex/gen/gen_wayland.sh sanitized_memory egl static
@@ -1108,23 +1060,11 @@ makefile_development_example_complex_x11_glx_shared:
 
 
 ## named makefile targets for sanitized complex example builds (shared)
-makefile_sanitized_memory_example_complex_macos_software_shared:
-	make/example/complex/gen/gen_macos.sh sanitized_memory software osxcross osxcross shared
-
-makefile_sanitized_memory_example_complex_macos_software_native_shared:
-	make/example/complex/gen/gen_macos.sh sanitized_memory software native native shared
-
 makefile_sanitized_memory_example_complex_wayland_software_shared:
 	make/example/complex/gen/gen_wayland.sh sanitized_memory software shared
 
 makefile_sanitized_memory_example_complex_x11_software_shared:
 	make/example/complex/gen/gen_x11.sh sanitized_memory software shared
-
-makefile_sanitized_memory_example_complex_macos_egl_shared:
-	make/example/complex/gen/gen_macos.sh sanitized_memory egl osxcross osxcross shared
-
-makefile_sanitized_memory_example_complex_macos_egl_native_shared:
-	make/example/complex/gen/gen_macos.sh sanitized_memory egl native native shared
 
 makefile_sanitized_memory_example_complex_wayland_egl_shared:
 	make/example/complex/gen/gen_wayland.sh sanitized_memory egl shared
