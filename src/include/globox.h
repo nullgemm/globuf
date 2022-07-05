@@ -162,7 +162,7 @@ enum globox_error
 };
 
 // # cross-platform, cross-backend
-// ## lifecycle
+// ## lifecycle (N.B.: the event loop is always started on a separate thread)
 // allocate base resources and make initial checks
 void globox_init(struct globox* context);
 // free base resources
