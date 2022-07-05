@@ -328,14 +328,13 @@ void globox_set_vsync_callback(
 	struct globox* context,
 	struct globox_feature_vsync_callback* context);
 
+// TODO add a egl-config feature and other similar
+// stuff for GPU-accelerated rendering
+
 // ## content updaters (backend-specific but still cross-platform)
-// TODO turn those into classic features, this is what they are
 void globox_update_vulkan(struct globox* context, TODO);
 void globox_update_opengl(struct globox* context, TODO);
 void globox_update_opengles(struct globox* context, TODO);
 void globox_update_software(struct globox* context, TODO);
-
-// TODO add a egl-config feature and other similar
-// stuff for GPU-accelerated rendering
 
 #endif
