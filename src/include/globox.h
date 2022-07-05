@@ -248,8 +248,8 @@ struct globox_feature_interaction
 };
 
 void globox_set_interaction(
-	struct globox_feature_interaction* context,
-	enum globox_interaction action);
+	struct globox* context,
+	struct globox_feature_interaction* context);
 
 // state TODO privatise & forward-declare
 struct globox_feature_state
@@ -258,8 +258,8 @@ struct globox_feature_state
 };
 
 void globox_set_state(
-	struct globox_feature_state* context,
-	enum globox_state state); 
+	struct globox* context,
+	struct globox_feature_state* context);
 
 // title TODO privatise & forward-declare
 struct globox_feature_title
@@ -268,8 +268,8 @@ struct globox_feature_title
 };
 
 void globox_set_title(
-	struct globox_feature_title* context,
-	const char* title); 
+	struct globox* context,
+	struct globox_feature_title* context);
 
 // icon TODO privatise & forward-declare
 struct globox_feature_icon
@@ -279,9 +279,8 @@ struct globox_feature_icon
 };
 
 void globox_set_icon(
-	struct globox_feature_icon* context,
-	uint32_t* pixmap,
-	uint32_t len);
+	struct globox* context,
+	struct globox_feature_icon* context);
 
 // init size TODO privatise & forward-declare
 struct globox_feature_init_size
@@ -291,9 +290,8 @@ struct globox_feature_init_size
 };
 
 void globox_set_init_size(
-	struct globox_feature_init_size* context,
-	unsigned width_init,
-	unsigned height_init);
+	struct globox* context,
+	struct globox_feature_init_size* context);
 
 // init pos TODO privatise & forward-declare
 struct globox_feature_init_pos
@@ -303,29 +301,32 @@ struct globox_feature_init_pos
 };
 
 void globox_set_init_pos(
-	struct globox_feature_init_pos* context,
-	int x_init,
-	int y_init);
+	struct globox* context,
+	struct globox_feature_init_pos* context);
 
 // frame TODO privatise & forward-declare
 struct globox_feature_frame
 {
 	bool frame;
+	void* data;
+	void (*callback)(void* data, bool frame);
 };
 
 void globox_set_frame(
-	struct globox_feature_frame* context,
-	bool frame);
+	struct globox* context,
+	struct globox_feature_frame* context);
 
 // background TODO privatise & forward-declare
 struct globox_feature_background
 {
 	enum globox_background background;
+	void* data;
+	void (*callback)(void* data, enum globox_background background);
 };
 
 void globox_set_background(
-	struct globox_feature_background* context,
-	enum globox_background background);
+	struct globox* context,
+	struct globox_feature_background* context);
 
 // vsync callback TODO privatise & forward-declare
 struct globox_feature_vsync_callback
@@ -335,9 +336,8 @@ struct globox_feature_vsync_callback
 };
 
 void globox_set_vsync_callback(
-	struct globox_feature_vsync_callback* context,
-	void* data,
-	void (*callback)(void* data));
+	struct globox* context,
+	struct globox_feature_vsync_callback* context);
 
 // ## content updaters (backend-specific but still cross-platform)
 void globox_update_vulkan(struct globox* context, TODO);
