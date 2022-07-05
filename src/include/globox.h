@@ -6,22 +6,33 @@
 #include <stdbool.h>
 
 // # types
-// private!
 struct globox;
 
-enum globox_platform
+enum globox_feature
 {
-	GLOBOX_PLATFORM_WAYLAND = 0,
-	GLOBOX_PLATFORM_X11,
-	GLOBOX_PLATFORM_WINDOWS,
-	GLOBOX_PLATFORM_MACOS,
+	GLOBOX_FEATURE_INTERACTION = 0,
+	GLOBOX_FEATURE_STATE,
+	GLOBOX_FEATURE_TITLE,
+	GLOBOX_FEATURE_ICON,
+	GLOBOX_FEATURE_INIT_SIZE,
+	GLOBOX_FEATURE_INIT_POS,
+	GLOBOX_FEATURE_FRAMED,
+	GLOBOX_FEATURE_BACKGROUND,
+	GLOBOX_FEATURE_VSYNC_CALLBACK,
 };
 
-enum globox_backend
+enum globox_interaction
 {
-	GLOBOX_BACKEND_SOFTWARE = 0,
-	GLOBOX_BACKEND_VULKAN,
-	GLOBOX_BACKEND_OPENGL,
+	GLOBOX_INTERACTION_STOP = 0,
+	GLOBOX_INTERACTION_MOVE,
+	GLOBOX_INTERACTION_N,  // North
+	GLOBOX_INTERACTION_NW, // North-West
+	GLOBOX_INTERACTION_W,  // West
+	GLOBOX_INTERACTION_SW, // South-West
+	GLOBOX_INTERACTION_S,  // South
+	GLOBOX_INTERACTION_SE, // South-East
+	GLOBOX_INTERACTION_E,  // East
+	GLOBOX_INTERACTION_NE, // North-East
 };
 
 enum globox_state
@@ -38,31 +49,6 @@ enum globox_background
 	GLOBOX_BACKGROUND_OPAQUE = 0,
 	GLOBOX_BACKGROUND_BLURRED,
 	GLOBOX_BACKGROUND_TRANSPARENT,
-};
-
-enum globox_window_feature
-{
-	GLOBOX_WINDOW_FEATURE_X_INIT = 0,
-	GLOBOX_WINDOW_FEATURE_Y_INIT,
-	GLOBOX_WINDOW_FEATURE_WIDTH_INIT,
-	GLOBOX_WINDOW_FEATURE_HEIGHT_INIT,
-	GLOBOX_WINDOW_FEATURE_TITLE,
-	GLOBOX_WINDOW_FEATURE_FRAMED,
-	GLOBOX_WINDOW_FEATURE_BACKGROUND,
-};
-
-enum globox_interaction
-{
-	GLOBOX_INTERACTION_STOP = 0,
-	GLOBOX_INTERACTION_MOVE,
-	GLOBOX_INTERACTION_N,  // North
-	GLOBOX_INTERACTION_NW, // North-West
-	GLOBOX_INTERACTION_W,  // West
-	GLOBOX_INTERACTION_SW, // South-West
-	GLOBOX_INTERACTION_S,  // South
-	GLOBOX_INTERACTION_SE, // South-East
-	GLOBOX_INTERACTION_E,  // East
-	GLOBOX_INTERACTION_NE, // North-East
 };
 
 enum globox_error
@@ -175,48 +161,7 @@ enum globox_error
 	GLOBOX_ERROR_MACOS_EGL_FAIL,
 };
 
-// # structures
-// use callback setters to make configuration easier for the user of the library
-struct globox_config
-{
-	enum globox_backend backend;
-	void* window_feature_registry_data;
-	void (*window_feature_registry)(
-		struct globox* context,
-		enum globox_window_feature feature,
-		void* data);
-
-	size_t backend_callbacks_setter_count;
-	void** backend_callbacks_setter_data;
-	void (**backend_callbacks_setter)(
-		struct globox_backend_callbacks_entry* entry,
-		enum globox_platform,
-		enum globox_backend,
-		void* data);
-
-	size_t event_handler_setter_count;
-	void** event_handler_setter_data;
-	void (**event_handler_setter)(
-		struct globox_event_handlers_entry* entry,
-		enum globox_platform,
-		enum globox_backend,
-		void* data);
-};
-
-// use dedicated structures for callback setters to avoid exposing composition
-struct globox_event_handlers_entry
-{
-	void (*event_handler)(void* event, void* data);
-};
-
-struct globox_backend_callbacks_entry
-{
-	void* backend_callback_data;
-	void (*backend_callback_create)(struct globox* context, void* data);
-	void (*backend_callback_destroy)(struct globox* context, void* data);
-};
-
-// # functions
+// # cross-platform, cross-backend
 // ## lifecycle
 // allocate base resources and make initial checks
 void globox_init(struct globox* context);
@@ -233,29 +178,6 @@ void globox_window_start(struct globox* context);
 // close the window if still open and stop the loop
 void globox_window_stop(struct globox* context);
 
-// set base configuration
-void globox_config(
-	struct globox* context,
-	struct globox_config* config);
-
-// ## interactions
-void globox_interact(
-	struct globox* context,
-	enum globox_interaction action);
-
-void globox_set_icon(
-	struct globox* context,
-	uint32_t* pixmap,
-	uint32_t len);
-
-void globox_set_title(
-	struct globox* context,
-	const char* title); 
-
-void globox_set_state(
-	struct globox* context,
-	enum globox_state state); 
-
 // ## errors
 bool globox_error_catch(struct globox* context);
 void globox_error_reset(struct globox* context);
@@ -263,22 +185,164 @@ void globox_error_log(struct globox* context);
 const char* globox_error_get_message(struct globox* context);
 enum globox_error globox_error_get_code(struct globox* context);
 
-// ## window feature setters
-void globox_window_feature_set_x_init(int x_init);
-void globox_window_feature_set_y_init(int y_init);
-void globox_window_feature_set_width_init(unsigned width_init);
-void globox_window_feature_set_height_init(unsigned height_init);
-void globox_window_feature_set_title(const char* title);
-void globox_window_feature_set_framed(bool framed);
-void globox_window_feature_set_background(enum globox_background background);
+// ## configuration (can always be called)
+// platform callbacks
+struct globox_config_platform
+{
+	// TODO generic function pointer types
+	void TODO(TODO);
+	void TODO(TODO);
+	void TODO(TODO);
+};
 
-// ## window feature callback setters
-void globox_window_feature_callback_set_x_init(void (*callback)(struct globox* context, int x_init));
-void globox_window_feature_callback_set_y_init(void (*callback)(struct globox* context, int y_init));
-void globox_window_feature_callback_set_width_init(void (*callback)(struct globox* context, unsigned width_init));
-void globox_window_feature_callback_set_height_init(void (*callback)(struct globox* context, unsigned height_init));
-void globox_window_feature_callback_set_title(void (*callback)(struct globox* context, const char* title));
-void globox_window_feature_callback_set_framed(void (*callback)(struct globox* context, bool framed));
-void globox_window_feature_callback_set_background(void (*callback)(struct globox* context, enum globox_background background));
+void globox_init_platform(
+	struct globox* context,
+	struct globox_config_platform* config);
+
+// backend callbacks
+struct globox_config_backend
+{
+	// TODO generic function pointer types
+	void TODO(TODO);
+	void TODO(TODO);
+	void TODO(TODO);
+};
+
+void globox_init_backend(
+	struct globox* context,
+	struct globox_config_backend* config);
+
+// feature registry
+struct globox_config_features
+{
+	void* data;
+	void (*registry)(
+		void* data,
+		void* context,
+		enum globox_feature feature);
+};
+
+void globox_init_features(
+	struct globox* context,
+	struct globox_config_features* config);
+
+// event handlers
+struct globox_config_events
+{
+	size_t event_handler_count;
+	void** event_handler_data;
+	void (**event_handler)(
+		void* data,
+		void* event);
+};
+
+void globox_init_events(
+	struct globox* context,
+	struct globox_config_events* config);
+
+// ## features (can only be called if confirmed in the registry callback)
+// interaction TODO privatise & forward-declare
+struct globox_feature_interaction
+{
+	enum globox_interaction action;
+};
+
+void globox_set_interaction(
+	struct globox_feature_interaction* context,
+	enum globox_interaction action);
+
+// state TODO privatise & forward-declare
+struct globox_feature_state
+{
+	enum globox_state state;
+};
+
+void globox_set_state(
+	struct globox_feature_state* context,
+	enum globox_state state); 
+
+// title TODO privatise & forward-declare
+struct globox_feature_title
+{
+	const char* title;
+};
+
+void globox_set_title(
+	struct globox_feature_title* context,
+	const char* title); 
+
+// icon TODO privatise & forward-declare
+struct globox_feature_icon
+{
+	uint32_t* pixmap;
+	uint32_t len;
+};
+
+void globox_set_icon(
+	struct globox_feature_icon* context,
+	uint32_t* pixmap,
+	uint32_t len);
+
+// init size TODO privatise & forward-declare
+struct globox_feature_init_size
+{
+	unsigned width_init;
+	unsigned height_init;
+};
+
+void globox_set_init_size(
+	struct globox_feature_init_size* context,
+	unsigned width_init,
+	unsigned height_init);
+
+// init pos TODO privatise & forward-declare
+struct globox_feature_init_pos
+{
+	int x_init;
+	int y_init;
+};
+
+void globox_set_init_pos(
+	struct globox_feature_init_pos* context,
+	int x_init,
+	int y_init);
+
+// frame TODO privatise & forward-declare
+struct globox_feature_frame
+{
+	bool frame;
+};
+
+void globox_set_frame(
+	struct globox_feature_frame* context,
+	bool frame);
+
+// background TODO privatise & forward-declare
+struct globox_feature_background
+{
+	enum globox_background background;
+};
+
+void globox_set_background(
+	struct globox_feature_background* context,
+	enum globox_background background);
+
+// vsync callback TODO privatise & forward-declare
+struct globox_feature_vsync_callback
+{
+	void* data;
+	void (*callback)(void* data);
+};
+
+void globox_set_vsync_callback(
+	struct globox_feature_vsync_callback* context,
+	void* data,
+	void (*callback)(void* data));
+
+// ## content updaters (backend-specific but still cross-platform)
+void globox_update_vulkan(struct globox* context, TODO);
+void globox_update_opengl(struct globox* context, TODO);
+void globox_update_opengles(struct globox* context, TODO);
+void globox_update_software(struct globox* context, TODO);
 
 #endif
