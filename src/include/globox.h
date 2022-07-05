@@ -189,6 +189,8 @@ enum globox_error globox_error_get_code(struct globox* context);
 // platform callbacks
 struct globox_config_platform
 {
+	// any backend callback must be part of the custom platform data
+	void* data
 	// TODO generic function pointer types
 	void TODO(TODO);
 	void TODO(TODO);
@@ -198,19 +200,6 @@ struct globox_config_platform
 void globox_init_platform(
 	struct globox* context,
 	struct globox_config_platform* config);
-
-// backend callbacks
-struct globox_config_backend
-{
-	// TODO generic function pointer types
-	void TODO(TODO);
-	void TODO(TODO);
-	void TODO(TODO);
-};
-
-void globox_init_backend(
-	struct globox* context,
-	struct globox_config_backend* config);
 
 // feature registry
 struct globox_config_features
@@ -340,9 +329,13 @@ void globox_set_vsync_callback(
 	struct globox_feature_vsync_callback* context);
 
 // ## content updaters (backend-specific but still cross-platform)
+// TODO turn those into classic features, this is what they are
 void globox_update_vulkan(struct globox* context, TODO);
 void globox_update_opengl(struct globox* context, TODO);
 void globox_update_opengles(struct globox* context, TODO);
 void globox_update_software(struct globox* context, TODO);
+
+// TODO add a egl-config feature and other similar
+// stuff for GPU-accelerated rendering
 
 #endif
