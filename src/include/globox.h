@@ -164,37 +164,107 @@ enum globox_error
 // # cross-platform, cross-backend
 // ## lifecycle (N.B.: the event loop is always started on a separate thread)
 // allocate base resources and make initial checks
-void globox_init(struct globox* context);
+void globox_init(
+	struct globox* context);
 // free base resources
-void globox_clean(struct globox* context);
+void globox_clean(
+	struct globox* context);
 
 // create the window without displaying it and call all window feature callbacks
-void globox_window_create(struct globox* context);
+void globox_window_create(
+	struct globox* context);
 // destroy the window object entirely
-void globox_window_destroy(struct globox* context);
+void globox_window_destroy(
+	struct globox* context);
 
 // start displaying the window and running the loop
-void globox_window_start(struct globox* context);
+void globox_window_start(
+	struct globox* context);
 // close the window if still open and stop the loop
-void globox_window_stop(struct globox* context);
+void globox_window_stop(
+	struct globox* context);
 
 // ## errors
-bool globox_error_catch(struct globox* context);
-void globox_error_reset(struct globox* context);
-void globox_error_log(struct globox* context);
-const char* globox_error_get_message(struct globox* context);
-enum globox_error globox_error_get_code(struct globox* context);
+bool globox_error_catch(
+	struct globox* context);
+void globox_error_reset(
+	struct globox* context);
+void globox_error_log(
+	struct globox* context);
+const char* globox_error_get_message(
+	struct globox* context);
+enum globox_error globox_error_get_code(
+	struct globox* context);
 
 // ## configuration (can always be called)
 // platform callbacks
 struct globox_config_platform
 {
 	// any backend callback must be part of the custom platform data
-	void* data
-	// TODO generic function pointer types
-	void TODO(TODO);
-	void TODO(TODO);
-	void TODO(TODO);
+	void* data;
+	// function pointers for each cross-platform globox call
+	// lifecycle
+	void (*init)(
+		struct globox* context);
+	void (*clean)(
+		struct globox* context);
+	void (*window_create)(
+		struct globox* context);
+	void (*window_destroy)(
+		struct globox* context);
+	void (*window_start)(
+		struct globox* context);
+	void (*window_stop)(
+		struct globox* context);
+	// feature registry
+	void (*init_features)(
+		struct globox* context,
+		struct globox_config_features* config);
+	// event handlers
+	void (*init_events)(
+		struct globox* context,
+		struct globox_config_events* config);
+	// features
+	void (*set_interaction)(
+		struct globox* context,
+		struct globox_feature_interaction* config);
+	void (*set_state)(
+		struct globox* context,
+		struct globox_feature_state* config);
+	void globox_set_title(
+		struct globox* context,
+		struct globox_feature_title* config);
+	void globox_set_icon(
+		struct globox* context,
+		struct globox_feature_icon* config);
+	void globox_set_init_size(
+		struct globox* context,
+		struct globox_feature_init_size* config);
+	void globox_set_init_pos(
+		struct globox* context,
+		struct globox_feature_init_pos* config);
+	void globox_set_frame(
+		struct globox* context,
+		struct globox_feature_frame* config);
+	void globox_set_background(
+		struct globox* context,
+		struct globox_feature_background* config);
+	void globox_set_vsync_callback(
+		struct globox* context,
+		struct globox_feature_vsync_callback* config);
+	// content updaters
+	void (*update_vulkan)(
+		struct globox* context,
+		TODO);
+	void (*update_opengl)(
+		struct globox* context,
+		TODO);
+	void (*update_opengles)(
+		struct globox* context,
+		TODO);
+	void (*update_software)(
+		struct globox* context,
+		TODO);
 };
 
 void globox_init_platform(
@@ -238,7 +308,7 @@ struct globox_feature_interaction
 
 void globox_set_interaction(
 	struct globox* context,
-	struct globox_feature_interaction* context);
+	struct globox_feature_interaction* config);
 
 // state TODO privatise & forward-declare
 struct globox_feature_state
@@ -248,7 +318,7 @@ struct globox_feature_state
 
 void globox_set_state(
 	struct globox* context,
-	struct globox_feature_state* context);
+	struct globox_feature_state* config);
 
 // title TODO privatise & forward-declare
 struct globox_feature_title
@@ -258,7 +328,7 @@ struct globox_feature_title
 
 void globox_set_title(
 	struct globox* context,
-	struct globox_feature_title* context);
+	struct globox_feature_title* config);
 
 // icon TODO privatise & forward-declare
 struct globox_feature_icon
@@ -269,7 +339,7 @@ struct globox_feature_icon
 
 void globox_set_icon(
 	struct globox* context,
-	struct globox_feature_icon* context);
+	struct globox_feature_icon* config);
 
 // init size TODO privatise & forward-declare
 struct globox_feature_init_size
@@ -280,7 +350,7 @@ struct globox_feature_init_size
 
 void globox_set_init_size(
 	struct globox* context,
-	struct globox_feature_init_size* context);
+	struct globox_feature_init_size* config);
 
 // init pos TODO privatise & forward-declare
 struct globox_feature_init_pos
@@ -291,7 +361,7 @@ struct globox_feature_init_pos
 
 void globox_set_init_pos(
 	struct globox* context,
-	struct globox_feature_init_pos* context);
+	struct globox_feature_init_pos* config);
 
 // frame TODO privatise & forward-declare
 struct globox_feature_frame
@@ -303,7 +373,7 @@ struct globox_feature_frame
 
 void globox_set_frame(
 	struct globox* context,
-	struct globox_feature_frame* context);
+	struct globox_feature_frame* config);
 
 // background TODO privatise & forward-declare
 struct globox_feature_background
@@ -315,7 +385,7 @@ struct globox_feature_background
 
 void globox_set_background(
 	struct globox* context,
-	struct globox_feature_background* context);
+	struct globox_feature_background* config);
 
 // vsync callback TODO privatise & forward-declare
 struct globox_feature_vsync_callback
@@ -326,15 +396,26 @@ struct globox_feature_vsync_callback
 
 void globox_set_vsync_callback(
 	struct globox* context,
-	struct globox_feature_vsync_callback* context);
+	struct globox_feature_vsync_callback* config);
 
 // TODO add a egl-config feature and other similar
 // stuff for GPU-accelerated rendering
 
-// ## content updaters (backend-specific but still cross-platform)
-void globox_update_vulkan(struct globox* context, TODO);
-void globox_update_opengl(struct globox* context, TODO);
-void globox_update_opengles(struct globox* context, TODO);
-void globox_update_software(struct globox* context, TODO);
+// # content updaters (backend-specific but still cross-platform)
+void globox_update_vulkan(
+	struct globox* context,
+	TODO);
+
+void globox_update_opengl(
+	struct globox* context,
+	TODO);
+
+void globox_update_opengles(
+	struct globox* context,
+	TODO);
+
+void globox_update_software(
+	struct globox* context,
+	TODO);
 
 #endif
