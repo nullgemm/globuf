@@ -11,7 +11,7 @@ struct globox
 
 	// not common but neutral in signature
 	struct globox_config_events event_callbacks;
-	struct globox_config_platform platform_callbacks;
+	struct globox_config_backend backend_callbacks;
 
 	// common details not directly available prior to window creation
 	struct globox_feature_interaction interaction;
