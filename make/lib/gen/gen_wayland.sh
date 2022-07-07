@@ -71,23 +71,19 @@ ldflags+=("-z now")
 	;;
 
 	sanitized_memory)
-cc="clang"
 flags+=("-g")
 flags+=("-O1")
 flags+=("-fno-omit-frame-pointer")
 flags+=("-fno-optimize-sibling-calls")
 
-flags+=("-fsanitize=memory")
-flags+=("-fsanitize-memory-track-origins=2")
+flags+=("-fsanitize=leak")
 flags+=("-fsanitize-recover=all")
 
-ldflags+=("-fsanitize=memory")
-ldflags+=("-fsanitize-memory-track-origins=2")
+ldflags+=("-fsanitize=leak")
 ldflags+=("-fsanitize-recover=all")
 	;;
 
 	sanitized_undefined)
-cc="clang"
 flags+=("-g")
 flags+=("-O1")
 flags+=("-fno-omit-frame-pointer")
@@ -101,7 +97,6 @@ ldflags+=("-fsanitize-recover=all")
 	;;
 
 	sanitized_address)
-cc="clang"
 flags+=("-g")
 flags+=("-O1")
 flags+=("-fno-omit-frame-pointer")
@@ -117,7 +112,6 @@ ldflags+=("-fsanitize-recover=all")
 	;;
 
 	sanitized_thread)
-cc="clang"
 flags+=("-g")
 flags+=("-O1")
 flags+=("-fno-omit-frame-pointer")
