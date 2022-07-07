@@ -5,7 +5,7 @@
 #include "globox_software.h"
 
 // for this backend, `data` is of type `struct globox_update_software*`
-void globox_update_content_software(
+void globox_software_update_content(
 	struct globox* context,
 	void* data);
 

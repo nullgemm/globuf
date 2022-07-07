@@ -5,7 +5,7 @@
 #include "globox_egl.h"
 
 // for this backend, `data` is unused
-void globox_update_content_software(
+void globox_egl_update_content(
 	struct globox* context,
 	void* data);
 
