@@ -388,19 +388,6 @@ void globox_set_vsync_callback(
 	struct globox_feature_vsync_callback* config);
 
 // # content updater (backend-specific but still cross-platform)
-// use common config structs
-struct globox_update_software
-{
-	uint32_t* buf;
-
-	int x;
-	int y;
-
-	unsigned width;
-	unsigned height;
-};
-
-// use generic update function
 void globox_update_content(
 	struct globox* context,
 	void* data);
