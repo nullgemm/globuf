@@ -19,6 +19,8 @@ enum globox_feature
 	GLOBOX_FEATURE_FRAMED,
 	GLOBOX_FEATURE_BACKGROUND,
 	GLOBOX_FEATURE_VSYNC_CALLBACK,
+	// special value used to get the total number of features
+	GLOBOX_FEATURE_SIZE,
 };
 
 enum globox_interaction
@@ -263,16 +265,12 @@ void globox_init_backend(
 // feature registry
 struct globox_config_features
 {
-	void* data;
-	void (*registry)(
-		void* data,
-		void* context,
-		enum globox_feature feature);
+	enum globox_feature* list;
+	size_t count;
 };
 
-void globox_init_features(
-	struct globox* context,
-	struct globox_config_features* config);
+struct globox_config_features* globox_init_features(
+	struct globox* context);
 
 // event handlers
 struct globox_config_events
