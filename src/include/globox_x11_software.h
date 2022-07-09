@@ -4,9 +4,8 @@
 #include "globox.h"
 #include "globox_software.h"
 
-// for this backend, `data` is of type `struct globox_update_software*`
-void globox_software_update_content(
+void globox_init_prepare_x11_software(
 	struct globox* context,
-	void* data);
+	struct globox_config_backend* config);
 
 #endif

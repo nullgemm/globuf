@@ -4,9 +4,8 @@
 #include "globox.h"
 #include "globox_egl.h"
 
-// for this backend, `data` is unused
-void globox_egl_update_content(
+void globox_prepare_init_x11_egl(
 	struct globox* context,
-	void* data);
+	struct globox_config_backend* config);
 
 #endif
