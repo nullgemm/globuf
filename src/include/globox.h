@@ -232,28 +232,28 @@ struct globox_config_backend
 	void (*set_state)(
 		struct globox* context,
 		struct globox_feature_state* config);
-	void globox_set_title(
+	void (*set_title)(
 		struct globox* context,
 		struct globox_feature_title* config);
-	void globox_set_icon(
+	void (*set_icon)(
 		struct globox* context,
 		struct globox_feature_icon* config);
-	void globox_set_init_size(
+	void (*set_init_size)(
 		struct globox* context,
 		struct globox_feature_init_size* config);
-	void globox_set_init_pos(
+	void (*set_init_pos)(
 		struct globox* context,
 		struct globox_feature_init_pos* config);
-	void globox_set_frame(
+	void (*set_frame)(
 		struct globox* context,
 		struct globox_feature_frame* config);
-	void globox_set_background(
+	void (*set_background)(
 		struct globox* context,
 		struct globox_feature_background* config);
-	void globox_set_vsync_callback(
+	void (*set_vsync_callback)(
 		struct globox* context,
 		struct globox_feature_vsync_callback* config);
-	void globox_update_content(
+	void (*update_content)(
 		struct globox* context,
 		void* data);
 };
