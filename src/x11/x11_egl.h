@@ -3,6 +3,7 @@
 
 #include "globox.h"
 
+// # main API (globox.h)
 void globox_x11_egl_init(
 	struct globox* context);
 
