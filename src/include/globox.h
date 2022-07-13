@@ -221,10 +221,10 @@ struct globox_config_backend
 	void (*init_features)(
 		struct globox* context,
 		struct globox_config_features* config);
-	// event handlers
+	// event handler
 	void (*init_events)(
 		struct globox* context,
-		struct globox_config_events* config);
+		void (*handler)(void* data, void* event));
 	// features
 	void (*set_interaction)(
 		struct globox* context,
@@ -272,19 +272,10 @@ struct globox_config_features
 struct globox_config_features* globox_init_features(
 	struct globox* context);
 
-// event handlers
-struct globox_config_events
-{
-	size_t event_handler_count;
-	void** event_handler_data;
-	void (**event_handler)(
-		void* data,
-		void* event);
-};
-
+// event handler
 void globox_init_events(
 	struct globox* context,
-	struct globox_config_events* config);
+	void (*handler)(void* data, void* event));
 
 // ## features (can only be called if confirmed in the registry callback)
 // interaction

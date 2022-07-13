@@ -42,7 +42,7 @@ void globox_x11_vulkan_init_features(
 
 void globox_x11_vulkan_init_events(
 	struct globox* context,
-	struct globox_config_events* config)
+	void (*handler)(void* data, void* event))
 {
 }
 
