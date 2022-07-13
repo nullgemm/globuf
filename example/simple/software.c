@@ -1,6 +1,7 @@
 #include "globox.h"
 #include "globox_software.h"
 #include "globox_x11_software.h"
+#include <event2/event.h>
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -39,7 +40,7 @@ void event_callback(void* data, void* event)
 	{
 		case GLOBOX_EVENT_STOPPED:
 		{
-			// TODO
+			// TODO send event to main thread with libevent
 			break;
 		}
 	}
@@ -68,6 +69,21 @@ int main(int argc, char** argv)
 	struct globox globox = {0};
 	struct globox_config_backend config = {0};
 	struct globox_config_features* features = NULL;
+
+	// libevent init
+#ifdef WIN32
+	evthread_use_windows_threads();
+#define EVTHREAD_USE_WINDOWS_THREADS_IMPLEMENTED
+#endif
+
+#ifdef _EVENT_HAVE_PTHREADS
+	evthread_use_pthreads();
+#define EVTHREAD_USE_PTHREADS_IMPLEMENTED
+#endif
+
+	event_enable_debug_mode();
+
+	struct event_base* event_base = event_base_new();
 
 	// basic init
 	globox_init(&globox);
@@ -233,12 +249,13 @@ int main(int argc, char** argv)
 		"We can keep computing here.\n");
 
 	// wait for the window to be closed
-	// TODO
+	// TODO receive event from event thread with libevent
 
 	// free resources correctly
 	globox_window_stop(globox);
 	globox_window_destroy(globox);
 	globox_clean(globox);
+	libevent_global_shutdown();
 
 	return 0;
 }
