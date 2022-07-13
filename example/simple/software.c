@@ -30,6 +30,21 @@ void feature_callback_frame(void* data, bool frame)
 	}
 }
 
+void event_callback(void* data, void* event)
+{
+	enum globox_event abstract =
+		globox_handle_events(data, event);
+
+	switch (abstract)
+	{
+		case GLOBOX_EVENT_STOPPED:
+		{
+			// TODO
+			break;
+		}
+	}
+}
+
 void vsync_callback(void* data)
 {
 	struct globox* globox = data;
@@ -189,8 +204,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	// we don't register event handlers for this simple example
-	// this is possible because everything is modular in globox
+	// register an event handler to track the window's state
+	globox_init_events(&globox, event_callback);
 
 	// create the window
 	globox_window_create(&globox);
@@ -211,13 +226,19 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// do some more stuff while the window runs in another thread
+	printf(
+		"This is a message from the main thread.\n"
+		"The window should now be visible.\n"
+		"We can keep computing here.\n");
+
 	// wait for the window to be closed
 	// TODO
 
-	// free resources
-	globox_window_stop(&globox);
-	globox_window_destroy(&globox);
-	globox_clean(&globox);
+	// free resources correctly
+	globox_window_stop(globox);
+	globox_window_destroy(globox);
+	globox_clean(globox);
 
 	return 0;
 }

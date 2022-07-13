@@ -23,6 +23,30 @@ enum globox_feature
 	GLOBOX_FEATURE_SIZE,
 };
 
+// didn't necessarily happen programmatically
+enum globox_event
+{
+	// window state updates
+	GLOBOX_EVENT_RESTORED = 0,
+	GLOBOX_EVENT_MINIMIZED,
+	GLOBOX_EVENT_MAXIMIZED,
+	GLOBOX_EVENT_FULLSCREEN,
+	GLOBOX_EVENT_CLOSED,
+	// window size & position updates
+	GLOBOX_EVENT_MOVED,
+	GLOBOX_EVENT_RESIZED_N,
+	GLOBOX_EVENT_RESIZED_NW,
+	GLOBOX_EVENT_RESIZED_W,
+	GLOBOX_EVENT_RESIZED_SW,
+	GLOBOX_EVENT_RESIZED_S,
+	GLOBOX_EVENT_RESIZED_SE,
+	GLOBOX_EVENT_RESIZED_E,
+	GLOBOX_EVENT_RESIZED_NE,
+	// lower-level system updates
+	GLOBOX_EVENT_CONTENT_DAMAGED, // need to render a part of the content again
+	GLOBOX_EVENT_DISPLAY_CHANGED, // need to render the whole content if dpi-aware
+};
+
 enum globox_interaction
 {
 	GLOBOX_INTERACTION_STOP = 0,
@@ -225,6 +249,9 @@ struct globox_config_backend
 	void (*init_events)(
 		struct globox* context,
 		void (*handler)(void* data, void* event));
+	enum globox_event (*handle_events)(
+		struct globox* context,
+		void* event);
 	// features
 	void (*set_interaction)(
 		struct globox* context,
@@ -276,6 +303,11 @@ struct globox_config_features* globox_init_features(
 void globox_init_events(
 	struct globox* context,
 	void (*handler)(void* data, void* event));
+
+// event helper (very special case, event handlers shouldn't be as simple!)
+enum globox_event globox_handle_events(
+	struct globox* context,
+	void* event);
 
 // ## features (can only be called if confirmed in the registry callback)
 // interaction

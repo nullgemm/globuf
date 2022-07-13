@@ -46,6 +46,12 @@ void globox_x11_vulkan_init_events(
 {
 }
 
+enum globox_event globox_x11_vulkan_handle_events(
+	struct globox* context,
+	void* event)
+{
+}
+
 void globox_x11_vulkan_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config)

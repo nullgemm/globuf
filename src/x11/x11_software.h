@@ -30,6 +30,10 @@ void globox_x11_software_init_events(
 	struct globox* context,
 	void (*handler)(void* data, void* event));
 
+enum globox_event globox_x11_software_handle_events(
+	struct globox* context,
+	void* event);
+
 void globox_x11_software_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config);
