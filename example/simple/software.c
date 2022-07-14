@@ -7,6 +7,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+extern unsigned char iconpix_beg;
+extern unsigned char iconpix_end;
+extern unsigned char iconpix_len;
+
 void feature_callback_background(void* data, enum globox_background background)
 {
 	// fair enough
@@ -32,25 +36,90 @@ void feature_callback_frame(void* data, bool frame)
 
 void event_callback(void* data, void* event)
 {
+	// print some debug info on internal events
 	enum globox_event abstract =
 		globox_handle_events(data, event);
 
 	switch (abstract)
 	{
 		case GLOBOX_EVENT_RESTORED:
+		{
+			fprintf(stderr, "received `restored` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_MINIMIZED:
+		{
+			fprintf(stderr, "received `minimized` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_MAXIMIZED:
+		{
+			fprintf(stderr, "received `maximized` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_FULLSCREEN:
+		{
+			fprintf(stderr, "received `fullscreen` event\n");
+			break;
+		}
+		case GLOBOX_EVENT_CLOSED:
+		{
+			fprintf(stderr, "received `closed` event\n");
+			break;
+		}
+		case GLOBOX_EVENT_MOVED:
+		{
+			fprintf(stderr, "received `moved` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_N:
+		{
+			fprintf(stderr, "received `resized (north)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_NW:
+		{
+			fprintf(stderr, "received `resized (north-west)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_W:
+		{
+			fprintf(stderr, "received `resized (west)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_SW:
+		{
+			fprintf(stderr, "received `resized (south-west)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_S:
+		{
+			fprintf(stderr, "received `resized (south)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_SE:
+		{
+			fprintf(stderr, "received `resized (south-east)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_E:
+		{
+			fprintf(stderr, "received `resized (east)` event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESIZED_NE:
 		{
-			// TODO update app buffer size
+			fprintf(stderr, "received `resized (north-east)` event\n");
+			break;
+		}
+		case GLOBOX_EVENT_CONTENT_DAMAGED:
+		{
+			fprintf(stderr, "received `content damaged` event\n");
+			break;
+		}
+		case GLOBOX_EVENT_DISPLAY_CHANGED:
+		{
+			fprintf(stderr, "received `display changed` event\n");
 			break;
 		}
 	}
@@ -58,17 +127,39 @@ void event_callback(void* data, void* event)
 
 void vsync_callback(void* data)
 {
+	// render our trademark square as a simple example, updating the whole
+	// buffer each time without taking surface damage events into account
 	struct globox* globox = data;
+	size_t width = globox_get_width(globox);
+	size_t height = globox_get_height(globox);
+	uint32_t* argb = malloc(width * height * 4);
 
-	// TODO render something
-	// TODO fill the update structure
+	for (size_t i = 0; i < (width * height); ++i)
+	{
+		argb[i] = 0x22000000;
+	}
+
+	size_t pos;
+	size_t square_width = (width < 100) ? width : 100;
+	size_t square_height = (height < 100) ? height : 100;
+
+	for (size_t i = 0; i < (square_width * square_height); ++i)
+	{
+		pos =
+			(((height - square_height) / 2) + (i / square_width)) * width
+			+ (width - square_width) / 2
+			+ (i % square_width);
+
+		argb[pos] = 0xFFFFFFFF;
+	}
+
 	struct globox_update_software update =
 	{
-		.buf = NULL,
+		.buf = argb,
 		.x = 0,
 		.y = 0,
-		.width = 0,
-		.height = 0,
+		.width = width,
+		.height = height,
 	};
 
 	globox_update_content(globox, &update);
@@ -127,11 +218,13 @@ int main(int argc, char** argv)
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				// TODO
 				struct globox_feature_icon icon =
 				{
-					.pixmap = NULL,
-					.len = 0,
+					// acceptable implementation-defined behavior
+					// since it's also the implementation that
+					// allows us to bundle resources like so
+					.pixmap = (uint32_t*) &iconpix_beg,
+					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 				};
 
 				globox_set_icon(
