@@ -31,8 +31,8 @@ flags+=("-fPIC")
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
-ldflags+=("")
-link+=("")
+#ldflags+=("")
+#link+=("")
 
 if [ -z "$build" ]; then
 	read -rp "select build type (development | release | sanitized): " build
@@ -147,15 +147,15 @@ echo "CC = $cc"; \
 } > "$output/$makefile"
 
 # makefile linking info
-echo "" >> "$output/$makefile"
-for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
-	echo "LDFLAGS+= $flag" >> "$output/$makefile"
-done
+#echo "" >> "$output/$makefile"
+#for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
+	#echo "LDFLAGS+= $flag" >> "$output/$makefile"
+#done
 
-echo "" >> "$output/$makefile"
-for flag in $(pkg-config "${link[@]}" --libs); do
-	echo "LDLIBS+= $flag" >> "$output/$makefile"
-done
+#echo "" >> "$output/$makefile"
+#for flag in $(pkg-config "${link[@]}" --libs); do
+	#echo "LDLIBS+= $flag" >> "$output/$makefile"
+#done
 
 # makefile compiler flags
 echo "" >> "$output/$makefile"

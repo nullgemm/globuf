@@ -18,15 +18,24 @@ release_zip:
 	make/scripts/release_zip.sh
 
 # library makefiles targets
-makefile_lib_x11_software:
+makefile_lib_x11_software: \
+make/output/makefile_lib_x11_software
+	@echo "built make/output/makefile_lib_x11_software"
+
 make/output/makefile_lib_x11_software:
 	make/lib/gen/gen_x11.sh release software
 
-makefile_lib_x11_egl:
+makefile_lib_x11_egl: \
+make/output/makefile_lib_x11_egl
+	@echo "built make/output/makefile_lib_x11_egl"
+
 make/output/makefile_lib_x11_egl:
 	make/lib/gen/gen_x11.sh release egl
 
-makefile_lib_x11_vulkan:
+makefile_lib_x11_vulkan: \
+make/output/makefile_lib_x11_vulkan
+	@echo "built make/output/makefile_lib_x11_vulkan"
+
 make/output/makefile_lib_x11_vulkan:
 	make/lib/gen/gen_x11.sh release vulkan
 
@@ -79,15 +88,24 @@ makefile_sanitized_thread_lib_x11_vulkan:
 
 # simple example makefiles targets
 ## named & regular makefile targets for release simple example builds
-makefile_example_simple_x11_software:
+makefile_example_simple_x11_software: \
+make/output/makefile_example_simple_x11_software
+	@echo "built make/output/makefile_example_simple_x11_software"
+
 make/output/makefile_example_simple_x11_software:
 	make/example/simple/gen/gen_x11.sh release software
 
-makefile_example_simple_x11_egl:
+makefile_example_simple_x11_egl: \
+make/output/makefile_example_simple_x11_egl
+	@echo "built make/output/makefile_example_simple_x11_egl"
+
 make/output/makefile_example_simple_x11_egl:
 	make/example/simple/gen/gen_x11.sh release egl
 
-makefile_example_simple_x11_vulkan:
+makefile_example_simple_x11_vulkan: \
+make/output/makefile_example_simple_x11_vulkan
+	@echo "built make/output/makefile_example_simple_x11_vulkan"
+
 make/output/makefile_example_simple_x11_vulkan:
 	make/example/simple/gen/gen_x11.sh release vulkan
 
@@ -140,16 +158,25 @@ makefile_sanitized_thread_example_simple_x11_vulkan:
 
 # complex example makefiles targets
 ## named & regular makefile targets for release complex example builds
-makefile_example_complex_x11_software:
-make/output/makefile_example_simple_x11_software:
+makefile_example_complex_x11_software: \
+make/output/makefile_example_complex_x11_software
+	@echo "built make/output/makefile_example_complex_x11_software"
+
+make/output/makefile_example_complex_x11_software:
 	make/example/complex/gen/gen_x11.sh release software
 
-makefile_example_complex_x11_egl:
-make/output/makefile_example_simple_x11_egl:
+makefile_example_complex_x11_egl: \
+make/output/makefile_example_complex_x11_egl
+	@echo "built make/output/makefile_example_complex_x11_egl"
+
+make/output/makefile_example_complex_x11_egl:
 	make/example/complex/gen/gen_x11.sh release egl
 
-makefile_example_complex_x11_vulkan:
-make/output/makefile_example_simple_x11_vulkan:
+makefile_example_complex_x11_vulkan: \
+make/output/makefile_example_complex_x11_vulkan
+	@echo "built make/output/makefile_example_complex_x11_vulkan"
+
+make/output/makefile_example_complex_x11_vulkan:
 	make/example/complex/gen/gen_x11.sh release vulkan
 
 ## named makefile targets for development complex example builds

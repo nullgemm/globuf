@@ -23,9 +23,9 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Iglobox_bin_$tag/include")
 
-defines+=("")
-ldflags+=("")
-link+=("")
+#defines+=("")
+#ldflags+=("")
+#link+=("")
 
 if [ -z "$build" ]; then
 	read -rp "select build type (development | release | sanitized): " build
@@ -179,15 +179,15 @@ echo "CC = $cc"; \
 } > "$output/$makefile"
 
 # makefile linking info
-echo "" >> "$output/$makefile"
-for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
-	echo "LDFLAGS+= $flag" >> "$output/$makefile"
-done
+#echo "" >> "$output/$makefile"
+#for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
+	#echo "LDFLAGS+= $flag" >> "$output/$makefile"
+#done
 
-echo "" >> "$output/$makefile"
-for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
-	echo "LDLIBS+= $flag" >> "$output/$makefile"
-done
+#echo "" >> "$output/$makefile"
+#for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
+	#echo "LDLIBS+= $flag" >> "$output/$makefile"
+#done
 
 # makefile compiler flags
 echo "" >> "$output/$makefile"
