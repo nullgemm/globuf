@@ -30,3 +30,13 @@ struct globox
 	enum globox_error error;
 	char* error_messages[GLOBOX_ERROR_SIZE];
 };
+
+unsigned globox_get_width(struct globox* context)
+{
+
+}
+
+unsigned globox_get_height(struct globox* context)
+{
+
+}

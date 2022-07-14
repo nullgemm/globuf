@@ -419,4 +419,8 @@ void globox_update_content(
 	struct globox* context,
 	void* data);
 
+// # getters
+unsigned globox_get_width(struct globox* context);
+unsigned globox_get_height(struct globox* context);
+
 #endif
