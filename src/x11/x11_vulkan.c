@@ -29,6 +29,11 @@ void globox_x11_vulkan_window_start(
 {
 }
 
+void globox_x11_vulkan_window_block(
+	struct globox* context)
+{
+}
+
 void globox_x11_vulkan_window_stop(
 	struct globox* context)
 {

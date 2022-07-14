@@ -19,6 +19,9 @@ void globox_x11_vulkan_window_destroy(
 void globox_x11_vulkan_window_start(
 	struct globox* context);
 
+void globox_x11_vulkan_window_block(
+	struct globox* context);
+
 void globox_x11_vulkan_window_stop(
 	struct globox* context);
 

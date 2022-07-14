@@ -37,9 +37,20 @@ void event_callback(void* data, void* event)
 
 	switch (abstract)
 	{
-		case GLOBOX_EVENT_STOPPED:
+		case GLOBOX_EVENT_RESTORED:
+		case GLOBOX_EVENT_MINIMIZED:
+		case GLOBOX_EVENT_MAXIMIZED:
+		case GLOBOX_EVENT_FULLSCREEN:
+		case GLOBOX_EVENT_RESIZED_N:
+		case GLOBOX_EVENT_RESIZED_NW:
+		case GLOBOX_EVENT_RESIZED_W:
+		case GLOBOX_EVENT_RESIZED_SW:
+		case GLOBOX_EVENT_RESIZED_S:
+		case GLOBOX_EVENT_RESIZED_SE:
+		case GLOBOX_EVENT_RESIZED_E:
+		case GLOBOX_EVENT_RESIZED_NE:
 		{
-			// TODO
+			// TODO update app buffer size
 			break;
 		}
 	}
@@ -233,12 +244,12 @@ int main(int argc, char** argv)
 		"We can keep computing here.\n");
 
 	// wait for the window to be closed
-	// TODO
+	globox_window_block(&globox);
 
 	// free resources correctly
-	globox_window_stop(globox);
-	globox_window_destroy(globox);
-	globox_clean(globox);
+	globox_window_stop(&globox);
+	globox_window_destroy(&globox);
+	globox_clean(&globox);
 
 	return 0;
 }
