@@ -158,10 +158,9 @@ echo ""; \
 } > "$output/$ninja_file"
 
 # ninja flags
-{ \
-echo "# flags"; \
-echo "flags = \$"; \
-} >> "$output/$ninja_file"
+echo "# flags" >> "$output/$ninja_file"
+
+echo "flags = \$" >> "$output/$ninja_file"
 for flag in "${flags[@]}"; do
 	echo "$flag \$" >> "$output/$ninja_file"
 done
@@ -239,7 +238,7 @@ for file in "${src[@]}"; do
 	} >> "$output/$ninja_file"
 done
 
-# objects list
+## objects list
 echo "# objects list" >> "$output/$ninja_file"
 
 echo "obj = \$" >> "$output/$ninja_file"
@@ -248,7 +247,7 @@ for file in "${obj[@]}"; do
 done
 echo "" >> "$output/$ninja_file"
 
-## archive objects
+## main targets
 { \
 echo "# archive objects"; \
 echo "build \$folder_library/\$name.a: \$"; \
@@ -256,7 +255,7 @@ echo "ar \$obj"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
-# special targets
+## special targets
 { \
 echo "# run special targets"; \
 echo "build regen: generator"; \

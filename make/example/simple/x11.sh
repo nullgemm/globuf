@@ -353,7 +353,7 @@ echo "build res/shaders/gl1/square_frag_gl1.o: shader_frag res/shaders/gl1/squar
 echo ""; \
 } >> "$output/$ninja_file"
 
-# special targets
+## special targets
 { \
 echo "# run special targets"; \
 echo "build leak: leak \$builddir/\$name"; \
