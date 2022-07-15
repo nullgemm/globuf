@@ -1,5 +1,4 @@
 #include "include/globox.h"
-#include "common/globox_private.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -20,23 +19,25 @@ struct globox
 	// common details set using the window feature transaction system
 	struct globox_feature_title title;
 	struct globox_feature_icon icon;
-	struct globox_feature_init_size init_size;
-	struct globox_feature_init_pos init_pos;
+	struct globox_feature_size size;
+	struct globox_feature_pos pos;
 	struct globox_feature_frame frame;
 	struct globox_feature_background background;
 	struct globox_feature_vsync_callback vsync_callback;
 
 	// error handling
 	enum globox_error error;
-	char* error_messages[GLOBOX_ERROR_SIZE];
+	char* error_messages[GLOBOX_ERROR_COUNT];
 };
 
 unsigned globox_get_width(struct globox* context)
 {
-
+	// TODO mutex
+	return context->size.width;
 }
 
 unsigned globox_get_height(struct globox* context)
 {
-
+	// TODO mutex
+	return context->size.height;
 }

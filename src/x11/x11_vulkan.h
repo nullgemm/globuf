@@ -53,13 +53,13 @@ void globox_x11_vulkan_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config);
 
-void globox_x11_vulkan_set_init_size(
+void globox_x11_vulkan_set_size(
 	struct globox* context,
-	struct globox_feature_init_size* config);
+	struct globox_feature_size* config);
 
-void globox_x11_vulkan_set_init_pos(
+void globox_x11_vulkan_set_pos(
 	struct globox* context,
-	struct globox_feature_init_pos* config);
+	struct globox_feature_pos* config);
 
 void globox_x11_vulkan_set_frame(
 	struct globox* context,

@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
@@ -167,42 +168,55 @@ void vsync_callback(void* data)
 
 int main(int argc, char** argv)
 {
-	struct globox globox = {0};
+	struct globox* globox = NULL;
 	struct globox_config_backend config = {0};
 	struct globox_config_features* features = NULL;
 
 	// basic init
-	globox_init(&globox);
+	globox_init(globox);
 
-	if (globox_error_catch(&globox))
+	if (globox_error_catch(globox))
 	{
 		return 1;
 	}
 
 	// platform & backend init
-	globox_init_prepare_x11_software(&globox, &config);
+	globox_prepare_init_x11_software(globox, &config);
 
-	if (globox_error_catch(&globox))
+	if (globox_error_catch(globox))
 	{
-		globox_clean(&globox);
+		globox_clean(globox);
 		return 1;
 	}
 
-	globox_init_backend(&globox, &config);
+	globox_init_backend(globox, &config);
 
-	if (globox_error_catch(&globox))
+	if (globox_error_catch(globox))
 	{
-		globox_clean(&globox);
+		globox_clean(globox);
 		return 1;
 	}
 
 	// get available features
-	features = globox_init_features(&globox);
+	features = globox_init_features(globox);
 
 	for (size_t i = 0; i < features->count; ++i)
 	{
 		switch (features->list[i])
 		{
+			case GLOBOX_FEATURE_STATE:
+			{
+				struct globox_feature_state state =
+				{
+					.state = GLOBOX_STATE_REGULAR,
+				};
+
+				globox_set_state(
+					globox,
+					&state);
+
+				break;
+			}
 			case GLOBOX_FEATURE_TITLE:
 			{
 				struct globox_feature_title title =
@@ -211,7 +225,7 @@ int main(int argc, char** argv)
 				};
 
 				globox_set_title(
-					&globox,
+					globox,
 					&title);
 
 				break;
@@ -228,35 +242,35 @@ int main(int argc, char** argv)
 				};
 
 				globox_set_icon(
-					&globox,
+					globox,
 					&icon);
 
 				break;
 			}
-			case GLOBOX_FEATURE_INIT_SIZE:
+			case GLOBOX_FEATURE_SIZE:
 			{
-				struct globox_feature_init_size size =
+				struct globox_feature_size size =
 				{
-					.width_init = 500,
-					.height_init = 500,
+					.width = 500,
+					.height = 500,
 				};
 
-				globox_set_init_size(
-					&globox,
+				globox_set_size(
+					globox,
 					&size);
 
 				break;
 			}
-			case GLOBOX_FEATURE_INIT_POS:
+			case GLOBOX_FEATURE_POS:
 			{
-				struct globox_feature_init_pos pos =
+				struct globox_feature_pos pos =
 				{
-					.x_init = 250,
-					.y_init = 250,
+					.x = 250,
+					.y = 250,
 				};
 
-				globox_set_init_pos(
-					&globox,
+				globox_set_pos(
+					globox,
 					&pos);
 
 				break;
@@ -271,7 +285,7 @@ int main(int argc, char** argv)
 				};
 
 				globox_set_frame(
-					&globox,
+					globox,
 					&frame);
 
 				break;
@@ -286,7 +300,7 @@ int main(int argc, char** argv)
 				};
 
 				globox_set_background(
-					&globox,
+					globox,
 					&background);
 
 				break;
@@ -295,38 +309,48 @@ int main(int argc, char** argv)
 			{
 				struct globox_feature_vsync_callback vsync =
 				{
-					.data = &globox,
+					.data = globox,
 					.callback = vsync_callback,
 				};
 
 				globox_set_vsync_callback(
-					&globox,
+					globox,
 					&vsync);
 
+				break;
+			}
+			default:
+			{
 				break;
 			}
 		}
 	}
 
 	// register an event handler to track the window's state
-	globox_init_events(&globox, event_callback);
+	struct globox_config_events events =
+	{
+		.data = NULL,
+		.handler = event_callback,
+	};
+
+	globox_init_events(globox, &events);
 
 	// create the window
-	globox_window_create(&globox);
+	globox_window_create(globox);
 
-	if (globox_error_catch(&globox))
+	if (globox_error_catch(globox))
 	{
-		globox_clean(&globox);
+		globox_clean(globox);
 		return 1;
 	}
 
 	// display the window
-	globox_window_start(&globox);
+	globox_window_start(globox);
 
-	if (globox_error_catch(&globox))
+	if (globox_error_catch(globox))
 	{
-		globox_window_destroy(&globox);
-		globox_clean(&globox);
+		globox_window_destroy(globox);
+		globox_clean(globox);
 		return 1;
 	}
 
@@ -337,12 +361,12 @@ int main(int argc, char** argv)
 		"We can keep computing here.\n");
 
 	// wait for the window to be closed
-	globox_window_block(&globox);
+	globox_window_block(globox);
 
 	// free resources correctly
-	globox_window_stop(&globox);
-	globox_window_destroy(&globox);
-	globox_clean(&globox);
+	globox_window_stop(globox);
+	globox_window_destroy(globox);
+	globox_clean(globox);
 
 	return 0;
 }
