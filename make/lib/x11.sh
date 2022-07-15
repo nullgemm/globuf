@@ -160,17 +160,17 @@ echo ""; \
 # ninja flags
 echo "# flags" >> "$output/$ninja_file"
 
-echo "flags = \$" >> "$output/$ninja_file"
+echo -n "flags =" >> "$output/$ninja_file"
 for flag in "${flags[@]}"; do
-	echo "$flag \$" >> "$output/$ninja_file"
+	echo -ne " \$\n$flag" >> "$output/$ninja_file"
 done
-echo "" >> "$output/$ninja_file"
+echo -e "\n" >> "$output/$ninja_file"
 
-echo "defines = \$" >> "$output/$ninja_file"
+echo -ne "defines =" >> "$output/$ninja_file"
 for define in "${defines[@]}"; do
-	echo "$define \$" >> "$output/$ninja_file"
+	echo -ne " \$\n$define" >> "$output/$ninja_file"
 done
-echo "" >> "$output/$ninja_file"
+echo -e "\n" >> "$output/$ninja_file"
 
 # ninja rules
 { \
@@ -238,22 +238,13 @@ for file in "${src[@]}"; do
 	} >> "$output/$ninja_file"
 done
 
-## objects list
-echo "# objects list" >> "$output/$ninja_file"
-
-echo "obj = \$" >> "$output/$ninja_file"
-for file in "${obj[@]}"; do
-	echo "$file \$" >> "$output/$ninja_file"
-done
-echo "" >> "$output/$ninja_file"
-
 ## main targets
-{ \
-echo "# archive objects"; \
-echo "build \$folder_library/\$name.a: \$"; \
-echo "ar \$obj"; \
-echo ""; \
-} >> "$output/$ninja_file"
+echo "# archive objects" >> "$output/$ninja_file"
+echo -n "build \$folder_library/\$name.a: ar" >> "$output/$ninja_file"
+for file in "${obj[@]}"; do
+	echo -ne " \$\n$file" >> "$output/$ninja_file"
+done
+echo -e "\n" >> "$output/$ninja_file"
 
 ## special targets
 { \
