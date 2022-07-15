@@ -140,8 +140,8 @@ name_lib+="_egl"
 src+=("example/simple/egl.c")
 link+=("egl")
 link+=("glesv2")
-obj+=("res/shaders/gl1/square_vert_gl1.o")
-obj+=("res/shaders/gl1/square_frag_gl1.o")
+obj+=("\$folder_objects/res/shaders/gl1/square_vert_gl1.o")
+obj+=("\$folder_objects/res/shaders/gl1/square_frag_gl1.o")
 	;;
 
 	vulkan)
@@ -159,7 +159,7 @@ exit 1
 esac
 
 # additional object files
-obj+=("res/icon/iconpix.o")
+obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_library/x11/$name_lib.a")
 obj+=("\$folder_library/globox_$backend.a")
 obj+=("\$folder_library/globox.a")
@@ -338,12 +338,13 @@ done
 { \
 echo "# main targets"; \
 echo "build res/icon/iconpix.bin: icon_pixmap"; \
-echo "build res/icon/iconpix.o: icon_object res/icon/iconpix.bin"; \
+echo "build \$folder_objects/res/icon/iconpix.o: \$"; \
+echo "icon_object res/icon/iconpix.bin"; \
 echo ""; \
-echo "build res/shaders/gl1/square_vert_gl1.o: \$"; \
+echo "build \$folder_objects/res/shaders/gl1/square_vert_gl1.o: \$"; \
 echo "shader_vert_object res/shaders/gl1/square_vert_gl1.glsl"; \
 echo ""; \
-echo "build res/shaders/gl1/square_frag_gl1.o: \$"; \
+echo "build \$folder_objects/res/shaders/gl1/square_frag_gl1.o: \$"; \
 echo "shader_frag_object res/shaders/gl1/square_frag_gl1.glsl"; \
 echo ""; \
 } >> "$output/$ninja_file"
