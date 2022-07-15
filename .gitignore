@@ -1,13 +1,9 @@
-bin
+build
 inc
-*.o
-*.obj
 make/output
-makefile_*
 globox_bin_v*
 res/angle
 res/objconv
-res/eglproxy
 res/egl_headers
 res/wayland_headers
 res/icon/iconpix.bin
@@ -17,4 +13,3 @@ ci/osxcross_build_image/scripts/pkg
 ci/globox_image_osxcross/scripts/sdk
 valgrind.log
 drmemory.log
-.vscode
