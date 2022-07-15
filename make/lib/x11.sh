@@ -239,11 +239,20 @@ for file in "${src[@]}"; do
 	} >> "$output/$ninja_file"
 done
 
+# objects list
+echo "# objects list" >> "$output/$ninja_file"
+
+echo "obj = \$" >> "$output/$ninja_file"
+for file in "${obj[@]}"; do
+	echo "$file \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
 ## archive objects
 { \
 echo "# archive objects"; \
 echo "build \$folder_library/\$name.a: \$"; \
-echo "ar ${obj[@]}"; \
+echo "ar \$obj"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
@@ -252,5 +261,5 @@ echo ""; \
 echo "# run special targets"; \
 echo "build regen: generator"; \
 echo "build clean: clean"; \
-echo "default ${default[@]}"; \
+echo "default" "${default[@]}"; \
 } >> "$output/$ninja_file"

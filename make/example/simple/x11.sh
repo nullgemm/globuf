@@ -1,0 +1,364 @@
+#!/bin/bash
+
+# get into the script's folder
+cd "$(dirname "$0")" || exit
+cd ../../..
+
+# params
+build=$1
+backend=$2
+
+echo "syntax reminder: $0 <build type> <backend type>"
+echo "build types: development, release, sanitized"
+echo "backend types: software, egl, vulkan"
+
+# utilitary variables
+tag=$(git tag --sort v:refname | tail -n 1)
+output="make/output"
+name_lib="globox_x11"
+
+# ninja file variables
+folder_ninja="build"
+folder_objects="\$builddir/obj"
+folder_globox="globox_bin_$tag"
+folder_library="\$folder_globox/lib/globox"
+folder_include="\$folder_globox/include"
+name="globox_example_simple_x11"
+cc="gcc"
+ld="ld"
+
+# compiler flags
+flags+=("-std=c99" "-pedantic")
+flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
+flags+=("-Wformat")
+flags+=("-Wformat-security")
+flags+=("-Wno-address-of-packed-member")
+flags+=("-Wno-unused-parameter")
+flags+=("-I$folder_globox/include")
+
+# customize depending on the chosen build type
+if [ -z "$build" ]; then
+	build=development
+fi
+
+case $build in
+	development)
+flags+=("-g")
+	;;
+
+	release)
+flags+=("-D_FORTIFY_SOURCE=2")
+flags+=("-fstack-protector-strong")
+flags+=("-fPIE")
+flags+=("-fPIC")
+flags+=("-O2")
+ldflags+=("-z relro")
+ldflags+=("-z now")
+	;;
+
+	sanitized_memory)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=leak")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=leak")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_undefined)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=undefined")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=undefined")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_address)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=address")
+flags+=("-fsanitize-address-use-after-scope")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=address")
+ldflags+=("-fsanitize-address-use-after-scope")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	sanitized_thread)
+flags+=("-g")
+flags+=("-O1")
+flags+=("-fno-omit-frame-pointer")
+flags+=("-fno-optimize-sibling-calls")
+
+flags+=("-fsanitize=thread")
+flags+=("-fsanitize-recover=all")
+
+ldflags+=("-fsanitize=thread")
+ldflags+=("-fsanitize-recover=all")
+	;;
+
+	*)
+echo "invalid build type"
+exit 1
+	;;
+esac
+
+# customize depending on the chosen backend type
+if [ -z "$backend" ]; then
+	backend=software
+fi
+
+case $backend in
+	software)
+ninja_file=example_simple_x11_software.ninja
+name+="_software"
+name_lib+="_software"
+src+=("example/simple/software.c")
+link+=("xcb-shm")
+link+=("xcb-randr")
+link+=("xcb-render")
+	;;
+
+	egl)
+ninja_file=example_simple_x11_egl.ninja
+name+="_egl"
+name_lib+="_egl"
+src+=("example/simple/egl.c")
+link+=("egl")
+link+=("glesv2")
+obj+=("res/shaders/gl1/square_vert_gl1.o")
+obj+=("res/shaders/gl1/square_frag_gl1.o")
+	;;
+
+	vulkan)
+ninja_file=example_simple_x11_vulkan.ninja
+name+="_vulkan"
+name_lib+="_vulkan"
+src+=("example/simple/vulkan.c")
+#TODO
+	;;
+
+	*)
+echo "invalid backend"
+exit 1
+	;;
+esac
+
+# additional object files
+obj+=("res/icon/iconpix.o")
+obj+=("\$folder_library/x11/$name_lib.a")
+obj+=("\$folder_library/globox_$backend.a")
+obj+=("\$folder_library/globox.a")
+cmd="./\$name"
+
+# default target
+default+=("\$builddir/\$name")
+
+# valgrind flags
+valgrind+=("--show-error-list=yes")
+valgrind+=("--show-leak-kinds=all")
+valgrind+=("--track-origins=yes")
+valgrind+=("--leak-check=full")
+valgrind+=("--suppressions=../res/valgrind.supp")
+
+# objcopy flags
+objcopy+=("-I binary")
+objcopy+=("-O elf64-x86-64")
+objcopy+=("-B i386:x86-64")
+
+# ninja start
+mkdir -p "$output"
+
+{ \
+echo "# vars"; \
+echo "builddir = $folder_ninja"; \
+echo "folder_objects = $folder_objects"; \
+echo "folder_globox = $folder_globox"; \
+echo "folder_library = $folder_library"; \
+echo "folder_include = $folder_include"; \
+echo "name = $name"; \
+echo "cmd = $cmd"; \
+echo "cc = $cc"; \
+echo "ld = $ld"; \
+echo ""; \
+} > "$output/$ninja_file"
+
+# ninja flags
+echo "# flags" >> "$output/$ninja_file"
+
+echo "flags = \$" >> "$output/$ninja_file"
+for flag in "${flags[@]}"; do
+	echo "$flag \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+echo "defines = \$" >> "$output/$ninja_file"
+for define in "${defines[@]}"; do
+	echo "$define \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+echo "ldflags = \$" >> "$output/$ninja_file"
+for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
+	echo "$flag \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+echo "ldlibs = \$" >> "$output/$ninja_file"
+for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
+	echo "$flag \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+echo "valgrind = \$" >> "$output/$ninja_file"
+for flag in "${valgrind[@]}"; do
+	echo "$flag \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+echo "objcopy = \$" >> "$output/$ninja_file"
+for flag in "${objcopy[@]}"; do
+	echo "$flag \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+# ninja rules
+{ \
+echo "# rules"; \
+echo "rule cc"; \
+echo "    deps = $cc"; \
+echo "    depfile = \$out.d"; \
+echo "    command = \$cc \$flags \$defines -MMD -MF \$out.d -c \$in -o \$out"; \
+echo "    description = cc \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule ld"; \
+echo "    command = \$ld \$ldflags -o \$out \$in \$ldlibs"; \
+echo "    description = ld \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule icon_pixmap"; \
+echo "    command = make/scripts/pixmap.sh"; \
+echo "    description = pixmap \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule icon_object"; \
+echo "    command = objcopy \$objcopy \$"; \
+echo "    --redefine-syms=res/icon/syms.map \$"; \
+echo "    --rename-section .data=.iconpix \$"; \
+echo "    \$in \$out"; \
+echo "    description = objcopy \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule shader_vert_object"; \
+echo "    command = objcopy \$objcopy \$"; \
+echo "    --redefine-syms=res/shaders/gl1/syms.map \$"; \
+echo "    --rename-section .data=.square_vert \$"; \
+echo "    \$in \$out"; \
+echo "    description = objcopy \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule shader_frag_object"; \
+echo "    command = objcopy \$objcopy \$"; \
+echo "    --redefine-syms=res/shaders/gl1/syms.map \$"; \
+echo "    --rename-section .data=.square_frag \$"; \
+echo "    \$in \$out"; \
+echo "    description = objcopy \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule leak"; \
+echo "    command = cd \$builddir \$"; \
+echo "    && valgrind \$valgrind 2> valgrind.log \$cmd \$"; \
+echo "    && less valgrind.log"; \
+echo "    description = running valgrind \$in"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule run"; \
+echo "    command = cd \$builddir && \$cmd"; \
+echo "    description = running \$in"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule clean"; \
+echo "    command = make/scripts/clean.sh"; \
+echo "    description = cleaning repo"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule generator"; \
+echo "    command = make/lib/x11_$backend.sh $build $backend"; \
+echo "    description = re-generating the ninja build file"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+# ninja targets
+## compile sources
+echo "# compile sources" >> "$output/$ninja_file"
+for file in "${src[@]}"; do
+	folder=$(dirname "$file")
+	filename=$(basename "$file" .c)
+	obj+=("\$folder_objects/$folder/$filename.o")
+	{ \
+	echo "build \$folder_objects/$folder/$filename.o: \$"; \
+	echo "cc $file"; \
+	echo ""; \
+	} >> "$output/$ninja_file"
+done
+
+## objects list
+echo "# objects list" >> "$output/$ninja_file"
+
+echo "obj = \$" >> "$output/$ninja_file"
+for file in "${obj[@]}"; do
+	echo "$file \$" >> "$output/$ninja_file"
+done
+echo "" >> "$output/$ninja_file"
+
+## main targets
+{ \
+echo "# main targets"; \
+echo "build \$builddir/\$name: ld \$obj"; \
+echo "build res/icon/iconpix.o: iconpix"; \
+echo "build res/shaders/gl1/square_vert_gl1.o: shader_vert res/shaders/gl1/square_vert_gl1.glsl"; \
+echo "build res/shaders/gl1/square_frag_gl1.o: shader_frag res/shaders/gl1/square_frag_gl1.glsl"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+# special targets
+{ \
+echo "# run special targets"; \
+echo "build leak: leak \$builddir/\$name"; \
+echo "build run: run \$builddir/\$name"; \
+echo "build regen: generator"; \
+echo "build clean: clean"; \
+echo "default" "${default[@]}"; \
+} >> "$output/$ninja_file"
