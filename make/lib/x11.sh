@@ -114,6 +114,12 @@ if [ -z "$backend" ]; then
 fi
 
 case $backend in
+	common)
+ninja_file=lib_x11_common.ninja
+name+="_common"
+src+=("src/x11/x11_common.c")
+	;;
+
 	software)
 ninja_file=lib_x11_software.ninja
 name+="_software"
