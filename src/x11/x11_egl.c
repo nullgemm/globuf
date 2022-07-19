@@ -1,9 +1,9 @@
 #include "globox.h"
 #include "globox_egl.h"
 #include "globox_x11_egl.h"
+#include "x11_common.h"
 #include "x11_egl.h"
 
-// # main API (globox.h)
 void globox_x11_egl_init(
 	struct globox* context)
 {
@@ -117,14 +117,12 @@ void globox_x11_egl_update_content(
 {
 }
 
-// # platform-specific backend-specific API (globox_x11_egl.h)
 void globox_prepare_init_x11_egl(
 	struct globox* context,
 	struct globox_config_backend* config)
 {
 }
 
-// # platform-agnostic backend-specific API (globox_egl.h)
 void globox_init_egl(
 	struct globox* context,
 	struct globox_config_egl* config)

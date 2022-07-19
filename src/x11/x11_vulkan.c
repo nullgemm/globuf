@@ -1,9 +1,9 @@
 #include "globox.h"
 #include "globox_vulkan.h"
 #include "globox_x11_vulkan.h"
+#include "x11_common.h"
 #include "x11_vulkan.h"
 
-// # main API (globox.h)
 void globox_x11_vulkan_init(
 	struct globox* context)
 {
@@ -117,7 +117,6 @@ void globox_x11_vulkan_update_content(
 {
 }
 
-// # platform-specific backend-specific API (globox_x11_vulkan.h)
 void globox_prepare_init_x11_vulkan(
 	struct globox* context,
 	struct globox_config_backend* config)
