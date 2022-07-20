@@ -1,12 +1,47 @@
-#include "globox.h"
-#include "globox_software.h"
-#include "globox_x11_software.h"
-#include "x11_common.h"
-#include "x11_software.h"
+#include "include/globox.h"
+#include "include/globox_software.h"
+#include "include/globox_x11_software.h"
+
+#include "common/globox_private.h"
+#include "x11/x11_software.h"
+#include "x11/x11_common.h"
+
+#include <pthread.h>
+#include <stdlib.h>
+#include <xcb.h>
+
+struct x11_backend
+{
+	void* platform_data;
+};
 
 void globox_x11_software_init(
 	struct globox* context)
 {
+	// reference the backend data in the globox context
+	struct x11_backend* backend = malloc(sizeof (struct x11_backend));
+
+	if (backend == NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	context->backend_data = backend;
+
+	// reference the platform data in the backend data
+	struct x11_platform* platform;
+	globox_x11_common_init(&platform);
+
+	if (globox_error_catch(context))
+	{
+		return;
+	}
+
+	backend->platform_data = platform;
+
+	// open a connection to the X server
+	backend->conn = xcb_connect(NULL, &(platform->screen_id));
 }
 
 void globox_x11_software_clean(
@@ -121,4 +156,25 @@ void globox_prepare_init_x11_software(
 	struct globox* context,
 	struct globox_config_backend* config)
 {
+	config->data = NULL;
+	config->init = globox_x11_software_init;
+	config->clean = globox_x11_software_clean;
+	config->window_create = globox_x11_software_window_create;
+	config->window_destroy = globox_x11_software_window_destroy;
+	config->window_start = globox_x11_software_window_start;
+	config->window_block = globox_x11_software_window_block;
+	config->window_stop = globox_x11_software_window_stop;
+	config->init_features = globox_x11_software_init_features;
+	config->init_events = globox_x11_software_init_events;
+	config->handle_events = globox_x11_software_handle_events;
+	config->set_interaction = globox_x11_software_set_interaction;
+	config->set_state = globox_x11_software_set_state;
+	config->set_title = globox_x11_software_set_title;
+	config->set_icon = globox_x11_software_set_icon;
+	config->set_size = globox_x11_software_set_size;
+	config->set_pos = globox_x11_software_set_pos;
+	config->set_frame = globox_x11_software_set_frame;
+	config->set_background = globox_x11_software_set_background;
+	config->set_vsync_callback = globox_x11_software_set_vsync_callback;
+	config->update_content = globox_x11_software_update_content;
 }

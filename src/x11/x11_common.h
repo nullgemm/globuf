@@ -4,5 +4,10 @@
 #include "globox.h"
 
 // # private helpers
+struct x11_platform
+{
+};
+
+void globox_x11_common_init(void** platform_data);
 
 #endif
