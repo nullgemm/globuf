@@ -172,24 +172,17 @@ int main(int argc, char** argv)
 	struct globox_config_backend config = {0};
 	struct globox_config_features* features = NULL;
 
-	// basic init
-	globox_init(globox);
+	// prepare function pointers
+	globox_prepare_init_x11_software(&config);
 
-	if (globox_error_catch(globox))
+	// set function pointers and perform basic init
+	globox = globox_init(&config);
+
+	if (globox == NULL)
 	{
+		fprintf(stderr, "could not allocate the main globox context\n");
 		return 1;
 	}
-
-	// platform & backend init
-	globox_prepare_init_x11_software(globox, &config);
-
-	if (globox_error_catch(globox))
-	{
-		globox_clean(globox);
-		return 1;
-	}
-
-	globox_init_backend(globox, &config);
 
 	if (globox_error_catch(globox))
 	{

@@ -1,8 +1,8 @@
-#include "globox.h"
-#include "globox_egl.h"
-#include "globox_x11_egl.h"
-#include "x11_common.h"
-#include "x11_egl.h"
+#include "include/globox.h"
+#include "include/globox_egl.h"
+#include "include/globox_x11_egl.h"
+#include "x11/x11_common.h"
+#include "x11/x11_egl.h"
 
 void globox_x11_egl_init(
 	struct globox* context)

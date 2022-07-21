@@ -1,7 +1,7 @@
 #ifndef H_GLOBOX_INTERNAL_X11_SOFTWARE
 #define H_GLOBOX_INTERNAL_X11_SOFTWARE
 
-#include "globox.h"
+#include "include/globox.h"
 
 // # main API (globox.h)
 void globox_x11_software_init(

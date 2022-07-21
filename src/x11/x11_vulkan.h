@@ -1,7 +1,7 @@
 #ifndef H_GLOBOX_INTERNAL_X11_VULKAN
 #define H_GLOBOX_INTERNAL_X11_VULKAN
 
-#include "globox.h"
+#include "include/globox.h"
 
 // # main API (globox.h)
 void globox_x11_vulkan_init(

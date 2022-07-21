@@ -1,8 +1,8 @@
-#include "globox.h"
-#include "globox_vulkan.h"
-#include "globox_x11_vulkan.h"
-#include "x11_common.h"
-#include "x11_vulkan.h"
+#include "include/globox.h"
+#include "include/globox_vulkan.h"
+#include "include/globox_x11_vulkan.h"
+#include "x11/x11_common.h"
+#include "x11/x11_vulkan.h"
 
 void globox_x11_vulkan_init(
 	struct globox* context)

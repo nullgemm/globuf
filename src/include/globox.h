@@ -8,6 +8,69 @@
 // # types
 struct globox;
 
+struct globox_config_backend
+{
+	void* data;
+	// function pointers for each cross-platform globox call
+	// lifecycle
+	void (*init)(
+		struct globox* context);
+	void (*clean)(
+		struct globox* context);
+	void (*window_create)(
+		struct globox* context);
+	void (*window_destroy)(
+		struct globox* context);
+	void (*window_start)(
+		struct globox* context);
+	void (*window_block)(
+		struct globox* context);
+	void (*window_stop)(
+		struct globox* context);
+	// feature registry
+	void (*init_features)(
+		struct globox* context,
+		struct globox_config_features* config);
+	// event handler
+	void (*init_events)(
+		struct globox* context,
+		struct globox_config_events* config);
+	enum globox_event (*handle_events)(
+		struct globox* context,
+		void* event);
+	// features
+	void (*set_interaction)(
+		struct globox* context,
+		struct globox_feature_interaction* config);
+	void (*set_state)(
+		struct globox* context,
+		struct globox_feature_state* config);
+	void (*set_title)(
+		struct globox* context,
+		struct globox_feature_title* config);
+	void (*set_icon)(
+		struct globox* context,
+		struct globox_feature_icon* config);
+	void (*set_size)(
+		struct globox* context,
+		struct globox_feature_size* config);
+	void (*set_pos)(
+		struct globox* context,
+		struct globox_feature_pos* config);
+	void (*set_frame)(
+		struct globox* context,
+		struct globox_feature_frame* config);
+	void (*set_background)(
+		struct globox* context,
+		struct globox_feature_background* config);
+	void (*set_vsync_callback)(
+		struct globox* context,
+		struct globox_feature_vsync_callback* config);
+	void (*update_content)(
+		struct globox* context,
+		void* data);
+};
+
 enum globox_feature
 {
 	GLOBOX_FEATURE_INTERACTION = 0,
@@ -191,8 +254,8 @@ enum globox_error
 // # cross-platform, cross-backend
 // ## lifecycle (N.B.: the event loop is always started on a separate thread)
 // allocate base resources and make initial checks
-void globox_init(
-	struct globox* context);
+struct globox* globox_init(
+	struct globox_config_backend* config);
 // free base resources
 void globox_clean(
 	struct globox* context);
@@ -358,74 +421,6 @@ void globox_set_vsync_callback(
 void globox_update_content(
 	struct globox* context,
 	void* data);
-
-// # backend callbacks
-struct globox_config_backend
-{
-	void* data;
-	// function pointers for each cross-platform globox call
-	// lifecycle
-	void (*init)(
-		struct globox* context);
-	void (*clean)(
-		struct globox* context);
-	void (*window_create)(
-		struct globox* context);
-	void (*window_destroy)(
-		struct globox* context);
-	void (*window_start)(
-		struct globox* context);
-	void (*window_block)(
-		struct globox* context);
-	void (*window_stop)(
-		struct globox* context);
-	// feature registry
-	void (*init_features)(
-		struct globox* context,
-		struct globox_config_features* config);
-	// event handler
-	void (*init_events)(
-		struct globox* context,
-		struct globox_config_events* config);
-	enum globox_event (*handle_events)(
-		struct globox* context,
-		void* event);
-	// features
-	void (*set_interaction)(
-		struct globox* context,
-		struct globox_feature_interaction* config);
-	void (*set_state)(
-		struct globox* context,
-		struct globox_feature_state* config);
-	void (*set_title)(
-		struct globox* context,
-		struct globox_feature_title* config);
-	void (*set_icon)(
-		struct globox* context,
-		struct globox_feature_icon* config);
-	void (*set_size)(
-		struct globox* context,
-		struct globox_feature_size* config);
-	void (*set_pos)(
-		struct globox* context,
-		struct globox_feature_pos* config);
-	void (*set_frame)(
-		struct globox* context,
-		struct globox_feature_frame* config);
-	void (*set_background)(
-		struct globox* context,
-		struct globox_feature_background* config);
-	void (*set_vsync_callback)(
-		struct globox* context,
-		struct globox_feature_vsync_callback* config);
-	void (*update_content)(
-		struct globox* context,
-		void* data);
-};
-
-void globox_init_backend(
-	struct globox* context,
-	struct globox_config_backend* config);
 
 // # getters
 unsigned globox_get_width(struct globox* context);

@@ -1,7 +1,7 @@
 #ifndef H_GLOBOX_INTERNAL_X11_EGL
 #define H_GLOBOX_INTERNAL_X11_EGL
 
-#include "globox.h"
+#include "include/globox.h"
 
 // # main API (globox.h)
 void globox_x11_egl_init(

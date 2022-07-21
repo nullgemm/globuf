@@ -1,7 +1,7 @@
 #ifndef H_GLOBOX_EGL
 #define H_GLOBOX_EGL
 
-#include "globox.h"
+#include "include/globox.h"
 
 struct globox_config_egl
 {
