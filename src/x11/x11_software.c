@@ -12,7 +12,9 @@
 
 struct x11_backend
 {
-	void* platform_data;
+	struct x11_platform* x11_platform;
+
+	xcb_connection_t* conn;
 };
 
 void globox_x11_software_init(
@@ -38,10 +40,32 @@ void globox_x11_software_init(
 		return;
 	}
 
-	backend->platform_data = platform;
+	backend->x11_platform = platform;
 
 	// open a connection to the X server
 	backend->conn = xcb_connect(NULL, &(platform->screen_id));
+	int error = xcb_connection_has_error(backend->conn);
+
+	if (error > 0)
+	{
+		xcb_disconnect(backend->conn);
+		globox_error_throw(context, GLOBOX_ERROR_X11_CONN);
+		return;
+	}
+
+	// get the screen obj from the id the dirty way (there is no other option)
+	const struct xcb_setup_t* setup = xcb_get_setup(backend->conn);
+	xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
+
+	for (int i = 0; i < platform->screen_id; ++i)
+	{
+		xcb_screen_next(&iter);
+	}
+
+	platform->screen_obj = iter.data;
+
+	// get the root window from the screen object
+	platform->root_win = platform->screen_obj->root;
 }
 
 void globox_x11_software_clean(
@@ -52,6 +76,7 @@ void globox_x11_software_clean(
 void globox_x11_software_window_create(
 	struct globox* context)
 {
+	// TODO 3
 }
 
 void globox_x11_software_window_destroy(
@@ -78,6 +103,7 @@ void globox_x11_software_init_features(
 	struct globox* context,
 	struct globox_config_features* config)
 {
+	// TODO 1
 }
 
 void globox_x11_software_init_events(
@@ -138,6 +164,7 @@ void globox_x11_software_set_background(
 	struct globox* context,
 	struct globox_feature_background* config)
 {
+	// TODO 2
 }
 
 void globox_x11_software_set_vsync_callback(
