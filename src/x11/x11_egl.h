@@ -25,9 +25,8 @@ void globox_x11_egl_window_block(
 void globox_x11_egl_window_stop(
 	struct globox* context);
 
-void globox_x11_egl_init_features(
-	struct globox* context,
-	struct globox_config_features* config);
+struct globox_config_features* globox_x11_egl_init_features(
+	struct globox* context);
 
 void globox_x11_egl_init_events(
 	struct globox* context,
