@@ -36,41 +36,9 @@ enum globox_event globox_x11_egl_handle_events(
 	struct globox* context,
 	void* event);
 
-void globox_x11_egl_set_interaction(
+void globox_x11_egl_set_feature(
 	struct globox* context,
-	struct globox_feature_interaction* config);
-
-void globox_x11_egl_set_state(
-	struct globox* context,
-	struct globox_feature_state* config);
-
-void globox_x11_egl_set_title(
-	struct globox* context,
-	struct globox_feature_title* config);
-
-void globox_x11_egl_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config);
-
-void globox_x11_egl_set_size(
-	struct globox* context,
-	struct globox_feature_size* config);
-
-void globox_x11_egl_set_pos(
-	struct globox* context,
-	struct globox_feature_pos* config);
-
-void globox_x11_egl_set_frame(
-	struct globox* context,
-	struct globox_feature_frame* config);
-
-void globox_x11_egl_set_background(
-	struct globox* context,
-	struct globox_feature_background* config);
-
-void globox_x11_egl_set_vsync_callback(
-	struct globox* context,
-	struct globox_feature_vsync_callback* config);
+	struct globox_feature_request* request);
 
 // for this backend, `data` is unused
 void globox_x11_egl_update_content(

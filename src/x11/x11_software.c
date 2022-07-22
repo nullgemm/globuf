@@ -154,57 +154,9 @@ enum globox_event globox_x11_software_handle_events(
 {
 }
 
-void globox_x11_software_set_interaction(
+void globox_x11_software_set_feature(
 	struct globox* context,
-	struct globox_feature_interaction* config)
-{
-}
-
-void globox_x11_software_set_state(
-	struct globox* context,
-	struct globox_feature_state* config)
-{
-}
-
-void globox_x11_software_set_title(
-	struct globox* context,
-	struct globox_feature_title* config)
-{
-}
-
-void globox_x11_software_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config)
-{
-}
-
-void globox_x11_software_set_size(
-	struct globox* context,
-	struct globox_feature_size* config)
-{
-}
-
-void globox_x11_software_set_pos(
-	struct globox* context,
-	struct globox_feature_pos* config)
-{
-}
-
-void globox_x11_software_set_frame(
-	struct globox* context,
-	struct globox_feature_frame* config)
-{
-}
-
-void globox_x11_software_set_background(
-	struct globox* context,
-	struct globox_feature_background* config)
-{
-}
-
-void globox_x11_software_set_vsync_callback(
-	struct globox* context,
-	struct globox_feature_vsync_callback* config)
+	struct globox_feature_request* request)
 {
 }
 
@@ -229,14 +181,6 @@ void globox_prepare_init_x11_software(
 	config->init_features = globox_x11_software_init_features;
 	config->init_events = globox_x11_software_init_events;
 	config->handle_events = globox_x11_software_handle_events;
-	config->set_interaction = globox_x11_software_set_interaction;
-	config->set_state = globox_x11_software_set_state;
-	config->set_title = globox_x11_software_set_title;
-	config->set_icon = globox_x11_software_set_icon;
-	config->set_size = globox_x11_software_set_size;
-	config->set_pos = globox_x11_software_set_pos;
-	config->set_frame = globox_x11_software_set_frame;
-	config->set_background = globox_x11_software_set_background;
-	config->set_vsync_callback = globox_x11_software_set_vsync_callback;
+	config->set_feature = globox_x11_software_set_feature;
 	config->update_content = globox_x11_software_update_content;
 }
