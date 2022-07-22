@@ -46,7 +46,6 @@ void globox_x11_software_clean(
 void globox_x11_software_window_create(
 	struct globox* context)
 {
-	// TODO 3
 }
 
 void globox_x11_software_window_destroy(
@@ -69,11 +68,78 @@ void globox_x11_software_window_stop(
 {
 }
 
-void globox_x11_software_init_features(
-	struct globox* context,
-	struct globox_config_features* config)
+struct globox_config_features* globox_x11_software_init_features(
+	struct globox* context)
 {
-	// TODO 1
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = backend->platform;
+
+	xcb_atom_t* atoms = platform->atoms;
+
+	struct globox_config_features* features =
+		malloc(sizeof (struct globox_config_features));
+
+	if (features == NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	features->count = 0;
+
+	features->list =
+		malloc(GLOBOX_FEATURE_COUNT * (sizeof (enum globox_feature)));
+
+	if (features->list == NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_STATE] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_STATE;
+		features->count += 1;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_ICON] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_ICON;
+		features->count += 1;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	features->count += 1;
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_POS;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_HINTS_MOTIF] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_FRAME;
+		features->count += 1;
+	}
+
+	// transparency is always available since globox requires 32bit X11 visuals
+	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	features->count += 1;
+
+	// always available (emulated)
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC_CALLBACK;
+	features->count += 1;
 }
 
 void globox_x11_software_init_events(
@@ -134,7 +200,6 @@ void globox_x11_software_set_background(
 	struct globox* context,
 	struct globox_feature_background* config)
 {
-	// TODO 2
 }
 
 void globox_x11_software_set_vsync_callback(

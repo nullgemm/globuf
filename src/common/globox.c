@@ -79,7 +79,7 @@ void globox_window_stop(
 struct globox_config_features* globox_init_features(
 	struct globox* context)
 {
-	context->backend_callbacks->init_features(context);
+	return context->backend_callbacks->init_features(context);
 }
 
 void globox_init_events(
@@ -93,7 +93,7 @@ enum globox_event globox_handle_events(
 	struct globox* context,
 	void* event)
 {
-	context->backend_callbacks->handle_events(context, event);
+	return context->backend_callbacks->handle_events(context, event);
 }
 
 void globox_set_interaction(

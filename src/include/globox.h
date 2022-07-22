@@ -28,9 +28,8 @@ struct globox_config_backend
 	void (*window_stop)(
 		struct globox* context);
 	// feature registry
-	void (*init_features)(
-		struct globox* context,
-		struct globox_config_features* config);
+	struct globox_config_features* (*init_features)(
+		struct globox* context);
 	// event handler
 	void (*init_events)(
 		struct globox* context,
@@ -79,7 +78,7 @@ enum globox_feature
 	GLOBOX_FEATURE_ICON,
 	GLOBOX_FEATURE_SIZE,
 	GLOBOX_FEATURE_POS,
-	GLOBOX_FEATURE_FRAMED,
+	GLOBOX_FEATURE_FRAME,
 	GLOBOX_FEATURE_BACKGROUND,
 	GLOBOX_FEATURE_VSYNC_CALLBACK,
 	// special value used to get the total number of features
