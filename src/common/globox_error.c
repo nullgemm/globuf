@@ -1,4 +1,5 @@
 #include "include/globox.h"
+#include "common/globox_private.h"
 #include "common/globox_error.h"
 
 #include <stdbool.h>
@@ -297,7 +298,7 @@ void globox_error_throw(
 				line);
 		#endif
 
-		globox_error_log(globox);
+		globox_error_log(context);
 	#endif
 	#endif
 

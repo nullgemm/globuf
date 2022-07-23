@@ -33,47 +33,49 @@ struct globox* globox_init(
 
 	if (globox_error_catch(context))
 	{
-		return;
+		return context;
 	}
 
 	// call the backend's init function
-	context->backend_callbacks->init(context);
+	context->backend_callbacks.init(context);
+
+	return context;
 }
 
 void globox_clean(
 	struct globox* context)
 {
-	context->backend_callbacks->clean(context);
+	context->backend_callbacks.clean(context);
 }
 
 void globox_window_create(
 	struct globox* context)
 {
-	context->backend_callbacks->window_create(context);
+	context->backend_callbacks.window_create(context);
 }
 
 void globox_window_destroy(
 	struct globox* context)
 {
-	context->backend_callbacks->window_destroy(context);
+	context->backend_callbacks.window_destroy(context);
 }
 
 void globox_window_start(
 	struct globox* context)
 {
-	context->backend_callbacks->window_start(context);
+	context->backend_callbacks.window_start(context);
 }
 
 void globox_window_block(
 	struct globox* context)
 {
-	context->backend_callbacks->window_block(context);
+	context->backend_callbacks.window_block(context);
 }
 
 void globox_window_stop(
 	struct globox* context)
 {
-	context->backend_callbacks->window_stop(context);
+	context->backend_callbacks.window_stop(context);
 }
 
 
@@ -81,27 +83,27 @@ void globox_init_events(
 	struct globox* context,
 	struct globox_config_events* config)
 {
-	context->backend_callbacks->init_events(context, config);
+	context->backend_callbacks.init_events(context, config);
 }
 
 enum globox_event globox_handle_events(
 	struct globox* context,
 	void* event)
 {
-	return context->backend_callbacks->handle_events(context, event);
+	return context->backend_callbacks.handle_events(context, event);
 }
 
 struct globox_config_features* globox_init_features(
 	struct globox* context)
 {
-	return context->backend_callbacks->init_features(context);
+	return context->backend_callbacks.init_features(context);
 }
 
 void globox_set_feature(
 	struct globox* context,
 	struct globox_feature_request* request)
 {
-	context->backend_callbacks->set_feature(context, request);
+	context->backend_callbacks.set_feature(context, request);
 }
 
 
@@ -109,7 +111,7 @@ void globox_update_content(
 	struct globox* context,
 	void* data)
 {
-	context->backend_callbacks->update_content(context, data);
+	context->backend_callbacks.update_content(context, data);
 }
 
 unsigned globox_get_width(struct globox* context)

@@ -188,6 +188,18 @@ enum globox_error
 	GLOBOX_ERROR_COUNT,
 };
 
+struct globox_config_events
+{
+	void* data;
+	void (*handler)(void* data, void* event);
+};
+
+struct globox_config_features
+{
+	enum globox_feature* list;
+	size_t count;
+};
+
 struct globox_feature_request
 {
 	enum globox_feature feature;
@@ -276,12 +288,6 @@ enum globox_error globox_error_get_code(
 
 // ## configuration (can always be called)
 // event handler
-struct globox_config_events
-{
-	void* data;
-	void (*handler)(void* data, void* event);
-};
-
 void globox_init_events(
 	struct globox* context,
 	struct globox_config_events* config);
@@ -294,12 +300,6 @@ enum globox_event globox_handle_events(
 
 // ## features (can only be called if confirmed in the registry callback)
 // feature registry
-struct globox_config_features
-{
-	enum globox_feature* list;
-	size_t count;
-};
-
 struct globox_config_features* globox_init_features(
 	struct globox* context);
 
