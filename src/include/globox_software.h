@@ -1,7 +1,7 @@
 #ifndef H_GLOBOX_SOFTWARE
 #define H_GLOBOX_SOFTWARE
 
-#include "include/globox.h"
+#include "globox.h"
 
 #include <stdint.h>
 
