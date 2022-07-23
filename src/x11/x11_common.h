@@ -4,6 +4,7 @@
 #include "include/globox.h"
 
 #include <pthread.h>
+#include <stdint.h>
 #include <xcb.h>
 
 // # private helpers
@@ -27,6 +28,7 @@ struct x11_platform
 {
 	pthread_mutex_t mutex_main;
 
+	// connection init
 	xcb_connection_t* conn;
 
 	int screen_id;
@@ -34,11 +36,40 @@ struct x11_platform
 	xcb_window_t root_win;
 
 	xcb_atom_t atoms[X11_ATOM_COUNT];
+
+	// window creation
+	uint32_t attr_mask;
+	uint32_t attr_val[3];
+	xcb_window_t win;
+	int visual_depth
+	xcb_visualid_t visual_id;
 };
 
-void globox_x11_common_init(struct x11_platform* platform);
+void globox_x11_common_init(
+	struct x11_platform* platform);
 
-void globox_x11_common_clean(struct x11_platform* platform);
+void globox_x11_common_clean(
+	struct x11_platform* platform);
+
+void globox_x11_common_window_create(
+	struct globox* context,
+	struct x11_platform* platform);
+
+void globox_x11_common_window_destroy(
+	struct globox* context,
+	struct x11_platform* platform);
+
+void globox_x11_common_window_start(
+	struct globox* context,
+	struct x11_platform* platform);
+
+void globox_x11_common_window_block(
+	struct globox* context,
+	struct x11_platform* platform);
+
+void globox_x11_common_window_stop(
+	struct globox* context,
+	struct x11_platform* platform);
 
 void globox_x11_common_set_interaction(
 	struct globox* context,

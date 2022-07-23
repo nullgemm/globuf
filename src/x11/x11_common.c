@@ -5,7 +5,8 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-void globox_x11_common_init(struct x11_platform* platform)
+void globox_x11_common_init(
+	struct x11_platform* platform)
 {
 	int error;
 
@@ -101,10 +102,139 @@ void globox_x11_common_init(struct x11_platform* platform)
 	}
 }
 
-void globox_x11_common_clean(struct x11_platform* platform)
+void globox_x11_common_clean(
+	struct x11_platform* platform)
 {
 	// close the connection to the X server
 	xcb_disconnect(platform->conn);
+}
+
+void globox_x11_common_window_create(
+	struct globox* context,
+	struct x11_platform* platform)
+{
+	// prepare window attributes
+	if (context->background.background == GLOBOX_BACKGROUND_TRANSPARENT)
+	{
+		platform->attr_mask =
+			XCB_CW_BORDER_PIXEL
+			| XCB_CW_EVENT_MASK
+			| XCB_CW_COLORMAP;
+
+		platform->attr_val[0] =
+			0;
+	}
+	else
+	{
+		platform->attr_mask =
+			XCB_CW_BACK_PIXMAP
+			| XCB_CW_EVENT_MASK
+			| XCB_CW_COLORMAP;
+
+		platform->attr_val[0] =
+			XCB_BACK_PIXMAP_NONE;
+	}
+
+	platform->attr_val[1] =
+		XCB_EVENT_MASK_EXPOSURE
+		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
+		| XCB_EVENT_MASK_PROPERTY_CHANGE;
+
+	// create the window
+	platform->win = xcb_generate_id(platform->conn);
+
+	xcb_void_cookie_t cookie =
+		xcb_create_window(
+			platform->conn,
+			platform->visual_depth,
+			platform->win,
+			platform->root_win,
+			context->pos.x,
+			context->pos.y,
+			context->size.width,
+			context->size.height,
+			0,
+			XCB_WINDOW_CLASS_INPUT_OUTPUT,
+			platform->visual_id,
+			platform->attr_mask,
+			platform->attr_val);
+
+	xcb_generic_error_t* error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_WIN_CREATE);
+		return;
+	}
+}
+
+void globox_x11_common_window_destroy(
+	struct globox* context,
+	struct x11_platform* platform)
+{
+	xcb_void_cookie_t cookie =
+		xcb_destroy_window(
+			platform->conn,
+			platform->win);
+
+	xcb_generic_error_t* error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_WIN_DESTROY);
+		return;
+	}
+}
+
+void globox_x11_common_window_start(
+	struct globox* context,
+	struct x11_platform* platform)
+{
+	// map
+	xcb_void_cookie_t cookie =
+		xcb_map_window_checked(
+			platform->conn,
+			platform->win);
+
+	xcb_generic_error_t* error_map =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error_map != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_WIN_MAP);
+		return;
+	}
+
+	// flush
+	int error_flush = xcb_flush(platform->conn);
+
+	if (error_flush <= 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_FLUSH);
+		return;
+	}
+}
+
+void globox_x11_common_window_block(
+	struct globox* context,
+	struct x11_platform* platform)
+{
+}
+
+// TODO support programmatically closing the window here
+// this means it's not needed to support closing the window in states
+void globox_x11_common_window_stop(
+	struct globox* context,
+	struct x11_platform* platform)
+{
 }
 
 // TODO implement setters

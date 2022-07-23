@@ -63,26 +63,146 @@ void globox_x11_software_clean(
 void globox_x11_software_window_create(
 	struct globox* context)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_create(context, platform);
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
 void globox_x11_software_window_destroy(
 	struct globox* context)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_destroy(context, platform);
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
 void globox_x11_software_window_start(
 	struct globox* context)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_start(context, platform);
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
 void globox_x11_software_window_block(
 	struct globox* context)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_block(context, platform);
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
 void globox_x11_software_window_stop(
 	struct globox* context)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_stop(context, platform);
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
 struct globox_config_features* globox_x11_software_init_features(
