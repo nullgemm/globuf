@@ -4,6 +4,8 @@
 #include "x11/x11_common.h"
 #include "x11/x11_egl.h"
 
+#include <xcb/xcb.h>
+
 void globox_x11_egl_init(
 	struct globox* context)
 {

@@ -32,6 +32,11 @@ void globox_error_init(
 	log[GLOBOX_ERROR_FD] =
 		"invalid file descriptor";
 
+	log[GLOBOX_ERROR_POSIX_MUTEX_LOCK] =
+		"failed to lock posix mutex";
+	log[GLOBOX_ERROR_POSIX_MUTEX_UNLOCK] =
+		"failed to unlock posix mutex";
+
 	log[GLOBOX_ERROR_WAYLAND_EPOLL_CREATE] =
 		"";
 	log[GLOBOX_ERROR_WAYLAND_EPOLL_CTL] =

@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <xcb/xcb.h>
 
 void globox_x11_common_init(
 	struct globox* context,

@@ -4,6 +4,8 @@
 #include "x11/x11_common.h"
 #include "x11/x11_vulkan.h"
 
+#include <xcb/xcb.h>
+
 void globox_x11_vulkan_init(
 	struct globox* context)
 {

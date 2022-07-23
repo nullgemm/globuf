@@ -5,7 +5,7 @@
 
 #include <pthread.h>
 #include <stdint.h>
-#include <xcb.h>
+#include <xcb/xcb.h>
 
 // # private helpers
 enum x11_atoms
@@ -42,7 +42,7 @@ struct x11_platform
 	uint32_t attr_mask;
 	uint32_t attr_val[3];
 	xcb_window_t win;
-	int visual_depth
+	int visual_depth;
 	xcb_visualid_t visual_id;
 };
 

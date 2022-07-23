@@ -28,7 +28,7 @@ void globox_x11_software_window_stop(
 
 void globox_x11_software_init_events(
 	struct globox* context,
-	void (*handler)(void* data, void* event));
+	struct globox_config_events* config);
 
 enum globox_event globox_x11_software_handle_events(
 	struct globox* context,

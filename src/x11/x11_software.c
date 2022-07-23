@@ -8,7 +8,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
-#include <xcb.h>
+#include <xcb/xcb.h>
 
 struct x11_backend
 {
@@ -32,20 +32,20 @@ void globox_x11_software_init(
 	*backend = zero;
 
 	// reference the backend in the main context
-	context->backend = backend;
+	context->backend_data = backend;
 
 	// initialize the platform
-	globox_x11_common_init(backend, &(backend->platform));
+	globox_x11_common_init(context, &(backend->platform));
 }
 
 void globox_x11_software_clean(
 	struct globox* context)
 {
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// clean the platform
-	globox_x11_common_clean(backend, platform);
+	globox_x11_common_clean(context, platform);
 
 	// free the backend
 	free(backend);
@@ -55,7 +55,7 @@ void globox_x11_software_window_create(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -86,7 +86,7 @@ void globox_x11_software_window_destroy(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -117,7 +117,7 @@ void globox_x11_software_window_start(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -148,7 +148,7 @@ void globox_x11_software_window_block(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -179,7 +179,7 @@ void globox_x11_software_window_stop(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -209,7 +209,7 @@ void globox_x11_software_window_stop(
 
 void globox_x11_software_init_events(
 	struct globox* context,
-	void (*handler)(void* data, void* event))
+	struct globox_config_events* config)
 {
 }
 
@@ -217,13 +217,15 @@ enum globox_event globox_x11_software_handle_events(
 	struct globox* context,
 	void* event)
 {
+	// TODO remove
+	return 0;
 }
 
 struct globox_config_features* globox_x11_software_init_features(
 	struct globox* context)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -232,7 +234,7 @@ struct globox_config_features* globox_x11_software_init_features(
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
+		return NULL;
 	}
 
 	// run common X11 helper
@@ -247,7 +249,7 @@ struct globox_config_features* globox_x11_software_init_features(
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
+		return features;
 	}
 
 	// return the newly created features info structure
@@ -259,7 +261,7 @@ void globox_x11_software_set_feature(
 	struct globox_feature_request* request)
 {
 	int error = 0;
-	struct x11_backend* backend = context->backend;
+	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock main mutex
@@ -294,7 +296,6 @@ void globox_x11_software_update_content(
 }
 
 void globox_prepare_init_x11_software(
-	struct globox* context,
 	struct globox_config_backend* config)
 {
 	config->data = NULL;
