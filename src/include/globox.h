@@ -267,7 +267,6 @@ void globox_window_destroy(
 void globox_window_start(
 	struct globox* context);
 // block the caller thread until the window has been closed
-// TODO implement using `pthread_cond_wait`
 void globox_window_block(
 	struct globox* context);
 // close the window if still open and stop the loop
