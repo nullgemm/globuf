@@ -211,7 +211,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/x11_$backend.sh $build $backend"; \
+echo "    command = make/lib/x11.sh $build $backend"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"
