@@ -220,14 +220,14 @@ echo ""; \
 ## copy headers
 { \
 echo "# copy headers"; \
-echo "build \$folder_headers/globox_x11_software.h: \$"; \
+echo "build \$folder_include/globox_x11_software.h: \$"; \
 echo "cp src/include/globox_x11_$backend.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_headers/globox_x11_software.h"; \
+echo "\$folder_include/globox_x11_software.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
