@@ -158,6 +158,58 @@ void globox_x11_software_set_feature(
 	struct globox* context,
 	struct globox_feature_request* request)
 {
+	switch (request->feature)
+	{
+		case GLOBOX_FEATURE_INTERACTION:
+		{
+			globox_x11_common_set_interaction(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_STATE:
+		{
+			globox_x11_common_set_state(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_TITLE:
+		{
+			globox_x11_common_set_title(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_ICON:
+		{
+			globox_x11_common_set_icon(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_SIZE:
+		{
+			globox_x11_common_set_size(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_POS:
+		{
+			globox_x11_common_set_pos(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_FRAME:
+		{
+			globox_x11_common_set_frame(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_BACKGROUND:
+		{
+			globox_x11_common_set_background(context, request);
+			break;
+		}
+		case GLOBOX_FEATURE_VSYNC_CALLBACK:
+		{
+			globox_x11_common_set_vsync_callback(context, request);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 }
 
 void globox_x11_software_update_content(

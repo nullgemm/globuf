@@ -88,3 +88,67 @@ void globox_x11_common_init(struct x11_platform* platform)
 		free(reply_atom);
 	}
 }
+
+// TODO implement setters
+void globox_x11_common_set_interaction(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_interaction* config = request->config;
+}
+
+void globox_x11_common_set_state(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_state* config = request->config;
+}
+
+void globox_x11_common_set_title(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_title* config = request->config;
+}
+
+void globox_x11_common_set_icon(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_icon* config = request->config;
+}
+
+void globox_x11_common_set_size(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_size* config = request->config;
+}
+
+void globox_x11_common_set_pos(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_pos* config = request->config;
+}
+
+void globox_x11_common_set_frame(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_frame* config = request->config;
+}
+
+void globox_x11_common_set_background(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_background* config = request->config;
+}
+
+void globox_x11_common_set_vsync_callback(
+	struct globox* context,
+	struct globox_feature_request* request)
+{
+	struct globox_feature_vsync_callback* config = request->config;
+}

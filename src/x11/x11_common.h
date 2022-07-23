@@ -35,4 +35,40 @@ struct x11_platform
 
 void globox_x11_common_init(struct x11_platform* platform);
 
+void globox_x11_common_set_interaction(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_state(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_title(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_icon(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_size(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_pos(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_frame(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_background(
+	struct globox* context,
+	struct globox_feature_request* request);
+
+void globox_x11_common_set_vsync_callback(
+	struct globox* context,
+	struct globox_feature_request* request);
+
 #endif
