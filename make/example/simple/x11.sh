@@ -26,7 +26,7 @@ folder_include="\$folder_globox/include"
 name="globox_example_simple_x11"
 cmd="./\$name"
 cc="gcc"
-ld="ld"
+ld="gcc"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -35,7 +35,7 @@ flags+=("-Wformat")
 flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
-flags+=("-I$folder_globox/include")
+flags+=("-I\$folder_include")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -125,8 +125,6 @@ fi
 case $backend in
 	software)
 ninja_file=example_simple_x11_software.ninja
-name+="_software"
-name_lib+="_software"
 src+=("example/simple/software.c")
 link+=("xcb-shm")
 link+=("xcb-randr")
@@ -135,8 +133,6 @@ link+=("xcb-render")
 
 	egl)
 ninja_file=example_simple_x11_egl.ninja
-name+="_egl"
-name_lib+="_egl"
 src+=("example/simple/egl.c")
 link+=("egl")
 link+=("glesv2")
@@ -146,8 +142,6 @@ obj+=("\$folder_objects/res/shaders/gl1/square_frag_gl1.o")
 
 	vulkan)
 ninja_file=example_simple_x11_vulkan.ninja
-name+="_vulkan"
-name_lib+="_vulkan"
 src+=("example/simple/vulkan.c")
 #TODO
 	;;
@@ -158,11 +152,13 @@ exit 1
 	;;
 esac
 
+link+=("xcb")
+
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
-obj+=("\$folder_library/x11/$name_lib.a")
-obj+=("\$folder_library/globox_$backend.a")
-obj+=("\$folder_library/globox.a")
+libs+=("\$folder_library/x11/$name_lib""_$backend.a")
+libs+=("\$folder_library/x11/$name_lib""_common.a")
+libs+=("\$folder_library/globox.a")
 
 # default target
 default+=("\$builddir/\$name")
@@ -189,7 +185,7 @@ echo "folder_objects = $folder_objects"; \
 echo "folder_globox = $folder_globox"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
-echo "name = $name"; \
+echo "name = $name""_$backend"; \
 echo "cmd = $cmd"; \
 echo "cc = $cc"; \
 echo "ld = $ld"; \
@@ -351,7 +347,7 @@ echo ""; \
 
 echo "# archive objects" >> "$output/$ninja_file"
 echo -n "build \$builddir/\$name: ld" >> "$output/$ninja_file"
-for file in "${obj[@]}"; do
+for file in "${obj[@]}" "${libs[@]}"; do
 	echo -ne " \$\n$file" >> "$output/$ninja_file"
 done
 echo -e "\n" >> "$output/$ninja_file"

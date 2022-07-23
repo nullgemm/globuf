@@ -10,7 +10,7 @@ backend=$2
 
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: software, egl, vulkan"
+echo "backend types: common, software, egl, vulkan"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -31,11 +31,14 @@ flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
+# TODO replace by `-Wno-error=` ?
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
+flags+=("-Wno-unused-variable")
 flags+=("-Isrc")
 flags+=("-Isrc/include")
 flags+=("-fPIC")
+flags+=("-fdiagnostics-color=always")
 
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
@@ -218,6 +221,7 @@ echo ""; \
 
 # ninja targets
 ## copy headers
+if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
 echo "build \$folder_include/globox_x11_software.h: \$"; \
@@ -230,6 +234,7 @@ echo "build headers: phony \$"; \
 echo "\$folder_include/globox_x11_software.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
+fi
 
 ## compile sources
 echo "# compile sources" >> "$output/$ninja_file"
