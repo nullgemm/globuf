@@ -96,67 +96,11 @@ enum globox_event globox_handle_events(
 	return context->backend_callbacks->handle_events(context, event);
 }
 
-void globox_set_interaction(
+void globox_set_feature(
 	struct globox* context,
-	struct globox_feature_interaction* config)
+	struct globox_feature_request* request)
 {
-	context->backend_callbacks->set_interaction(context, config);
-}
-
-void globox_set_state(
-	struct globox* context,
-	struct globox_feature_state* config)
-{
-	context->backend_callbacks->set_state(context, config);
-}
-
-void globox_set_title(
-	struct globox* context,
-	struct globox_feature_title* config)
-{
-	context->backend_callbacks->set_title(context, config);
-}
-
-void globox_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config)
-{
-	context->backend_callbacks->set_icon(context, config);
-}
-
-void globox_set_size(
-	struct globox* context,
-	struct globox_feature_size* config)
-{
-	context->backend_callbacks->set_size(context, config);
-}
-
-void globox_set_pos(
-	struct globox* context,
-	struct globox_feature_pos* config)
-{
-	context->backend_callbacks->set_pos(context, config);
-}
-
-void globox_set_frame(
-	struct globox* context,
-	struct globox_feature_frame* config)
-{
-	context->backend_callbacks->set_frame(context, config);
-}
-
-void globox_set_background(
-	struct globox* context,
-	struct globox_feature_background* config)
-{
-	context->backend_callbacks->set_background(context, config);
-}
-
-void globox_set_vsync_callback(
-	struct globox* context,
-	struct globox_feature_vsync_callback* config)
-{
-	context->backend_callbacks->set_vsync_callback(context, config);
+	context->backend_callbacks->set_feature(context, request);
 }
 
 void globox_update_content(
