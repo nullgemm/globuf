@@ -6,16 +6,26 @@
 #include <stdlib.h>
 
 void globox_x11_common_init(
+	struct globox* context,
 	struct x11_platform* platform)
 {
 	int error;
 
-	// init mutex
+	// init pthread mutex
 	error = pthread_mutex_init(&(platform->mutex_main));
 
 	if (error != 0)
 	{
-		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX);
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		return;
+	}
+
+	// init pthread cond
+	error = pthread_cond_init(&(platform->cond_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_INIT);
 		return;
 	}
 
@@ -103,10 +113,31 @@ void globox_x11_common_init(
 }
 
 void globox_x11_common_clean(
+	struct globox* context,
 	struct x11_platform* platform)
 {
+	int error = 0;
+
 	// close the connection to the X server
 	xcb_disconnect(platform->conn);
+
+	// destroy pthread cond
+	error = pthread_cond_destroy(&(platform->cond_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_DESTROY);
+		return;
+	}
+
+	// destroy pthread mutex
+	error = pthread_mutex_destroy(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		return;
+	}
 }
 
 void globox_x11_common_window_create(
@@ -227,19 +258,208 @@ void globox_x11_common_window_block(
 	struct globox* context,
 	struct x11_platform* platform)
 {
+	pthread_cond_wait(&(platform->cond_main), &(platform->mutex_main));
 }
 
 // TODO support programmatically closing the window here
 // this means it's not needed to support closing the window in states
+// (remember if the window was already "closed" we simply free resources)
+// (in that case the internal event handler must broadcast the cond_main)
+// (because `globox_x11_common_window_block` needs to have returned)
 void globox_x11_common_window_stop(
 	struct globox* context,
 	struct x11_platform* platform)
 {
 }
 
+
+void globox_x11_common_init_events(
+	struct globox* context,
+	struct x11_platform* platform,
+	void (*handler)(void* data, void* event))
+{
+}
+
+enum globox_event globox_x11_common_handle_events(
+	struct globox* context,
+	struct x11_platform* platform,
+	void* event)
+{
+}
+
+struct globox_config_features*
+	globox_x11_common_init_features(
+		struct globox* context,
+		struct x11_platform* platform)
+{
+	xcb_atom_t* atoms = platform->atoms;
+
+	struct globox_config_features* features =
+		malloc(sizeof (struct globox_config_features));
+
+	if (features == NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	features->count = 0;
+	features->list =
+		malloc(GLOBOX_FEATURE_COUNT * (sizeof (enum globox_feature)));
+
+	if (features->list == NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_STATE] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_STATE;
+		features->count += 1;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_ICON] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_ICON;
+		features->count += 1;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	features->count += 1;
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_POS;
+	features->count += 1;
+
+	// available if atom valid
+	if (atoms[X11_ATOM_HINTS_MOTIF] != XCB_NONE)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_FRAME;
+		features->count += 1;
+	}
+
+	// transparency is always available since globox requires 32bit X11 visuals
+	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	features->count += 1;
+
+	// always available (emulated)
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC_CALLBACK;
+	features->count += 1;
+
+	return features;
+}
+
+void globox_x11_common_set_feature(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_request* request)
+{
+	switch (request->feature)
+	{
+		case GLOBOX_FEATURE_INTERACTION:
+		{
+			globox_x11_common_set_interaction(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_STATE:
+		{
+			globox_x11_common_set_state(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_TITLE:
+		{
+			globox_x11_common_set_title(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_ICON:
+		{
+			globox_x11_common_set_icon(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_SIZE:
+		{
+			globox_x11_common_set_size(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_POS:
+		{
+			globox_x11_common_set_pos(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_FRAME:
+		{
+			globox_x11_common_set_frame(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_BACKGROUND:
+		{
+			globox_x11_common_set_background(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		case GLOBOX_FEATURE_VSYNC_CALLBACK:
+		{
+			globox_x11_common_set_vsync_callback(
+				context,
+				platform,
+				request);
+
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+}
+
 // TODO implement setters
 void globox_x11_common_set_interaction(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_interaction* config = request->config;
@@ -247,6 +467,7 @@ void globox_x11_common_set_interaction(
 
 void globox_x11_common_set_state(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_state* config = request->config;
@@ -254,6 +475,7 @@ void globox_x11_common_set_state(
 
 void globox_x11_common_set_title(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_title* config = request->config;
@@ -261,6 +483,7 @@ void globox_x11_common_set_title(
 
 void globox_x11_common_set_icon(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_icon* config = request->config;
@@ -268,6 +491,7 @@ void globox_x11_common_set_icon(
 
 void globox_x11_common_set_size(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_size* config = request->config;
@@ -275,6 +499,7 @@ void globox_x11_common_set_size(
 
 void globox_x11_common_set_pos(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_pos* config = request->config;
@@ -282,6 +507,7 @@ void globox_x11_common_set_pos(
 
 void globox_x11_common_set_frame(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_frame* config = request->config;
@@ -289,6 +515,7 @@ void globox_x11_common_set_frame(
 
 void globox_x11_common_set_background(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_background* config = request->config;
@@ -296,6 +523,7 @@ void globox_x11_common_set_background(
 
 void globox_x11_common_set_vsync_callback(
 	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_feature_request* request)
 {
 	struct globox_feature_vsync_callback* config = request->config;

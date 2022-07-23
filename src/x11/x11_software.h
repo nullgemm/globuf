@@ -25,8 +25,6 @@ void globox_x11_software_window_block(
 void globox_x11_software_window_stop(
 	struct globox* context);
 
-struct globox_config_features* globox_x11_software_init_features(
-	struct globox* context);
 
 void globox_x11_software_init_events(
 	struct globox* context,
@@ -35,6 +33,9 @@ void globox_x11_software_init_events(
 enum globox_event globox_x11_software_handle_events(
 	struct globox* context,
 	void* event);
+
+struct globox_config_features* globox_x11_software_init_features(
+	struct globox* context);
 
 void globox_x11_software_set_feature(
 	struct globox* context,
