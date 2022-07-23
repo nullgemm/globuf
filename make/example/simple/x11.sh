@@ -153,6 +153,7 @@ exit 1
 esac
 
 link+=("xcb")
+ldlibs+=("-lpthread")
 
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
