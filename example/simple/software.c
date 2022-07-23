@@ -12,20 +12,24 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
-void feature_callback_background(void* data, enum globox_background background)
+void feature_callback_background(void* data, void* config)
 {
+	struct globox_feature_background* background = config;
+
 	// fair enough
-	if (background != GLOBOX_BACKGROUND_BLURRED)
+	if (background->background != GLOBOX_BACKGROUND_BLURRED)
 	{
 		fprintf(stderr,
 			"your desktop environment does not support background blur!\n");
 	}
 }
 
-void feature_callback_frame(void* data, bool frame)
+void feature_callback_frame(void* data, void* config)
 {
+	struct globox_feature_frame* frame = config;
+
 	// fuck you gnome developers
-	if (frame == false)
+	if (frame->frame == false)
 	{
 		// love you gnome users
 		fprintf(stderr,
@@ -213,7 +217,7 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &state;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -225,7 +229,7 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &title;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -241,7 +245,7 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &icon;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -254,7 +258,7 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &size;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -267,11 +271,11 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &pos;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
-			case GLOBOX_FEATURE_FRAMED:
+			case GLOBOX_FEATURE_FRAME:
 			{
 				struct globox_feature_frame frame =
 				{
@@ -280,7 +284,7 @@ int main(int argc, char** argv)
 
 				request.config = &frame;
 				request.callback = feature_callback_frame;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -293,7 +297,7 @@ int main(int argc, char** argv)
 
 				request.config = &background;
 				request.callback = feature_callback_background;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}
@@ -306,7 +310,7 @@ int main(int argc, char** argv)
 				};
 
 				request.config = &vsync;
-				globox_x11_software_set_feature(globox, &request);
+				globox_set_feature(globox, &request);
 
 				break;
 			}

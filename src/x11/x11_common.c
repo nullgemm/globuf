@@ -1,9 +1,12 @@
+#define _XOPEN_SOURCE 700
+
 #include "include/globox.h"
 #include "common/globox_private.h"
 #include "x11/x11_common.h"
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 #include <xcb/xcb.h>
 
 void globox_x11_common_init(
@@ -12,8 +15,29 @@ void globox_x11_common_init(
 {
 	int error;
 
+	// init pthread mutex attributes
+	error = pthread_mutexattr_init(&(platform->mutex_main_attr));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_ATTR_INIT);
+		return;
+	}
+
+	// set pthread mutex type (error checking for now)
+	error =
+		pthread_mutexattr_settype(
+			&(platform->mutex_main_attr),
+			PTHREAD_MUTEX_ERRORCHECK);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_ATTR_SETTYPE);
+		return;
+	}
+
 	// init pthread mutex
-	error = pthread_mutex_init(&(platform->mutex_main));
+	error = pthread_mutex_init(&(platform->mutex_main), &(platform->mutex_main_attr));
 
 	if (error != 0)
 	{
@@ -21,8 +45,29 @@ void globox_x11_common_init(
 		return;
 	}
 
+	// init pthread cond attributes
+	error = pthread_condattr_init(&(platform->cond_main_attr));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_ATTR_INIT);
+		return;
+	}
+
+	// set pthread cond clock
+	error =
+		pthread_condattr_setclock(
+			&(platform->cond_main_attr),
+			CLOCK_MONOTONIC);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_ATTR_SETTYPE);
+		return;
+	}
+
 	// init pthread cond
-	error = pthread_cond_init(&(platform->cond_main));
+	error = pthread_cond_init(&(platform->cond_main), &(platform->cond_main_attr));
 
 	if (error != 0)
 	{
@@ -58,7 +103,7 @@ void globox_x11_common_init(
 	// get available atoms
 	xcb_intern_atom_cookie_t cookie;
 	xcb_intern_atom_reply_t* reply;
-	xcb_generic_error_t* error;
+	xcb_generic_error_t* error_atom;
 	uint8_t replace;
 
 	char* atom_names[X11_ATOM_COUNT] =
@@ -100,7 +145,7 @@ void globox_x11_common_init(
 		reply = xcb_intern_atom_reply(
 			platform->conn,
 			cookie,
-			&error);
+			&error_atom);
 
 		if (error_atom != NULL)
 		{
@@ -109,7 +154,7 @@ void globox_x11_common_init(
 		}
 
 		platform->atoms[i] = reply->atom;
-		free(reply_atom);
+		free(reply);
 	}
 }
 
@@ -131,12 +176,30 @@ void globox_x11_common_clean(
 		return;
 	}
 
+	// destroy pthread cond attributes
+	error = pthread_condattr_destroy(&(platform->cond_main_attr));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
+		return;
+	}
+
 	// destroy pthread mutex
 	error = pthread_mutex_destroy(&(platform->mutex_main));
 
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		return;
+	}
+
+	// destroy pthread mutex attributes
+	error = pthread_mutexattr_destroy(&(platform->mutex_main_attr));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
 		return;
 	}
 }
@@ -286,6 +349,8 @@ enum globox_event globox_x11_common_handle_events(
 	struct x11_platform* platform,
 	void* event)
 {
+	//TODO remove
+	return 0;
 }
 
 struct globox_config_features*
@@ -311,7 +376,7 @@ struct globox_config_features*
 	if (features->list == NULL)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_ALLOC);
-		return;
+		return NULL;
 	}
 
 	// always available
