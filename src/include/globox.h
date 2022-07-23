@@ -275,16 +275,6 @@ enum globox_error globox_error_get_code(
 	struct globox* context);
 
 // ## configuration (can always be called)
-// feature registry
-struct globox_config_features
-{
-	enum globox_feature* list;
-	size_t count;
-};
-
-struct globox_config_features* globox_init_features(
-	struct globox* context);
-
 // event handler
 struct globox_config_events
 {
@@ -303,6 +293,17 @@ enum globox_event globox_handle_events(
 	void* event);
 
 // ## features (can only be called if confirmed in the registry callback)
+// feature registry
+struct globox_config_features
+{
+	enum globox_feature* list;
+	size_t count;
+};
+
+struct globox_config_features* globox_init_features(
+	struct globox* context);
+
+// feature setters
 void globox_set_feature(
 	struct globox* context,
 	struct globox_feature_request* request);
@@ -312,6 +313,7 @@ struct globox_feature_interaction
 	enum globox_interaction action;
 };
 
+// feature structures
 struct globox_feature_state
 {
 	enum globox_state state;
