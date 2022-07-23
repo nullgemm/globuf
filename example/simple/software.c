@@ -195,6 +195,14 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < features->count; ++i)
 	{
+		struct globox_feature_request request =
+		{
+			.feature = features->list[i],
+			.config = NULL,
+			.callback = NULL,
+			.data = NULL,
+		};
+
 		switch (features->list[i])
 		{
 			case GLOBOX_FEATURE_STATE:
@@ -204,9 +212,8 @@ int main(int argc, char** argv)
 					.state = GLOBOX_STATE_REGULAR,
 				};
 
-				globox_set_state(
-					globox,
-					&state);
+				request.config = &state;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -217,9 +224,8 @@ int main(int argc, char** argv)
 					.title = "globox",
 				};
 
-				globox_set_title(
-					globox,
-					&title);
+				request.config = &title;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -234,9 +240,8 @@ int main(int argc, char** argv)
 					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 				};
 
-				globox_set_icon(
-					globox,
-					&icon);
+				request.config = &icon;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -248,9 +253,8 @@ int main(int argc, char** argv)
 					.height = 500,
 				};
 
-				globox_set_size(
-					globox,
-					&size);
+				request.config = &size;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -262,9 +266,8 @@ int main(int argc, char** argv)
 					.y = 250,
 				};
 
-				globox_set_pos(
-					globox,
-					&pos);
+				request.config = &pos;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -273,13 +276,11 @@ int main(int argc, char** argv)
 				struct globox_feature_frame frame =
 				{
 					.frame = true,
-					.data = NULL,
-					.callback = feature_callback_frame,
 				};
 
-				globox_set_frame(
-					globox,
-					&frame);
+				request.config = &frame;
+				request.callback = feature_callback_frame;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -288,13 +289,11 @@ int main(int argc, char** argv)
 				struct globox_feature_background background =
 				{
 					.background = GLOBOX_BACKGROUND_BLURRED,
-					.data = NULL,
-					.callback = feature_callback_background,
 				};
 
-				globox_set_background(
-					globox,
-					&background);
+				request.config = &background;
+				request.callback = feature_callback_background;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -306,9 +305,8 @@ int main(int argc, char** argv)
 					.callback = vsync_callback,
 				};
 
-				globox_set_vsync_callback(
-					globox,
-					&vsync);
+				request.config = &vsync;
+				globox_x11_software_set_feature(globox, &request);
 
 				break;
 			}
@@ -318,6 +316,8 @@ int main(int argc, char** argv)
 			}
 		}
 	}
+
+	free(features);
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =
