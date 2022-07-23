@@ -3,6 +3,7 @@
 
 #include "include/globox.h"
 
+#include <pthread.h>
 #include <xcb.h>
 
 // # private helpers
@@ -24,6 +25,8 @@ enum x11_atoms
 
 struct x11_platform
 {
+	pthread_mutex_t mutex_main;
+
 	xcb_connection_t* conn;
 
 	int screen_id;
@@ -34,6 +37,8 @@ struct x11_platform
 };
 
 void globox_x11_common_init(struct x11_platform* platform);
+
+void globox_x11_common_clean(struct x11_platform* platform);
 
 void globox_x11_common_set_interaction(
 	struct globox* context,

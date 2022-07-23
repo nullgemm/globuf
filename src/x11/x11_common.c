@@ -2,13 +2,25 @@
 #include "common/globox_private.h"
 #include "x11/x11_common.h"
 
+#include <pthread.h>
 #include <stdlib.h>
 
 void globox_x11_common_init(struct x11_platform* platform)
 {
+	int error;
+
+	// init mutex
+	error = pthread_mutex_init(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX);
+		return;
+	}
+
 	// open a connection to the X server
 	platform->conn = xcb_connect(NULL, &(platform->screen_id));
-	int error = xcb_connection_has_error(platform->conn);
+	error = xcb_connection_has_error(platform->conn);
 
 	if (error > 0)
 	{
@@ -87,6 +99,12 @@ void globox_x11_common_init(struct x11_platform* platform)
 		platform->atoms[i] = reply->atom;
 		free(reply_atom);
 	}
+}
+
+void globox_x11_common_clean(struct x11_platform* platform)
+{
+	// close the connection to the X server
+	xcb_disconnect(platform->conn);
 }
 
 // TODO implement setters

@@ -41,6 +41,23 @@ void globox_x11_software_init(
 void globox_x11_software_clean(
 	struct globox* context)
 {
+	struct x11_backend* backend = context->backend;
+	struct x11_platform* platform = &(backend->platform);
+
+	// destroy mutex
+	int error = pthread_mutex_destroy(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		return;
+	}
+
+	// clean the platform
+	globox_x11_common_clean(platform);
+
+	// free the backend
+	free(backend);
 }
 
 void globox_x11_software_window_create(
@@ -72,7 +89,7 @@ struct globox_config_features* globox_x11_software_init_features(
 	struct globox* context)
 {
 	struct x11_backend* backend = context->backend;
-	struct x11_platform* platform = backend->platform;
+	struct x11_platform* platform = &(backend->platform);
 
 	xcb_atom_t* atoms = platform->atoms;
 
