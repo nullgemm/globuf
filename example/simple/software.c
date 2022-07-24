@@ -70,7 +70,6 @@ void event_callback(void* data, void* event)
 		case GLOBOX_EVENT_CLOSED:
 		{
 			fprintf(stderr, "received `closed` event\n");
-			globox_window_stop(data);
 			break;
 		}
 		case GLOBOX_EVENT_MOVED:

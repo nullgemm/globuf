@@ -508,12 +508,46 @@ void globox_x11_common_window_stop(
 	struct globox* context,
 	struct x11_platform* platform)
 {
-	// unblock
-	pthread_cond_broadcast(&(platform->cond_main));
+	// create the close event
+	xcb_client_message_event_t event =
+	{
+		.response_type = XCB_CLIENT_MESSAGE,
+		.format = 32,
+		.sequence = 0,
+		.window = platform->win,
+		.type = platform->atoms[X11_ATOM_PROTOCOLS],
+		.data.data32[0] = platform->atoms[X11_ATOM_DELETE_WINDOW],
+		.data.data32[1] = XCB_CURRENT_TIME,
+	};
 
-	// exit the event loop thread gracefully
-	platform->closed = true;
-	// TODO send a dummy event here
+	// send the event
+	xcb_void_cookie_t cookie =
+		xcb_send_event(
+			platform->conn,
+			false,
+			platform->win,
+			XCB_EVENT_MASK_NO_EVENT,
+			(const char*) &event);
+
+	xcb_generic_error_t* error_event =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error_event != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_EVENT_SEND);
+		return;
+	}
+
+	// flush
+	int error_flush = xcb_flush(platform->conn);
+
+	if (error_flush <= 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_FLUSH);
+		return;
+	}
 }
 
 
@@ -682,7 +716,6 @@ enum globox_event globox_x11_common_handle_events(
 	globox_event = GLOBOX_EVENT_MINIMIZED;
 	globox_event = GLOBOX_EVENT_MAXIMIZED;
 	globox_event = GLOBOX_EVENT_FULLSCREEN;
-	globox_event = GLOBOX_EVENT_CLOSED;
 	globox_event = GLOBOX_EVENT_MOVED;
 	globox_event = GLOBOX_EVENT_RESIZED_N;
 	globox_event = GLOBOX_EVENT_RESIZED_NW;
@@ -712,6 +745,20 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_CLIENT_MESSAGE:
 		{
+			xcb_client_message_event_t* delete =
+				(xcb_client_message_event_t*) xcb_event;
+
+			if (delete->data.data32[0]
+				== platform->atoms[X11_ATOM_DELETE_WINDOW])
+			{
+				// make the globox blocking function exit gracefully
+				pthread_cond_broadcast(&(platform->cond_main));
+				// make the event loop thread exit gracefully
+				platform->closed = true;
+				// tell the developer it's the end
+				globox_event = GLOBOX_EVENT_CLOSED;
+			}
+
 			break;
 		}
 		default:
