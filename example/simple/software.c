@@ -70,6 +70,7 @@ void event_callback(void* data, void* event)
 		case GLOBOX_EVENT_CLOSED:
 		{
 			fprintf(stderr, "received `closed` event\n");
+			globox_window_stop(data);
 			break;
 		}
 		case GLOBOX_EVENT_MOVED:
@@ -361,7 +362,6 @@ int main(int argc, char** argv)
 	globox_window_block(globox);
 
 	// free resources correctly
-	globox_window_stop(globox);
 	globox_window_destroy(globox);
 	globox_clean(globox);
 

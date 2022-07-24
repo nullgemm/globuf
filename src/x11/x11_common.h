@@ -4,6 +4,7 @@
 #include "include/globox.h"
 
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <xcb/xcb.h>
 
@@ -24,16 +25,20 @@ enum x11_atoms
 	X11_ATOM_COUNT,
 };
 
+struct x11_thread_event_loop_data
+{
+	struct globox* globox;
+	struct x11_platform* platform;
+};
+
 struct x11_platform
 {
 	pthread_mutex_t mutex_main;
 	pthread_mutex_t mutex_block;
 	pthread_cond_t cond_main;
 
-	pthread_mutexattr_t mutex_attr;
-	pthread_condattr_t cond_attr;
-
 	// connection init
+	bool closed;
 	xcb_connection_t* conn;
 
 	int screen_id;
@@ -48,6 +53,10 @@ struct x11_platform
 	xcb_window_t win;
 	int visual_depth;
 	xcb_visualid_t visual_id;
+
+	// event handling
+	pthread_t thread_event_loop;
+	struct x11_thread_event_loop_data thread_event_loop_data;
 };
 
 void globox_x11_common_init(

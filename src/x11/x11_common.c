@@ -14,9 +14,11 @@ void globox_x11_common_init(
 	struct x11_platform* platform)
 {
 	int error;
+	pthread_mutexattr_t mutex_attr;
+	pthread_condattr_t cond_attr;
 
 	// init pthread mutex attributes
-	error = pthread_mutexattr_init(&(platform->mutex_attr));
+	error = pthread_mutexattr_init(&mutex_attr);
 
 	if (error != 0)
 	{
@@ -27,7 +29,7 @@ void globox_x11_common_init(
 	// set pthread mutex type (error checking for now)
 	error =
 		pthread_mutexattr_settype(
-			&(platform->mutex_attr),
+			&mutex_attr,
 			PTHREAD_MUTEX_ERRORCHECK);
 
 	if (error != 0)
@@ -37,7 +39,7 @@ void globox_x11_common_init(
 	}
 
 	// init pthread mutex (main)
-	error = pthread_mutex_init(&(platform->mutex_main), &(platform->mutex_attr));
+	error = pthread_mutex_init(&(platform->mutex_main), &mutex_attr);
 
 	if (error != 0)
 	{
@@ -46,7 +48,7 @@ void globox_x11_common_init(
 	}
 
 	// init pthread mutex (block)
-	error = pthread_mutex_init(&(platform->mutex_block), &(platform->mutex_attr));
+	error = pthread_mutex_init(&(platform->mutex_block), &mutex_attr);
 
 	if (error != 0)
 	{
@@ -54,8 +56,17 @@ void globox_x11_common_init(
 		return;
 	}
 
+	// destroy pthread mutex attributes
+	error = pthread_mutexattr_destroy(&mutex_attr);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
+		return;
+	}
+
 	// init pthread cond attributes
-	error = pthread_condattr_init(&(platform->cond_attr));
+	error = pthread_condattr_init(&cond_attr);
 
 	if (error != 0)
 	{
@@ -66,7 +77,7 @@ void globox_x11_common_init(
 	// set pthread cond clock
 	error =
 		pthread_condattr_setclock(
-			&(platform->cond_attr),
+			&cond_attr,
 			CLOCK_MONOTONIC);
 
 	if (error != 0)
@@ -76,13 +87,25 @@ void globox_x11_common_init(
 	}
 
 	// init pthread cond
-	error = pthread_cond_init(&(platform->cond_main), &(platform->cond_attr));
+	error = pthread_cond_init(&(platform->cond_main), &cond_attr);
 
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_INIT);
 		return;
 	}
+
+	// destroy pthread cond attributes
+	error = pthread_condattr_destroy(&cond_attr);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
+		return;
+	}
+
+	// initialize the "closed" boolean
+	platform->closed = false;
 
 	// open a connection to the X server
 	platform->conn = xcb_connect(NULL, &(platform->screen_id));
@@ -203,15 +226,6 @@ void globox_x11_common_clean(
 		return;
 	}
 
-	// destroy pthread cond attributes
-	error = pthread_condattr_destroy(&(platform->cond_attr));
-
-	if (error != 0)
-	{
-		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
-		return;
-	}
-
 	// destroy pthread mutex (block)
 	error = pthread_mutex_destroy(&(platform->mutex_block));
 
@@ -227,15 +241,6 @@ void globox_x11_common_clean(
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
-		return;
-	}
-
-	// destroy pthread mutex attributes
-	error = pthread_mutexattr_destroy(&(platform->mutex_attr));
-
-	if (error != 0)
-	{
-		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
 		return;
 	}
 }
@@ -300,6 +305,14 @@ void globox_x11_common_window_create(
 		globox_error_throw(context, GLOBOX_ERROR_X11_WIN_CREATE);
 		return;
 	}
+
+	// TODO
+	// configure the window
+	// support the window deletion protocol
+	// select the correct type of window frame
+	// select the correct type of window background
+	// (moved) epoll event handling pre-initialization
+	// select the supported input event categories
 }
 
 void globox_x11_common_window_destroy(
@@ -365,27 +378,201 @@ void globox_x11_common_window_stop(
 	struct globox* context,
 	struct x11_platform* platform)
 {
+	// unblock
 	pthread_cond_broadcast(&(platform->cond_main));
+
+	// exit the event loop thread gracefully
+	platform->closed = true;
+	// TODO send a dummy event here
 }
 
 
-// TODO
+void* x11_event_loop(void* data)
+{
+	struct x11_thread_event_loop_data* thread_event_loop_data = data;
+
+	struct globox* context = thread_event_loop_data->globox;
+	struct x11_platform* platform = thread_event_loop_data->platform;
+
+	int error;
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return NULL;
+	}
+
+	xcb_generic_event_t* event;
+
+	while (platform->closed == false)
+	{
+		// unlock main mutex
+		error = pthread_mutex_unlock(&(platform->mutex_main));
+
+		if (error != 0)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return NULL;
+		}
+
+		// block until we get an event
+		event = xcb_wait_for_event(platform->conn);
+
+		// lock main mutex
+		error = pthread_mutex_lock(&(platform->mutex_main));
+
+		if (error != 0)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return NULL;
+		}
+
+		// IO error
+		if (event == NULL)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_X11_EVENT_WAIT);
+			return NULL;
+		}
+
+		// run developer callback
+		context->event_callbacks.handler(
+			context->event_callbacks.data,
+			event);
+
+		free(event);
+	}
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return NULL;
+	}
+
+	return NULL;
+}
+
 void globox_x11_common_init_events(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_config_events* config)
 {
+	// set the event callback
+	context->event_callbacks = *config;
+
+	// start the event loop in a new thread
+	// init thread attributes
+	int error;
+	pthread_attr_t attr;
+
+	error = pthread_attr_init(&attr);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
+		return;
+	}
+
+	error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH);
+		return;
+	}
+
+	// init thread function data
+	struct x11_thread_event_loop_data data =
+	{
+		.globox = context,
+		.platform = platform,
+	};
+
+	platform->thread_event_loop_data = data;
+
+	// start function in a new thread
+	error =
+		pthread_create(
+			&(platform->thread_event_loop),
+			&attr,
+			x11_event_loop,
+			&(platform->thread_event_loop_data));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		return;
+	}
+
+	// destroy the attributes
+	error = pthread_attr_destroy(&attr);
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
+		return;
+	}
 }
 
-// TODO
 enum globox_event globox_x11_common_handle_events(
 	struct globox* context,
 	struct x11_platform* platform,
 	void* event)
 {
-	enum globox_event out = GLOBOX_EVENT_INVALID;
+	// process system events
+	enum globox_event globox_event = GLOBOX_EVENT_INVALID;
+	xcb_generic_event_t* xcb_event = event;
 
-	return out;
+	// TODO handle and return all these
+#if 0
+	globox_event = GLOBOX_EVENT_RESTORED;
+	globox_event = GLOBOX_EVENT_MINIMIZED;
+	globox_event = GLOBOX_EVENT_MAXIMIZED;
+	globox_event = GLOBOX_EVENT_FULLSCREEN;
+	globox_event = GLOBOX_EVENT_CLOSED;
+	globox_event = GLOBOX_EVENT_MOVED;
+	globox_event = GLOBOX_EVENT_RESIZED_N;
+	globox_event = GLOBOX_EVENT_RESIZED_NW;
+	globox_event = GLOBOX_EVENT_RESIZED_W;
+	globox_event = GLOBOX_EVENT_RESIZED_SW;
+	globox_event = GLOBOX_EVENT_RESIZED_S;
+	globox_event = GLOBOX_EVENT_RESIZED_SE;
+	globox_event = GLOBOX_EVENT_RESIZED_E;
+	globox_event = GLOBOX_EVENT_RESIZED_NE;
+	globox_event = GLOBOX_EVENT_CONTENT_DAMAGED;
+	globox_event = GLOBOX_EVENT_DISPLAY_CHANGED;
+#endif
+
+	switch (xcb_event->response_type & ~0x80)
+	{
+		case XCB_EXPOSE:
+		{
+			break;
+		}
+		case XCB_CONFIGURE_NOTIFY:
+		{
+			break;
+		}
+		case XCB_PROPERTY_NOTIFY:
+		{
+			break;
+		}
+		case XCB_CLIENT_MESSAGE:
+		{
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	return globox_event;
 }
 
 struct globox_config_features*

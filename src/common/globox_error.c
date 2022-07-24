@@ -56,6 +56,14 @@ void globox_error_init(
 		"failed to destroy posix cond attributes";
 	log[GLOBOX_ERROR_POSIX_COND_ATTR_SETTYPE] =
 		"failed to set type in posix cond attributes";
+	log[GLOBOX_ERROR_POSIX_THREAD_CREATE] =
+		"failed to create posix thread";
+	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT] =
+		"failed to init posix thread attributes";
+	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY] =
+		"failed to destroy posix thread attributes";
+	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH] =
+		"failt to set detach type in posix thread attributes";
 
 	log[GLOBOX_ERROR_X11_CONN] =
 		"failed to connect to X11 server";
@@ -69,6 +77,8 @@ void globox_error_init(
 		"failed to destroy X11 window";
 	log[GLOBOX_ERROR_X11_WIN_MAP] =
 		"failed to map X11 window";
+	log[GLOBOX_ERROR_X11_EVENT_WAIT] =
+		"failed to get an X11 event";
 #else
 #endif
 }
