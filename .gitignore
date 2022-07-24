@@ -14,3 +14,4 @@ ci/globox_image_osxcross/scripts/sdk
 valgrind.log
 drmemory.log
 log
+vgcore.*
