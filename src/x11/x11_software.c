@@ -207,18 +207,76 @@ void globox_x11_software_window_stop(
 }
 
 
+// TODO
 void globox_x11_software_init_events(
 	struct globox* context,
 	struct globox_config_events* config)
 {
+	int error = 0;
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_init_events(context, platform, config);
+
+	// no extra failure check at the moment
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 }
 
+// TODO
 enum globox_event globox_x11_software_handle_events(
 	struct globox* context,
 	void* event)
 {
-	// TODO remove
-	return 0;
+	int error = 0;
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// lock main mutex
+	error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// run common X11 helper
+	enum globox_event event =
+		globox_x11_common_handle_events(
+			context,
+			platform,
+			event);
+
+	// no extra failure check at the moment
+
+	// unlock main mutex
+	error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	return event;
 }
 
 struct globox_config_features* globox_x11_software_init_features(

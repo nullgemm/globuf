@@ -82,7 +82,7 @@ void globox_x11_common_window_stop(
 void globox_x11_common_init_events(
 	struct globox* context,
 	struct x11_platform* platform,
-	void (*handler)(void* data, void* event));
+	struct globox_config_events* config);
 
 enum globox_event globox_x11_common_handle_events(
 	struct globox* context,

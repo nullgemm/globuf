@@ -369,20 +369,23 @@ void globox_x11_common_window_stop(
 }
 
 
+// TODO
 void globox_x11_common_init_events(
 	struct globox* context,
 	struct x11_platform* platform,
-	void (*handler)(void* data, void* event))
+	struct globox_config_events* config)
 {
 }
 
+// TODO
 enum globox_event globox_x11_common_handle_events(
 	struct globox* context,
 	struct x11_platform* platform,
 	void* event)
 {
-	//TODO remove
-	return 0;
+	enum globox_event out = GLOBOX_EVENT_INVALID;
+
+	return out;
 }
 
 struct globox_config_features*

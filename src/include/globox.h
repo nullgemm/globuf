@@ -26,8 +26,10 @@ enum globox_feature
 // didn't necessarily happen programmatically
 enum globox_event
 {
+	// special value used when errors occur while processing events
+	GLOBOX_EVENT_INVALID = 0,
 	// window state updates
-	GLOBOX_EVENT_RESTORED = 0,
+	GLOBOX_EVENT_RESTORED,
 	GLOBOX_EVENT_MINIMIZED,
 	GLOBOX_EVENT_MAXIMIZED,
 	GLOBOX_EVENT_FULLSCREEN,
