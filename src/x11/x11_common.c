@@ -851,6 +851,7 @@ struct globox_config_features*
 	return features;
 }
 
+// TODO call the callbacks where appropriate
 void globox_x11_common_set_feature_data(
 	struct globox* context,
 	struct x11_platform* platform,

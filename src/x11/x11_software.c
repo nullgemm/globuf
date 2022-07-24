@@ -15,6 +15,7 @@ struct x11_backend
 	struct x11_platform platform;
 };
 
+// TODO integrate software-specific code
 void globox_x11_software_init(
 	struct globox* context)
 {
@@ -207,7 +208,6 @@ void globox_x11_software_window_stop(
 }
 
 
-// TODO
 void globox_x11_software_init_events(
 	struct globox* context,
 	struct globox_config_events* config)
@@ -240,7 +240,6 @@ void globox_x11_software_init_events(
 	}
 }
 
-// TODO
 enum globox_event globox_x11_software_handle_events(
 	struct globox* context,
 	void* event)
