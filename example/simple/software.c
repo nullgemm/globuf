@@ -127,6 +127,11 @@ void event_callback(void* data, void* event)
 			fprintf(stderr, "received `display changed` event\n");
 			break;
 		}
+		case GLOBOX_EVENT_INVALID:
+		{
+			fprintf(stderr, "received invalid event\n");
+			break;
+		}
 	}
 }
 
@@ -199,9 +204,9 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < features->count; ++i)
 	{
-		struct globox_feature_request request =
+		struct globox_feature_data feature_data =
 		{
-			.feature = features->list[i],
+			.type = features->list[i],
 			.config = NULL,
 			.callback = NULL,
 			.data = NULL,
@@ -211,106 +216,106 @@ int main(int argc, char** argv)
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				struct globox_feature_state state =
-				{
-					.state = GLOBOX_STATE_REGULAR,
-				};
+				struct globox_feature_state* state =
+					malloc(sizeof (struct globox_feature_state));
 
-				request.config = &state;
-				globox_set_feature(globox, &request);
+				state->state = GLOBOX_STATE_REGULAR;
+
+				feature_data.config = state;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				struct globox_feature_title title =
-				{
-					.title = "globox",
-				};
+				struct globox_feature_title* title =
+					malloc(sizeof (struct globox_feature_title));
 
-				request.config = &title;
-				globox_set_feature(globox, &request);
+				title->title = "globox";
+
+				feature_data.config = title;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				struct globox_feature_icon icon =
-				{
-					// acceptable implementation-defined behavior
-					// since it's also the implementation that
-					// allows us to bundle resources like so
-					.pixmap = (uint32_t*) &iconpix_beg,
-					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
-				};
+				struct globox_feature_icon* icon =
+					malloc(sizeof (struct globox_feature_icon));
 
-				request.config = &icon;
-				globox_set_feature(globox, &request);
+				// acceptable implementation-defined behavior
+				// since it's also the implementation that
+				// allows us to bundle resources like so
+				icon->pixmap = (uint32_t*) &iconpix_beg;
+				icon->len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64);
+
+				feature_data.config = icon;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_SIZE:
 			{
-				struct globox_feature_size size =
-				{
-					.width = 500,
-					.height = 500,
-				};
+				struct globox_feature_size* size =
+					malloc(sizeof (struct globox_feature_size));
 
-				request.config = &size;
-				globox_set_feature(globox, &request);
+				size->width = 500;
+				size->height = 500;
+
+				feature_data.config = size;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_POS:
 			{
-				struct globox_feature_pos pos =
-				{
-					.x = 250,
-					.y = 250,
-				};
+				struct globox_feature_pos* pos =
+					malloc(sizeof (struct globox_feature_pos));
 
-				request.config = &pos;
-				globox_set_feature(globox, &request);
+				pos->x = 250;
+				pos->y = 250;
+
+				feature_data.config = pos;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				struct globox_feature_frame frame =
-				{
-					.frame = true,
-				};
+				struct globox_feature_frame* frame =
+					malloc(sizeof (struct globox_feature_frame));
 
-				request.config = &frame;
-				request.callback = feature_callback_frame;
-				globox_set_feature(globox, &request);
+				frame->frame = true;
+
+				feature_data.config = frame;
+				feature_data.callback = feature_callback_frame;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				struct globox_feature_background background =
-				{
-					.background = GLOBOX_BACKGROUND_BLURRED,
-				};
+				struct globox_feature_background* background =
+					malloc(sizeof (struct globox_feature_background));
 
-				request.config = &background;
-				request.callback = feature_callback_background;
-				globox_set_feature(globox, &request);
+				background->background = GLOBOX_BACKGROUND_BLURRED;
+
+				feature_data.config = background;
+				feature_data.callback = feature_callback_background;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_VSYNC_CALLBACK:
 			{
-				struct globox_feature_vsync_callback vsync =
-				{
-					.data = globox,
-					.callback = vsync_callback,
-				};
+				struct globox_feature_vsync_callback* vsync =
+					malloc(sizeof (struct globox_feature_vsync_callback));
 
-				request.config = &vsync;
-				globox_set_feature(globox, &request);
+				vsync->data = globox;
+				vsync->callback = vsync_callback;
+
+				feature_data.config = vsync;
+				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}

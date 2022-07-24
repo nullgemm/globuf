@@ -249,8 +249,11 @@ void globox_x11_common_window_create(
 	struct globox* context,
 	struct x11_platform* platform)
 {
+	struct globox_feature_background* background =
+		context->feature_data[GLOBOX_FEATURE_BACKGROUND].config;
+
 	// prepare window attributes
-	if (context->background.background == GLOBOX_BACKGROUND_TRANSPARENT)
+	if (background->background != GLOBOX_BACKGROUND_OPAQUE)
 	{
 		platform->attr_mask =
 			XCB_CW_BORDER_PIXEL
@@ -277,6 +280,9 @@ void globox_x11_common_window_create(
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
 
 	// create the window
+	struct globox_feature_pos* pos = context->feature_data[GLOBOX_FEATURE_POS].config;
+	struct globox_feature_size* size = context->feature_data[GLOBOX_FEATURE_SIZE].config;
+
 	platform->win = xcb_generate_id(platform->conn);
 
 	xcb_void_cookie_t cookie =
@@ -285,10 +291,10 @@ void globox_x11_common_window_create(
 			platform->visual_depth,
 			platform->win,
 			platform->root_win,
-			context->pos.x,
-			context->pos.y,
-			context->size.width,
-			context->size.height,
+			pos->x,
+			pos->y,
+			size->width,
+			size->height,
 			0,
 			XCB_WINDOW_CLASS_INPUT_OUTPUT,
 			platform->visual_id,
@@ -331,7 +337,10 @@ void globox_x11_common_window_create(
 	}
 
 	// select the correct type of window frame
-	if (context->frame.frame == false)
+	struct globox_feature_frame* frame =
+		context->feature_data[GLOBOX_FEATURE_FRAME].config;
+
+	if (frame->frame == false)
 	{
 		uint32_t motif_hints[5] =
 		{
@@ -366,7 +375,7 @@ void globox_x11_common_window_create(
 	}
 
 	// select the correct type of window background
-	if (context->background.background == GLOBOX_BACKGROUND_BLURRED)
+	if (background->background == GLOBOX_BACKGROUND_BLURRED)
 	{
 		// kde blur
 		cookie =
@@ -842,178 +851,10 @@ struct globox_config_features*
 	return features;
 }
 
-void globox_x11_common_set_feature(
+void globox_x11_common_set_feature_data(
 	struct globox* context,
 	struct x11_platform* platform,
-	struct globox_feature_request* request)
+	struct globox_feature_data* feature_data)
 {
-	switch (request->feature)
-	{
-		case GLOBOX_FEATURE_INTERACTION:
-		{
-			globox_x11_common_set_interaction(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_STATE:
-		{
-			globox_x11_common_set_state(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_TITLE:
-		{
-			globox_x11_common_set_title(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_ICON:
-		{
-			globox_x11_common_set_icon(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_SIZE:
-		{
-			globox_x11_common_set_size(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_POS:
-		{
-			globox_x11_common_set_pos(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_FRAME:
-		{
-			globox_x11_common_set_frame(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_BACKGROUND:
-		{
-			globox_x11_common_set_background(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		case GLOBOX_FEATURE_VSYNC_CALLBACK:
-		{
-			globox_x11_common_set_vsync_callback(
-				context,
-				platform,
-				request);
-
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-}
-
-// TODO implement setters (change the callback system?)
-void globox_x11_common_set_interaction(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_interaction* config = request->config;
-}
-
-void globox_x11_common_set_state(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_state* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_title(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_title* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_icon(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_icon* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_size(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_size* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_pos(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_pos* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_frame(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_frame* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_background(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_background* config = request->config;
-	// TODO needed for a first test
-}
-
-void globox_x11_common_set_vsync_callback(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request)
-{
-	struct globox_feature_vsync_callback* config = request->config;
-	// TODO needed for a first test
+	context->feature_data[feature_data->type] = *feature_data;
 }

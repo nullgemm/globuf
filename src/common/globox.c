@@ -99,11 +99,11 @@ struct globox_config_features* globox_init_features(
 	return context->backend_callbacks.init_features(context);
 }
 
-void globox_set_feature(
+void globox_set_feature_data(
 	struct globox* context,
-	struct globox_feature_request* request)
+	struct globox_feature_data* feature_data)
 {
-	context->backend_callbacks.set_feature(context, request);
+	context->backend_callbacks.set_feature_data(context, feature_data);
 }
 
 
@@ -116,10 +116,16 @@ void globox_update_content(
 
 unsigned globox_get_width(struct globox* context)
 {
-	return context->size.width;
+	struct globox_feature_size* size =
+		context->feature_data[GLOBOX_FEATURE_SIZE].config;
+
+	return size->width;
 }
 
 unsigned globox_get_height(struct globox* context)
 {
-	return context->size.height;
+	struct globox_feature_size* size =
+		context->feature_data[GLOBOX_FEATURE_SIZE].config;
+
+	return size->height;
 }

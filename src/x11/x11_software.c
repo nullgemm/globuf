@@ -259,7 +259,7 @@ enum globox_event globox_x11_software_handle_events(
 	}
 
 	// run common X11 helper
-	enum globox_event event =
+	enum globox_event out =
 		globox_x11_common_handle_events(
 			context,
 			platform,
@@ -276,7 +276,7 @@ enum globox_event globox_x11_software_handle_events(
 		return;
 	}
 
-	return event;
+	return out;
 }
 
 struct globox_config_features* globox_x11_software_init_features(
@@ -314,9 +314,9 @@ struct globox_config_features* globox_x11_software_init_features(
 	return features;
 }
 
-void globox_x11_software_set_feature(
+void globox_x11_software_set_feature_data(
 	struct globox* context,
-	struct globox_feature_request* request)
+	struct globox_feature_data* feature_data)
 {
 	int error = 0;
 	struct x11_backend* backend = context->backend_data;
@@ -332,7 +332,7 @@ void globox_x11_software_set_feature(
 	}
 
 	// run common X11 helper
-	globox_x11_common_set_feature(context, platform, request);
+	globox_x11_common_set_feature_data(context, platform, feature_data);
 
 	// no extra failure check at the moment
 
@@ -367,6 +367,6 @@ void globox_prepare_init_x11_software(
 	config->init_features = globox_x11_software_init_features;
 	config->init_events = globox_x11_software_init_events;
 	config->handle_events = globox_x11_software_handle_events;
-	config->set_feature = globox_x11_software_set_feature;
+	config->set_feature_data = globox_x11_software_set_feature_data;
 	config->update_content = globox_x11_software_update_content;
 }

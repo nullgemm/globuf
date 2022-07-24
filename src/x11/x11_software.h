@@ -37,9 +37,9 @@ enum globox_event globox_x11_software_handle_events(
 struct globox_config_features* globox_x11_software_init_features(
 	struct globox* context);
 
-void globox_x11_software_set_feature(
+void globox_x11_software_set_feature_data(
 	struct globox* context,
-	struct globox_feature_request* request);
+	struct globox_feature_data* feature_data);
 
 // for this backend, `data` is of type `struct globox_update_software*`
 void globox_x11_software_update_content(

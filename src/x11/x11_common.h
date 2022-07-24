@@ -102,55 +102,9 @@ struct globox_config_features* globox_x11_common_init_features(
 	struct globox* context,
 	struct x11_platform* platform);
 
-void globox_x11_common_set_feature(
+void globox_x11_common_set_feature_data(
 	struct globox* context,
 	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-// feature setter helpers
-void globox_x11_common_set_interaction(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_state(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_title(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_icon(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_size(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_pos(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_frame(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_background(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
-
-void globox_x11_common_set_vsync_callback(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_feature_request* request);
+	struct globox_feature_data* feature_data);
 
 #endif

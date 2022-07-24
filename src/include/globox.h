@@ -135,9 +135,9 @@ struct globox_config_features
 	size_t count;
 };
 
-struct globox_feature_request
+struct globox_feature_data
 {
-	enum globox_feature feature;
+	enum globox_feature type;
 	void* config;
 
 	void (*callback)(void* data, void* config);
@@ -174,9 +174,9 @@ struct globox_config_backend
 		struct globox* context,
 		void* event);
 	// features
-	void (*set_feature)(
+	void (*set_feature_data)(
 		struct globox* context,
-		struct globox_feature_request* request);
+		struct globox_feature_data* feature_data);
 	void (*update_content)(
 		struct globox* context,
 		void* data);
@@ -238,9 +238,9 @@ struct globox_config_features* globox_init_features(
 	struct globox* context);
 
 // feature setters
-void globox_set_feature(
+void globox_set_feature_data(
 	struct globox* context,
-	struct globox_feature_request* request);
+	struct globox_feature_data* feature_data);
 
 struct globox_feature_interaction
 {
