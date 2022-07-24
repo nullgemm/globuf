@@ -306,13 +306,143 @@ void globox_x11_common_window_create(
 		return;
 	}
 
-	// TODO
 	// configure the window
 	// support the window deletion protocol
+	cookie =
+		xcb_change_property_checked(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_PROTOCOLS],
+			4,
+			32,
+			1,
+			&(platform->atoms[X11_ATOM_DELETE_WINDOW]));
+
+	error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
+	}
+
 	// select the correct type of window frame
+	if (context->frame.frame == false)
+	{
+		uint32_t motif_hints[5] =
+		{
+			2, // flags
+			0, // functions
+			0, // decorations
+			0, // input_mode
+			0, // status
+		};
+
+		cookie =
+			xcb_change_property(
+				platform->conn,
+				XCB_PROP_MODE_REPLACE,
+				platform->win,
+				platform->atoms[X11_ATOM_HINTS_MOTIF],
+				platform->atoms[X11_ATOM_HINTS_MOTIF],
+				32,
+				5,
+				motif_hints);
+
+		error =
+			xcb_request_check(
+				platform->conn,
+				cookie);
+
+		if (error != NULL)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+			return;
+		}
+	}
+
 	// select the correct type of window background
-	// (moved) epoll event handling pre-initialization
+	if (context->background.background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		// kde blur
+		cookie =
+			xcb_change_property(
+				platform->conn,
+				XCB_PROP_MODE_REPLACE,
+				platform->win,
+				platform->atoms[X11_ATOM_BLUR_KDE],
+				XCB_ATOM_CARDINAL,
+				32,
+				0,
+				NULL);
+
+		error =
+			xcb_request_check(
+				platform->conn,
+				cookie);
+
+		if (error != NULL)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+			return;
+		}
+
+		// deepin blur
+		cookie =
+			xcb_change_property(
+				platform->conn,
+				XCB_PROP_MODE_REPLACE,
+				platform->win,
+				platform->atoms[X11_ATOM_BLUR_DEEPIN],
+				XCB_ATOM_CARDINAL,
+				32,
+				0,
+				NULL);
+
+		error =
+			xcb_request_check(
+				platform->conn,
+				cookie);
+
+		if (error != NULL)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+			return;
+		}
+	}
+
 	// select the supported input event categories
+	if (context->event_callbacks.handler != NULL)
+	{
+		platform->attr_val[1] |=
+			XCB_EVENT_MASK_KEY_PRESS
+			| XCB_EVENT_MASK_KEY_RELEASE
+			| XCB_EVENT_MASK_BUTTON_PRESS
+			| XCB_EVENT_MASK_BUTTON_RELEASE
+			| XCB_EVENT_MASK_POINTER_MOTION;
+
+		cookie =
+			xcb_change_window_attributes_checked(
+				platform->conn,
+				platform->win,
+				platform->attr_mask,
+				platform->attr_val);
+
+		error =
+			xcb_request_check(
+				platform->conn,
+				cookie);
+
+		if (error != NULL)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_X11_ATTR_CHANGE);
+			return;
+		}
+	}
 }
 
 void globox_x11_common_window_destroy(
@@ -437,10 +567,28 @@ void* x11_event_loop(void* data)
 			return NULL;
 		}
 
+		// unlock main mutex
+		error = pthread_mutex_unlock(&(platform->mutex_main));
+
+		if (error != 0)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return NULL;
+		}
+
 		// run developer callback
 		context->event_callbacks.handler(
 			context->event_callbacks.data,
 			event);
+
+		// lock main mutex
+		error = pthread_mutex_lock(&(platform->mutex_main));
+
+		if (error != 0)
+		{
+			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return NULL;
+		}
 
 		free(event);
 	}

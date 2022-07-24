@@ -79,6 +79,10 @@ void globox_error_init(
 		"failed to map X11 window";
 	log[GLOBOX_ERROR_X11_EVENT_WAIT] =
 		"failed to get an X11 event";
+	log[GLOBOX_ERROR_X11_PROP_CHANGE] =
+		"failed to change an X11 property";
+	log[GLOBOX_ERROR_X11_ATTR_CHANGE] =
+		"failed to change an X11 attribute";
 #else
 #endif
 }
