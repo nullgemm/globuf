@@ -14,7 +14,7 @@ extern unsigned char iconpix_len;
 
 void feature_callback_background(void* data, void* config)
 {
-	struct globox_feature_background* background = config;
+	const struct globox_feature_background* background = config;
 
 	// fair enough
 	if (background->background != GLOBOX_BACKGROUND_BLURRED)
@@ -26,7 +26,7 @@ void feature_callback_background(void* data, void* config)
 
 void feature_callback_frame(void* data, void* config)
 {
-	struct globox_feature_frame* frame = config;
+	const struct globox_feature_frame* frame = config;
 
 	// fuck you gnome developers
 	if (frame->frame == false)
