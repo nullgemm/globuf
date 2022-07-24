@@ -331,7 +331,7 @@ int main(int argc, char** argv)
 	// register an event handler to track the window's state
 	struct globox_config_events events =
 	{
-		.data = NULL,
+		.data = globox,
 		.handler = event_callback,
 	};
 
