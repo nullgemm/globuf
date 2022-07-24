@@ -416,32 +416,29 @@ void globox_x11_common_window_create(
 	}
 
 	// select the supported input event categories
-	if (context->event_callbacks.handler != NULL)
+	platform->attr_val[1] |=
+		XCB_EVENT_MASK_KEY_PRESS
+		| XCB_EVENT_MASK_KEY_RELEASE
+		| XCB_EVENT_MASK_BUTTON_PRESS
+		| XCB_EVENT_MASK_BUTTON_RELEASE
+		| XCB_EVENT_MASK_POINTER_MOTION;
+
+	cookie =
+		xcb_change_window_attributes_checked(
+			platform->conn,
+			platform->win,
+			platform->attr_mask,
+			platform->attr_val);
+
+	error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error != NULL)
 	{
-		platform->attr_val[1] |=
-			XCB_EVENT_MASK_KEY_PRESS
-			| XCB_EVENT_MASK_KEY_RELEASE
-			| XCB_EVENT_MASK_BUTTON_PRESS
-			| XCB_EVENT_MASK_BUTTON_RELEASE
-			| XCB_EVENT_MASK_POINTER_MOTION;
-
-		cookie =
-			xcb_change_window_attributes_checked(
-				platform->conn,
-				platform->win,
-				platform->attr_mask,
-				platform->attr_val);
-
-		error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error != NULL)
-		{
-			globox_error_throw(context, GLOBOX_ERROR_X11_ATTR_CHANGE);
-			return;
-		}
+		globox_error_throw(context, GLOBOX_ERROR_X11_ATTR_CHANGE);
+		return;
 	}
 }
 
