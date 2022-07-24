@@ -707,8 +707,8 @@ enum globox_event globox_x11_common_handle_events(
 	enum globox_event globox_event = GLOBOX_EVENT_INVALID;
 	xcb_generic_event_t* xcb_event = event;
 
-	// TODO handle and return all these
 #if 0
+	// TODO handle and return all these
 	globox_event = GLOBOX_EVENT_RESTORED;
 	globox_event = GLOBOX_EVENT_MINIMIZED;
 	globox_event = GLOBOX_EVENT_MAXIMIZED;
@@ -722,6 +722,7 @@ enum globox_event globox_x11_common_handle_events(
 	globox_event = GLOBOX_EVENT_RESIZED_SE;
 	globox_event = GLOBOX_EVENT_RESIZED_E;
 	globox_event = GLOBOX_EVENT_RESIZED_NE;
+	// TODO implement these for a first test
 	globox_event = GLOBOX_EVENT_CONTENT_DAMAGED;
 	globox_event = GLOBOX_EVENT_DISPLAY_CHANGED;
 #endif
@@ -936,7 +937,7 @@ void globox_x11_common_set_feature(
 	}
 }
 
-// TODO implement setters
+// TODO implement setters (change the callback system?)
 void globox_x11_common_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -951,6 +952,7 @@ void globox_x11_common_set_state(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_state* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_title(
@@ -959,6 +961,7 @@ void globox_x11_common_set_title(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_title* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_icon(
@@ -967,6 +970,7 @@ void globox_x11_common_set_icon(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_icon* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_size(
@@ -975,6 +979,7 @@ void globox_x11_common_set_size(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_size* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_pos(
@@ -983,6 +988,7 @@ void globox_x11_common_set_pos(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_pos* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_frame(
@@ -991,6 +997,7 @@ void globox_x11_common_set_frame(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_frame* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_background(
@@ -999,6 +1006,7 @@ void globox_x11_common_set_background(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_background* config = request->config;
+	// TODO needed for a first test
 }
 
 void globox_x11_common_set_vsync_callback(
@@ -1007,4 +1015,5 @@ void globox_x11_common_set_vsync_callback(
 	struct globox_feature_request* request)
 {
 	struct globox_feature_vsync_callback* config = request->config;
+	// TODO needed for a first test
 }
