@@ -36,6 +36,20 @@ struct globox* globox_init(
 		return context;
 	}
 
+	// initialize the feature data array
+	for (int i = 0; i < GLOBOX_FEATURE_COUNT; ++i)
+	{
+		struct globox_feature_data data =
+		{
+			.type = GLOBOX_FEATURE_COUNT,
+			.config = NULL,
+			.callback = NULL,
+			.data = NULL,
+		};
+
+		context->feature_data[i] = data;
+	}
+
 	// call the backend's init function
 	context->backend_callbacks.init(context);
 
@@ -46,6 +60,15 @@ void globox_clean(
 	struct globox* context)
 {
 	context->backend_callbacks.clean(context);
+
+	// clean the feature data array
+	for (int i = 0; i < GLOBOX_FEATURE_COUNT; ++i)
+	{
+		if (context->feature_data[i].config != NULL)
+		{
+			free(context->feature_data[i].config);
+		}
+	}
 }
 
 void globox_window_create(

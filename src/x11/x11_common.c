@@ -856,5 +856,107 @@ void globox_x11_common_set_feature_data(
 	struct x11_platform* platform,
 	struct globox_feature_data* feature_data)
 {
-	context->feature_data[feature_data->type] = *feature_data;
+	void* generic = NULL;
+	enum globox_feature type = feature_data->type;
+
+	switch (type)
+	{
+		case GLOBOX_FEATURE_INTERACTION:
+		{
+			struct globox_feature_interaction* config =
+				malloc(sizeof (struct globox_feature_interaction));
+
+			*config = *((struct globox_feature_interaction*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_STATE:
+		{
+			struct globox_feature_state* config =
+				malloc(sizeof (struct globox_feature_state));
+
+			*config = *((struct globox_feature_state*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_TITLE:
+		{
+			struct globox_feature_title* config =
+				malloc(sizeof (struct globox_feature_title));
+
+			*config = *((struct globox_feature_title*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_ICON:
+		{
+			struct globox_feature_icon* config =
+				malloc(sizeof (struct globox_feature_icon));
+
+			*config = *((struct globox_feature_icon*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_SIZE:
+		{
+			struct globox_feature_size* config =
+				malloc(sizeof (struct globox_feature_size));
+
+			*config = *((struct globox_feature_size*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_POS:
+		{
+			struct globox_feature_pos* config =
+				malloc(sizeof (struct globox_feature_pos));
+
+			*config = *((struct globox_feature_pos*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_FRAME:
+		{
+			struct globox_feature_frame* config =
+				malloc(sizeof (struct globox_feature_frame));
+
+			*config = *((struct globox_feature_frame*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_BACKGROUND:
+		{
+			struct globox_feature_background* config =
+				malloc(sizeof (struct globox_feature_background));
+
+			*config = *((struct globox_feature_background*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		case GLOBOX_FEATURE_VSYNC_CALLBACK:
+		{
+			struct globox_feature_vsync_callback* config =
+				malloc(sizeof (struct globox_feature_vsync_callback));
+
+			*config = *((struct globox_feature_vsync_callback*) feature_data->config);
+			generic = config;
+
+			break;
+		}
+		default:
+		{
+			return;
+		}
+	}
+
+	context->feature_data[type] = *feature_data;
+	context->feature_data[type].config = generic;
 }

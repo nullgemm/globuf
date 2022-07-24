@@ -216,78 +216,78 @@ int main(int argc, char** argv)
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				struct globox_feature_state* state =
-					malloc(sizeof (struct globox_feature_state));
+				struct globox_feature_state state =
+				{
+					.state = GLOBOX_STATE_REGULAR,
+				};
 
-				state->state = GLOBOX_STATE_REGULAR;
-
-				feature_data.config = state;
+				feature_data.config = &state;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				struct globox_feature_title* title =
-					malloc(sizeof (struct globox_feature_title));
+				struct globox_feature_title title =
+				{
+					.title = "globox",
+				};
 
-				title->title = "globox";
-
-				feature_data.config = title;
+				feature_data.config = &title;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				struct globox_feature_icon* icon =
-					malloc(sizeof (struct globox_feature_icon));
+				struct globox_feature_icon icon =
+				{
+					// acceptable implementation-defined behavior
+					// since it's also the implementation that
+					// allows us to bundle resources like so
+					.pixmap = (uint32_t*) &iconpix_beg,
+					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
+				};
 
-				// acceptable implementation-defined behavior
-				// since it's also the implementation that
-				// allows us to bundle resources like so
-				icon->pixmap = (uint32_t*) &iconpix_beg;
-				icon->len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64);
-
-				feature_data.config = icon;
+				feature_data.config = &icon;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_SIZE:
 			{
-				struct globox_feature_size* size =
-					malloc(sizeof (struct globox_feature_size));
+				struct globox_feature_size size =
+				{
+					.width = 500,
+					.height = 500,
+				};
 
-				size->width = 500;
-				size->height = 500;
-
-				feature_data.config = size;
+				feature_data.config = &size;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_POS:
 			{
-				struct globox_feature_pos* pos =
-					malloc(sizeof (struct globox_feature_pos));
+				struct globox_feature_pos pos =
+				{
+					.x = 250,
+					.y = 250,
+				};
 
-				pos->x = 250;
-				pos->y = 250;
-
-				feature_data.config = pos;
+				feature_data.config = &pos;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				struct globox_feature_frame* frame =
-					malloc(sizeof (struct globox_feature_frame));
+				struct globox_feature_frame frame =
+				{
+					.frame = true,
+				};
 
-				frame->frame = true;
-
-				feature_data.config = frame;
+				feature_data.config = &frame;
 				feature_data.callback = feature_callback_frame;
 				globox_set_feature_data(globox, &feature_data);
 
@@ -295,12 +295,12 @@ int main(int argc, char** argv)
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				struct globox_feature_background* background =
-					malloc(sizeof (struct globox_feature_background));
+				struct globox_feature_background background =
+				{
+					.background = GLOBOX_BACKGROUND_BLURRED,
+				};
 
-				background->background = GLOBOX_BACKGROUND_BLURRED;
-
-				feature_data.config = background;
+				feature_data.config = &background;
 				feature_data.callback = feature_callback_background;
 				globox_set_feature_data(globox, &feature_data);
 
@@ -308,13 +308,13 @@ int main(int argc, char** argv)
 			}
 			case GLOBOX_FEATURE_VSYNC_CALLBACK:
 			{
-				struct globox_feature_vsync_callback* vsync =
-					malloc(sizeof (struct globox_feature_vsync_callback));
+				struct globox_feature_vsync_callback vsync =
+				{
+					.data = globox,
+					.callback = vsync_callback,
+				};
 
-				vsync->data = globox;
-				vsync->callback = vsync_callback;
-
-				feature_data.config = vsync;
+				feature_data.config = &vsync;
 				globox_set_feature_data(globox, &feature_data);
 
 				break;
