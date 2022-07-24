@@ -16,7 +16,7 @@ void globox_x11_common_init(
 	int error;
 
 	// init pthread mutex attributes
-	error = pthread_mutexattr_init(&(platform->mutex_main_attr));
+	error = pthread_mutexattr_init(&(platform->mutex_attr));
 
 	if (error != 0)
 	{
@@ -27,7 +27,7 @@ void globox_x11_common_init(
 	// set pthread mutex type (error checking for now)
 	error =
 		pthread_mutexattr_settype(
-			&(platform->mutex_main_attr),
+			&(platform->mutex_attr),
 			PTHREAD_MUTEX_ERRORCHECK);
 
 	if (error != 0)
@@ -36,8 +36,17 @@ void globox_x11_common_init(
 		return;
 	}
 
-	// init pthread mutex
-	error = pthread_mutex_init(&(platform->mutex_main), &(platform->mutex_main_attr));
+	// init pthread mutex (main)
+	error = pthread_mutex_init(&(platform->mutex_main), &(platform->mutex_attr));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		return;
+	}
+
+	// init pthread mutex (block)
+	error = pthread_mutex_init(&(platform->mutex_block), &(platform->mutex_attr));
 
 	if (error != 0)
 	{
@@ -46,7 +55,7 @@ void globox_x11_common_init(
 	}
 
 	// init pthread cond attributes
-	error = pthread_condattr_init(&(platform->cond_main_attr));
+	error = pthread_condattr_init(&(platform->cond_attr));
 
 	if (error != 0)
 	{
@@ -57,7 +66,7 @@ void globox_x11_common_init(
 	// set pthread cond clock
 	error =
 		pthread_condattr_setclock(
-			&(platform->cond_main_attr),
+			&(platform->cond_attr),
 			CLOCK_MONOTONIC);
 
 	if (error != 0)
@@ -67,7 +76,7 @@ void globox_x11_common_init(
 	}
 
 	// init pthread cond
-	error = pthread_cond_init(&(platform->cond_main), &(platform->cond_main_attr));
+	error = pthread_cond_init(&(platform->cond_main), &(platform->cond_attr));
 
 	if (error != 0)
 	{
@@ -167,6 +176,15 @@ void globox_x11_common_clean(
 	// close the connection to the X server
 	xcb_disconnect(platform->conn);
 
+	// lock block mutex to be able to destroy the cond
+	error = pthread_mutex_lock(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	// destroy pthread cond
 	error = pthread_cond_destroy(&(platform->cond_main));
 
@@ -176,8 +194,17 @@ void globox_x11_common_clean(
 		return;
 	}
 
+	// unlock block mutex
+	error = pthread_mutex_unlock(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
 	// destroy pthread cond attributes
-	error = pthread_condattr_destroy(&(platform->cond_main_attr));
+	error = pthread_condattr_destroy(&(platform->cond_attr));
 
 	if (error != 0)
 	{
@@ -185,7 +212,16 @@ void globox_x11_common_clean(
 		return;
 	}
 
-	// destroy pthread mutex
+	// destroy pthread mutex (block)
+	error = pthread_mutex_destroy(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		return;
+	}
+
+	// destroy pthread mutex (main)
 	error = pthread_mutex_destroy(&(platform->mutex_main));
 
 	if (error != 0)
@@ -195,7 +231,7 @@ void globox_x11_common_clean(
 	}
 
 	// destroy pthread mutex attributes
-	error = pthread_mutexattr_destroy(&(platform->mutex_main_attr));
+	error = pthread_mutexattr_destroy(&(platform->mutex_attr));
 
 	if (error != 0)
 	{
@@ -322,18 +358,14 @@ void globox_x11_common_window_block(
 	struct globox* context,
 	struct x11_platform* platform)
 {
-	pthread_cond_wait(&(platform->cond_main), &(platform->mutex_main));
+	pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
 }
 
-// TODO support programmatically closing the window here
-// this means it's not needed to support closing the window in states
-// (remember if the window was already "closed" we simply free resources)
-// (in that case the internal event handler must broadcast the cond_main)
-// (because `globox_x11_common_window_block` needs to have returned)
 void globox_x11_common_window_stop(
 	struct globox* context,
 	struct x11_platform* platform)
 {
+	pthread_cond_broadcast(&(platform->cond_main));
 }
 
 

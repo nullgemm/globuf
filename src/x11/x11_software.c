@@ -151,8 +151,8 @@ void globox_x11_software_window_block(
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
-	// lock main mutex
-	error = pthread_mutex_lock(&(platform->mutex_main));
+	// lock block mutex
+	error = pthread_mutex_lock(&(platform->mutex_block));
 
 	if (error != 0)
 	{
@@ -165,8 +165,8 @@ void globox_x11_software_window_block(
 
 	// no extra failure check at the moment
 
-	// unlock main mutex
-	error = pthread_mutex_unlock(&(platform->mutex_main));
+	// unlock block mutex
+	error = pthread_mutex_unlock(&(platform->mutex_block));
 
 	if (error != 0)
 	{

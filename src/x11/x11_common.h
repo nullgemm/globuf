@@ -27,9 +27,11 @@ enum x11_atoms
 struct x11_platform
 {
 	pthread_mutex_t mutex_main;
-	pthread_mutexattr_t mutex_main_attr;
+	pthread_mutex_t mutex_block;
 	pthread_cond_t cond_main;
-	pthread_condattr_t cond_main_attr;
+
+	pthread_mutexattr_t mutex_attr;
+	pthread_condattr_t cond_attr;
 
 	// connection init
 	xcb_connection_t* conn;
