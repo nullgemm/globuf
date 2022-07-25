@@ -254,7 +254,7 @@ enum globox_event globox_x11_software_handle_events(
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
+		return GLOBOX_EVENT_INVALID;
 	}
 
 	// run common X11 helper
@@ -272,7 +272,7 @@ enum globox_event globox_x11_software_handle_events(
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
+		return GLOBOX_EVENT_INVALID;
 	}
 
 	return out;
