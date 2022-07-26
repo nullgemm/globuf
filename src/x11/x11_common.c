@@ -250,7 +250,7 @@ void globox_x11_common_window_create(
 	struct x11_platform* platform)
 {
 	struct globox_feature_background* background =
-		context->feature_data[GLOBOX_FEATURE_BACKGROUND].config;
+		context->feature_background;
 
 	// prepare window attributes
 	if (background->background != GLOBOX_BACKGROUND_OPAQUE)
@@ -280,8 +280,8 @@ void globox_x11_common_window_create(
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
 
 	// create the window
-	struct globox_feature_pos* pos = context->feature_data[GLOBOX_FEATURE_POS].config;
-	struct globox_feature_size* size = context->feature_data[GLOBOX_FEATURE_SIZE].config;
+	struct globox_feature_pos* pos = context->feature_pos;
+	struct globox_feature_size* size = context->feature_size;
 
 	platform->win = xcb_generate_id(platform->conn);
 
@@ -338,9 +338,9 @@ void globox_x11_common_window_create(
 
 	// select the correct type of window frame
 	struct globox_feature_frame* frame =
-		context->feature_data[GLOBOX_FEATURE_FRAME].config;
+		context->feature_frame;
 
-	if (frame->frame == false)
+	if ((frame != NULL) && (frame->frame == false))
 	{
 		uint32_t motif_hints[5] =
 		{
@@ -811,159 +811,166 @@ struct globox_config_features*
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	context->feature_interaction =
+		malloc(sizeof (struct globox_feature_interaction));
 	features->count += 1;
 
 	// available if atom valid
 	if (atoms[X11_ATOM_STATE] != XCB_NONE)
 	{
 		features->list[features->count] = GLOBOX_FEATURE_STATE;
+		context->feature_state =
+			malloc(sizeof (struct globox_feature_state));
 		features->count += 1;
 	}
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	context->feature_title =
+		malloc(sizeof (struct globox_feature_title));
 	features->count += 1;
 
 	// available if atom valid
 	if (atoms[X11_ATOM_ICON] != XCB_NONE)
 	{
 		features->list[features->count] = GLOBOX_FEATURE_ICON;
+		context->feature_icon =
+			malloc(sizeof (struct globox_feature_icon));
 		features->count += 1;
 	}
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	context->feature_size =
+		malloc(sizeof (struct globox_feature_size));
 	features->count += 1;
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_POS;
+	context->feature_pos =
+		malloc(sizeof (struct globox_feature_pos));
 	features->count += 1;
 
 	// available if atom valid
 	if (atoms[X11_ATOM_HINTS_MOTIF] != XCB_NONE)
 	{
 		features->list[features->count] = GLOBOX_FEATURE_FRAME;
+		context->feature_frame =
+			malloc(sizeof (struct globox_feature_frame));
 		features->count += 1;
 	}
 
 	// transparency is always available since globox requires 32bit X11 visuals
 	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	context->feature_background =
+		malloc(sizeof (struct globox_feature_background));
 	features->count += 1;
 
 	// always available (emulated)
 	features->list[features->count] = GLOBOX_FEATURE_VSYNC_CALLBACK;
+	context->feature_vsync_callback =
+		malloc(sizeof (struct globox_feature_vsync_callback));
 	features->count += 1;
 
 	return features;
 }
 
-// TODO call the callbacks where appropriate
-void globox_x11_common_set_feature_data(
+// TODO
+void globox_x11_common_feature_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
-	struct globox_feature_data* feature_data)
+	struct globox_feature_interaction* config)
 {
-	void* generic = NULL;
-	enum globox_feature type = feature_data->type;
-
-	switch (type)
+	if (context->feature_interaction == NULL)
 	{
-		case GLOBOX_FEATURE_INTERACTION:
-		{
-			struct globox_feature_interaction* config =
-				malloc(sizeof (struct globox_feature_interaction));
-
-			*config = *((struct globox_feature_interaction*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_STATE:
-		{
-			struct globox_feature_state* config =
-				malloc(sizeof (struct globox_feature_state));
-
-			*config = *((struct globox_feature_state*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_TITLE:
-		{
-			struct globox_feature_title* config =
-				malloc(sizeof (struct globox_feature_title));
-
-			*config = *((struct globox_feature_title*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_ICON:
-		{
-			struct globox_feature_icon* config =
-				malloc(sizeof (struct globox_feature_icon));
-
-			*config = *((struct globox_feature_icon*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_SIZE:
-		{
-			struct globox_feature_size* config =
-				malloc(sizeof (struct globox_feature_size));
-
-			*config = *((struct globox_feature_size*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_POS:
-		{
-			struct globox_feature_pos* config =
-				malloc(sizeof (struct globox_feature_pos));
-
-			*config = *((struct globox_feature_pos*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_FRAME:
-		{
-			struct globox_feature_frame* config =
-				malloc(sizeof (struct globox_feature_frame));
-
-			*config = *((struct globox_feature_frame*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_BACKGROUND:
-		{
-			struct globox_feature_background* config =
-				malloc(sizeof (struct globox_feature_background));
-
-			*config = *((struct globox_feature_background*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		case GLOBOX_FEATURE_VSYNC_CALLBACK:
-		{
-			struct globox_feature_vsync_callback* config =
-				malloc(sizeof (struct globox_feature_vsync_callback));
-
-			*config = *((struct globox_feature_vsync_callback*) feature_data->config);
-			generic = config;
-
-			break;
-		}
-		default:
-		{
-			return;
-		}
+		return;
 	}
+}
 
-	context->feature_data[type] = *feature_data;
-	context->feature_data[type].config = generic;
+void globox_x11_common_feature_set_state(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_state* config)
+{
+	if (context->feature_state == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_title(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_title* config)
+{
+	if (context->feature_title == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_icon(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_icon* config)
+{
+	if (context->feature_icon == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_size(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_size* config)
+{
+	if (context->feature_size == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_pos(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_pos* config)
+{
+	if (context->feature_pos == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_frame(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_frame* config)
+{
+	if (context->feature_frame == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_background(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_background* config)
+{
+	if (context->feature_background == NULL)
+	{
+		return;
+	}
+}
+
+void globox_x11_common_feature_set_vsync_callback(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_vsync_callback* config)
+{
+	if (context->feature_vsync_callback == NULL)
+	{
+		return;
+	}
 }

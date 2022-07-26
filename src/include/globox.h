@@ -136,13 +136,53 @@ struct globox_config_features
 	size_t count;
 };
 
-struct globox_feature_data
+struct globox_feature_interaction
 {
-	enum globox_feature type;
-	void* config;
+	enum globox_interaction action;
+};
 
-	void (*callback)(void* data, void* config);
+struct globox_feature_state
+{
+	enum globox_state state;
+};
+
+struct globox_feature_title
+{
+	const char* title;
+};
+
+struct globox_feature_icon
+{
+	uint32_t* pixmap;
+	uint32_t len;
+};
+
+struct globox_feature_size
+{
+	unsigned width;
+	unsigned height;
+};
+
+struct globox_feature_pos
+{
+	int x;
+	int y;
+};
+
+struct globox_feature_frame
+{
+	bool frame;
+};
+
+struct globox_feature_background
+{
+	enum globox_background background;
+};
+
+struct globox_feature_vsync_callback
+{
 	void* data;
+	void (*callback)(void* data);
 };
 
 struct globox_config_backend
@@ -175,9 +215,34 @@ struct globox_config_backend
 		struct globox* context,
 		void* event);
 	// features
-	void (*set_feature_data)(
+	void (*feature_set_interaction)(
 		struct globox* context,
-		struct globox_feature_data* feature_data);
+		struct globox_feature_interaction* config);
+	void (*feature_set_state)(
+		struct globox* context,
+		struct globox_feature_state* config);
+	void (*feature_set_title)(
+		struct globox* context,
+		struct globox_feature_title* config);
+	void (*feature_set_icon)(
+		struct globox* context,
+		struct globox_feature_icon* config);
+	void (*feature_set_size)(
+		struct globox* context,
+		struct globox_feature_size* config);
+	void (*feature_set_pos)(
+		struct globox* context,
+		struct globox_feature_pos* config);
+	void (*feature_set_frame)(
+		struct globox* context,
+		struct globox_feature_frame* config);
+	void (*feature_set_background)(
+		struct globox* context,
+		struct globox_feature_background* config);
+	void (*feature_set_vsync_callback)(
+		struct globox* context,
+		struct globox_feature_vsync_callback* config);
+
 	void (*update_content)(
 		struct globox* context,
 		void* data);
@@ -239,59 +304,41 @@ struct globox_config_features* globox_init_features(
 	struct globox* context);
 
 // feature setters
-void globox_set_feature_data(
+void globox_feature_set_interaction(
 	struct globox* context,
-	struct globox_feature_data* feature_data);
+	struct globox_feature_interaction* config);
 
-struct globox_feature_interaction
-{
-	enum globox_interaction action;
-};
+void globox_feature_set_state(
+	struct globox* context,
+	struct globox_feature_state* config);
 
-// feature structures
-struct globox_feature_state
-{
-	enum globox_state state;
-};
+void globox_feature_set_title(
+	struct globox* context,
+	struct globox_feature_title* config);
 
-struct globox_feature_title
-{
-	const char* title;
-};
+void globox_feature_set_icon(
+	struct globox* context,
+	struct globox_feature_icon* config);
 
-struct globox_feature_icon
-{
-	uint32_t* pixmap;
-	uint32_t len;
-};
+void globox_feature_set_size(
+	struct globox* context,
+	struct globox_feature_size* config);
 
-struct globox_feature_size
-{
-	unsigned width;
-	unsigned height;
-};
+void globox_feature_set_pos(
+	struct globox* context,
+	struct globox_feature_pos* config);
 
-struct globox_feature_pos
-{
-	int x;
-	int y;
-};
+void globox_feature_set_frame(
+	struct globox* context,
+	struct globox_feature_frame* config);
 
-struct globox_feature_frame
-{
-	bool frame;
-};
+void globox_feature_set_background(
+	struct globox* context,
+	struct globox_feature_background* config);
 
-struct globox_feature_background
-{
-	enum globox_background background;
-};
-
-struct globox_feature_vsync_callback
-{
-	void* data;
-	void (*callback)(void* data);
-};
+void globox_feature_set_vsync_callback(
+	struct globox* context,
+	struct globox_feature_vsync_callback* config);
 
 // # content updater (backend-specific but still cross-platform)
 void globox_update_content(

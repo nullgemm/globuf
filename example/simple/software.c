@@ -12,33 +12,6 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
-void feature_callback_background(void* data, void* config)
-{
-	const struct globox_feature_background* background = config;
-
-	// fair enough
-	if (background->background != GLOBOX_BACKGROUND_BLURRED)
-	{
-		fprintf(stderr,
-			"your desktop environment does not support background blur!\n");
-	}
-}
-
-void feature_callback_frame(void* data, void* config)
-{
-	const struct globox_feature_frame* frame = config;
-
-	// fuck you gnome developers
-	if (frame->frame == false)
-	{
-		// love you gnome users
-		fprintf(stderr,
-			"your desktop environment expects apps to render their own\n"
-			"window frames, please report this to its developers so they\n"
-			"can fix the issue and improve the user experience for everyone!\n");
-	}
-}
-
 void event_callback(void* data, void* event)
 {
 	// print some debug info on internal events
@@ -204,14 +177,6 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < features->count; ++i)
 	{
-		struct globox_feature_data feature_data =
-		{
-			.type = features->list[i],
-			.config = NULL,
-			.callback = NULL,
-			.data = NULL,
-		};
-
 		switch (features->list[i])
 		{
 			case GLOBOX_FEATURE_STATE:
@@ -221,8 +186,7 @@ int main(int argc, char** argv)
 					.state = GLOBOX_STATE_REGULAR,
 				};
 
-				feature_data.config = &state;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_state(globox, &state);
 
 				break;
 			}
@@ -233,8 +197,7 @@ int main(int argc, char** argv)
 					.title = "globox",
 				};
 
-				feature_data.config = &title;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_title(globox, &title);
 
 				break;
 			}
@@ -249,8 +212,7 @@ int main(int argc, char** argv)
 					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 				};
 
-				feature_data.config = &icon;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_icon(globox, &icon);
 
 				break;
 			}
@@ -262,8 +224,7 @@ int main(int argc, char** argv)
 					.height = 500,
 				};
 
-				feature_data.config = &size;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_size(globox, &size);
 
 				break;
 			}
@@ -275,8 +236,7 @@ int main(int argc, char** argv)
 					.y = 250,
 				};
 
-				feature_data.config = &pos;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_pos(globox, &pos);
 
 				break;
 			}
@@ -287,9 +247,28 @@ int main(int argc, char** argv)
 					.frame = true,
 				};
 
-				feature_data.config = &frame;
-				feature_data.callback = feature_callback_frame;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_frame(globox, &frame);
+
+				if (!globox_error_catch(globox))
+				{
+					break;
+				}
+
+// TODO
+#if 0
+				// check
+				globox_feature_get_frame(globox, &frame);
+#endif
+
+				// fuck you gnome developers
+				if (frame.frame == false)
+				{
+					// love you gnome users
+					fprintf(stderr,
+						"your desktop environment expects apps to render their own\n"
+						"window frames, please report this to its developers so they\n"
+						"can fix the issue and improve the user experience for everyone!\n");
+				}
 
 				break;
 			}
@@ -300,9 +279,25 @@ int main(int argc, char** argv)
 					.background = GLOBOX_BACKGROUND_BLURRED,
 				};
 
-				feature_data.config = &background;
-				feature_data.callback = feature_callback_background;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_background(globox, &background);
+
+				if (!globox_error_catch(globox))
+				{
+					break;
+				}
+
+// TODO
+#if 0
+				// check
+				globox_feature_get_background(globox, &background);
+#endif
+
+				// fair enough
+				if (background.background != GLOBOX_BACKGROUND_BLURRED)
+				{
+					fprintf(stderr,
+						"your desktop environment does not support background blur!\n");
+				}
 
 				break;
 			}
@@ -314,8 +309,7 @@ int main(int argc, char** argv)
 					.callback = vsync_callback,
 				};
 
-				feature_data.config = &vsync;
-				globox_set_feature_data(globox, &feature_data);
+				globox_feature_set_vsync_callback(globox, &vsync);
 
 				break;
 			}

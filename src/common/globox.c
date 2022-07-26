@@ -36,19 +36,16 @@ struct globox* globox_init(
 		return context;
 	}
 
-	// initialize the feature data array
-	for (int i = 0; i < GLOBOX_FEATURE_COUNT; ++i)
-	{
-		struct globox_feature_data data =
-		{
-			.type = GLOBOX_FEATURE_COUNT,
-			.config = NULL,
-			.callback = NULL,
-			.data = NULL,
-		};
-
-		context->feature_data[i] = data;
-	}
+	// initialize the feature pointers
+	context->feature_interaction = NULL;
+	context->feature_state = NULL;
+	context->feature_title = NULL;
+	context->feature_icon = NULL;
+	context->feature_size = NULL;
+	context->feature_pos = NULL;
+	context->feature_frame = NULL;
+	context->feature_background = NULL;
+	context->feature_vsync_callback = NULL;
 
 	// call the backend's init function
 	context->backend_callbacks.init(context);
@@ -62,12 +59,49 @@ void globox_clean(
 	context->backend_callbacks.clean(context);
 
 	// clean the feature data array
-	for (int i = 0; i < GLOBOX_FEATURE_COUNT; ++i)
+	if (context->feature_interaction != NULL)
 	{
-		if (context->feature_data[i].config != NULL)
-		{
-			free(context->feature_data[i].config);
-		}
+		free(context->feature_interaction);
+	}
+
+	if (context->feature_state != NULL)
+	{
+		free(context->feature_state);
+	}
+
+	if (context->feature_title != NULL)
+	{
+		free(context->feature_title);
+	}
+
+	if (context->feature_icon != NULL)
+	{
+		free(context->feature_icon);
+	}
+
+	if (context->feature_size != NULL)
+	{
+		free(context->feature_size);
+	}
+
+	if (context->feature_pos != NULL)
+	{
+		free(context->feature_pos);
+	}
+
+	if (context->feature_frame != NULL)
+	{
+		free(context->feature_frame);
+	}
+
+	if (context->feature_background != NULL)
+	{
+		free(context->feature_background);
+	}
+
+	if (context->feature_vsync_callback != NULL)
+	{
+		free(context->feature_vsync_callback);
 	}
 }
 
@@ -116,17 +150,74 @@ enum globox_event globox_handle_events(
 	return context->backend_callbacks.handle_events(context, event);
 }
 
+
 struct globox_config_features* globox_init_features(
 	struct globox* context)
 {
 	return context->backend_callbacks.init_features(context);
 }
 
-void globox_set_feature_data(
+void globox_feature_set_interaction(
 	struct globox* context,
-	struct globox_feature_data* feature_data)
+	struct globox_feature_interaction* config)
 {
-	context->backend_callbacks.set_feature_data(context, feature_data);
+	context->backend_callbacks.feature_set_interaction(context, config);
+}
+
+void globox_feature_set_state(
+	struct globox* context,
+	struct globox_feature_state* config)
+{
+	context->backend_callbacks.feature_set_state(context, config);
+}
+
+void globox_feature_set_title(
+	struct globox* context,
+	struct globox_feature_title* config)
+{
+	context->backend_callbacks.feature_set_title(context, config);
+}
+
+void globox_feature_set_icon(
+	struct globox* context,
+	struct globox_feature_icon* config)
+{
+	context->backend_callbacks.feature_set_icon(context, config);
+}
+
+void globox_feature_set_size(
+	struct globox* context,
+	struct globox_feature_size* config)
+{
+	context->backend_callbacks.feature_set_size(context, config);
+}
+
+void globox_feature_set_pos(
+	struct globox* context,
+	struct globox_feature_pos* config)
+{
+	context->backend_callbacks.feature_set_pos(context, config);
+}
+
+void globox_feature_set_frame(
+	struct globox* context,
+	struct globox_feature_frame* config)
+{
+	context->backend_callbacks.feature_set_frame(context, config);
+}
+
+void globox_feature_set_background(
+	struct globox* context,
+	struct globox_feature_background* config)
+{
+	context->backend_callbacks.feature_set_background(context, config);
+}
+
+void globox_feature_set_vsync_callback(
+	struct globox* context,
+	struct globox_feature_vsync_callback* config)
+{
+	context->backend_callbacks.feature_set_vsync_callback(context, config);
 }
 
 
@@ -137,18 +228,14 @@ void globox_update_content(
 	context->backend_callbacks.update_content(context, data);
 }
 
+// always available
 unsigned globox_get_width(struct globox* context)
 {
-	struct globox_feature_size* size =
-		context->feature_data[GLOBOX_FEATURE_SIZE].config;
-
-	return size->width;
+	return context->feature_size->width;
 }
 
+// always available
 unsigned globox_get_height(struct globox* context)
 {
-	struct globox_feature_size* size =
-		context->feature_data[GLOBOX_FEATURE_SIZE].config;
-
-	return size->height;
+	return context->feature_size->height;
 }
