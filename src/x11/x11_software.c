@@ -152,8 +152,19 @@ void globox_x11_software_window_block(
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
+	// lock block mutex
+	error = pthread_mutex_lock(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	// run common X11 helper (mutex locked when unblocked)
 	globox_x11_common_window_block(context, platform);
+
+	// no extra failure check at the moment
 
 	// unlock block mutex
 	error = pthread_mutex_unlock(&(platform->mutex_block));
