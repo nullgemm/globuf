@@ -876,6 +876,8 @@ struct globox_config_features*
 }
 
 // TODO
+// initialize when appropriate, set when appropriate
+// return an error if the configuration is refused
 void globox_x11_common_feature_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
