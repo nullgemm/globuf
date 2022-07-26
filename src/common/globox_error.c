@@ -48,6 +48,8 @@ void globox_error_init(
 		"failed to unlock posix mutex";
 	log[GLOBOX_ERROR_POSIX_COND_INIT] =
 		"failed to init posix cond";
+	log[GLOBOX_ERROR_POSIX_COND_WAIT] =
+		"failed to unblock a posix cond";
 	log[GLOBOX_ERROR_POSIX_COND_DESTROY] =
 		"failed to destroy posix cond";
 	log[GLOBOX_ERROR_POSIX_COND_ATTR_INIT] =

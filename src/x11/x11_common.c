@@ -507,7 +507,13 @@ void globox_x11_common_window_block(
 	struct globox* context,
 	struct x11_platform* platform)
 {
-	pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+	int error = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_WAIT);
+		return;
+	}
 }
 
 void globox_x11_common_window_stop(
