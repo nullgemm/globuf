@@ -313,7 +313,7 @@ void globox_x11_common_window_create(
 		return;
 	}
 
-	// configure the window
+	// bare minimum window configuration
 	// support the window deletion protocol
 	cookie =
 		xcb_change_property_checked(
@@ -337,6 +337,34 @@ void globox_x11_common_window_create(
 		return;
 	}
 
+	// select the supported input event categories
+	platform->attr_val[1] |=
+		XCB_EVENT_MASK_KEY_PRESS
+		| XCB_EVENT_MASK_KEY_RELEASE
+		| XCB_EVENT_MASK_BUTTON_PRESS
+		| XCB_EVENT_MASK_BUTTON_RELEASE
+		| XCB_EVENT_MASK_POINTER_MOTION;
+
+	cookie =
+		xcb_change_window_attributes_checked(
+			platform->conn,
+			platform->win,
+			platform->attr_mask,
+			platform->attr_val);
+
+	error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (error != NULL)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_X11_ATTR_CHANGE);
+		return;
+	}
+
+	// TODO
+	// complete window configuration with the provided feature configs
 	// select the correct type of window frame
 	struct globox_feature_frame* frame =
 		context->feature_frame;
@@ -423,32 +451,6 @@ void globox_x11_common_window_create(
 			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
 			return;
 		}
-	}
-
-	// select the supported input event categories
-	platform->attr_val[1] |=
-		XCB_EVENT_MASK_KEY_PRESS
-		| XCB_EVENT_MASK_KEY_RELEASE
-		| XCB_EVENT_MASK_BUTTON_PRESS
-		| XCB_EVENT_MASK_BUTTON_RELEASE
-		| XCB_EVENT_MASK_POINTER_MOTION;
-
-	cookie =
-		xcb_change_window_attributes_checked(
-			platform->conn,
-			platform->win,
-			platform->attr_mask,
-			platform->attr_val);
-
-	error =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error != NULL)
-	{
-		globox_error_throw(context, GLOBOX_ERROR_X11_ATTR_CHANGE);
-		return;
 	}
 }
 
@@ -877,7 +879,6 @@ struct globox_config_features*
 }
 
 // TODO
-// initialize when appropriate, set when appropriate
 // return an error if the configuration is refused
 void globox_x11_common_feature_set_interaction(
 	struct globox* context,
