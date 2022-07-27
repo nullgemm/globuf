@@ -53,7 +53,8 @@ void globox_x11_software_clean(
 }
 
 void globox_x11_software_window_create(
-	struct globox* context)
+	struct globox* context,
+	void** features)
 {
 	int error = 0;
 	struct x11_backend* backend = context->backend_data;
@@ -69,7 +70,7 @@ void globox_x11_software_window_create(
 	}
 
 	// run common X11 helper
-	globox_x11_common_window_create(context, platform);
+	globox_x11_common_window_create(context, platform, features);
 
 	// no extra failure check at the moment
 

@@ -247,7 +247,8 @@ void globox_x11_common_clean(
 
 void globox_x11_common_window_create(
 	struct globox* context,
-	struct x11_platform* platform)
+	struct x11_platform* platform,
+	void** features)
 {
 	struct globox_feature_background* background =
 		context->feature_background;

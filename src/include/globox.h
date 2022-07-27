@@ -196,7 +196,8 @@ struct globox_config_backend
 	void (*clean)(
 		struct globox* context);
 	void (*window_create)(
-		struct globox* context);
+		struct globox* context,
+		void** features);
 	void (*window_destroy)(
 		struct globox* context);
 	void (*window_start)(
@@ -260,7 +261,8 @@ void globox_clean(
 
 // create the window without displaying it and call all window feature callbacks
 void globox_window_create(
-	struct globox* context);
+	struct globox* context,
+	void** features);
 // destroy the window object entirely
 void globox_window_destroy(
 	struct globox* context);

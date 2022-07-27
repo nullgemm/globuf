@@ -173,9 +173,15 @@ int main(int argc, char** argv)
 	}
 
 	// get available features
-	bool frame_error = false;
-	bool background_error = false;
 	features = globox_init_features(globox);
+	void** feature_configs = malloc(features->count * (sizeof (void*)));
+
+	if (feature_configs == NULL)
+	{
+		fprintf(stderr, "could not allocate the feature configs list\n");
+		globox_clean(globox);
+		return 1;
+	}
 
 	for (size_t i = 0; i < features->count; ++i)
 	{
@@ -188,7 +194,7 @@ int main(int argc, char** argv)
 					.state = GLOBOX_STATE_REGULAR,
 				};
 
-				globox_feature_set_state(globox, &state);
+				feature_configs[i] = &state;
 
 				break;
 			}
@@ -199,7 +205,7 @@ int main(int argc, char** argv)
 					.title = "globox",
 				};
 
-				globox_feature_set_title(globox, &title);
+				feature_configs[i] = &title;
 
 				break;
 			}
@@ -214,7 +220,7 @@ int main(int argc, char** argv)
 					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 				};
 
-				globox_feature_set_icon(globox, &icon);
+				feature_configs[i] = &icon;
 
 				break;
 			}
@@ -226,7 +232,7 @@ int main(int argc, char** argv)
 					.height = 500,
 				};
 
-				globox_feature_set_size(globox, &size);
+				feature_configs[i] = &size;
 
 				break;
 			}
@@ -238,7 +244,7 @@ int main(int argc, char** argv)
 					.y = 250,
 				};
 
-				globox_feature_set_pos(globox, &pos);
+				feature_configs[i] = &pos;
 
 				break;
 			}
@@ -249,8 +255,7 @@ int main(int argc, char** argv)
 					.frame = true,
 				};
 
-				globox_feature_set_frame(globox, &frame);
-				frame_error = globox_error_catch(globox);
+				feature_configs[i] = &frame;
 
 				break;
 			}
@@ -261,8 +266,7 @@ int main(int argc, char** argv)
 					.background = GLOBOX_BACKGROUND_BLURRED,
 				};
 
-				globox_feature_set_background(globox, &background);
-				background_error = globox_error_catch(globox);
+				feature_configs[i] = &background;
 
 				break;
 			}
@@ -274,7 +278,7 @@ int main(int argc, char** argv)
 					.callback = vsync_callback,
 				};
 
-				globox_feature_set_vsync_callback(globox, &vsync);
+				feature_configs[i] = &vsync;
 
 				break;
 			}
@@ -297,47 +301,42 @@ int main(int argc, char** argv)
 	globox_init_events(globox, &events);
 
 	// create the window
-	globox_window_create(globox);
+	globox_window_create(globox, feature_configs);
 
 	if (globox_error_catch(globox))
 	{
-		globox_clean(globox);
-		return 1;
-	}
-
-	if (frame_error == true)
-	{
+		if (globox_error_get_code(globox) == GLOBOX_ERROR_FEATURE_SET)
+		{
 // TODO
 #if 0
-		struct globox_feature_frame frame;
-		globox_feature_get_frame(globox, &frame);
+			// check for frame presence
+			struct globox_feature_frame frame;
+			globox_feature_get_frame(globox, &frame);
 
-		// fuck you gnome developers
-		if (frame.frame == false)
-		{
-			// love you gnome users
-			fprintf(stderr,
-				"your desktop environment expects apps to render their own\n"
-				"window frames, please report this to its developers so they\n"
-				"can fix the issue and improve the user experience for everyone!\n");
-		}
+			if (frame.frame == false)
+			{
+				fprintf(stderr,
+					"your desktop environment expects apps to render their own\n"
+					"window frames, please report this to its developers so they\n"
+					"can fix the issue and improve the user experience for everyone!\n");
+			}
+
+			// check for background blur presence
+			struct globox_feature_background background;
+			globox_feature_get_background(globox, &background);
+
+			if (background.background != GLOBOX_BACKGROUND_BLURRED)
+			{
+				fprintf(stderr,
+					"your desktop environment does not support background blur!\n");
+			}
 #endif
-	}
-
-	if (background_error == true)
-	{
-// TODO
-#if 0
-		struct globox_feature_background background;
-		globox_feature_get_background(globox, &background);
-
-		// fair enough
-		if (background.background != GLOBOX_BACKGROUND_BLURRED)
-		{
-			fprintf(stderr,
-				"your desktop environment does not support background blur!\n");
 		}
-#endif
+		else
+		{
+			globox_clean(globox);
+			return 1;
+		}
 	}
 
 	// display the window

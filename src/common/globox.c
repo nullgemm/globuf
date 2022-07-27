@@ -106,9 +106,10 @@ void globox_clean(
 }
 
 void globox_window_create(
-	struct globox* context)
+	struct globox* context,
+	void** features)
 {
-	context->backend_callbacks.window_create(context);
+	context->backend_callbacks.window_create(context, features);
 }
 
 void globox_window_destroy(

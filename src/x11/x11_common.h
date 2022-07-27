@@ -69,7 +69,8 @@ void globox_x11_common_clean(
 
 void globox_x11_common_window_create(
 	struct globox* context,
-	struct x11_platform* platform);
+	struct x11_platform* platform,
+	void** features);
 
 void globox_x11_common_window_destroy(
 	struct globox* context,

@@ -11,7 +11,8 @@ void globox_x11_software_clean(
 	struct globox* context);
 
 void globox_x11_software_window_create(
-	struct globox* context);
+	struct globox* context,
+	void** features);
 
 void globox_x11_software_window_destroy(
 	struct globox* context);
