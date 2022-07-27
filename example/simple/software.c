@@ -173,6 +173,8 @@ int main(int argc, char** argv)
 	}
 
 	// get available features
+	bool frame_error = false;
+	bool background_error = false;
 	features = globox_init_features(globox);
 
 	for (size_t i = 0; i < features->count; ++i)
@@ -248,27 +250,7 @@ int main(int argc, char** argv)
 				};
 
 				globox_feature_set_frame(globox, &frame);
-
-				if (!globox_error_catch(globox))
-				{
-					break;
-				}
-
-// TODO
-#if 0
-				// check
-				globox_feature_get_frame(globox, &frame);
-#endif
-
-				// fuck you gnome developers
-				if (frame.frame == false)
-				{
-					// love you gnome users
-					fprintf(stderr,
-						"your desktop environment expects apps to render their own\n"
-						"window frames, please report this to its developers so they\n"
-						"can fix the issue and improve the user experience for everyone!\n");
-				}
+				frame_error = globox_error_catch(globox);
 
 				break;
 			}
@@ -280,24 +262,7 @@ int main(int argc, char** argv)
 				};
 
 				globox_feature_set_background(globox, &background);
-
-				if (!globox_error_catch(globox))
-				{
-					break;
-				}
-
-// TODO
-#if 0
-				// check
-				globox_feature_get_background(globox, &background);
-#endif
-
-				// fair enough
-				if (background.background != GLOBOX_BACKGROUND_BLURRED)
-				{
-					fprintf(stderr,
-						"your desktop environment does not support background blur!\n");
-				}
+				background_error = globox_error_catch(globox);
 
 				break;
 			}
@@ -338,6 +303,39 @@ int main(int argc, char** argv)
 	{
 		globox_clean(globox);
 		return 1;
+	}
+
+	if (frame_error == true)
+	{
+#if 0
+		struct globox_feature_frame frame;
+		globox_feature_get_frame(globox, &frame);
+
+		// fuck you gnome developers
+		if (frame.frame == false)
+		{
+			// love you gnome users
+			fprintf(stderr,
+				"your desktop environment expects apps to render their own\n"
+				"window frames, please report this to its developers so they\n"
+				"can fix the issue and improve the user experience for everyone!\n");
+		}
+#endif
+	}
+
+	if (background_error == true)
+	{
+#if 0
+		struct globox_feature_background background;
+		globox_feature_get_background(globox, &background);
+
+		// fair enough
+		if (background.background != GLOBOX_BACKGROUND_BLURRED)
+		{
+			fprintf(stderr,
+				"your desktop environment does not support background blur!\n");
+		}
+#endif
 	}
 
 	// display the window
