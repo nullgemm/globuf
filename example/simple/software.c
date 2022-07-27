@@ -307,6 +307,7 @@ int main(int argc, char** argv)
 
 	if (frame_error == true)
 	{
+// TODO
 #if 0
 		struct globox_feature_frame frame;
 		globox_feature_get_frame(globox, &frame);
@@ -325,6 +326,7 @@ int main(int argc, char** argv)
 
 	if (background_error == true)
 	{
+// TODO
 #if 0
 		struct globox_feature_background background;
 		globox_feature_get_background(globox, &background);
