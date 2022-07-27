@@ -250,8 +250,57 @@ void globox_x11_common_window_create(
 	struct x11_platform* platform,
 	void** features)
 {
-	struct globox_feature_background* background =
-		context->feature_background;
+	if ((context->feature_state != NULL)
+		&& (features[GLOBOX_FEATURE_STATE] != NULL))
+	{
+		*(context->feature_state) = *features[GLOBOX_FEATURE_STATE];
+	}
+
+	if ((context->feature_title != NULL)
+		&& (features[GLOBOX_FEATURE_TITLE] != NULL))
+	{
+		*(context->feature_title) = *features[GLOBOX_FEATURE_TITLE];
+	}
+
+	if ((context->feature_icon != NULL)
+		&& (features[GLOBOX_FEATURE_ICON] != NULL))
+	{
+		*(context->feature_icon) = *features[GLOBOX_FEATURE_ICON];
+	}
+
+	// handled directly in xcb's window creation code
+	if ((context->feature_size!= NULL)
+		&& (features[GLOBOX_FEATURE_SIZE] != NULL))
+	{
+		*(context->feature_size) = *features[GLOBOX_FEATURE_SIZE];
+	}
+
+	// handled directly in xcb's window creation code
+	if ((context->feature_pos != NULL)
+		&& (features[GLOBOX_FEATURE_POS] != NULL))
+	{
+		*(context->feature_pos) = *features[GLOBOX_FEATURE_POS];
+	}
+
+	if ((context->feature_frame != NULL)
+		&& (features[GLOBOX_FEATURE_FRAME] != NULL))
+	{
+		*(context->feature_frame) = *features[GLOBOX_FEATURE_FRAME];
+	}
+
+	// handled directly in xcb's window creation code for transparency,
+	// but some more configuration has to take place afterwards for blur
+	if ((context->feature_background != NULL)
+		&& (features[GLOBOX_FEATURE_BACKGROUND] != NULL))
+	{
+		*(context->feature_background) = *features[GLOBOX_FEATURE_BACKGROUND];
+	}
+
+	if ((context->feature_vsync_callback != NULL)
+		&& (features[GLOBOX_FEATURE_VSYNC_CALLBACK] != NULL))
+	{
+		*(context->feature_vsync_callback) = *features[GLOBOX_FEATURE_VSYNC_CALLBACK];
+	}
 
 	// prepare window attributes
 	if (background->background != GLOBOX_BACKGROUND_OPAQUE)
@@ -281,9 +330,6 @@ void globox_x11_common_window_create(
 		| XCB_EVENT_MASK_PROPERTY_CHANGE;
 
 	// create the window
-	struct globox_feature_pos* pos = context->feature_pos;
-	struct globox_feature_size* size = context->feature_size;
-
 	platform->win = xcb_generate_id(platform->conn);
 
 	xcb_void_cookie_t cookie =
@@ -292,8 +338,8 @@ void globox_x11_common_window_create(
 			platform->visual_depth,
 			platform->win,
 			platform->root_win,
-			pos->x,
-			pos->y,
+			context->feature_pos->x,
+			context->feature_pos->y,
 			size->width,
 			size->height,
 			0,
@@ -365,11 +411,17 @@ void globox_x11_common_window_create(
 
 	// TODO
 	// complete window configuration with the provided feature configs
-	// select the correct type of window frame
-	struct globox_feature_frame* frame =
-		context->feature_frame;
+	bool config_refused = false;
 
-	if ((frame != NULL) && (frame->frame == false))
+	// state
+
+	// title
+
+	// icon
+
+	// frame
+	if ((context->feature_frame != NULL)
+		&& (context->feature_frame->frame == false))
 	{
 		uint32_t motif_hints[5] =
 		{
@@ -403,54 +455,71 @@ void globox_x11_common_window_create(
 		}
 	}
 
-	// select the correct type of window background
-	if (background->background == GLOBOX_BACKGROUND_BLURRED)
+	// background
+	if ((context->feature_background != NULL)
+		&& (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED))
 	{
-		// kde blur
-		cookie =
-			xcb_change_property(
-				platform->conn,
-				XCB_PROP_MODE_REPLACE,
-				platform->win,
-				platform->atoms[X11_ATOM_BLUR_KDE],
-				XCB_ATOM_CARDINAL,
-				32,
-				0,
-				NULL);
-
-		error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error != NULL)
+		if ((platform->atoms[X11_ATOM_BLUR_KDE] != XCB_ATOM_NONE)
+			|| (platform->atoms[X11_ATOM_BLUR_DEEPIN] != XCB_ATOM_NONE))
 		{
-			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
-			return;
+			// kde blur
+			cookie =
+				xcb_change_property(
+					platform->conn,
+					XCB_PROP_MODE_REPLACE,
+					platform->win,
+					platform->atoms[X11_ATOM_BLUR_KDE],
+					XCB_ATOM_CARDINAL,
+					32,
+					0,
+					NULL);
+
+			error =
+				xcb_request_check(
+					platform->conn,
+					cookie);
+
+			if (error != NULL)
+			{
+				globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+				return;
+			}
+
+			// deepin blur
+			cookie =
+				xcb_change_property(
+					platform->conn,
+					XCB_PROP_MODE_REPLACE,
+					platform->win,
+					platform->atoms[X11_ATOM_BLUR_DEEPIN],
+					XCB_ATOM_CARDINAL,
+					32,
+					0,
+					NULL);
+
+			error =
+				xcb_request_check(
+					platform->conn,
+					cookie);
+
+			if (error != NULL)
+			{
+				globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
+				return;
+			}
 		}
-
-		// deepin blur
-		cookie =
-			xcb_change_property(
-				platform->conn,
-				XCB_PROP_MODE_REPLACE,
-				platform->win,
-				platform->atoms[X11_ATOM_BLUR_DEEPIN],
-				XCB_ATOM_CARDINAL,
-				32,
-				0,
-				NULL);
-
-		error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error != NULL)
+		else
 		{
-			globox_error_throw(context, GLOBOX_ERROR_X11_PROP_CHANGE);
-			return;
+			config_refused = true;
 		}
+	}
+
+	// vsync callback
+
+	if (config_refused == true)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_FEATURE_SET);
+		return;
 	}
 }
 
