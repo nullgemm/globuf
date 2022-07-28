@@ -150,19 +150,19 @@ void vsync_callback(void* data)
 
 int main(int argc, char** argv)
 {
-	struct globox* globox = NULL;
-	struct globox_config_backend config = {0};
-	struct globox_config_features* features = NULL;
+	printf("starting the simple globox example\n");
 
 	// prepare function pointers
+	struct globox_config_backend config = {0};
+
 	globox_prepare_init_x11_software(&config);
 
 	// set function pointers and perform basic init
-	globox = globox_init(&config);
+	struct globox* globox = globox_init(&config);
 
 	if (globox == NULL)
 	{
-		fprintf(stderr, "could not allocate the main globox context\n");
+		fprintf(stderr, "\ncould not allocate the main globox context\n");
 		return 1;
 	}
 
@@ -173,123 +173,30 @@ int main(int argc, char** argv)
 	}
 
 	// get available features
-	features = globox_init_features(globox);
-	void** feature_configs = malloc(features->count * (sizeof (void*)));
+	struct globox_config_features* feature_list =
+		globox_init_features(globox);
 
-	if (feature_configs == NULL)
+	char* feature_names[GLOBOX_FEATURE_COUNT] =
 	{
-		fprintf(stderr, "could not allocate the feature configs list\n");
-		globox_clean(globox);
-		return 1;
+		[GLOBOX_FEATURE_INTERACTION] = "interaction",
+		[GLOBOX_FEATURE_STATE] = "state",
+		[GLOBOX_FEATURE_TITLE] = "title",
+		[GLOBOX_FEATURE_ICON] = "icon",
+		[GLOBOX_FEATURE_SIZE] = "size",
+		[GLOBOX_FEATURE_POS] = "pos",
+		[GLOBOX_FEATURE_FRAME] = "frame",
+		[GLOBOX_FEATURE_BACKGROUND] = "background",
+		[GLOBOX_FEATURE_VSYNC_CALLBACK] = "vsync callback",
+	};
+
+	printf("\nreceived a list of available features:\n");
+
+	for (size_t i = 0; i < feature_list->count; ++i)
+	{
+		printf(" - %s\n", feature_names[feature_list->list[i]]);
 	}
 
-	for (size_t i = 0; i < features->count; ++i)
-	{
-		switch (features->list[i])
-		{
-			case GLOBOX_FEATURE_STATE:
-			{
-				struct globox_feature_state state =
-				{
-					.state = GLOBOX_STATE_REGULAR,
-				};
-
-				feature_configs[i] = &state;
-
-				break;
-			}
-			case GLOBOX_FEATURE_TITLE:
-			{
-				struct globox_feature_title title =
-				{
-					.title = "globox",
-				};
-
-				feature_configs[i] = &title;
-
-				break;
-			}
-			case GLOBOX_FEATURE_ICON:
-			{
-				struct globox_feature_icon icon =
-				{
-					// acceptable implementation-defined behavior
-					// since it's also the implementation that
-					// allows us to bundle resources like so
-					.pixmap = (uint32_t*) &iconpix_beg,
-					.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
-				};
-
-				feature_configs[i] = &icon;
-
-				break;
-			}
-			case GLOBOX_FEATURE_SIZE:
-			{
-				struct globox_feature_size size =
-				{
-					.width = 500,
-					.height = 500,
-				};
-
-				feature_configs[i] = &size;
-
-				break;
-			}
-			case GLOBOX_FEATURE_POS:
-			{
-				struct globox_feature_pos pos =
-				{
-					.x = 250,
-					.y = 250,
-				};
-
-				feature_configs[i] = &pos;
-
-				break;
-			}
-			case GLOBOX_FEATURE_FRAME:
-			{
-				struct globox_feature_frame frame =
-				{
-					.frame = true,
-				};
-
-				feature_configs[i] = &frame;
-
-				break;
-			}
-			case GLOBOX_FEATURE_BACKGROUND:
-			{
-				struct globox_feature_background background =
-				{
-					.background = GLOBOX_BACKGROUND_BLURRED,
-				};
-
-				feature_configs[i] = &background;
-
-				break;
-			}
-			case GLOBOX_FEATURE_VSYNC_CALLBACK:
-			{
-				struct globox_feature_vsync_callback vsync =
-				{
-					.data = globox,
-					.callback = vsync_callback,
-				};
-
-				feature_configs[i] = &vsync;
-
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
-	}
-
-	free(features);
+	free(feature_list);
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =
@@ -301,6 +208,66 @@ int main(int argc, char** argv)
 	globox_init_events(globox, &events);
 
 	// create the window
+	struct globox_feature_state state =
+	{
+		.state = GLOBOX_STATE_REGULAR,
+	};
+
+	struct globox_feature_title title =
+	{
+		.title = "globox",
+	};
+
+	struct globox_feature_icon icon =
+	{
+		// acceptable implementation-defined behavior
+		// since it's also the implementation that
+		// allows us to bundle resources like so
+		.pixmap = (uint32_t*) &iconpix_beg,
+		.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
+	};
+
+	struct globox_feature_size size =
+	{
+		.width = 500,
+		.height = 500,
+	};
+
+	struct globox_feature_pos pos =
+	{
+		.x = 250,
+		.y = 250,
+	};
+
+	struct globox_feature_frame frame =
+	{
+		.frame = true,
+	};
+
+	struct globox_feature_background background =
+	{
+		.background = GLOBOX_BACKGROUND_BLURRED,
+	};
+
+	struct globox_feature_vsync_callback vsync =
+	{
+		.data = globox,
+		.callback = vsync_callback,
+	};
+
+	void* feature_configs[GLOBOX_FEATURE_COUNT] =
+	{
+		[GLOBOX_FEATURE_INTERACTION] = NULL,
+		[GLOBOX_FEATURE_STATE] = &state,
+		[GLOBOX_FEATURE_TITLE] = &title,
+		[GLOBOX_FEATURE_ICON] = &icon,
+		[GLOBOX_FEATURE_SIZE] = &size,
+		[GLOBOX_FEATURE_POS] = &pos,
+		[GLOBOX_FEATURE_FRAME] = &frame,
+		[GLOBOX_FEATURE_BACKGROUND] = &background,
+		[GLOBOX_FEATURE_VSYNC_CALLBACK] = &vsync,
+	};
+
 	globox_window_create(globox, feature_configs);
 
 	if (globox_error_catch(globox))
@@ -351,7 +318,7 @@ int main(int argc, char** argv)
 
 	// do some more stuff while the window runs in another thread
 	printf(
-		"This is a message from the main thread.\n"
+		"\nThis is a message from the main thread.\n"
 		"The window should now be visible.\n"
 		"We can keep computing here.\n");
 
