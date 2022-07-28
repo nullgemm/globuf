@@ -250,6 +250,17 @@ void globox_x11_common_window_create(
 	struct x11_platform* platform,
 	void** features)
 {
+	int posix_error;
+
+	// lock main mutex
+	posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	if ((context->feature_state != NULL)
 		&& (features[GLOBOX_FEATURE_STATE] != NULL))
 	{
@@ -318,6 +329,18 @@ void globox_x11_common_window_create(
 				features[GLOBOX_FEATURE_VSYNC_CALLBACK]);
 	}
 
+	// unlock main mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// TODO use tmp vars
+	// TODO assign at the end
+	// TODO add mutex around end assignment
 	// prepare window attributes
 	if ((context->feature_background != NULL)
 		&& (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE))
@@ -596,11 +619,30 @@ void globox_x11_common_window_block(
 	struct globox* context,
 	struct x11_platform* platform)
 {
-	int error = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+	int error;
+
+	// lock block mutex
+	error = pthread_mutex_lock(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	error = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
 
 	if (error != 0)
 	{
 		globox_error_throw(context, GLOBOX_ERROR_POSIX_COND_WAIT);
+	}
+
+	// unlock block mutex
+	error = pthread_mutex_unlock(&(platform->mutex_block));
+
+	if (error != 0)
+	{
+		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 }
@@ -661,39 +703,12 @@ void* x11_event_loop(void* data)
 
 	int error;
 
-	// lock main mutex
-	error = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error != 0)
-	{
-		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return NULL;
-	}
-
 	xcb_generic_event_t* event;
 
 	while (platform->closed == false)
 	{
-		// unlock main mutex
-		error = pthread_mutex_unlock(&(platform->mutex_main));
-
-		if (error != 0)
-		{
-			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			return NULL;
-		}
-
 		// block until we get an event
 		event = xcb_wait_for_event(platform->conn);
-
-		// lock main mutex
-		error = pthread_mutex_lock(&(platform->mutex_main));
-
-		if (error != 0)
-		{
-			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			return NULL;
-		}
 
 		// IO error
 		if (event == NULL)
@@ -702,39 +717,12 @@ void* x11_event_loop(void* data)
 			return NULL;
 		}
 
-		// unlock main mutex
-		error = pthread_mutex_unlock(&(platform->mutex_main));
-
-		if (error != 0)
-		{
-			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			return NULL;
-		}
-
 		// run developer callback
 		context->event_callbacks.handler(
 			context->event_callbacks.data,
 			event);
 
-		// lock main mutex
-		error = pthread_mutex_lock(&(platform->mutex_main));
-
-		if (error != 0)
-		{
-			globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			return NULL;
-		}
-
 		free(event);
-	}
-
-	// unlock main mutex
-	error = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error != 0)
-	{
-		globox_error_throw(context, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return NULL;
 	}
 
 	return NULL;
