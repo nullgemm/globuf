@@ -15,7 +15,6 @@ struct globox
 	struct globox_config_backend backend_callbacks;
 
 	// error handling
-	enum globox_error error;
 	char* error_messages[GLOBOX_ERROR_COUNT];
 
 	// features

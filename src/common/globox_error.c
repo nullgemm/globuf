@@ -16,7 +16,6 @@ void globox_error_init(
 	struct globox* context)
 {
 #ifndef GLOBOX_ERROR_SKIP
-	context->error = GLOBOX_ERROR_OK;
 	char** log = context->error_messages;
 
 	log[GLOBOX_ERROR_OK] =
@@ -89,26 +88,18 @@ void globox_error_init(
 		"failed to change an X11 property";
 	log[GLOBOX_ERROR_X11_ATTR_CHANGE] =
 		"failed to change an X11 attribute";
-#else
-#endif
-}
-
-void globox_error_reset(
-	struct globox* context)
-{
-#ifndef GLOBOX_ERROR_SKIP
-	context->error = GLOBOX_ERROR_OK;
 #endif
 }
 
 void globox_error_log(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error);
 {
 #ifdef GLOBOX_ERROR_LOG_BASIC
 #ifndef GLOBOX_ERROR_SKIP
-	if (context->error < GLOBOX_ERROR_COUNT)
+	if (error->code < GLOBOX_ERROR_COUNT)
 	{
-		fprintf(stderr, "%s\n", context->error_messages[context->error]);
+		fprintf(stderr, "%s\n", context->error_messages[error->code]);
 	}
 	else
 	{
@@ -118,12 +109,12 @@ void globox_error_log(
 #endif
 }
 
-const char* globox_error_get_message(
-	struct globox* context)
+const char* globox_error_get_msg(
+	struct globox_error_info* error);
 {
-	if (context->error < GLOBOX_ERROR_COUNT)
+	if (error->code < GLOBOX_ERROR_COUNT)
 	{
-		return context->error_messages[context->error];
+		return context->error_messages[error->code];
 	}
 	else
 	{
@@ -132,25 +123,33 @@ const char* globox_error_get_message(
 }
 
 enum globox_error globox_error_get_code(
-	struct globox* context)
+	struct globox_error_info* error)
 {
-	return context->error;
+	return error->code;
 }
 
-#ifdef GLOBOX_ERROR_LOG_DEBUG
+const char* globox_error_get_file(
+	struct globox_error_info* error)
+{
+	return error->file;
+}
+
+unsigned globox_error_get_line(
+	struct globox_error_info* error)
+{
+	return error->line;
+}
+
 void globox_error_throw_extra(
-	struct globox* context,
-	enum globox_error new_code,
+	struct globox_error_info* error,
+	enum globox_error code,
 	const char* file,
-	unsigned int line)
-#else
-void globox_error_throw(
-	struct globox* context,
-	enum globox_error new_code)
-#endif
+	unsigned line)
 {
 #ifndef GLOBOX_ERROR_SKIP
-	context->error = new_code;
+	error->code = code;
+	error->file = file;
+	error->line = line;
 
 	#ifdef GLOBOX_ERROR_LOG_THROW
 	#ifdef GLOBOX_ERROR_LOG_BASIC
@@ -162,22 +161,12 @@ void globox_error_throw(
 				line);
 		#endif
 
-		globox_error_log(context);
+		globox_error_log(error);
 	#endif
 	#endif
 
 	#ifdef GLOBOX_ERROR_ABORT
 		abort();
 	#endif
-#endif
-}
-
-bool globox_error_catch(
-	struct globox* context)
-{
-#ifndef GLOBOX_ERROR_SKIP
-	return (context->error != GLOBOX_ERROR_OK);
-#else
-	return false;
 #endif
 }
