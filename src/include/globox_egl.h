@@ -11,6 +11,7 @@ struct globox_config_egl
 
 void globox_init_egl(
 	struct globox* context,
-	struct globox_config_egl* config);
+	struct globox_config_egl* config,
+	struct globox_error_info* error);
 
 #endif

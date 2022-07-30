@@ -14,9 +14,11 @@ extern unsigned char iconpix_len;
 
 void event_callback(void* data, void* event)
 {
+	struct globox_error_info error = {0};
+
 	// print some debug info on internal events
 	enum globox_event abstract =
-		globox_handle_events(data, event);
+		globox_handle_events(data, event, &error);
 
 	switch (abstract)
 	{
@@ -113,8 +115,10 @@ void vsync_callback(void* data)
 	// render our trademark square as a simple example, updating the whole
 	// buffer each time without taking surface damage events into account
 	struct globox* globox = data;
-	size_t width = globox_get_width(globox);
-	size_t height = globox_get_height(globox);
+	struct globox_error_info error = {0};
+
+	size_t width = globox_get_width(globox, &error);
+	size_t height = globox_get_height(globox, &error);
 	uint32_t* argb = malloc(width * height * 4);
 
 	for (size_t i = 0; i < (width * height); ++i)
@@ -145,20 +149,21 @@ void vsync_callback(void* data)
 		.height = height,
 	};
 
-	globox_update_content(globox, &update);
+	globox_update_content(globox, &update, &error);
 }
 
 int main(int argc, char** argv)
 {
+	struct globox_error_info error = {0};
 	printf("starting the simple globox example\n");
 
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-	globox_prepare_init_x11_software(&config);
+	globox_prepare_init_x11_software(&config, &error);
 
 	// set function pointers and perform basic init
-	struct globox* globox = globox_init(&config);
+	struct globox* globox = globox_init(&config, &error);
 
 	if (globox == NULL)
 	{
@@ -166,15 +171,21 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (globox_error_catch(globox))
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
-		globox_clean(globox);
+		globox_clean(globox, &error);
 		return 1;
 	}
 
 	// get available features
 	struct globox_config_features* feature_list =
-		globox_init_features(globox);
+		globox_init_features(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	char* feature_names[GLOBOX_FEATURE_COUNT] =
 	{
@@ -205,7 +216,13 @@ int main(int argc, char** argv)
 		.handler = event_callback,
 	};
 
-	globox_init_events(globox, &events);
+	globox_init_events(globox, &events, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	// create the window
 	struct globox_feature_state state =
@@ -268,11 +285,11 @@ int main(int argc, char** argv)
 		[GLOBOX_FEATURE_VSYNC_CALLBACK] = &vsync,
 	};
 
-	globox_window_create(globox, feature_configs);
+	globox_window_create(globox, feature_configs, &error);
 
-	if (globox_error_catch(globox))
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
-		if (globox_error_get_code(globox) == GLOBOX_ERROR_FEATURE_SET)
+		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_SET)
 		{
 // TODO
 #if 0
@@ -301,18 +318,18 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			globox_clean(globox);
+			globox_clean(globox, &error);
 			return 1;
 		}
 	}
 
 	// display the window
-	globox_window_start(globox);
+	globox_window_start(globox, &error);
 
-	if (globox_error_catch(globox))
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
-		globox_window_destroy(globox);
-		globox_clean(globox);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
 		return 1;
 	}
 
@@ -323,11 +340,16 @@ int main(int argc, char** argv)
 		"We can keep computing here.\n");
 
 	// wait for the window to be closed
-	globox_window_block(globox);
+	globox_window_block(globox, &error);
 
 	// free resources correctly
-	globox_window_destroy(globox);
-	globox_clean(globox);
+	globox_window_destroy(globox, &error);
+	globox_clean(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		return 1;
+	}
 
 	return 0;
 }

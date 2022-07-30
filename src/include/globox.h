@@ -7,7 +7,6 @@
 
 // # types
 struct globox;
-struct globox_error_info;
 
 enum globox_feature
 {
@@ -126,6 +125,13 @@ enum globox_error
 	GLOBOX_ERROR_COUNT,
 };
 
+struct globox_error_info
+{
+	enum globox_error code;
+	const char* file;
+	unsigned line;
+};
+
 struct globox_config_events
 {
 	void* data;
@@ -193,62 +199,82 @@ struct globox_config_backend
 	// function pointers for each cross-platform globox call
 	// lifecycle
 	void (*init)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*clean)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*window_create)(
 		struct globox* context,
-		void** features);
+		void** features,
+		struct globox_error_info* error);
 	void (*window_destroy)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*window_start)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*window_block)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*window_stop)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	// feature registry
 	struct globox_config_features* (*init_features)(
-		struct globox* context);
+		struct globox* context,
+		struct globox_error_info* error);
 	// event handler
 	void (*init_events)(
 		struct globox* context,
-		struct globox_config_events* config);
+		struct globox_config_events* config,
+		struct globox_error_info* error);
 	enum globox_event (*handle_events)(
 		struct globox* context,
-		void* event);
+		void* event,
+		struct globox_error_info* error);
 	// features
 	void (*feature_set_interaction)(
 		struct globox* context,
-		struct globox_feature_interaction* config);
+		struct globox_feature_interaction* config,
+		struct globox_error_info* error);
 	void (*feature_set_state)(
 		struct globox* context,
-		struct globox_feature_state* config);
+		struct globox_feature_state* config,
+		struct globox_error_info* error);
 	void (*feature_set_title)(
 		struct globox* context,
-		struct globox_feature_title* config);
+		struct globox_feature_title* config,
+		struct globox_error_info* error);
 	void (*feature_set_icon)(
 		struct globox* context,
-		struct globox_feature_icon* config);
+		struct globox_feature_icon* config,
+		struct globox_error_info* error);
 	void (*feature_set_size)(
 		struct globox* context,
-		struct globox_feature_size* config);
+		struct globox_feature_size* config,
+		struct globox_error_info* error);
 	void (*feature_set_pos)(
 		struct globox* context,
-		struct globox_feature_pos* config);
+		struct globox_feature_pos* config,
+		struct globox_error_info* error);
 	void (*feature_set_frame)(
 		struct globox* context,
-		struct globox_feature_frame* config);
+		struct globox_feature_frame* config,
+		struct globox_error_info* error);
 	void (*feature_set_background)(
 		struct globox* context,
-		struct globox_feature_background* config);
+		struct globox_feature_background* config,
+		struct globox_error_info* error);
 	void (*feature_set_vsync_callback)(
 		struct globox* context,
-		struct globox_feature_vsync_callback* config);
+		struct globox_feature_vsync_callback* config,
+		struct globox_error_info* error);
 
 	void (*update_content)(
 		struct globox* context,
-		void* data);
+		void* data,
+		struct globox_error_info* error);
 };
 
 // # cross-platform, cross-backend
@@ -290,12 +316,15 @@ void globox_error_log(
 	struct globox* context,
 	struct globox_error_info* error);
 const char* globox_error_get_msg(
+	struct globox* context,
 	struct globox_error_info* error);
 enum globox_error globox_error_get_code(
 	struct globox_error_info* error);
 const char* globox_error_get_file(
 	struct globox_error_info* error);
 unsigned globox_error_get_line(
+	struct globox_error_info* error);
+void globox_error_ok(
 	struct globox_error_info* error);
 
 // ## configuration (can always be called)

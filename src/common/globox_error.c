@@ -93,7 +93,7 @@ void globox_error_init(
 
 void globox_error_log(
 	struct globox* context,
-	struct globox_error_info* error);
+	struct globox_error_info* error)
 {
 #ifdef GLOBOX_ERROR_LOG_BASIC
 #ifndef GLOBOX_ERROR_SKIP
@@ -110,7 +110,8 @@ void globox_error_log(
 }
 
 const char* globox_error_get_msg(
-	struct globox_error_info* error);
+	struct globox* context,
+	struct globox_error_info* error)
 {
 	if (error->code < GLOBOX_ERROR_COUNT)
 	{
@@ -140,7 +141,16 @@ unsigned globox_error_get_line(
 	return error->line;
 }
 
+void globox_error_ok(
+	struct globox_error_info* error)
+{
+	error->code = GLOBOX_ERROR_OK;
+	error->file = "";
+	error->line = 0;
+}
+
 void globox_error_throw_extra(
+	struct globox* context,
 	struct globox_error_info* error,
 	enum globox_error code,
 	const char* file,
@@ -161,7 +171,7 @@ void globox_error_throw_extra(
 				line);
 		#endif
 
-		globox_error_log(error);
+		globox_error_log(context, error);
 	#endif
 	#endif
 

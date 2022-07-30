@@ -7,7 +7,8 @@
 #include <string.h>
 
 struct globox* globox_init(
-	struct globox_config_backend* config)
+	struct globox_config_backend* config,
+	struct globox_error_info* error)
 {
 	// We allocate the context here and on the heap to avoid having to implement
 	// a complex synchronization system just to reset a user-supplied structure
@@ -31,11 +32,6 @@ struct globox* globox_init(
 	// initialize the error system
 	globox_error_init(context);
 
-	if (globox_error_catch(context))
-	{
-		return context;
-	}
-
 	// initialize the feature pointers
 	context->feature_interaction = NULL;
 	context->feature_state = NULL;
@@ -48,15 +44,16 @@ struct globox* globox_init(
 	context->feature_vsync_callback = NULL;
 
 	// call the backend's init function
-	context->backend_callbacks.init(context);
+	context->backend_callbacks.init(context, error);
 
 	return context;
 }
 
 void globox_clean(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.clean(context);
+	context->backend_callbacks.clean(context, error);
 
 	// clean the feature data array
 	if (context->feature_interaction != NULL)
@@ -107,136 +104,162 @@ void globox_clean(
 
 void globox_window_create(
 	struct globox* context,
-	void** features)
+	void** features,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_create(context, features);
+	context->backend_callbacks.window_create(context, features, error);
 }
 
 void globox_window_destroy(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_destroy(context);
+	context->backend_callbacks.window_destroy(context, error);
 }
 
 void globox_window_start(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_start(context);
+	context->backend_callbacks.window_start(context, error);
 }
 
 void globox_window_block(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_block(context);
+	context->backend_callbacks.window_block(context, error);
 }
 
 void globox_window_stop(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_stop(context);
+	context->backend_callbacks.window_stop(context, error);
 }
 
 
 void globox_init_events(
 	struct globox* context,
-	struct globox_config_events* config)
+	struct globox_config_events* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.init_events(context, config);
+	context->backend_callbacks.init_events(context, config, error);
 }
 
 enum globox_event globox_handle_events(
 	struct globox* context,
-	void* event)
+	void* event,
+	struct globox_error_info* error)
 {
-	return context->backend_callbacks.handle_events(context, event);
+	return context->backend_callbacks.handle_events(context, event, error);
 }
 
 
 struct globox_config_features* globox_init_features(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
-	return context->backend_callbacks.init_features(context);
+	return context->backend_callbacks.init_features(context, error);
 }
 
 void globox_feature_set_interaction(
 	struct globox* context,
-	struct globox_feature_interaction* config)
+	struct globox_feature_interaction* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_interaction(context, config);
+	context->backend_callbacks.feature_set_interaction(context, config, error);
 }
 
 void globox_feature_set_state(
 	struct globox* context,
-	struct globox_feature_state* config)
+	struct globox_feature_state* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_state(context, config);
+	context->backend_callbacks.feature_set_state(context, config, error);
 }
 
 void globox_feature_set_title(
 	struct globox* context,
-	struct globox_feature_title* config)
+	struct globox_feature_title* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_title(context, config);
+	context->backend_callbacks.feature_set_title(context, config, error);
 }
 
 void globox_feature_set_icon(
 	struct globox* context,
-	struct globox_feature_icon* config)
+	struct globox_feature_icon* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_icon(context, config);
+	context->backend_callbacks.feature_set_icon(context, config, error);
 }
 
 void globox_feature_set_size(
 	struct globox* context,
-	struct globox_feature_size* config)
+	struct globox_feature_size* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_size(context, config);
+	context->backend_callbacks.feature_set_size(context, config, error);
 }
 
 void globox_feature_set_pos(
 	struct globox* context,
-	struct globox_feature_pos* config)
+	struct globox_feature_pos* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_pos(context, config);
+	context->backend_callbacks.feature_set_pos(context, config, error);
 }
 
 void globox_feature_set_frame(
 	struct globox* context,
-	struct globox_feature_frame* config)
+	struct globox_feature_frame* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_frame(context, config);
+	context->backend_callbacks.feature_set_frame(context, config, error);
 }
 
 void globox_feature_set_background(
 	struct globox* context,
-	struct globox_feature_background* config)
+	struct globox_feature_background* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_background(context, config);
+	context->backend_callbacks.feature_set_background(context, config, error);
 }
 
 void globox_feature_set_vsync_callback(
 	struct globox* context,
-	struct globox_feature_vsync_callback* config)
+	struct globox_feature_vsync_callback* config,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_vsync_callback(context, config);
+	context->backend_callbacks.feature_set_vsync_callback(context, config, error);
 }
 
 
 void globox_update_content(
 	struct globox* context,
-	void* data)
+	void* data,
+	struct globox_error_info* error)
 {
-	context->backend_callbacks.update_content(context, data);
+	context->backend_callbacks.update_content(context, data, error);
 }
 
 // always available
-unsigned globox_get_width(struct globox* context)
+unsigned globox_get_width(
+	struct globox* context,
+	struct globox_error_info* error)
 {
+	globox_error_ok(error);
+
 	return context->feature_size->width;
 }
 
 // always available
-unsigned globox_get_height(struct globox* context)
+unsigned globox_get_height(
+	struct globox* context,
+	struct globox_error_info* error)
 {
+	globox_error_ok(error);
+
 	return context->feature_size->height;
 }
