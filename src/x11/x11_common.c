@@ -253,17 +253,6 @@ void globox_x11_common_window_create(
 	void** features,
 	struct globox_error_info* error)
 {
-	int posix_error;
-
-	// lock main mutex
-	posix_error = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
 	if ((context->feature_state != NULL)
 		&& (features[GLOBOX_FEATURE_STATE] != NULL))
 	{
@@ -332,18 +321,6 @@ void globox_x11_common_window_create(
 				features[GLOBOX_FEATURE_VSYNC_CALLBACK]);
 	}
 
-	// unlock main mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	// TODO use tmp vars
-	// TODO assign at the end
-	// TODO add mutex around end assignment
 	// prepare window attributes
 	if ((context->feature_background != NULL)
 		&& (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE))
@@ -452,8 +429,7 @@ void globox_x11_common_window_create(
 		return;
 	}
 
-	// TODO
-	// complete window configuration with the provided feature configs
+	// TODO complete window configuration with the provided feature configs
 	bool config_refused = false;
 
 	// state
@@ -852,6 +828,7 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				// make the globox blocking function exit gracefully
 				pthread_cond_broadcast(&(platform->cond_main));
+				// TODO sync
 				// make the event loop thread exit gracefully
 				platform->closed = true;
 				// tell the developer it's the end
@@ -962,8 +939,9 @@ struct globox_config_features*
 	return features;
 }
 
-// TODO
-// return an error if the configuration is refused
+// TODO complete setting functions with relevant xcb code
+// TODO return an error if the configuration is refused
+// TODO sync
 void globox_x11_common_feature_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
