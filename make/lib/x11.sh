@@ -121,6 +121,7 @@ case $backend in
 ninja_file=lib_x11_common.ninja
 name+="_common"
 src+=("src/x11/x11_common.c")
+src+=("src/x11/x11_helpers.c")
 	;;
 
 	software)

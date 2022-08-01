@@ -3,6 +3,7 @@
 #include "include/globox.h"
 #include "common/globox_private.h"
 #include "x11/x11_common.h"
+#include "x11/x11_helpers.h"
 
 #include <pthread.h>
 #include <stdlib.h>
