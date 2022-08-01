@@ -379,6 +379,7 @@ void globox_x11_common_window_create(
 		return;
 	}
 
+	// TODO move in helpers
 	// bare minimum window configuration
 	// support the window deletion protocol
 	cookie =
@@ -433,6 +434,7 @@ void globox_x11_common_window_create(
 	bool config_refused = false;
 
 	// state
+	// TODO make helper using state setting helper
 
 	// title
 
@@ -629,6 +631,7 @@ void globox_x11_common_window_block(
 	}
 }
 
+// TODO make helper for this and state setting
 void globox_x11_common_window_stop(
 	struct globox* context,
 	struct x11_platform* platform,
