@@ -59,17 +59,25 @@ void x11_helpers_features_init(
 	if ((context->feature_title != NULL)
 		&& (features[GLOBOX_FEATURE_TITLE] != NULL))
 	{
-		*(context->feature_title) =
-			*((struct globox_feature_title*)
-				features[GLOBOX_FEATURE_TITLE]);
+		struct globox_feature_title* tmp = features[GLOBOX_FEATURE_TITLE];
+		context->feature_title->title = strdup(tmp->title);
 	}
 
 	if ((context->feature_icon != NULL)
 		&& (features[GLOBOX_FEATURE_ICON] != NULL))
 	{
-		*(context->feature_icon) =
-			*((struct globox_feature_icon*)
-				features[GLOBOX_FEATURE_ICON]);
+		struct globox_feature_icon* tmp = features[GLOBOX_FEATURE_ICON];
+		context->feature_icon->pixmap = malloc(tmp->len * 4);
+
+		if (context->feature_icon->pixmap != NULL)
+		{
+			memcpy(context->feature_icon->pixmap, tmp->pixmap, tmp->len * 4);
+			context->feature_icon->len = tmp->len;
+		}
+		else
+		{
+			context->feature_icon->len = 0;
+		}
 	}
 
 	// handled directly in xcb's window creation code
@@ -351,7 +359,38 @@ bool x11_helpers_set_title(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
+	if (context->feature_title == NULL)
+	{
+		return true;
+	}
+
+	if (context->feature_title->title == NULL)
+	{
+		return false;
+	}
+
+	xcb_void_cookie_t cookie =
+		xcb_change_property_checked(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			XCB_ATOM_WM_NAME,
+			XCB_ATOM_STRING,
+			8,
+			strlen(context->feature_title->title) + 1,
+			context->feature_title->title);
+
+	xcb_generic_error_t* xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return false;
+	}
+
 	return true;
 }
 
@@ -360,7 +399,47 @@ bool x11_helpers_set_icon(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
+	if (context->feature_icon == NULL)
+	{
+		return true;
+	}
+
+	if (context->feature_icon->pixmap == NULL)
+	{
+		return false;
+	}
+
+	xcb_void_cookie_t cookie =
+		xcb_change_property_checked(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_ICON],
+			XCB_ATOM_CARDINAL,
+			32,
+			context->feature_icon->len,
+			context->feature_icon->pixmap);
+
+	xcb_generic_error_t* xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return false;
+	}
+
+	// flush
+	int error_flush = xcb_flush(platform->conn);
+
+	if (error_flush <= 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
+		return false;
+	}
+
 	return true;
 }
 
