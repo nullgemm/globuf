@@ -632,9 +632,26 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				// make the globox blocking function exit gracefully
 				pthread_cond_broadcast(&(platform->cond_main));
-				// TODO sync
+
 				// make the event loop thread exit gracefully
+				int posix_error = pthread_mutex_lock(&(platform->mutex_block));
+
+				if (posix_error != 0)
+				{
+					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+					break;
+				}
+
 				platform->closed = true;
+
+				posix_error = pthread_mutex_unlock(&(platform->mutex_block));
+
+				if (posix_error != 0)
+				{
+					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+					break;
+				}
+
 				// tell the developer it's the end
 				globox_event = GLOBOX_EVENT_CLOSED;
 			}
