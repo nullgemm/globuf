@@ -700,8 +700,12 @@ struct globox_config_features*
 		malloc(sizeof (struct globox_feature_interaction));
 	features->count += 1;
 
-	// available if atom valid
-	if (atoms[X11_ATOM_STATE] != XCB_NONE)
+	// available if atoms valid
+	if ((atoms[X11_ATOM_STATE] != XCB_NONE)
+		&& (atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL] != XCB_NONE)
+		&& (atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL] != XCB_NONE)
+		&& (atoms[X11_ATOM_STATE_FULLSCREEN] != XCB_NONE)
+		&& (atoms[X11_ATOM_STATE_HIDDEN] != XCB_NONE))
 	{
 		features->list[features->count] = GLOBOX_FEATURE_STATE;
 		context->feature_state =
