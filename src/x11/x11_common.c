@@ -764,10 +764,7 @@ struct globox_config_features*
 	return features;
 }
 
-// TODO complete setting functions with relevant xcb code
-// TODO return an error if the configuration is refused
-// TODO sync
-void globox_x11_common_feature_set_interaction(
+bool globox_x11_common_feature_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_interaction* config,
@@ -775,11 +772,35 @@ void globox_x11_common_feature_set_interaction(
 {
 	if (context->feature_interaction == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_interaction) = *config;
+	bool valid = x11_helpers_set_interaction(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_state(
+bool globox_x11_common_feature_set_state(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_state* config,
@@ -787,11 +808,35 @@ void globox_x11_common_feature_set_state(
 {
 	if (context->feature_state == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_state) = *config;
+	bool valid = x11_helpers_set_state(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_title(
+bool globox_x11_common_feature_set_title(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_title* config,
@@ -799,11 +844,35 @@ void globox_x11_common_feature_set_title(
 {
 	if (context->feature_title == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	context->feature_title->title = strdup(config->title);
+	bool valid = x11_helpers_set_title(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_icon(
+bool globox_x11_common_feature_set_icon(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_icon* config,
@@ -811,11 +880,46 @@ void globox_x11_common_feature_set_icon(
 {
 	if (context->feature_icon == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	context->feature_icon->pixmap = malloc(config->len * 4);
+
+	if (context->feature_icon->pixmap != NULL)
+	{
+		memcpy(context->feature_icon->pixmap, config->pixmap, config->len * 4);
+		context->feature_icon->len = config->len;
+	}
+	else
+	{
+		context->feature_icon->len = 0;
+	}
+
+	bool valid = x11_helpers_set_icon(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_size(
+bool globox_x11_common_feature_set_size(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_size* config,
@@ -823,11 +927,35 @@ void globox_x11_common_feature_set_size(
 {
 	if (context->feature_size == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_size) = *config;
+	bool valid = x11_helpers_set_size(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_pos(
+bool globox_x11_common_feature_set_pos(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_pos* config,
@@ -835,11 +963,35 @@ void globox_x11_common_feature_set_pos(
 {
 	if (context->feature_pos == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_pos) = *config;
+	bool valid = x11_helpers_set_pos(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_frame(
+bool globox_x11_common_feature_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_frame* config,
@@ -847,11 +999,35 @@ void globox_x11_common_feature_set_frame(
 {
 	if (context->feature_frame == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_frame) = *config;
+	bool valid = x11_helpers_set_frame(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_background(
+bool globox_x11_common_feature_set_background(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_background* config,
@@ -859,11 +1035,35 @@ void globox_x11_common_feature_set_background(
 {
 	if (context->feature_background == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_background) = *config;
+	bool valid = x11_helpers_set_background(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }
 
-void globox_x11_common_feature_set_vsync_callback(
+bool globox_x11_common_feature_set_vsync_callback(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_vsync_callback* config,
@@ -871,6 +1071,30 @@ void globox_x11_common_feature_set_vsync_callback(
 {
 	if (context->feature_vsync_callback == NULL)
 	{
-		return;
+		return false;
 	}
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return false;
+	}
+
+	// configure
+	*(context->feature_vsync_callback) = *config;
+	bool valid = x11_helpers_set_vsync_callback(context, platform, error);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return false;
+	}
+
+	return valid;
 }

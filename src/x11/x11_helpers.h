@@ -17,6 +17,11 @@ void x11_helpers_features_init(
 	struct x11_platform* platform,
 	void** features);
 
+bool x11_helpers_set_interaction(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
 bool x11_helpers_set_state(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -28,6 +33,16 @@ bool x11_helpers_set_title(
 	struct globox_error_info* error);
 
 bool x11_helpers_set_icon(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
+bool x11_helpers_set_size(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
+bool x11_helpers_set_pos(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);

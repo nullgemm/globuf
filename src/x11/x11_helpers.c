@@ -125,6 +125,21 @@ void x11_helpers_features_init(
 	}
 }
 
+bool x11_helpers_set_interaction(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	if (context->feature_interaction == NULL)
+	{
+		return true;
+	}
+
+	// TODO
+
+	return true;
+}
+
 void set_state_event(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -443,6 +458,36 @@ bool x11_helpers_set_icon(
 	return true;
 }
 
+bool x11_helpers_set_size(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	if (context->feature_size == NULL)
+	{
+		return true;
+	}
+
+	// TODO
+
+	return true;
+}
+
+bool x11_helpers_set_pos(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	if (context->feature_pos == NULL)
+	{
+		return true;
+	}
+
+	// TODO
+
+	return true;
+}
+
 bool x11_helpers_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -561,6 +606,12 @@ bool x11_helpers_set_vsync_callback(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
+	if (context->feature_pos == NULL)
+	{
+		return true;
+	}
+
 	// TODO
+
 	return true;
 }
