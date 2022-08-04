@@ -664,6 +664,8 @@ enum globox_event globox_x11_common_handle_events(
 		}
 	}
 
+	// TODO handle non-programmatic window configuration
+
 	return globox_event;
 }
 
