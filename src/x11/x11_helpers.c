@@ -300,7 +300,7 @@ bool x11_helpers_set_state(
 
 			if (xcb_error != NULL)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
+				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_UNMAP);
 				return false;
 			}
 

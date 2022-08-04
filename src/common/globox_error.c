@@ -80,6 +80,8 @@ void globox_error_init(
 		"failed to destroy X11 window";
 	log[GLOBOX_ERROR_X11_WIN_MAP] =
 		"failed to map X11 window";
+	log[GLOBOX_ERROR_X11_WIN_UNMAP] =
+		"failed to unmap X11 window";
 	log[GLOBOX_ERROR_X11_EVENT_WAIT] =
 		"failed to get an X11 event";
 	log[GLOBOX_ERROR_X11_EVENT_SEND] =
