@@ -154,6 +154,8 @@ void vsync_callback(void* data)
 
 int main(int argc, char** argv)
 {
+	// TODO handle ctrl+c to close the window gracefully
+
 	struct globox_error_info error = {0};
 	printf("starting the simple globox example\n");
 
@@ -339,6 +341,7 @@ int main(int argc, char** argv)
 		"The window should now be visible.\n"
 		"We can keep computing here.\n");
 
+	// TODO temporarily disable this and test all setters (with sleeps)
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
 
