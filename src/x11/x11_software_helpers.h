@@ -1,0 +1,6 @@
+#ifndef H_GLOBOX_INTERNAL_X11_SOFTWARE_HELPERS
+#define H_GLOBOX_INTERNAL_X11_SOFTWARE_HELPERS
+
+#include "include/globox.h"
+
+#endif

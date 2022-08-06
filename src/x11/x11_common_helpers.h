@@ -1,5 +1,5 @@
-#ifndef H_GLOBOX_INTERNAL_X11_HELPERS
-#define H_GLOBOX_INTERNAL_X11_HELPERS
+#ifndef H_GLOBOX_INTERNAL_X11_COMMON_HELPERS
+#define H_GLOBOX_INTERNAL_X11_COMMON_HELPERS
 
 #include "include/globox.h"
 #include "x11/x11_common.h"

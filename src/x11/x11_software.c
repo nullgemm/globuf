@@ -3,8 +3,9 @@
 #include "include/globox_x11_software.h"
 
 #include "common/globox_private.h"
-#include "x11/x11_software.h"
 #include "x11/x11_common.h"
+#include "x11/x11_software.h"
+#include "x11/x11_software_helpers.h"
 
 #include <pthread.h>
 #include <stdlib.h>
