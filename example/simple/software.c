@@ -154,8 +154,6 @@ void vsync_callback(void* data)
 
 int main(int argc, char** argv)
 {
-	// TODO handle ctrl+c to close the window gracefully
-
 	struct globox_error_info error = {0};
 	printf("starting the simple globox example\n");
 
