@@ -16,7 +16,6 @@ struct x11_backend
 	struct x11_platform platform;
 };
 
-// TODO integrate software-specific code
 void globox_x11_software_init(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -67,6 +66,8 @@ void globox_x11_software_window_create(
 	globox_x11_common_window_create(context, platform, features, error);
 
 	// no extra failure check at the moment
+
+	// TODO integrate software-specific window code
 }
 
 void globox_x11_software_window_destroy(
@@ -80,6 +81,8 @@ void globox_x11_software_window_destroy(
 	globox_x11_common_window_destroy(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// TODO destroy software-specific window structures
 }
 
 void globox_x11_software_window_start(
@@ -290,6 +293,8 @@ void globox_x11_software_update_content(
 	struct globox_error_info* error)
 {
 	globox_error_ok(error);
+
+	// TODO
 }
 
 void globox_prepare_init_x11_software(
