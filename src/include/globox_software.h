@@ -16,4 +16,10 @@ struct globox_update_software
 	unsigned height;
 };
 
+uint32_t* globox_buffer_alloc_software(
+	struct globox* context,
+	unsigned width,
+	unsigned height,
+	struct globox_error_info* error);
+
 #endif

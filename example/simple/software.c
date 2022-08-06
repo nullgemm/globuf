@@ -117,9 +117,18 @@ void vsync_callback(void* data)
 	struct globox* globox = data;
 	struct globox_error_info error = {0};
 
+	// TODO handle errors
 	size_t width = globox_get_width(globox, &error);
 	size_t height = globox_get_height(globox, &error);
-	uint32_t* argb = malloc(width * height * 4);
+
+	uint32_t* argb =
+		globox_buffer_alloc_software(
+			globox, width, height, &error);
+
+	if (argb == NULL)
+	{
+		return;
+	}
 
 	for (size_t i = 0; i < (width * height); ++i)
 	{

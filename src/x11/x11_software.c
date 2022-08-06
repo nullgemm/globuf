@@ -325,3 +325,21 @@ void globox_prepare_init_x11_software(
 
 	globox_error_ok(error);
 }
+
+// simple allocator we provide so developers don't try to recycle buffers
+// (it would not be thread-safe and break this multi-threaded version of globox)
+uint32_t* globox_buffer_alloc_software(
+	struct globox* context,
+	unsigned width,
+	unsigned height,
+	struct globox_error_info* error)
+{
+	uint32_t* argb = malloc(4 * width * height);
+
+	if (argb == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+	}
+
+	return argb;
+}
