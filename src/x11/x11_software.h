@@ -49,47 +49,47 @@ struct globox_config_features* globox_x11_software_init_features(
 	struct globox* context,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_interaction(
+void globox_x11_software_feature_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_state(
+void globox_x11_software_feature_set_state(
 	struct globox* context,
 	struct globox_feature_state* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_title(
+void globox_x11_software_feature_set_title(
 	struct globox* context,
 	struct globox_feature_title* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_icon(
+void globox_x11_software_feature_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_size(
+void globox_x11_software_feature_set_size(
 	struct globox* context,
 	struct globox_feature_size* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_pos(
+void globox_x11_software_feature_set_pos(
 	struct globox* context,
 	struct globox_feature_pos* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_frame(
+void globox_x11_software_feature_set_frame(
 	struct globox* context,
 	struct globox_feature_frame* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_background(
+void globox_x11_software_feature_set_background(
 	struct globox* context,
 	struct globox_feature_background* config,
 	struct globox_error_info* error);
 
-bool globox_x11_software_feature_set_vsync_callback(
+void globox_x11_software_feature_set_vsync_callback(
 	struct globox* context,
 	struct globox_feature_vsync_callback* config,
 	struct globox_error_info* error);

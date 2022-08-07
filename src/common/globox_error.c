@@ -30,8 +30,10 @@ void globox_error_init(
 		"invalid domain";
 	log[GLOBOX_ERROR_FD] =
 		"invalid file descriptor";
-	log[GLOBOX_ERROR_FEATURE_SET] =
-		"failed to configure feature";
+	log[GLOBOX_ERROR_FEATURE_UNAVAILABLE] =
+		"failed to set one or more features";
+	log[GLOBOX_ERROR_FEATURE_STATE_INVALID] =
+		"failed to set state because the given value is invalid";
 
 	log[GLOBOX_ERROR_POSIX_MUTEX_INIT] =
 		"failed to init posix mutex";

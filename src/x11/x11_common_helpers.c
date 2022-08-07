@@ -125,19 +125,14 @@ void x11_helpers_features_init(
 	}
 }
 
-bool x11_helpers_set_interaction(
+void x11_helpers_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_interaction == NULL)
-	{
-		return true;
-	}
-
 	// TODO
 
-	return true;
+	globox_error_ok(error);
 }
 
 void set_state_event(
@@ -186,7 +181,10 @@ void set_state_event(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
+		return;
 	}
+
+	globox_error_ok(error);
 }
 
 void set_state_atoms(
@@ -237,16 +235,11 @@ void set_state_atoms(
 // there is a bug in ewmh that prevents fullscreen from working properly
 // since keeping xcb-ewmh around only for initialization would be kind
 // of silly we removed the dependency and used raw xcb all the way
-bool x11_helpers_set_state(
+void x11_helpers_set_state(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_state == NULL)
-	{
-		return true;
-	}
-
 	xcb_void_cookie_t cookie;
 	xcb_generic_error_t* xcb_error;
 
@@ -267,14 +260,14 @@ bool x11_helpers_set_state(
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return false;
+				return;
 			}
 
 			set_state_atoms(context, platform, 0, 0, 0, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				return false;
+				return;
 			}
 
 			break;
@@ -285,7 +278,7 @@ bool x11_helpers_set_state(
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				return false;
+				return;
 			}
 
 			cookie =
@@ -301,7 +294,7 @@ bool x11_helpers_set_state(
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_UNMAP);
-				return false;
+				return;
 			}
 
 			break;
@@ -321,14 +314,14 @@ bool x11_helpers_set_state(
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return false;
+				return;
 			}
 
 			set_state_atoms(context, platform, 1, 1, 0, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				return false;
+				return;
 			}
 
 			break;
@@ -348,42 +341,33 @@ bool x11_helpers_set_state(
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return false;
+				return;
 			}
 
 			set_state_atoms(context, platform, 0, 0, 1, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				return false;
+				return;
 			}
 
 			break;
 		}
 		default:
 		{
-			return false;
+			globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_STATE_INVALID);
+			return;
 		}
 	}
 
-	return true;
+	// error is always set in the switch so we don't need to set it to "ok" here
 }
 
-bool x11_helpers_set_title(
+void x11_helpers_set_title(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_title == NULL)
-	{
-		return true;
-	}
-
-	if (context->feature_title->title == NULL)
-	{
-		return false;
-	}
-
 	xcb_void_cookie_t cookie =
 		xcb_change_property_checked(
 			platform->conn,
@@ -403,27 +387,17 @@ bool x11_helpers_set_title(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return false;
+		return;
 	}
 
-	return true;
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_icon(
+void x11_helpers_set_icon(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_icon == NULL)
-	{
-		return true;
-	}
-
-	if (context->feature_icon->pixmap == NULL)
-	{
-		return false;
-	}
-
 	xcb_void_cookie_t cookie =
 		xcb_change_property_checked(
 			platform->conn,
@@ -443,7 +417,7 @@ bool x11_helpers_set_icon(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return false;
+		return;
 	}
 
 	// flush
@@ -452,53 +426,37 @@ bool x11_helpers_set_icon(
 	if (error_flush <= 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
-		return false;
+		return;
 	}
 
-	return true;
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_size(
+void x11_helpers_set_size(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_size == NULL)
-	{
-		return true;
-	}
-
 	// TODO
 
-	return true;
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_pos(
+void x11_helpers_set_pos(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_pos == NULL)
-	{
-		return true;
-	}
-
 	// TODO
 
-	return true;
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_frame(
+void x11_helpers_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if ((context->feature_frame == NULL)
-		|| (context->feature_frame->frame == true))
-	{
-		return true;
-	}
-
 	uint32_t motif_hints[5] =
 	{
 		2, // flags
@@ -527,91 +485,79 @@ bool x11_helpers_set_frame(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return false;
+		return;
 	}
 
-	return true;
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_background(
+void x11_helpers_set_background(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if ((context->feature_background == NULL)
-		|| (context->feature_background->background != GLOBOX_BACKGROUND_BLURRED))
+	if ((platform->atoms[X11_ATOM_BLUR_KDE] == XCB_ATOM_NONE)
+		&& (platform->atoms[X11_ATOM_BLUR_DEEPIN] == XCB_ATOM_NONE))
 	{
-		return true;
+		globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+		return;
 	}
 
-	if ((platform->atoms[X11_ATOM_BLUR_KDE] != XCB_ATOM_NONE)
-		|| (platform->atoms[X11_ATOM_BLUR_DEEPIN] != XCB_ATOM_NONE))
+	// kde blur
+	xcb_void_cookie_t cookie =
+		xcb_change_property(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_BLUR_KDE],
+			XCB_ATOM_CARDINAL,
+			32,
+			0,
+			NULL);
+
+	xcb_generic_error_t* xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
 	{
-		// kde blur
-		xcb_void_cookie_t cookie =
-			xcb_change_property(
-				platform->conn,
-				XCB_PROP_MODE_REPLACE,
-				platform->win,
-				platform->atoms[X11_ATOM_BLUR_KDE],
-				XCB_ATOM_CARDINAL,
-				32,
-				0,
-				NULL);
-
-		xcb_generic_error_t* xcb_error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (xcb_error != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-			return false;
-		}
-
-		// deepin blur
-		cookie =
-			xcb_change_property(
-				platform->conn,
-				XCB_PROP_MODE_REPLACE,
-				platform->win,
-				platform->atoms[X11_ATOM_BLUR_DEEPIN],
-				XCB_ATOM_CARDINAL,
-				32,
-				0,
-				NULL);
-
-		xcb_error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (xcb_error != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-			return false;
-		}
-	}
-	else
-	{
-		return false;
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
 	}
 
-	return true;
+	// deepin blur
+	cookie =
+		xcb_change_property(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_BLUR_DEEPIN],
+			XCB_ATOM_CARDINAL,
+			32,
+			0,
+			NULL);
+
+	xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
+	}
+
+	globox_error_ok(error);
 }
 
-bool x11_helpers_set_vsync_callback(
+void x11_helpers_set_vsync_callback(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	if (context->feature_pos == NULL)
-	{
-		return true;
-	}
-
 	// TODO
 
-	return true;
+	globox_error_ok(error);
 }

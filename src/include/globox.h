@@ -88,7 +88,8 @@ enum globox_error
 	GLOBOX_ERROR_BOUNDS,
 	GLOBOX_ERROR_DOMAIN,
 	GLOBOX_ERROR_FD,
-	GLOBOX_ERROR_FEATURE_SET,
+	GLOBOX_ERROR_FEATURE_UNAVAILABLE,
+	GLOBOX_ERROR_FEATURE_STATE_INVALID,
 	// posix
 	GLOBOX_ERROR_POSIX_MUTEX_INIT = 500,
 	GLOBOX_ERROR_POSIX_MUTEX_DESTROY,
@@ -235,39 +236,39 @@ struct globox_config_backend
 		void* event,
 		struct globox_error_info* error);
 	// features
-	bool (*feature_set_interaction)(
+	void (*feature_set_interaction)(
 		struct globox* context,
 		struct globox_feature_interaction* config,
 		struct globox_error_info* error);
-	bool (*feature_set_state)(
+	void (*feature_set_state)(
 		struct globox* context,
 		struct globox_feature_state* config,
 		struct globox_error_info* error);
-	bool (*feature_set_title)(
+	void (*feature_set_title)(
 		struct globox* context,
 		struct globox_feature_title* config,
 		struct globox_error_info* error);
-	bool (*feature_set_icon)(
+	void (*feature_set_icon)(
 		struct globox* context,
 		struct globox_feature_icon* config,
 		struct globox_error_info* error);
-	bool (*feature_set_size)(
+	void (*feature_set_size)(
 		struct globox* context,
 		struct globox_feature_size* config,
 		struct globox_error_info* error);
-	bool (*feature_set_pos)(
+	void (*feature_set_pos)(
 		struct globox* context,
 		struct globox_feature_pos* config,
 		struct globox_error_info* error);
-	bool (*feature_set_frame)(
+	void (*feature_set_frame)(
 		struct globox* context,
 		struct globox_feature_frame* config,
 		struct globox_error_info* error);
-	bool (*feature_set_background)(
+	void (*feature_set_background)(
 		struct globox* context,
 		struct globox_feature_background* config,
 		struct globox_error_info* error);
-	bool (*feature_set_vsync_callback)(
+	void (*feature_set_vsync_callback)(
 		struct globox* context,
 		struct globox_feature_vsync_callback* config,
 		struct globox_error_info* error);
@@ -349,47 +350,47 @@ struct globox_config_features* globox_init_features(
 	struct globox_error_info* error);
 
 // feature setters
-bool globox_feature_set_interaction(
+void globox_feature_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_state(
+void globox_feature_set_state(
 	struct globox* context,
 	struct globox_feature_state* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_title(
+void globox_feature_set_title(
 	struct globox* context,
 	struct globox_feature_title* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_icon(
+void globox_feature_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_size(
+void globox_feature_set_size(
 	struct globox* context,
 	struct globox_feature_size* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_pos(
+void globox_feature_set_pos(
 	struct globox* context,
 	struct globox_feature_pos* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_frame(
+void globox_feature_set_frame(
 	struct globox* context,
 	struct globox_feature_frame* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_background(
+void globox_feature_set_background(
 	struct globox* context,
 	struct globox_feature_background* config,
 	struct globox_error_info* error);
 
-bool globox_feature_set_vsync_callback(
+void globox_feature_set_vsync_callback(
 	struct globox* context,
 	struct globox_feature_vsync_callback* config,
 	struct globox_error_info* error);

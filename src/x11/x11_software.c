@@ -38,6 +38,8 @@ void globox_x11_software_init(
 
 	// initialize the platform
 	globox_x11_common_init(context, &(backend->platform), error);
+
+	// error always set
 }
 
 void globox_x11_software_clean(
@@ -52,6 +54,8 @@ void globox_x11_software_clean(
 
 	// free the backend
 	free(backend);
+
+	// error always set
 }
 
 void globox_x11_software_window_create(
@@ -68,6 +72,8 @@ void globox_x11_software_window_create(
 	// no extra failure check at the moment
 
 	// TODO integrate software-specific window code
+
+	// error always set
 }
 
 void globox_x11_software_window_destroy(
@@ -83,6 +89,8 @@ void globox_x11_software_window_destroy(
 	// no extra failure check at the moment
 
 	// TODO destroy software-specific window structures
+
+	// error always set
 }
 
 void globox_x11_software_window_start(
@@ -96,6 +104,8 @@ void globox_x11_software_window_start(
 	globox_x11_common_window_start(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// error always set
 }
 
 void globox_x11_software_window_block(
@@ -109,6 +119,8 @@ void globox_x11_software_window_block(
 	globox_x11_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// error always set
 }
 
 void globox_x11_software_window_stop(
@@ -122,6 +134,8 @@ void globox_x11_software_window_stop(
 	globox_x11_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// error always set
 }
 
 
@@ -137,6 +151,8 @@ void globox_x11_software_init_events(
 	globox_x11_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
+
+	// error always set
 }
 
 enum globox_event globox_x11_software_handle_events(
@@ -157,6 +173,7 @@ enum globox_event globox_x11_software_handle_events(
 
 	// no extra failure check at the moment
 
+	// error always set
 	return out;
 }
 
@@ -175,10 +192,11 @@ struct globox_config_features* globox_x11_software_init_features(
 	// no extra failure check at the moment
 
 	// return the newly created features info structure
+	// error always set
 	return features;
 }
 
-bool globox_x11_software_feature_set_interaction(
+void globox_x11_software_feature_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
@@ -187,10 +205,12 @@ bool globox_x11_software_feature_set_interaction(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_interaction(context, platform, config, error);
+	globox_x11_common_feature_set_interaction(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_state(
+void globox_x11_software_feature_set_state(
 	struct globox* context,
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
@@ -199,10 +219,12 @@ bool globox_x11_software_feature_set_state(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_state(context, platform, config, error);
+	globox_x11_common_feature_set_state(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_title(
+void globox_x11_software_feature_set_title(
 	struct globox* context,
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
@@ -211,10 +233,12 @@ bool globox_x11_software_feature_set_title(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_title(context, platform, config, error);
+	globox_x11_common_feature_set_title(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_icon(
+void globox_x11_software_feature_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error)
@@ -223,10 +247,12 @@ bool globox_x11_software_feature_set_icon(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_icon(context, platform, config, error);
+	globox_x11_common_feature_set_icon(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_size(
+void globox_x11_software_feature_set_size(
 	struct globox* context,
 	struct globox_feature_size* config,
 	struct globox_error_info* error)
@@ -235,10 +261,12 @@ bool globox_x11_software_feature_set_size(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_size(context, platform, config, error);
+	globox_x11_common_feature_set_size(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_pos(
+void globox_x11_software_feature_set_pos(
 	struct globox* context,
 	struct globox_feature_pos* config,
 	struct globox_error_info* error)
@@ -247,10 +275,12 @@ bool globox_x11_software_feature_set_pos(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_pos(context, platform, config, error);
+	globox_x11_common_feature_set_pos(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_frame(
+void globox_x11_software_feature_set_frame(
 	struct globox* context,
 	struct globox_feature_frame* config,
 	struct globox_error_info* error)
@@ -259,10 +289,12 @@ bool globox_x11_software_feature_set_frame(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_frame(context, platform, config, error);
+	globox_x11_common_feature_set_frame(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_background(
+void globox_x11_software_feature_set_background(
 	struct globox* context,
 	struct globox_feature_background* config,
 	struct globox_error_info* error)
@@ -271,10 +303,12 @@ bool globox_x11_software_feature_set_background(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_background(context, platform, config, error);
+	globox_x11_common_feature_set_background(context, platform, config, error);
+
+	// error always set
 }
 
-bool globox_x11_software_feature_set_vsync_callback(
+void globox_x11_software_feature_set_vsync_callback(
 	struct globox* context,
 	struct globox_feature_vsync_callback* config,
 	struct globox_error_info* error)
@@ -283,7 +317,9 @@ bool globox_x11_software_feature_set_vsync_callback(
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	return globox_x11_common_feature_set_vsync_callback(context, platform, config, error);
+	globox_x11_common_feature_set_vsync_callback(context, platform, config, error);
+
+	// error always set
 }
 
 
@@ -341,5 +377,6 @@ uint32_t* globox_buffer_alloc_software(
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 	}
 
+	globox_error_ok(error);
 	return argb;
 }

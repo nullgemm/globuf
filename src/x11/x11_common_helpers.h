@@ -17,47 +17,47 @@ void x11_helpers_features_init(
 	struct x11_platform* platform,
 	void** features);
 
-bool x11_helpers_set_interaction(
+void x11_helpers_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_state(
+void x11_helpers_set_state(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_title(
+void x11_helpers_set_title(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_icon(
+void x11_helpers_set_icon(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_size(
+void x11_helpers_set_size(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_pos(
+void x11_helpers_set_pos(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_frame(
+void x11_helpers_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_background(
+void x11_helpers_set_background(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-bool x11_helpers_set_vsync_callback(
+void x11_helpers_set_vsync_callback(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);

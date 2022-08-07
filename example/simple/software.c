@@ -196,6 +196,19 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	void* feature_configs[GLOBOX_FEATURE_COUNT] =
+	{
+		[GLOBOX_FEATURE_INTERACTION] = NULL,
+		[GLOBOX_FEATURE_STATE] = NULL,
+		[GLOBOX_FEATURE_TITLE] = NULL,
+		[GLOBOX_FEATURE_ICON] = NULL,
+		[GLOBOX_FEATURE_SIZE] = NULL,
+		[GLOBOX_FEATURE_POS] = NULL,
+		[GLOBOX_FEATURE_FRAME] = NULL,
+		[GLOBOX_FEATURE_BACKGROUND] = NULL,
+		[GLOBOX_FEATURE_VSYNC_CALLBACK] = NULL,
+	};
+
 	char* feature_names[GLOBOX_FEATURE_COUNT] =
 	{
 		[GLOBOX_FEATURE_INTERACTION] = "interaction",
@@ -209,31 +222,6 @@ int main(int argc, char** argv)
 		[GLOBOX_FEATURE_VSYNC_CALLBACK] = "vsync callback",
 	};
 
-	printf("\nreceived a list of available features:\n");
-
-	for (size_t i = 0; i < feature_list->count; ++i)
-	{
-		printf(" - %s\n", feature_names[feature_list->list[i]]);
-	}
-
-	free(feature_list);
-
-	// register an event handler to track the window's state
-	struct globox_config_events events =
-	{
-		.data = globox,
-		.handler = event_callback,
-	};
-
-	globox_init_events(globox, &events, &error);
-
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-	{
-		globox_clean(globox, &error);
-		return 1;
-	}
-
-	// create the window
 	struct globox_feature_state state =
 	{
 		.state = GLOBOX_STATE_REGULAR,
@@ -281,24 +269,90 @@ int main(int argc, char** argv)
 		.callback = vsync_callback,
 	};
 
-	void* feature_configs[GLOBOX_FEATURE_COUNT] =
+	printf("\nreceived a list of available features:\n");
+
+	for (size_t i = 0; i < feature_list->count; ++i)
 	{
-		[GLOBOX_FEATURE_INTERACTION] = NULL,
-		[GLOBOX_FEATURE_STATE] = &state,
-		[GLOBOX_FEATURE_TITLE] = &title,
-		[GLOBOX_FEATURE_ICON] = &icon,
-		[GLOBOX_FEATURE_SIZE] = &size,
-		[GLOBOX_FEATURE_POS] = &pos,
-		[GLOBOX_FEATURE_FRAME] = &frame,
-		[GLOBOX_FEATURE_BACKGROUND] = &background,
-		[GLOBOX_FEATURE_VSYNC_CALLBACK] = &vsync,
+		switch (feature_list->list[i])
+		{
+			case GLOBOX_FEATURE_INTERACTION:
+			{
+				feature_configs[GLOBOX_FEATURE_INTERACTION] = NULL;
+				break;
+			}
+			case GLOBOX_FEATURE_STATE:
+			{
+				feature_configs[GLOBOX_FEATURE_STATE] = &state;
+				break;
+			}
+			case GLOBOX_FEATURE_TITLE:
+			{
+				feature_configs[GLOBOX_FEATURE_TITLE] = &title;
+				break;
+			}
+			case GLOBOX_FEATURE_ICON:
+			{
+				feature_configs[GLOBOX_FEATURE_ICON] = &icon;
+				break;
+			}
+			case GLOBOX_FEATURE_SIZE:
+			{
+				feature_configs[GLOBOX_FEATURE_SIZE] = &size;
+				break;
+			}
+			case GLOBOX_FEATURE_POS:
+			{
+				feature_configs[GLOBOX_FEATURE_POS] = &pos;
+				break;
+			}
+			case GLOBOX_FEATURE_FRAME:
+			{
+				feature_configs[GLOBOX_FEATURE_FRAME] = &frame;
+				break;
+			}
+			case GLOBOX_FEATURE_BACKGROUND:
+			{
+				feature_configs[GLOBOX_FEATURE_BACKGROUND] = &background;
+				break;
+			}
+			case GLOBOX_FEATURE_VSYNC_CALLBACK:
+			{
+				feature_configs[GLOBOX_FEATURE_VSYNC_CALLBACK] = &vsync;
+				break;
+			}
+			default:
+			{
+				// invalid feature, skip printing invalid name
+				continue;
+			}
+		}
+
+		printf(" - %s\n", feature_names[feature_list->list[i]]);
+	}
+
+	free(feature_list);
+
+	// register an event handler to track the window's state
+	struct globox_config_events events =
+	{
+		.data = globox,
+		.handler = event_callback,
 	};
 
+	globox_init_events(globox, &events, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	// create the window
 	globox_window_create(globox, feature_configs, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
-		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_SET)
+		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_UNAVAILABLE)
 		{
 // TODO
 #if 0
