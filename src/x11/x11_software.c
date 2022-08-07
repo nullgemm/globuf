@@ -8,6 +8,7 @@
 #include "x11/x11_software_helpers.h"
 
 #include <pthread.h>
+#include <sys/shm.h>
 #include <stdlib.h>
 #include <xcb/shm.h>
 #include <xcb/xcb.h>
@@ -77,7 +78,6 @@ void globox_x11_software_window_create(
 	// run common X11 helper
 	globox_x11_common_window_create(context, platform, features, error);
 
-	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
 		return;
@@ -153,7 +153,7 @@ void globox_x11_software_window_create(
 
 	if ((error_shm != NULL) || (reply_shm == NULL))
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_VERSION_REPLY);
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHM_VERSION);
 		return;
 	}
 
@@ -235,6 +235,7 @@ void globox_x11_software_window_create(
 	globox_error_ok(error);
 }
 
+// TODO sync
 void globox_x11_software_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -245,11 +246,41 @@ void globox_x11_software_window_destroy(
 	// run common X11 helper
 	globox_x11_common_window_destroy(context, platform, error);
 
-	// no extra failure check at the moment
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
 
-	// TODO destroy software-specific window structures
+	xcb_free_pixmap(platform->conn, backend->software_pixmap);
 
-	// error always set
+	if (backend->shared_pixmaps == true)
+	{
+		xcb_void_cookie_t cookie =
+			xcb_shm_detach_checked(
+				platform->conn,
+				backend->software_shm.shmseg);
+
+		xcb_generic_error_t* xcb_error =
+			xcb_request_check(
+				platform->conn,
+				cookie);
+
+		if (xcb_error != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_DETACH);
+			return;
+		}
+
+		int posix_error = shmdt(backend->software_shm.shmaddr);
+
+		if (posix_error == -1)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHMDT);
+			return;
+		}
+	}
+
+	globox_error_ok(error);
 }
 
 void globox_x11_software_window_start(

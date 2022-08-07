@@ -69,6 +69,10 @@ void globox_error_init(
 		"failed to destroy posix thread attributes";
 	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH] =
 		"failt to set detach type in posix thread attributes";
+	log[GLOBOX_ERROR_POSIX_SHM_VERSION] =
+		"failed to get SHM version";
+	log[GLOBOX_ERROR_POSIX_SHMDT] =
+		"failed to delete SHM";
 
 	log[GLOBOX_ERROR_X11_CONN] =
 		"failed to connect to X11 server";
@@ -94,14 +98,14 @@ void globox_error_init(
 		"failed to change an X11 attribute";
 	log[GLOBOX_ERROR_X11_GC_CREATE] =
 		"failed to create X11 graphical context";
-	log[GLOBOX_ERROR_X11_SHM_VERSION_REPLY] =
-		"failed to get SHM version";
 	log[GLOBOX_ERROR_X11_PIXMAP] =
 		"failed to get X11 pixmap";
 	log[GLOBOX_ERROR_X11_SHM_PIXMAP] =
 		"failed to get X11 SHM pixmap";
 	log[GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE] =
 		"failed to get a compatible X11 visual configuration";
+	log[GLOBOX_ERROR_X11_SHM_DETACH] =
+		"failed to detach X11 SHM";
 #endif
 }
 
