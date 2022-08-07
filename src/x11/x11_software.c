@@ -9,11 +9,18 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <xcb/shm.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_image.h>
 
 struct x11_backend
 {
 	struct x11_platform platform;
+
+	bool shared_pixmaps;
+	xcb_gcontext_t software_gfx;
+	xcb_pixmap_t software_pixmap;
+	xcb_shm_segment_info_t software_shm;
 };
 
 void globox_x11_software_init(
@@ -58,6 +65,7 @@ void globox_x11_software_clean(
 	// error always set
 }
 
+// TODO sync
 void globox_x11_software_window_create(
 	struct globox* context,
 	void** features,
@@ -69,11 +77,162 @@ void globox_x11_software_window_create(
 	// run common X11 helper
 	globox_x11_common_window_create(context, platform, features, error);
 
-	// no extra failure check at the moment
+	// return on configuration error
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
 
-	// TODO integrate software-specific window code
+	// select visual configuration
+	if (context->feature_background != GLOBOX_BACKGROUND_OPAQUE)
+	{
+		x11_helpers_visual_transparent(context, error);
 
-	// error always set
+		if (globox_error_get_code(error) == GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE)
+		{
+			x11_helpers_visual_opaque(context, error);
+		}
+		else if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return;
+		}
+	}
+	else
+	{
+		x11_helpers_visual_opaque(context, error);
+
+		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return;
+		}
+	}
+
+	// create graphics context
+	uint32_t values[2] =
+	{
+		platform->screen_obj->black_pixel,
+		0,
+	};
+
+	backend->software_gfx =
+		xcb_generate_id(
+			platform->conn);
+
+	xcb_void_cookie_t cookie_gc =
+		xcb_create_gc_checked(
+			platform->conn,
+			backend->software_gfx,
+			platform->win,
+			XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES,
+			values);
+
+	xcb_generic_error_t* error_gc =
+		xcb_request_check(
+			platform->conn,
+			cookie_gc);
+
+	if (error_gc != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_GC_CREATE);
+		return;
+	}
+
+	// we are not done yet as we wish to bypass the xcb drawing API to
+	// write directly to a shared memory buffer (just like CPU wayland)
+	xcb_generic_error_t* error_shm;
+
+	xcb_shm_query_version_cookie_t cookie_shm =
+		xcb_shm_query_version(
+			platform->conn);
+
+	xcb_shm_query_version_reply_t* reply_shm =
+		xcb_shm_query_version_reply(
+			platform->conn,
+			cookie_shm,
+			&error_shm);
+
+	if ((error_shm != NULL) || (reply_shm == NULL))
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_VERSION_REPLY);
+		return;
+	}
+
+	backend->shared_pixmaps = reply_shm->shared_pixmaps;
+	free(reply_shm);
+
+	xcb_void_cookie_t cookie_pixmap;
+	xcb_generic_error_t* error_pixmap;
+
+	// unlike wayland, X can't automatically copy buffers from cpu to gpu
+	// so if the display server is running in DRM we need to do it manually
+	// for this we can use xcb_put_image() to transfer the data using a socket
+	if (backend->shared_pixmaps == false)
+	{
+		backend->software_pixmap =
+			xcb_generate_id(
+				platform->conn);
+
+		cookie_pixmap =
+			xcb_create_pixmap_checked(
+				platform->conn,
+				platform->visual_depth,
+				backend->software_pixmap,
+				platform->win,
+				context->feature_size->width,
+				context->feature_size->height);
+
+		error_pixmap =
+			xcb_request_check(
+				platform->conn,
+				cookie_pixmap);
+
+		if (error_pixmap != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
+			return;
+		}
+	}
+	else
+	{
+		backend->software_shm.shmseg =
+			xcb_generate_id(
+				platform->conn);
+
+		backend->software_pixmap =
+			xcb_generate_id(
+				platform->conn);
+
+		x11_helpers_shm_create(context, error);
+
+		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return;
+		}
+
+		cookie_pixmap =
+			xcb_shm_create_pixmap_checked(
+				platform->conn,
+				backend->software_pixmap,
+				platform->win,
+				context->feature_size->width,
+				context->feature_size->height,
+				platform->visual_depth,
+				backend->software_shm.shmseg,
+				0);
+
+		error_pixmap =
+			xcb_request_check(
+				platform->conn,
+				cookie_pixmap);
+
+		if (error_pixmap != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_PIXMAP);
+			return;
+		}
+	}
+
+	globox_error_ok(error);
 }
 
 void globox_x11_software_window_destroy(
