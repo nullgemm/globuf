@@ -14,16 +14,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_image.h>
 
-struct x11_backend
-{
-	struct x11_platform platform;
-
-	bool shared_pixmaps;
-	xcb_gcontext_t software_gfx;
-	xcb_pixmap_t software_pixmap;
-	xcb_shm_segment_info_t software_shm;
-};
-
 void globox_x11_software_init(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -201,35 +191,6 @@ void globox_x11_software_window_create(
 		backend->software_pixmap =
 			xcb_generate_id(
 				platform->conn);
-
-		x11_helpers_shm_create(context, error);
-
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-		{
-			return;
-		}
-
-		cookie_pixmap =
-			xcb_shm_create_pixmap_checked(
-				platform->conn,
-				backend->software_pixmap,
-				platform->win,
-				context->feature_size->width,
-				context->feature_size->height,
-				platform->visual_depth,
-				backend->software_shm.shmseg,
-				0);
-
-		error_pixmap =
-			xcb_request_check(
-				platform->conn,
-				cookie_pixmap);
-
-		if (error_pixmap != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_PIXMAP);
-			return;
-		}
 	}
 
 	globox_error_ok(error);
@@ -252,33 +213,6 @@ void globox_x11_software_window_destroy(
 	}
 
 	xcb_free_pixmap(platform->conn, backend->software_pixmap);
-
-	if (backend->shared_pixmaps == true)
-	{
-		xcb_void_cookie_t cookie =
-			xcb_shm_detach_checked(
-				platform->conn,
-				backend->software_shm.shmseg);
-
-		xcb_generic_error_t* xcb_error =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (xcb_error != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_SHM_DETACH);
-			return;
-		}
-
-		int posix_error = shmdt(backend->software_shm.shmaddr);
-
-		if (posix_error == -1)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHMDT);
-			return;
-		}
-	}
 
 	globox_error_ok(error);
 }
@@ -560,13 +494,87 @@ uint32_t* globox_buffer_alloc_software(
 	unsigned height,
 	struct globox_error_info* error)
 {
-	uint32_t* argb = malloc(4 * width * height);
+	struct x11_backend* backend = context->backend_data;
+	uint32_t* argb = NULL;
+	size_t len = 4 * width * height;
 
-	if (argb == NULL)
+	if (backend->shared_pixmaps == false)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		argb = malloc(len);
+
+		if (argb == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			return NULL;
+		}
+	}
+	else
+	{
+		x11_helpers_shm_create(context, len, error);
+
+		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return NULL;
+		}
+
+		argb = (uint32_t*) backend->software_shm.shmaddr;
 	}
 
 	globox_error_ok(error);
 	return argb;
+}
+
+void globox_buffer_free_software(
+	struct globox* context,
+	uint32_t* buffer,
+	struct globox_error_info* error)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	if (backend->shared_pixmaps == false)
+	{
+		free(buffer);
+	}
+	else
+	{
+		xcb_void_cookie_t cookie_shm;
+		xcb_generic_error_t* error_shm;
+
+		cookie_shm =
+			xcb_shm_detach_checked(
+				platform->conn,
+				backend->software_shm.shmseg);
+
+		error_shm =
+			xcb_request_check(
+				platform->conn,
+				cookie_shm);
+
+		if (error_shm != NULL)
+		{
+			globox_error_throw(
+				context,
+				error,
+				GLOBOX_ERROR_X11_SHM_DETACH);
+
+			return;
+		}
+
+		int error_shmdt =
+			shmdt(
+				backend->software_shm.shmaddr);
+
+		if (error_shmdt == -1)
+		{
+			globox_error_throw(
+				context,
+				error,
+				GLOBOX_ERROR_POSIX_SHMDT);
+
+			return;
+		}
+	}
+
+	globox_error_ok(error);
 }

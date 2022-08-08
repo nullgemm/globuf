@@ -73,6 +73,12 @@ void globox_error_init(
 		"failed to get SHM version";
 	log[GLOBOX_ERROR_POSIX_SHMDT] =
 		"failed to delete SHM";
+	log[GLOBOX_ERROR_POSIX_SHMID] =
+		"failed to get SHM ID";
+	log[GLOBOX_ERROR_POSIX_SHMCTL] =
+		"failed to ctl SHM";
+	log[GLOBOX_ERROR_POSIX_SHMADDR] =
+		"failed to get SHM addr";
 
 	log[GLOBOX_ERROR_X11_CONN] =
 		"failed to connect to X11 server";
@@ -104,6 +110,10 @@ void globox_error_init(
 		"failed to get X11 SHM pixmap";
 	log[GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE] =
 		"failed to get a compatible X11 visual configuration";
+	log[GLOBOX_ERROR_X11_VISUAL_MISSING] =
+		"failed to find the requested X11 visual configuration";
+	log[GLOBOX_ERROR_X11_SHM_DETACH] =
+		"failed to attach X11 SHM";
 	log[GLOBOX_ERROR_X11_SHM_DETACH] =
 		"failed to detach X11 SHM";
 #endif

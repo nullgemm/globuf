@@ -22,4 +22,9 @@ uint32_t* globox_buffer_alloc_software(
 	unsigned height,
 	struct globox_error_info* error);
 
+void globox_buffer_free_software(
+	struct globox* context,
+	uint32_t* buffer,
+	struct globox_error_info* error);
+
 #endif
