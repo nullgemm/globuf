@@ -116,6 +116,10 @@ void globox_error_init(
 		"failed to attach X11 SHM";
 	log[GLOBOX_ERROR_X11_SHM_DETACH] =
 		"failed to detach X11 SHM";
+	log[GLOBOX_ERROR_X11_IMAGE] =
+		"failed to create X11 image";
+	log[GLOBOX_ERROR_X11_COPY] =
+		"failed to copy X11 buffer";
 #endif
 }
 

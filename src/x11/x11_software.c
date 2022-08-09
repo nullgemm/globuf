@@ -452,9 +452,175 @@ void globox_x11_software_update_content(
 	void* data,
 	struct globox_error_info* error)
 {
-	globox_error_ok(error);
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+	struct globox_update_software* update = data;
 
-	// TODO
+	if (backend->shared_pixmaps == false)
+	{
+		int y2 = update->y;
+		unsigned height2 = update->height;
+
+		size_t len =
+			sizeof (xcb_get_image_request_t);
+
+		size_t len_theoric =
+			(len + (4 * context->feature_size->width * height2)) >> 2;
+
+		uint64_t len_max =
+			xcb_get_maximum_request_length(
+				platform->conn);
+
+		xcb_void_cookie_t cookie_pixmap =
+			xcb_create_pixmap_checked(
+				platform->conn,
+				platform->visual_depth,
+				backend->software_pixmap,
+				platform->win,
+				context->feature_size->width,
+				context->feature_size->height);
+
+		xcb_generic_error_t* error_pixmap =
+			xcb_request_check(
+				platform->conn,
+				cookie_pixmap);
+
+		if (error_pixmap != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
+			return;
+		}
+
+		xcb_void_cookie_t cookie_image;
+		xcb_generic_error_t* error_image;
+
+		if (len_theoric >= len_max)
+		{
+			uint64_t rows_batch =
+				((len_max << 2) - len)
+				/ (4 * context->feature_size->width);
+
+			while (rows_batch <= height2)
+			{
+				cookie_image =
+					xcb_put_image_checked(
+						platform->conn,
+						XCB_IMAGE_FORMAT_Z_PIXMAP,
+						backend->software_pixmap,
+						backend->software_gfx,
+						context->feature_size->width,
+						rows_batch,
+						0,
+						y2,
+						0,
+						platform->visual_depth,
+						4 * context->feature_size->width * rows_batch,
+						(void*)(update->buf + y2*context->feature_size->width));
+
+				error_image =
+					xcb_request_check(
+						platform->conn,
+						cookie_image);
+
+				if (error_image != NULL)
+				{
+					globox_error_throw(context, error, GLOBOX_ERROR_X11_IMAGE);
+					return;
+				}
+
+				y2 += rows_batch;
+				height2 -= rows_batch;
+			}
+		}
+
+		cookie_image =
+			xcb_put_image_checked(
+				platform->conn,
+				XCB_IMAGE_FORMAT_Z_PIXMAP,
+				backend->software_pixmap,
+				backend->software_gfx,
+				context->feature_size->width,
+				height2,
+				0,
+				y2,
+				0,
+				platform->visual_depth,
+				4 * context->feature_size->width * height2,
+				(void*)(update->buf + y2*context->feature_size->width));
+
+		error_image =
+			xcb_request_check(
+				platform->conn,
+				cookie_image);
+
+		if (error_image != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_IMAGE);
+			return;
+		}
+	}
+	else
+	{
+		xcb_void_cookie_t cookie_pixmap =
+			xcb_shm_create_pixmap_checked(
+				platform->conn,
+				backend->software_pixmap,
+				platform->win,
+				context->feature_size->width,
+				context->feature_size->height,
+				platform->visual_depth,
+				backend->software_shm.shmseg,
+				0);
+
+		xcb_generic_error_t* error_pixmap =
+			xcb_request_check(
+				platform->conn,
+				cookie_pixmap);
+
+		if (error_pixmap != NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
+			return;
+		}
+	}
+
+	xcb_void_cookie_t cookie_copy =
+		xcb_copy_area_checked(
+			platform->conn,
+			backend->software_pixmap,
+			platform->win,
+			backend->software_gfx,
+			update->x,
+			update->y,
+			update->x,
+			update->y,
+			update->width,
+			update->height);
+
+	xcb_generic_error_t* error_copy =
+		xcb_request_check(
+			platform->conn,
+			cookie_copy);
+
+	if (error_copy != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_COPY);
+		return;
+	}
+
+	int error_flush = xcb_flush(platform->conn);
+
+	if (error_flush <= 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
+		return;
+	}
+
+	xcb_free_pixmap(
+		platform->conn,
+		backend->software_pixmap);
+
+	globox_error_ok(error);
 }
 
 void globox_prepare_init_x11_software(
