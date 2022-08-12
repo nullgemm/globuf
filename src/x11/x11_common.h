@@ -25,6 +25,13 @@ enum x11_atoms
 	X11_ATOM_COUNT,
 };
 
+struct x11_thread_render_loop_data
+{
+	struct globox* globox;
+	struct x11_platform* platform;
+	struct globox_error_info* error;
+};
+
 struct x11_thread_event_loop_data
 {
 	struct globox* globox;
@@ -54,6 +61,10 @@ struct x11_platform
 	xcb_window_t win;
 	int visual_depth;
 	xcb_visualid_t visual_id;
+
+	// render handling
+	pthread_t thread_render_loop;
+	struct x11_thread_render_loop_data thread_render_loop_data;
 
 	// event handling
 	pthread_t thread_event_loop;
@@ -96,6 +107,12 @@ void globox_x11_common_window_stop(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
+
+void globox_x11_common_init_render(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_config_render* config,
+	struct globox_error_info* error);
 
 void globox_x11_common_init_events(
 	struct globox* context,
@@ -162,10 +179,10 @@ void globox_x11_common_feature_set_background(
 	struct globox_feature_background* config,
 	struct globox_error_info* error);
 
-void globox_x11_common_feature_set_vsync_callback(
+void globox_x11_common_feature_set_vsync(
 	struct globox* context,
 	struct x11_platform* platform,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
 
 #endif

@@ -263,6 +263,22 @@ void globox_x11_software_window_stop(
 }
 
 
+void globox_x11_software_init_render(
+	struct globox* context,
+	struct globox_config_render* config,
+	struct globox_error_info* error)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// run common X11 helper
+	globox_x11_common_init_render(context, platform, config, error);
+
+	// no extra failure check at the moment
+
+	// error always set
+}
+
 void globox_x11_software_init_events(
 	struct globox* context,
 	struct globox_config_events* config,
@@ -432,16 +448,16 @@ void globox_x11_software_feature_set_background(
 	// error always set
 }
 
-void globox_x11_software_feature_set_vsync_callback(
+void globox_x11_software_feature_set_vsync(
 	struct globox* context,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error)
 {
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_vsync_callback(context, platform, config, error);
+	globox_x11_common_feature_set_vsync(context, platform, config, error);
 
 	// error always set
 }
@@ -636,6 +652,7 @@ void globox_prepare_init_x11_software(
 	config->window_block = globox_x11_software_window_block;
 	config->window_stop = globox_x11_software_window_stop;
 	config->init_features = globox_x11_software_init_features;
+	config->init_render = globox_x11_software_init_render;
 	config->init_events = globox_x11_software_init_events;
 	config->handle_events = globox_x11_software_handle_events;
 	config->feature_set_interaction = globox_x11_software_feature_set_interaction;
@@ -646,7 +663,7 @@ void globox_prepare_init_x11_software(
 	config->feature_set_pos = globox_x11_software_feature_set_pos;
 	config->feature_set_frame = globox_x11_software_feature_set_frame;
 	config->feature_set_background = globox_x11_software_feature_set_background;
-	config->feature_set_vsync_callback = globox_x11_software_feature_set_vsync_callback;
+	config->feature_set_vsync = globox_x11_software_feature_set_vsync;
 	config->update_content = globox_x11_software_update_content;
 
 	globox_error_ok(error);

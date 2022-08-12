@@ -34,6 +34,11 @@ void globox_x11_software_window_stop(
 	struct globox_error_info* error);
 
 
+void globox_x11_software_init_render(
+	struct globox* context,
+	struct globox_config_render* config,
+	struct globox_error_info* error);
+
 void globox_x11_software_init_events(
 	struct globox* context,
 	struct globox_config_events* config,
@@ -89,9 +94,9 @@ void globox_x11_software_feature_set_background(
 	struct globox_feature_background* config,
 	struct globox_error_info* error);
 
-void globox_x11_software_feature_set_vsync_callback(
+void globox_x11_software_feature_set_vsync(
 	struct globox* context,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
 
 // for this backend, `data` is of type `struct globox_update_software*`

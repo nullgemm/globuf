@@ -11,6 +11,7 @@ struct globox
 
 	// not common but neutral in signature
 	void* backend_data;
+	struct globox_config_render render_callback;
 	struct globox_config_events event_callbacks;
 	struct globox_config_backend backend_callbacks;
 
@@ -26,7 +27,7 @@ struct globox
 	struct globox_feature_pos* feature_pos;
 	struct globox_feature_frame* feature_frame;
 	struct globox_feature_background* feature_background;
-	struct globox_feature_vsync_callback* feature_vsync_callback;
+	struct globox_feature_vsync* feature_vsync;
 };
 
 #endif

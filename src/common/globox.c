@@ -41,7 +41,7 @@ struct globox* globox_init(
 	context->feature_pos = NULL;
 	context->feature_frame = NULL;
 	context->feature_background = NULL;
-	context->feature_vsync_callback = NULL;
+	context->feature_vsync = NULL;
 
 	// call the backend's init function
 	context->backend_callbacks.init(context, error);
@@ -97,9 +97,9 @@ void globox_clean(
 		free(context->feature_background);
 	}
 
-	if (context->feature_vsync_callback != NULL)
+	if (context->feature_vsync != NULL)
 	{
-		free(context->feature_vsync_callback);
+		free(context->feature_vsync);
 	}
 
 	// error always set
@@ -151,6 +151,16 @@ void globox_window_stop(
 	// error always set
 }
 
+
+void globox_init_render(
+	struct globox* context,
+	struct globox_config_render* config,
+	struct globox_error_info* error)
+{
+	context->backend_callbacks.init_render(context, config, error);
+
+	// error always set
+}
 
 void globox_init_events(
 	struct globox* context,
@@ -260,12 +270,12 @@ void globox_feature_set_background(
 	// error always set
 }
 
-void globox_feature_set_vsync_callback(
+void globox_feature_set_vsync(
 	struct globox* context,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error)
 {
-	context->backend_callbacks.feature_set_vsync_callback(context, config, error);
+	context->backend_callbacks.feature_set_vsync(context, config, error);
 
 	// error always set
 }

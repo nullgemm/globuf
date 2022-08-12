@@ -10,6 +10,24 @@
 #include <string.h>
 #include <xcb/xcb.h>
 
+void* x11_helpers_render_loop(void* data)
+{
+	struct x11_thread_render_loop_data* thread_render_loop_data = data;
+
+	struct globox* context = thread_render_loop_data->globox;
+	struct x11_platform* platform = thread_render_loop_data->platform;
+	struct globox_error_info* error = thread_render_loop_data->error;
+
+	while (platform->closed == false)
+	{
+		// TODO
+		// run developer callback
+		context->render_callback.callback(context->render_callback.data);
+	}
+
+	return NULL;
+}
+
 void* x11_helpers_event_loop(void* data)
 {
 	struct x11_thread_event_loop_data* thread_event_loop_data = data;
@@ -116,12 +134,12 @@ void x11_helpers_features_init(
 				features[GLOBOX_FEATURE_BACKGROUND]);
 	}
 
-	if ((context->feature_vsync_callback != NULL)
-		&& (features[GLOBOX_FEATURE_VSYNC_CALLBACK] != NULL))
+	if ((context->feature_vsync != NULL)
+		&& (features[GLOBOX_FEATURE_VSYNC] != NULL))
 	{
-		*(context->feature_vsync_callback) =
-			*((struct globox_feature_vsync_callback*)
-				features[GLOBOX_FEATURE_VSYNC_CALLBACK]);
+		*(context->feature_vsync) =
+			*((struct globox_feature_vsync*)
+				features[GLOBOX_FEATURE_VSYNC]);
 	}
 }
 
@@ -552,7 +570,7 @@ void x11_helpers_set_background(
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_vsync_callback(
+void x11_helpers_set_vsync(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)

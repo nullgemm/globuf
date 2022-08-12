@@ -405,7 +405,7 @@ void globox_x11_common_window_create(
 		return;
 	}
 
-	x11_helpers_set_vsync_callback(context, platform, error);
+	x11_helpers_set_vsync(context, platform, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -558,6 +558,72 @@ void globox_x11_common_window_stop(
 	globox_error_ok(error);
 }
 
+
+void globox_x11_common_init_render(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_config_render* config,
+	struct globox_error_info* error)
+{
+	// set the event callback
+	context->render_callback = *config;
+
+	// start the render loop in a new thread
+	// init thread attributes
+	int posix_error;
+	pthread_attr_t attr;
+
+	posix_error = pthread_attr_init(&attr);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
+		return;
+	}
+
+	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH);
+		return;
+	}
+
+	// init thread function data
+	struct x11_thread_render_loop_data data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->thread_render_loop_data = data;
+
+	// start function in a new thread
+	posix_error =
+		pthread_create(
+			&(platform->thread_render_loop),
+			&attr,
+			x11_helpers_render_loop,
+			&(platform->thread_render_loop_data));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		return;
+	}
+
+	// destroy the attributes
+	posix_error = pthread_attr_destroy(&attr);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
+		return;
+	}
+
+	globox_error_ok(error);
+}
 
 void globox_x11_common_init_events(
 	struct globox* context,
@@ -806,9 +872,9 @@ struct globox_config_features*
 	features->count += 1;
 
 	// always available (emulated)
-	features->list[features->count] = GLOBOX_FEATURE_VSYNC_CALLBACK;
-	context->feature_vsync_callback =
-		malloc(sizeof (struct globox_feature_vsync_callback));
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	context->feature_vsync =
+		malloc(sizeof (struct globox_feature_vsync));
 	features->count += 1;
 
 	globox_error_ok(error);
@@ -1122,10 +1188,10 @@ void globox_x11_common_feature_set_background(
 	globox_error_ok(error);
 }
 
-void globox_x11_common_feature_set_vsync_callback(
+void globox_x11_common_feature_set_vsync(
 	struct globox* context,
 	struct x11_platform* platform,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error)
 {
 	// lock mutex
@@ -1138,8 +1204,8 @@ void globox_x11_common_feature_set_vsync_callback(
 	}
 
 	// configure
-	*(context->feature_vsync_callback) = *config;
-	x11_helpers_set_vsync_callback(context, platform, error);
+	*(context->feature_vsync) = *config;
+	x11_helpers_set_vsync(context, platform, error);
 
 	// unlock mutex
 	posix_error = pthread_mutex_unlock(&(platform->mutex_main));

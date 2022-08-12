@@ -9,6 +9,9 @@
 #include <stdint.h>
 #include <xcb/xcb.h>
 
+void* x11_helpers_render_loop(
+	void* data);
+
 void* x11_helpers_event_loop(
 	void* data);
 
@@ -57,7 +60,7 @@ void x11_helpers_set_background(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_vsync_callback(
+void x11_helpers_set_vsync(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error);

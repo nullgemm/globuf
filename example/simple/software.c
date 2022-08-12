@@ -110,7 +110,7 @@ void event_callback(void* data, void* event)
 	}
 }
 
-void vsync_callback(void* data)
+void render_callback(void* data)
 {
 	// render our trademark square as a simple example, updating the whole
 	// buffer each time without taking surface damage events into account
@@ -159,6 +159,9 @@ void vsync_callback(void* data)
 	};
 
 	globox_update_content(globox, &update, &error);
+
+	globox_buffer_free_software(
+		globox, argb, &error);
 }
 
 int main(int argc, char** argv)
@@ -206,7 +209,7 @@ int main(int argc, char** argv)
 		[GLOBOX_FEATURE_POS] = NULL,
 		[GLOBOX_FEATURE_FRAME] = NULL,
 		[GLOBOX_FEATURE_BACKGROUND] = NULL,
-		[GLOBOX_FEATURE_VSYNC_CALLBACK] = NULL,
+		[GLOBOX_FEATURE_VSYNC] = NULL,
 	};
 
 	char* feature_names[GLOBOX_FEATURE_COUNT] =
@@ -219,7 +222,7 @@ int main(int argc, char** argv)
 		[GLOBOX_FEATURE_POS] = "pos",
 		[GLOBOX_FEATURE_FRAME] = "frame",
 		[GLOBOX_FEATURE_BACKGROUND] = "background",
-		[GLOBOX_FEATURE_VSYNC_CALLBACK] = "vsync callback",
+		[GLOBOX_FEATURE_VSYNC] = "vsync",
 	};
 
 	struct globox_feature_state state =
@@ -263,10 +266,9 @@ int main(int argc, char** argv)
 		.background = GLOBOX_BACKGROUND_BLURRED,
 	};
 
-	struct globox_feature_vsync_callback vsync =
+	struct globox_feature_vsync vsync =
 	{
-		.data = globox,
-		.callback = vsync_callback,
+		.vsync = true,
 	};
 
 	printf("\nreceived a list of available features:\n");
@@ -315,9 +317,9 @@ int main(int argc, char** argv)
 				feature_configs[GLOBOX_FEATURE_BACKGROUND] = &background;
 				break;
 			}
-			case GLOBOX_FEATURE_VSYNC_CALLBACK:
+			case GLOBOX_FEATURE_VSYNC:
 			{
-				feature_configs[GLOBOX_FEATURE_VSYNC_CALLBACK] = &vsync;
+				feature_configs[GLOBOX_FEATURE_VSYNC] = &vsync;
 				break;
 			}
 			default:
@@ -384,6 +386,21 @@ int main(int argc, char** argv)
 			globox_clean(globox, &error);
 			return 1;
 		}
+	}
+
+	// register a render callback
+	struct globox_config_render render =
+	{
+		.data = globox,
+		.callback = render_callback,
+	};
+
+	globox_init_render(globox, &render, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_clean(globox, &error);
+		return 1;
 	}
 
 	// display the window

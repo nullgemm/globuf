@@ -18,7 +18,7 @@ enum globox_feature
 	GLOBOX_FEATURE_POS,
 	GLOBOX_FEATURE_FRAME,
 	GLOBOX_FEATURE_BACKGROUND,
-	GLOBOX_FEATURE_VSYNC_CALLBACK,
+	GLOBOX_FEATURE_VSYNC,
 	// special value used to get the total number of features
 	GLOBOX_FEATURE_COUNT,
 };
@@ -148,6 +148,12 @@ struct globox_error_info
 	unsigned line;
 };
 
+struct globox_config_render
+{
+	void* data;
+	void (*callback)(void* data);
+};
+
 struct globox_config_events
 {
 	void* data;
@@ -203,10 +209,9 @@ struct globox_feature_background
 	enum globox_background background;
 };
 
-struct globox_feature_vsync_callback
+struct globox_feature_vsync
 {
-	void* data;
-	void (*callback)(void* data);
+	bool vsync;
 };
 
 struct globox_config_backend
@@ -239,6 +244,11 @@ struct globox_config_backend
 	// feature registry
 	struct globox_config_features* (*init_features)(
 		struct globox* context,
+		struct globox_error_info* error);
+	// render callback
+	void (*init_render)(
+		struct globox* context,
+		struct globox_config_render* config,
 		struct globox_error_info* error);
 	// event handler
 	void (*init_events)(
@@ -282,9 +292,9 @@ struct globox_config_backend
 		struct globox* context,
 		struct globox_feature_background* config,
 		struct globox_error_info* error);
-	void (*feature_set_vsync_callback)(
+	void (*feature_set_vsync)(
 		struct globox* context,
-		struct globox_feature_vsync_callback* config,
+		struct globox_feature_vsync* config,
 		struct globox_error_info* error);
 
 	void (*update_content)(
@@ -344,6 +354,12 @@ void globox_error_ok(
 	struct globox_error_info* error);
 
 // ## configuration (can always be called)
+// render callback
+void globox_init_render(
+	struct globox* context,
+	struct globox_config_render* config,
+	struct globox_error_info* error);
+
 // event handler
 void globox_init_events(
 	struct globox* context,
@@ -404,9 +420,9 @@ void globox_feature_set_background(
 	struct globox_feature_background* config,
 	struct globox_error_info* error);
 
-void globox_feature_set_vsync_callback(
+void globox_feature_set_vsync(
 	struct globox* context,
-	struct globox_feature_vsync_callback* config,
+	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
 
 // # content updater (backend-specific but still cross-platform)
