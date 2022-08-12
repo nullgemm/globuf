@@ -65,4 +65,9 @@ void x11_helpers_set_vsync(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
+void x11_helpers_xcb_error_log(
+	struct globox* context,
+	struct x11_platform* platform,
+	xcb_generic_error_t* error);
+
 #endif

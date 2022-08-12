@@ -6,9 +6,11 @@
 #include "x11/x11_common_helpers.h"
 
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_errors.h>
 
 void* x11_helpers_render_loop(void* data)
 {
@@ -578,4 +580,69 @@ void x11_helpers_set_vsync(
 	// TODO
 
 	globox_error_ok(error);
+}
+
+void x11_helpers_xcb_error_log(
+	struct globox* context,
+	struct x11_platform* platform,
+	xcb_generic_error_t* error)
+{
+	xcb_errors_context_t* errors_context;
+	int posix_error = xcb_errors_context_new(platform->conn, &errors_context);
+
+	if (posix_error != 0)
+	{
+		fprintf(stderr, "could not allocate the xcb errors context\n");
+		return;
+	}
+
+	const char* error_name;
+	const char* extension_name;
+	const char* minor_code_name;
+	const char* major_code_name;
+
+	error_name =
+		xcb_errors_get_name_for_error(
+			errors_context,
+			error->error_code,
+			&extension_name);
+
+	minor_code_name =
+		xcb_errors_get_name_for_minor_code(
+			errors_context,
+			error->major_code,
+			error->minor_code);
+
+	major_code_name =
+		xcb_errors_get_name_for_major_code(
+			errors_context,
+			error->major_code);
+
+	if (extension_name == NULL)
+	{
+		extension_name = "none (no extension or couldn't find a name for it)";
+	}
+
+	if (minor_code_name == NULL)
+	{
+		minor_code_name = "none (couldn't find a name for this minor code)";
+	}
+
+	fprintf(
+		stderr,
+		"# XCB Error Report\n"
+		"Error Name: %s\n"
+		"Extension Name: %s\n"
+		"Minor Code Name: %s\n"
+		"Major Code Name: %s\n"
+		"Sequence: %u\n"
+		"Resource ID: %u\n",
+		error_name,
+		extension_name,
+		minor_code_name,
+		major_code_name,
+		error->sequence,
+		error->resource_id);
+
+	xcb_errors_context_free(errors_context);
 }

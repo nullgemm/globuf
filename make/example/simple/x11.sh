@@ -46,6 +46,7 @@ fi
 case $build in
 	development)
 flags+=("-g")
+link+=("xcb-errors")
 	;;
 
 	release)

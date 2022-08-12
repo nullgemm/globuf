@@ -4,6 +4,7 @@
 
 #include "common/globox_private.h"
 #include "x11/x11_common.h"
+#include "x11/x11_common_helpers.h"
 #include "x11/x11_software.h"
 #include "x11/x11_software_helpers.h"
 
@@ -65,14 +66,6 @@ void globox_x11_software_window_create(
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
-	// run common X11 helper
-	globox_x11_common_window_create(context, platform, features, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
 	// select visual configuration
 	if (context->feature_background != GLOBOX_BACKGROUND_OPAQUE)
 	{
@@ -95,6 +88,14 @@ void globox_x11_software_window_create(
 		{
 			return;
 		}
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_create(context, platform, features, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
 	}
 
 	// create graphics context
@@ -150,48 +151,16 @@ void globox_x11_software_window_create(
 	backend->shared_pixmaps = reply_shm->shared_pixmaps;
 	free(reply_shm);
 
-	xcb_void_cookie_t cookie_pixmap;
-	xcb_generic_error_t* error_pixmap;
-
-	// unlike wayland, X can't automatically copy buffers from cpu to gpu
-	// so if the display server is running in DRM we need to do it manually
-	// for this we can use xcb_put_image() to transfer the data using a socket
-	if (backend->shared_pixmaps == false)
-	{
-		backend->software_pixmap =
-			xcb_generate_id(
-				platform->conn);
-
-		cookie_pixmap =
-			xcb_create_pixmap_checked(
-				platform->conn,
-				platform->visual_depth,
-				backend->software_pixmap,
-				platform->win,
-				context->feature_size->width,
-				context->feature_size->height);
-
-		error_pixmap =
-			xcb_request_check(
-				platform->conn,
-				cookie_pixmap);
-
-		if (error_pixmap != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
-			return;
-		}
-	}
-	else
+	if (backend->shared_pixmaps == true)
 	{
 		backend->software_shm.shmseg =
 			xcb_generate_id(
 				platform->conn);
-
-		backend->software_pixmap =
-			xcb_generate_id(
-				platform->conn);
 	}
+
+	backend->software_pixmap =
+		xcb_generate_id(
+			platform->conn);
 
 	globox_error_ok(error);
 }
@@ -472,6 +441,9 @@ void globox_x11_software_update_content(
 	struct x11_platform* platform = &(backend->platform);
 	struct globox_update_software* update = data;
 
+	// unlike wayland, X can't automatically copy buffers from cpu to gpu
+	// so if the display server is running in DRM we need to do it manually
+	// for this we can use xcb_put_image() to transfer the data using a socket
 	if (backend->shared_pixmaps == false)
 	{
 		int y2 = update->y;
