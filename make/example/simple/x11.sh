@@ -154,6 +154,7 @@ exit 1
 	;;
 esac
 
+link+=("xcb-present")
 link+=("xcb")
 ldlibs+=("-lpthread")
 

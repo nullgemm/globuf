@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xcb/xcb.h>
+#include <xcb/present.h>
 
 void globox_x11_common_init(
 	struct globox* context,
@@ -783,6 +784,7 @@ enum globox_event globox_x11_common_handle_events(
 	return globox_event;
 }
 
+// TODO check mallocs
 struct globox_config_features*
 	globox_x11_common_init_features(
 		struct globox* context,
@@ -865,17 +867,25 @@ struct globox_config_features*
 		features->count += 1;
 	}
 
-	// transparency is always available since globox requires 32bit X11 visuals
+	// transparency is always available since globox requires 32-bit visuals
 	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
 	context->feature_background =
 		malloc(sizeof (struct globox_feature_background));
 	features->count += 1;
 
-	// always available (emulated)
-	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
-	context->feature_vsync =
-		malloc(sizeof (struct globox_feature_vsync));
-	features->count += 1;
+	// available if the present extension is supported
+	const xcb_query_extension_reply_t* query_reply =
+		xcb_get_extension_data(
+			platform->conn,
+			&xcb_present_id);
+
+	if (query_reply->present != 0)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+		context->feature_vsync =
+			malloc(sizeof (struct globox_feature_vsync));
+		features->count += 1;
+	}
 
 	globox_error_ok(error);
 	return features;

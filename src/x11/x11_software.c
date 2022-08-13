@@ -130,32 +130,47 @@ void globox_x11_software_window_create(
 
 	// we are not done yet as we wish to bypass the xcb drawing API to
 	// write directly to a shared memory buffer (just like CPU wayland)
-	xcb_generic_error_t* error_shm;
 
-	xcb_shm_query_version_cookie_t cookie_shm =
-		xcb_shm_query_version(
-			platform->conn);
-
-	xcb_shm_query_version_reply_t* reply_shm =
-		xcb_shm_query_version_reply(
+	// test whether the shm extension is available
+	const xcb_query_extension_reply_t* query_reply =
+		xcb_get_extension_data(
 			platform->conn,
-			cookie_shm,
-			&error_shm);
+			&xcb_shm_id);
 
-	if ((error_shm != NULL) || (reply_shm == NULL))
+	if (query_reply->present != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHM_VERSION);
-		return;
-	}
+		// test whether shared buffers can be used
+		xcb_generic_error_t* error_shm;
 
-	backend->shared_pixmaps = reply_shm->shared_pixmaps;
-	free(reply_shm);
-
-	if (backend->shared_pixmaps == true)
-	{
-		backend->software_shm.shmseg =
-			xcb_generate_id(
+		xcb_shm_query_version_cookie_t cookie_shm =
+			xcb_shm_query_version(
 				platform->conn);
+
+		xcb_shm_query_version_reply_t* reply_shm =
+			xcb_shm_query_version_reply(
+				platform->conn,
+				cookie_shm,
+				&error_shm);
+
+		if ((error_shm != NULL) || (reply_shm == NULL))
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHM_VERSION);
+			return;
+		}
+
+		backend->shared_pixmaps = reply_shm->shared_pixmaps;
+		free(reply_shm);
+
+		if (backend->shared_pixmaps == true)
+		{
+			backend->software_shm.shmseg =
+				xcb_generate_id(
+					platform->conn);
+		}
+	}
+	else
+	{
+		backend->shared_pixmaps = false;
 	}
 
 	backend->software_pixmap =
