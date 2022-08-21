@@ -129,6 +129,7 @@ case $backend in
 ninja_file=example_simple_x11_software.ninja
 src+=("example/simple/software.c")
 link+=("xcb-shm")
+link+=("xcb-sync")
 link+=("xcb-randr")
 link+=("xcb-render")
 	;;

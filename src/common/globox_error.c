@@ -122,6 +122,12 @@ void globox_error_init(
 		"failed to copy X11 buffer";
 	log[GLOBOX_ERROR_X11_EVENT_INVALID] =
 		"received invalid X11 event";
+	log[GLOBOX_ERROR_X11_SYNC_COUNTER_CREATE] =
+		"failed to create the X11 sync counter";
+	log[GLOBOX_ERROR_X11_SYNC_COUNTER_SET] =
+		"failed to set the X11 sync counter";
+	log[GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY] =
+		"failed to destroy the X11 sync counter";
 #endif
 }
 

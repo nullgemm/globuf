@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xcb/sync.h>
 #include <xcb/xcb.h>
 #include <xcb/present.h>
 
@@ -138,7 +139,7 @@ void globox_x11_common_init(
 	// get available atoms
 	xcb_intern_atom_cookie_t cookie;
 	xcb_intern_atom_reply_t* reply;
-	xcb_generic_error_t* error_atom;
+	xcb_generic_error_t* xcb_error;
 	uint8_t replace;
 
 	char* atom_names[X11_ATOM_COUNT] =
@@ -165,6 +166,10 @@ void globox_x11_common_init(
 			"WM_PROTOCOLS",
 		[X11_ATOM_DELETE_WINDOW] =
 			"WM_DELETE_WINDOW",
+		[X11_ATOM_SYNC_REQUEST] =
+			"_NET_WM_SYNC_REQUEST",
+		[X11_ATOM_SYNC_REQUEST_COUNTER] =
+			"_NET_WM_SYNC_REQUEST_COUNTER",
 	};
 
 	for (int i = 0; i < X11_ATOM_COUNT; ++i)
@@ -180,9 +185,9 @@ void globox_x11_common_init(
 		reply = xcb_intern_atom_reply(
 			platform->conn,
 			cookie,
-			&error_atom);
+			&xcb_error);
 
-		if (error_atom != NULL)
+		if (xcb_error != NULL)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_X11_ATOM_GET);
 			return;
@@ -321,6 +326,12 @@ void globox_x11_common_window_create(
 	}
 
 	// support the window deletion protocol
+	xcb_atom_t supported[2] =
+	{
+		platform->atoms[X11_ATOM_DELETE_WINDOW],
+		platform->atoms[X11_ATOM_SYNC_REQUEST],
+	};
+
 	cookie =
 		xcb_change_property_checked(
 			platform->conn,
@@ -329,8 +340,8 @@ void globox_x11_common_window_create(
 			platform->atoms[X11_ATOM_PROTOCOLS],
 			4,
 			32,
-			1,
-			&(platform->atoms[X11_ATOM_DELETE_WINDOW]));
+			2,
+			supported);
 
 	xcb_error =
 		xcb_request_check(
@@ -366,6 +377,53 @@ void globox_x11_common_window_create(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_ATTR_CHANGE);
+		return;
+	}
+
+	// create the xsync counter
+	xcb_sync_int64_t value =
+	{
+		.hi = 0,
+		.lo = 0,
+	};
+
+	cookie =
+		xcb_sync_create_counter(
+			platform->conn,
+			platform->xsync_counter,
+			value);
+
+	xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_CREATE);
+		return;
+	}
+
+	// set the xsync counter
+	cookie =
+		xcb_change_property_checked(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
+			6,
+			32,
+			1,
+			&(platform->xsync_counter));
+
+	xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
 	}
 
@@ -421,12 +479,33 @@ void globox_x11_common_window_destroy(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	xcb_void_cookie_t cookie =
+	// destroy the xsync counter
+	xcb_generic_error_t* xcb_error;
+	xcb_void_cookie_t cookie;
+
+	cookie =
+		xcb_sync_destroy_counter(
+			platform->conn,
+			platform->xsync_counter);
+
+	xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY);
+		return;
+	}
+
+	// destroy the window
+	cookie =
 		xcb_destroy_window(
 			platform->conn,
 			platform->win);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_error =
 		xcb_request_check(
 			platform->conn,
 			cookie);
@@ -735,6 +814,13 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_CONFIGURE_NOTIFY:
 		{
+			// TODO sync?
+			xcb_configure_notify_event_t* configure =
+				(xcb_configure_notify_event_t*) xcb_event;
+
+			context->feature_size->width = configure->width;
+			context->feature_size->height = configure->height;
+
 			break;
 		}
 		case XCB_PROPERTY_NOTIFY:
@@ -743,10 +829,10 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_CLIENT_MESSAGE:
 		{
-			xcb_client_message_event_t* delete =
+			xcb_client_message_event_t* message =
 				(xcb_client_message_event_t*) xcb_event;
 
-			if (delete->data.data32[0]
+			if (message->data.data32[0]
 				== platform->atoms[X11_ATOM_DELETE_WINDOW])
 			{
 				// make the globox blocking function exit gracefully
@@ -773,6 +859,63 @@ enum globox_event globox_x11_common_handle_events(
 
 				// tell the developer it's the end
 				globox_event = GLOBOX_EVENT_CLOSED;
+				break;
+			}
+
+			if (message->data.data32[0]
+				== platform->atoms[X11_ATOM_SYNC_REQUEST])
+			{
+				xcb_generic_error_t* xcb_error;
+				xcb_void_cookie_t cookie;
+
+				// TODO save the counter in a smarter way
+				xcb_sync_int64_t value =
+				{
+					.hi = message->data.data32[3],
+					.lo = message->data.data32[2],
+				};
+
+				cookie =
+					xcb_sync_set_counter(
+						platform->conn,
+						platform->xsync_counter,
+						value);
+
+				xcb_error =
+					xcb_request_check(
+						platform->conn,
+						cookie);
+
+				if (xcb_error != NULL)
+				{
+					globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
+					break;
+				}
+
+				// TODO move
+				cookie =
+					xcb_change_property_checked(
+						platform->conn,
+						XCB_PROP_MODE_REPLACE,
+						platform->win,
+						platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
+						6,
+						32,
+						1,
+						&(platform->xsync_counter));
+
+				xcb_error =
+					xcb_request_check(
+						platform->conn,
+						cookie);
+
+				if (xcb_error != NULL)
+				{
+					globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+					break;
+				}
+
+				break;
 			}
 
 			break;

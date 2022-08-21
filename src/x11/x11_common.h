@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <xcb/sync.h>
 #include <xcb/xcb.h>
 
 // # private helpers
@@ -22,6 +23,8 @@ enum x11_atoms
 	X11_ATOM_BLUR_DEEPIN,
 	X11_ATOM_PROTOCOLS,
 	X11_ATOM_DELETE_WINDOW,
+	X11_ATOM_SYNC_REQUEST,
+	X11_ATOM_SYNC_REQUEST_COUNTER,
 	X11_ATOM_COUNT,
 };
 
@@ -61,6 +64,7 @@ struct x11_platform
 	xcb_window_t win;
 	int visual_depth;
 	xcb_visualid_t visual_id;
+	xcb_sync_counter_t xsync_counter;
 
 	// render handling
 	pthread_t thread_render_loop;
