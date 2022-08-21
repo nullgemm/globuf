@@ -22,6 +22,16 @@ void event_callback(void* data, void* event)
 
 	switch (abstract)
 	{
+		case GLOBOX_EVENT_INVALID:
+		{
+			fprintf(stderr, "received invalid event\n");
+			break;
+		}
+		case GLOBOX_EVENT_UNKNOWN:
+		{
+			fprintf(stderr, "received unknown event\n");
+			break;
+		}
 		case GLOBOX_EVENT_RESTORED:
 		{
 			fprintf(stderr, "received `restored` event\n");
@@ -100,11 +110,6 @@ void event_callback(void* data, void* event)
 		case GLOBOX_EVENT_DISPLAY_CHANGED:
 		{
 			fprintf(stderr, "received `display changed` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_INVALID:
-		{
-			fprintf(stderr, "received invalid event\n");
 			break;
 		}
 	}

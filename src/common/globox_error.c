@@ -120,6 +120,8 @@ void globox_error_init(
 		"failed to create X11 image";
 	log[GLOBOX_ERROR_X11_COPY] =
 		"failed to copy X11 buffer";
+	log[GLOBOX_ERROR_X11_EVENT_INVALID] =
+		"received invalid X11 event";
 #endif
 }
 

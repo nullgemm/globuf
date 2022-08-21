@@ -699,7 +699,7 @@ enum globox_event globox_x11_common_handle_events(
 	struct globox_error_info* error)
 {
 	// process system events
-	enum globox_event globox_event = GLOBOX_EVENT_INVALID;
+	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
 	xcb_generic_event_t* xcb_event = event;
 
 #if 0
@@ -724,6 +724,11 @@ enum globox_event globox_x11_common_handle_events(
 
 	switch (xcb_event->response_type & ~0x80)
 	{
+		case XCB_NONE:
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_INVALID);
+			return GLOBOX_EVENT_INVALID;
+		}
 		case XCB_EXPOSE:
 		{
 			break;

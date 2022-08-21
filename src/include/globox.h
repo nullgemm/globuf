@@ -28,6 +28,7 @@ enum globox_event
 {
 	// special value used when errors occur while processing events
 	GLOBOX_EVENT_INVALID = 0,
+	GLOBOX_EVENT_UNKNOWN,
 	// window state updates
 	GLOBOX_EVENT_RESTORED,
 	GLOBOX_EVENT_MINIMIZED,
@@ -135,6 +136,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_SHM_DETACH,
 	GLOBOX_ERROR_X11_IMAGE,
 	GLOBOX_ERROR_X11_COPY,
+	GLOBOX_ERROR_X11_EVENT_INVALID,
 	// windows
 	// macos
 	// special
