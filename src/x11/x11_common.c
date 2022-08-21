@@ -60,6 +60,15 @@ void globox_x11_common_init(
 		return;
 	}
 
+	// init pthread mutex (xsync)
+	posix_error = pthread_mutex_init(&(platform->mutex_xsync), &mutex_attr);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		return;
+	}
+
 	// destroy pthread mutex attributes
 	posix_error = pthread_mutexattr_destroy(&mutex_attr);
 
@@ -197,6 +206,26 @@ void globox_x11_common_init(
 		free(reply);
 	}
 
+	// lock xsync mutex
+	posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	platform->xsync_configure = true;
+
+	// unlock xsync mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -235,6 +264,15 @@ void globox_x11_common_clean(
 	if (posix_cond_error != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_DESTROY);
+		return;
+	}
+
+	// destroy pthread mutex (xsync)
+	posix_error = pthread_mutex_destroy(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
 		return;
 	}
 
@@ -381,6 +419,15 @@ void globox_x11_common_window_create(
 	}
 
 	// create the xsync counter
+	// lock xsync mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	xcb_sync_int64_t value =
 	{
 		.hi = 0,
@@ -424,6 +471,15 @@ void globox_x11_common_window_create(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
+	}
+
+	// unlock xsync mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -480,6 +536,15 @@ void globox_x11_common_window_destroy(
 	struct globox_error_info* error)
 {
 	// destroy the xsync counter
+	// lock xsync mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	xcb_generic_error_t* xcb_error;
 	xcb_void_cookie_t cookie;
 
@@ -496,6 +561,15 @@ void globox_x11_common_window_destroy(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY);
+		return;
+	}
+
+	// unlock xsync mutex
+	posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -814,12 +888,31 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_CONFIGURE_NOTIFY:
 		{
-			// TODO sync?
 			xcb_configure_notify_event_t* configure =
 				(xcb_configure_notify_event_t*) xcb_event;
 
-			context->feature_size->width = configure->width;
-			context->feature_size->height = configure->height;
+			// lock xsync mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
+			// safe value updates
+			platform->xsync_width = configure->width;
+			platform->xsync_height = configure->height;
+			platform->xsync_configure = true;
+
+			// unlock xsync mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
 
 			break;
 		}
@@ -865,55 +958,29 @@ enum globox_event globox_x11_common_handle_events(
 			if (message->data.data32[0]
 				== platform->atoms[X11_ATOM_SYNC_REQUEST])
 			{
-				xcb_generic_error_t* xcb_error;
-				xcb_void_cookie_t cookie;
+				// lock xsync mutex
+				int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
 
-				// TODO save the counter in a smarter way
-				xcb_sync_int64_t value =
+				if (posix_error != 0)
 				{
-					.hi = message->data.data32[3],
-					.lo = message->data.data32[2],
-				};
-
-				cookie =
-					xcb_sync_set_counter(
-						platform->conn,
-						platform->xsync_counter,
-						value);
-
-				xcb_error =
-					xcb_request_check(
-						platform->conn,
-						cookie);
-
-				if (xcb_error != NULL)
-				{
-					globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
+					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 					break;
 				}
 
-				// TODO move
-				cookie =
-					xcb_change_property_checked(
-						platform->conn,
-						XCB_PROP_MODE_REPLACE,
-						platform->win,
-						platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
-						6,
-						32,
-						1,
-						&(platform->xsync_counter));
+				// save the last xsync value
+				platform->xsync_value.hi = message->data.data32[3];
+				platform->xsync_value.lo = message->data.data32[2];
+				platform->xsync_configure = false;
 
-				xcb_error =
-					xcb_request_check(
-						platform->conn,
-						cookie);
+				// unlock xsync mutex
+				posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-				if (xcb_error != NULL)
+				if (posix_error != 0)
 				{
-					globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 					break;
 				}
+
 
 				break;
 			}

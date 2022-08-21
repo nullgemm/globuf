@@ -22,9 +22,121 @@ void* x11_helpers_render_loop(void* data)
 
 	while (platform->closed == false)
 	{
-		// TODO
+		// handle xsync
+		// lock xsync mutex
+		int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return NULL;
+		}
+
+		if (platform->xsync_configure == true)
+		{
+			// save the current xsync value in the xsync counter
+			xcb_void_cookie_t cookie =
+				xcb_sync_set_counter(
+					platform->conn,
+					platform->xsync_counter,
+					platform->xsync_value);
+
+			xcb_generic_error_t* xcb_error =
+				xcb_request_check(
+					platform->conn,
+					cookie);
+
+			if (xcb_error != NULL)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
+				return NULL;
+			}
+
+			// remember to tell the window manager we finished rendering
+			platform->xsync_request = true;
+
+			// lock main mutex
+			posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				return NULL;
+			}
+
+			// save accessible size values
+			context->feature_size->width = platform->xsync_width;
+			context->feature_size->height = platform->xsync_height;
+
+			// unlock main mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				return NULL;
+			}
+		}
+
+		// unlock xsync mutex
+		posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return NULL;
+		}
+
 		// run developer callback
 		context->render_callback.callback(context->render_callback.data);
+
+		// lock xsync mutex
+		posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return NULL;
+		}
+
+		// tell the window manager the resize operation
+		// associated with the current xsync counter completed
+		if (platform->xsync_request == true)
+		{
+			xcb_void_cookie_t cookie =
+				xcb_change_property_checked(
+					platform->conn,
+					XCB_PROP_MODE_REPLACE,
+					platform->win,
+					platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
+					6,
+					32,
+					1,
+					&(platform->xsync_counter));
+
+			xcb_generic_error_t* xcb_error =
+				xcb_request_check(
+					platform->conn,
+					cookie);
+
+			// reset sync status
+			platform->xsync_request = false;
+
+			if (xcb_error != NULL)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+				return NULL;
+			}
+		}
+
+		// unlock xsync mutex
+		posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return NULL;
+		}
 	}
 
 	return NULL;

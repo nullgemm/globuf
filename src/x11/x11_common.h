@@ -46,6 +46,7 @@ struct x11_platform
 {
 	pthread_mutex_t mutex_main;
 	pthread_mutex_t mutex_block;
+	pthread_mutex_t mutex_xsync;
 	pthread_cond_t cond_main;
 
 	// connection init
@@ -65,6 +66,11 @@ struct x11_platform
 	int visual_depth;
 	xcb_visualid_t visual_id;
 	xcb_sync_counter_t xsync_counter;
+	xcb_sync_int64_t xsync_value;
+	bool xsync_configure;
+	bool xsync_request;
+	unsigned xsync_width;
+	unsigned xsync_height;
 
 	// render handling
 	pthread_t thread_render_loop;

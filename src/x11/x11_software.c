@@ -57,7 +57,6 @@ void globox_x11_software_clean(
 	// error always set
 }
 
-// TODO sync
 void globox_x11_software_window_create(
 	struct globox* context,
 	void** features,
@@ -65,6 +64,15 @@ void globox_x11_software_window_create(
 {
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
 
 	// select visual configuration
 	if (context->feature_background != GLOBOX_BACKGROUND_OPAQUE)
@@ -177,16 +185,33 @@ void globox_x11_software_window_create(
 		xcb_generate_id(
 			platform->conn);
 
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
-// TODO sync
 void globox_x11_software_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error)
 {
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
 
 	// run common X11 helper
 	globox_x11_common_window_destroy(context, platform, error);
@@ -197,6 +222,15 @@ void globox_x11_software_window_destroy(
 	}
 
 	xcb_free_pixmap(platform->conn, backend->software_pixmap);
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 
 	globox_error_ok(error);
 }
