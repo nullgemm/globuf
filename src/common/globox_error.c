@@ -100,6 +100,8 @@ void globox_error_init(
 		"failed to send an X11 event";
 	log[GLOBOX_ERROR_X11_PROP_CHANGE] =
 		"failed to change an X11 property";
+	log[GLOBOX_ERROR_X11_PROP_GET] =
+		"failed to get an X11 property";
 	log[GLOBOX_ERROR_X11_ATTR_CHANGE] =
 		"failed to change an X11 attribute";
 	log[GLOBOX_ERROR_X11_GC_CREATE] =

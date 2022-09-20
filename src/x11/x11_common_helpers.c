@@ -109,7 +109,7 @@ void* x11_helpers_render_loop(void* data)
 					XCB_PROP_MODE_REPLACE,
 					platform->win,
 					platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
-					6,
+					XCB_ATOM_CARDINAL,
 					32,
 					1,
 					&(platform->xsync_counter));

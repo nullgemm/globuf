@@ -361,8 +361,6 @@ int main(int argc, char** argv)
 	{
 		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_UNAVAILABLE)
 		{
-// TODO
-#if 0
 			// check for frame presence
 			struct globox_feature_frame frame;
 			globox_feature_get_frame(globox, &frame);
@@ -384,7 +382,6 @@ int main(int argc, char** argv)
 				fprintf(stderr,
 					"your desktop environment does not support background blur!\n");
 			}
-#endif
 		}
 		else
 		{

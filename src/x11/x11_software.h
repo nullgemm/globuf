@@ -99,6 +99,14 @@ void globox_x11_software_feature_set_vsync(
 	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
 
+void globox_x11_software_feature_get_frame(
+	struct globox* context,
+	struct globox_feature_frame* config);
+
+void globox_x11_software_feature_get_background(
+	struct globox* context,
+	struct globox_feature_background* config);
+
 // for this backend, `data` is of type `struct globox_update_software*`
 void globox_x11_software_update_content(
 	struct globox* context,

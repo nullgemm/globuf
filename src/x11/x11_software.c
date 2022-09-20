@@ -480,6 +480,28 @@ void globox_x11_software_feature_set_vsync(
 	// error always set
 }
 
+void globox_x11_software_feature_get_frame(
+	struct globox* context,
+	struct globox_feature_frame* config)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// run common X11 helper
+	globox_x11_common_feature_get_frame(context, platform, config);
+}
+
+void globox_x11_software_feature_get_background(
+	struct globox* context,
+	struct globox_feature_background* config)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// run common X11 helper
+	globox_x11_common_feature_get_background(context, platform, config);
+}
+
 
 void globox_x11_software_update_content(
 	struct globox* context,
@@ -685,6 +707,8 @@ void globox_prepare_init_x11_software(
 	config->feature_set_frame = globox_x11_software_feature_set_frame;
 	config->feature_set_background = globox_x11_software_feature_set_background;
 	config->feature_set_vsync = globox_x11_software_feature_set_vsync;
+	config->feature_get_frame = globox_x11_software_feature_get_frame;
+	config->feature_get_background = globox_x11_software_feature_get_background;
 	config->update_content = globox_x11_software_update_content;
 
 	globox_error_ok(error);

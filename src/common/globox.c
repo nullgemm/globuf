@@ -281,6 +281,21 @@ void globox_feature_set_vsync(
 }
 
 
+void globox_feature_get_frame(
+	struct globox* context,
+	struct globox_feature_frame* config)
+{
+	context->backend_callbacks.feature_get_frame(context, config);
+}
+
+void globox_feature_get_background(
+	struct globox* context,
+	struct globox_feature_background* config)
+{
+	context->backend_callbacks.feature_get_background(context, config);
+}
+
+
 void globox_update_content(
 	struct globox* context,
 	void* data,

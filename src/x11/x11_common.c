@@ -179,6 +179,10 @@ void globox_x11_common_init(
 			"_NET_WM_SYNC_REQUEST",
 		[X11_ATOM_SYNC_REQUEST_COUNTER] =
 			"_NET_WM_SYNC_REQUEST_COUNTER",
+		[X11_ATOM_NET_SUPPORTED] =
+			"_NET_SUPPORTED",
+		[X11_ATOM_FRAME_DRAWN] =
+			"_NET_WM_FRAME_DRAWN",
 	};
 
 	for (int i = 0; i < X11_ATOM_COUNT; ++i)
@@ -376,7 +380,7 @@ void globox_x11_common_window_create(
 			XCB_PROP_MODE_REPLACE,
 			platform->win,
 			platform->atoms[X11_ATOM_PROTOCOLS],
-			4,
+			XCB_ATOM_ATOM,
 			32,
 			2,
 			supported);
@@ -451,14 +455,14 @@ void globox_x11_common_window_create(
 		return;
 	}
 
-	// set the xsync counter
+	// set the xsync counters
 	cookie =
 		xcb_change_property_checked(
 			platform->conn,
 			XCB_PROP_MODE_REPLACE,
 			platform->win,
 			platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
-			6,
+			XCB_ATOM_CARDINAL,
 			32,
 			1,
 			&(platform->xsync_counter));
@@ -1088,19 +1092,56 @@ struct globox_config_features*
 		malloc(sizeof (struct globox_feature_background));
 	features->count += 1;
 
-	// available if the present extension is supported
-	const xcb_query_extension_reply_t* query_reply =
-		xcb_get_extension_data(
-			platform->conn,
-			&xcb_present_id);
+	// available if the _NET_SUPPPORTED prop. has the _NET_WM_FRAME_DRAWN atom
+	xcb_generic_error_t* xcb_error;
 
-	if (query_reply->present != 0)
+	xcb_get_property_cookie_t cookie =
+		xcb_get_property(
+			platform->conn,
+			0,
+			platform->root_win,
+			atoms[X11_ATOM_NET_SUPPORTED],
+			XCB_ATOM_ATOM,
+			0,
+			1024);
+
+	xcb_get_property_reply_t* reply =
+		xcb_get_property_reply(
+			platform->conn,
+			cookie,
+			&xcb_error);
+
+	if (xcb_error != NULL)
 	{
-		features->list[features->count] = GLOBOX_FEATURE_VSYNC;
-		context->feature_vsync =
-			malloc(sizeof (struct globox_feature_vsync));
-		features->count += 1;
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
+
+		return features;
 	}
+
+	int net_atoms_count =
+		xcb_get_property_value_length(reply);
+
+	xcb_atom_t* net_atoms =
+		xcb_get_property_value(reply);
+
+	int i = 0;
+
+	while (i < net_atoms_count)
+	{
+		if (net_atoms[i] == platform->atoms[X11_ATOM_DELETE_WINDOW])
+		{
+			features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+			context->feature_vsync =
+				malloc(sizeof (struct globox_feature_vsync));
+			features->count += 1;
+
+			break;
+		}
+
+		++i;
+	}
+
+	free(reply);
 
 	globox_error_ok(error);
 	return features;
@@ -1448,4 +1489,34 @@ void globox_x11_common_feature_set_vsync(
 	}
 
 	globox_error_ok(error);
+}
+
+void globox_x11_common_feature_get_frame(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_frame* config)
+{
+	if (context->feature_frame == NULL)
+	{
+		config->frame = true;
+	}
+	else
+	{
+		config->frame = context->feature_frame->frame;
+	}
+}
+
+void globox_x11_common_feature_get_background(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_background* config)
+{
+	if (context->feature_background == NULL)
+	{
+		config->background = GLOBOX_BACKGROUND_OPAQUE;
+	}
+	else
+	{
+		config->background = context->feature_background->background;
+	}
 }

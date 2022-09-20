@@ -126,6 +126,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_EVENT_WAIT,
 	GLOBOX_ERROR_X11_EVENT_SEND,
 	GLOBOX_ERROR_X11_PROP_CHANGE,
+	GLOBOX_ERROR_X11_PROP_GET,
 	GLOBOX_ERROR_X11_ATTR_CHANGE,
 	GLOBOX_ERROR_X11_GC_CREATE,
 	GLOBOX_ERROR_X11_PIXMAP,
@@ -301,6 +302,12 @@ struct globox_config_backend
 		struct globox* context,
 		struct globox_feature_vsync* config,
 		struct globox_error_info* error);
+	void (*feature_get_frame)(
+		struct globox* context,
+		struct globox_feature_frame* config);
+	void (*feature_get_background)(
+		struct globox* context,
+		struct globox_feature_background* config);
 
 	void (*update_content)(
 		struct globox* context,
@@ -429,6 +436,15 @@ void globox_feature_set_vsync(
 	struct globox* context,
 	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
+
+// feature getters
+void globox_feature_get_frame(
+	struct globox* context,
+	struct globox_feature_frame* config);
+
+void globox_feature_get_background(
+	struct globox* context,
+	struct globox_feature_background* config);
 
 // # content updater (backend-specific but still cross-platform)
 void globox_update_content(

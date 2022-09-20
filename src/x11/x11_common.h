@@ -25,6 +25,8 @@ enum x11_atoms
 	X11_ATOM_DELETE_WINDOW,
 	X11_ATOM_SYNC_REQUEST,
 	X11_ATOM_SYNC_REQUEST_COUNTER,
+	X11_ATOM_FRAME_DRAWN,
+	X11_ATOM_NET_SUPPORTED,
 	X11_ATOM_COUNT,
 };
 
@@ -194,5 +196,15 @@ void globox_x11_common_feature_set_vsync(
 	struct x11_platform* platform,
 	struct globox_feature_vsync* config,
 	struct globox_error_info* error);
+
+void globox_x11_common_feature_get_frame(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_frame* config);
+
+void globox_x11_common_feature_get_background(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_feature_background* config);
 
 #endif
