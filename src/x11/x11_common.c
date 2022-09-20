@@ -1128,7 +1128,7 @@ struct globox_config_features*
 
 	while (i < net_atoms_count)
 	{
-		if (net_atoms[i] == platform->atoms[X11_ATOM_DELETE_WINDOW])
+		if (net_atoms[i] == platform->atoms[X11_ATOM_FRAME_DRAWN])
 		{
 			features->list[features->count] = GLOBOX_FEATURE_VSYNC;
 			context->feature_vsync =
