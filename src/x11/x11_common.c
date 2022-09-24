@@ -929,64 +929,68 @@ enum globox_event globox_x11_common_handle_events(
 			xcb_client_message_event_t* message =
 				(xcb_client_message_event_t*) xcb_event;
 
-			if (message->data.data32[0]
-				== platform->atoms[X11_ATOM_DELETE_WINDOW])
+			if (message->type
+				== platform->atoms[X11_ATOM_PROTOCOLS])
 			{
-				// make the globox blocking function exit gracefully
-				pthread_cond_broadcast(&(platform->cond_main));
-
-				// make the event loop thread exit gracefully
-				int posix_error = pthread_mutex_lock(&(platform->mutex_block));
-
-				if (posix_error != 0)
+				if (message->data.data32[0]
+					== platform->atoms[X11_ATOM_DELETE_WINDOW])
 				{
-					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+					// make the globox blocking function exit gracefully
+					pthread_cond_broadcast(&(platform->cond_main));
+
+					// make the event loop thread exit gracefully
+					int posix_error = pthread_mutex_lock(&(platform->mutex_block));
+
+					if (posix_error != 0)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+						break;
+					}
+
+					platform->closed = true;
+
+					posix_error = pthread_mutex_unlock(&(platform->mutex_block));
+
+					if (posix_error != 0)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+						break;
+					}
+
+					// tell the developer it's the end
+					globox_event = GLOBOX_EVENT_CLOSED;
 					break;
 				}
 
-				platform->closed = true;
-
-				posix_error = pthread_mutex_unlock(&(platform->mutex_block));
-
-				if (posix_error != 0)
+				if (message->data.data32[0]
+					== platform->atoms[X11_ATOM_SYNC_REQUEST])
 				{
-					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+					// lock xsync mutex
+					int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+
+					if (posix_error != 0)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+						break;
+					}
+
+					// save the last xsync value
+					platform->xsync_value.hi = message->data.data32[3];
+					platform->xsync_value.lo = message->data.data32[2];
+					platform->xsync_configure = false;
+
+					// unlock xsync mutex
+					posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+					if (posix_error != 0)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+						break;
+					}
+
+
 					break;
 				}
-
-				// tell the developer it's the end
-				globox_event = GLOBOX_EVENT_CLOSED;
-				break;
-			}
-
-			if (message->data.data32[0]
-				== platform->atoms[X11_ATOM_SYNC_REQUEST])
-			{
-				// lock xsync mutex
-				int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
-
-				if (posix_error != 0)
-				{
-					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-					break;
-				}
-
-				// save the last xsync value
-				platform->xsync_value.hi = message->data.data32[3];
-				platform->xsync_value.lo = message->data.data32[2];
-				platform->xsync_configure = false;
-
-				// unlock xsync mutex
-				posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-				if (posix_error != 0)
-				{
-					globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-					break;
-				}
-
-
-				break;
 			}
 
 			break;

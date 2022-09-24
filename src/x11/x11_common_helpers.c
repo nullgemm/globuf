@@ -589,9 +589,20 @@ void x11_helpers_set_frame(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
+	uint32_t flags;
+
+	if ((context->feature_frame != NULL) && (context->feature_frame->frame == false))
+	{
+		flags = 2;
+	}
+	else
+	{
+		flags = 0;
+	}
+
 	uint32_t motif_hints[5] =
 	{
-		2, // flags
+		flags, // flags
 		0, // functions
 		0, // decorations
 		0, // input_mode

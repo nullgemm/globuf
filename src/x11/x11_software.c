@@ -75,7 +75,7 @@ void globox_x11_software_window_create(
 	}
 
 	// select visual configuration
-	if (context->feature_background != GLOBOX_BACKGROUND_OPAQUE)
+	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
 	{
 		x11_helpers_visual_transparent(context, error);
 
