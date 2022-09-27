@@ -282,32 +282,6 @@ struct globox_config_backend
 		struct globox* context,
 		struct globox_feature_icon* config,
 		struct globox_error_info* error);
-	void (*feature_set_size)(
-		struct globox* context,
-		struct globox_feature_size* config,
-		struct globox_error_info* error);
-	void (*feature_set_pos)(
-		struct globox* context,
-		struct globox_feature_pos* config,
-		struct globox_error_info* error);
-	void (*feature_set_frame)(
-		struct globox* context,
-		struct globox_feature_frame* config,
-		struct globox_error_info* error);
-	void (*feature_set_background)(
-		struct globox* context,
-		struct globox_feature_background* config,
-		struct globox_error_info* error);
-	void (*feature_set_vsync)(
-		struct globox* context,
-		struct globox_feature_vsync* config,
-		struct globox_error_info* error);
-	void (*feature_get_frame)(
-		struct globox* context,
-		struct globox_feature_frame* config);
-	void (*feature_get_background)(
-		struct globox* context,
-		struct globox_feature_background* config);
 
 	void (*update_content)(
 		struct globox* context,
@@ -411,40 +385,6 @@ void globox_feature_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
-
-void globox_feature_set_size(
-	struct globox* context,
-	struct globox_feature_size* config,
-	struct globox_error_info* error);
-
-void globox_feature_set_pos(
-	struct globox* context,
-	struct globox_feature_pos* config,
-	struct globox_error_info* error);
-
-void globox_feature_set_frame(
-	struct globox* context,
-	struct globox_feature_frame* config,
-	struct globox_error_info* error);
-
-void globox_feature_set_background(
-	struct globox* context,
-	struct globox_feature_background* config,
-	struct globox_error_info* error);
-
-void globox_feature_set_vsync(
-	struct globox* context,
-	struct globox_feature_vsync* config,
-	struct globox_error_info* error);
-
-// feature getters
-void globox_feature_get_frame(
-	struct globox* context,
-	struct globox_feature_frame* config);
-
-void globox_feature_get_background(
-	struct globox* context,
-	struct globox_feature_background* config);
 
 // # content updater (backend-specific but still cross-platform)
 void globox_update_content(

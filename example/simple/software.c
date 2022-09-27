@@ -357,6 +357,7 @@ int main(int argc, char** argv)
 	// create the window
 	globox_window_create(globox, feature_configs, &error);
 
+#if 0
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
 		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_UNAVAILABLE)
@@ -389,6 +390,7 @@ int main(int argc, char** argv)
 			return 1;
 		}
 	}
+#endif
 
 	// register a render callback
 	struct globox_config_render render =
