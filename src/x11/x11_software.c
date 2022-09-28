@@ -59,7 +59,10 @@ void globox_x11_software_clean(
 
 void globox_x11_software_window_create(
 	struct globox* context,
-	void** features,
+	struct globox_config_request* configs,
+	size_t count,
+	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void* data,
 	struct globox_error_info* error)
 {
 	struct x11_backend* backend = context->backend_data;
@@ -99,7 +102,7 @@ void globox_x11_software_window_create(
 	}
 
 	// run common X11 helper
-	globox_x11_common_window_create(context, platform, features, error);
+	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

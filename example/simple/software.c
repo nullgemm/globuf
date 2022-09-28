@@ -12,7 +12,20 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
-void event_callback(void* data, void* event)
+char* feature_names[GLOBOX_FEATURE_COUNT] =
+{
+	[GLOBOX_FEATURE_INTERACTION] = "interaction",
+	[GLOBOX_FEATURE_STATE] = "state",
+	[GLOBOX_FEATURE_TITLE] = "title",
+	[GLOBOX_FEATURE_ICON] = "icon",
+	[GLOBOX_FEATURE_SIZE] = "size",
+	[GLOBOX_FEATURE_POS] = "pos",
+	[GLOBOX_FEATURE_FRAME] = "frame",
+	[GLOBOX_FEATURE_BACKGROUND] = "background",
+	[GLOBOX_FEATURE_VSYNC] = "vsync",
+};
+
+static void event_callback(void* data, void* event)
 {
 	struct globox_error_info error = {0};
 
@@ -115,7 +128,7 @@ void event_callback(void* data, void* event)
 	}
 }
 
-void render_callback(void* data)
+static void render_callback(void* data)
 {
 	// render our trademark square as a simple example, updating the whole
 	// buffer each time without taking surface damage events into account
@@ -169,6 +182,36 @@ void render_callback(void* data)
 		globox, argb, &error);
 }
 
+static void config_callback(struct globox_config_reply* replies, size_t count, void* data)
+{
+	fprintf(stderr, "\nwindow configured succesfully, printing information:\n");
+
+	struct globox* context = data;
+	const char* message = NULL;
+	size_t feature;
+
+	for (size_t i = 0; i < count; ++i)
+	{
+		feature = replies[i].feature;
+
+		if (feature < count)
+		{
+			if (replies[i].error.code == GLOBOX_ERROR_OK)
+			{
+				message = "success";
+			}
+			else
+			{
+				message = globox_error_get_msg(context, &replies[i].error);
+			}
+
+			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
+		}
+	}
+
+	fprintf(stderr, "\n");
+}
+
 int main(int argc, char** argv)
 {
 	struct globox_error_info error = {0};
@@ -204,32 +247,17 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	void* feature_configs[GLOBOX_FEATURE_COUNT] =
-	{
-		[GLOBOX_FEATURE_INTERACTION] = NULL,
-		[GLOBOX_FEATURE_STATE] = NULL,
-		[GLOBOX_FEATURE_TITLE] = NULL,
-		[GLOBOX_FEATURE_ICON] = NULL,
-		[GLOBOX_FEATURE_SIZE] = NULL,
-		[GLOBOX_FEATURE_POS] = NULL,
-		[GLOBOX_FEATURE_FRAME] = NULL,
-		[GLOBOX_FEATURE_BACKGROUND] = NULL,
-		[GLOBOX_FEATURE_VSYNC] = NULL,
-	};
+	// print the feature list
+	printf("\nreceived a list of available features:\n");
 
-	char* feature_names[GLOBOX_FEATURE_COUNT] =
+	for (size_t i = 0; i < feature_list->count; ++i)
 	{
-		[GLOBOX_FEATURE_INTERACTION] = "interaction",
-		[GLOBOX_FEATURE_STATE] = "state",
-		[GLOBOX_FEATURE_TITLE] = "title",
-		[GLOBOX_FEATURE_ICON] = "icon",
-		[GLOBOX_FEATURE_SIZE] = "size",
-		[GLOBOX_FEATURE_POS] = "pos",
-		[GLOBOX_FEATURE_FRAME] = "frame",
-		[GLOBOX_FEATURE_BACKGROUND] = "background",
-		[GLOBOX_FEATURE_VSYNC] = "vsync",
-	};
+		printf(" - %s\n", feature_names[feature_list->list[i]]);
+	}
 
+	free(feature_list);
+
+	// initialize features when creating the window
 	struct globox_feature_state state =
 	{
 		.state = GLOBOX_STATE_REGULAR,
@@ -276,68 +304,17 @@ int main(int argc, char** argv)
 		.vsync = true,
 	};
 
-	printf("\nreceived a list of available features:\n");
-
-	for (size_t i = 0; i < feature_list->count; ++i)
+	struct globox_config_request configs[8] =
 	{
-		switch (feature_list->list[i])
-		{
-			case GLOBOX_FEATURE_INTERACTION:
-			{
-				feature_configs[GLOBOX_FEATURE_INTERACTION] = NULL;
-				break;
-			}
-			case GLOBOX_FEATURE_STATE:
-			{
-				feature_configs[GLOBOX_FEATURE_STATE] = &state;
-				break;
-			}
-			case GLOBOX_FEATURE_TITLE:
-			{
-				feature_configs[GLOBOX_FEATURE_TITLE] = &title;
-				break;
-			}
-			case GLOBOX_FEATURE_ICON:
-			{
-				feature_configs[GLOBOX_FEATURE_ICON] = &icon;
-				break;
-			}
-			case GLOBOX_FEATURE_SIZE:
-			{
-				feature_configs[GLOBOX_FEATURE_SIZE] = &size;
-				break;
-			}
-			case GLOBOX_FEATURE_POS:
-			{
-				feature_configs[GLOBOX_FEATURE_POS] = &pos;
-				break;
-			}
-			case GLOBOX_FEATURE_FRAME:
-			{
-				feature_configs[GLOBOX_FEATURE_FRAME] = &frame;
-				break;
-			}
-			case GLOBOX_FEATURE_BACKGROUND:
-			{
-				feature_configs[GLOBOX_FEATURE_BACKGROUND] = &background;
-				break;
-			}
-			case GLOBOX_FEATURE_VSYNC:
-			{
-				feature_configs[GLOBOX_FEATURE_VSYNC] = &vsync;
-				break;
-			}
-			default:
-			{
-				// invalid feature, skip printing invalid name
-				continue;
-			}
-		}
-
-		printf(" - %s\n", feature_names[feature_list->list[i]]);
-	}
-
-	free(feature_list);
+		{GLOBOX_FEATURE_STATE, &state},
+		{GLOBOX_FEATURE_TITLE, &title},
+		{GLOBOX_FEATURE_ICON, &icon},
+		{GLOBOX_FEATURE_SIZE, &size},
+		{GLOBOX_FEATURE_POS, &pos},
+		{GLOBOX_FEATURE_FRAME, &frame},
+		{GLOBOX_FEATURE_BACKGROUND, &background},
+		{GLOBOX_FEATURE_VSYNC, &vsync},
+	};
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =
@@ -355,42 +332,7 @@ int main(int argc, char** argv)
 	}
 
 	// create the window
-	globox_window_create(globox, feature_configs, &error);
-
-#if 0
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-	{
-		if (globox_error_get_code(&error) == GLOBOX_ERROR_FEATURE_UNAVAILABLE)
-		{
-			// check for frame presence
-			struct globox_feature_frame frame;
-			globox_feature_get_frame(globox, &frame);
-
-			if (frame.frame == false)
-			{
-				fprintf(stderr,
-					"your desktop environment expects apps to render their own\n"
-					"window frames, please report this to its developers so they\n"
-					"can fix the issue and improve the user experience for everyone!\n");
-			}
-
-			// check for background blur presence
-			struct globox_feature_background background;
-			globox_feature_get_background(globox, &background);
-
-			if (background.background != GLOBOX_BACKGROUND_BLURRED)
-			{
-				fprintf(stderr,
-					"your desktop environment does not support background blur!\n");
-			}
-		}
-		else
-		{
-			globox_clean(globox, &error);
-			return 1;
-		}
-	}
-#endif
+	globox_window_create(globox, configs, 8, config_callback, globox, &error);
 
 	// register a render callback
 	struct globox_config_render render =

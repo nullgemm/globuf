@@ -96,7 +96,10 @@ void globox_x11_common_clean(
 void globox_x11_common_window_create(
 	struct globox* context,
 	struct x11_platform* platform,
-	void** features,
+	struct globox_config_request* configs,
+	size_t count,
+	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void* data,
 	struct globox_error_info* error);
 
 void globox_x11_common_window_destroy(

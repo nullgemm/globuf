@@ -172,6 +172,18 @@ struct globox_config_features
 	size_t count;
 };
 
+struct globox_config_request
+{
+	enum globox_feature feature;
+	void* config;
+};
+
+struct globox_config_reply
+{
+	enum globox_feature feature;
+	struct globox_error_info error;
+};
+
 struct globox_feature_interaction
 {
 	enum globox_interaction action;
@@ -233,7 +245,10 @@ struct globox_config_backend
 		struct globox_error_info* error);
 	void (*window_create)(
 		struct globox* context,
-		void** features,
+		struct globox_config_request* configs,
+		size_t count,
+		void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+		void* data,
 		struct globox_error_info* error);
 	void (*window_destroy)(
 		struct globox* context,
@@ -303,7 +318,10 @@ void globox_clean(
 // create the window without displaying it and call all window feature callbacks
 void globox_window_create(
 	struct globox* context,
-	void** features,
+	struct globox_config_request* configs,
+	size_t count,
+	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void* data,
 	struct globox_error_info* error);
 // destroy the window object entirely
 void globox_window_destroy(

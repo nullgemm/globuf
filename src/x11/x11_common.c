@@ -304,10 +304,13 @@ void globox_x11_common_clean(
 void globox_x11_common_window_create(
 	struct globox* context,
 	struct x11_platform* platform,
-	void** features,
+	struct globox_config_request* configs,
+	size_t count,
+	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void* data,
 	struct globox_error_info* error)
 {
-	x11_helpers_features_init(context, platform, features);
+	x11_helpers_features_init(context, platform, configs, count);
 
 	// prepare window attributes
 	if ((context->feature_background != NULL)
@@ -488,48 +491,63 @@ void globox_x11_common_window_create(
 	}
 
 	// configure features
-	x11_helpers_set_state(context, platform, error);
+	struct globox_config_reply* reply = malloc(count * (sizeof (struct globox_config_reply)));
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (reply == NULL)
 	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return;
 	}
 
-	x11_helpers_set_title(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	for (size_t i = 0; i < count; ++i)
 	{
-		return;
+		enum globox_feature feature = configs[i].feature;
+		reply[i].feature = feature;
+
+		switch (feature)
+		{
+			case GLOBOX_FEATURE_STATE:
+			{
+				x11_helpers_set_state(context, platform, &reply[i].error);
+				break;
+			}
+			case GLOBOX_FEATURE_TITLE:
+			{
+				x11_helpers_set_title(context, platform, &reply[i].error);
+				break;
+			}
+			case GLOBOX_FEATURE_ICON:
+			{
+				x11_helpers_set_icon(context, platform, &reply[i].error);
+				break;
+			}
+			case GLOBOX_FEATURE_FRAME:
+			{
+				x11_helpers_set_frame(context, platform, &reply[i].error);
+				break;
+			}
+			case GLOBOX_FEATURE_BACKGROUND:
+			{
+				x11_helpers_set_background(context, platform, &reply[i].error);
+				break;
+			}
+			case GLOBOX_FEATURE_VSYNC:
+			{
+				x11_helpers_set_vsync(context, platform, &reply[i].error);
+				break;
+			}
+			default:
+			{
+				reply[i].error.code = GLOBOX_ERROR_OK;
+				reply[i].error.file = NULL;
+				reply[i].error.line = 0;
+				break;
+			}
+		}
 	}
 
-	x11_helpers_set_icon(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	x11_helpers_set_frame(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	x11_helpers_set_background(context, platform, error);
-
-	if ((globox_error_get_code(error) != GLOBOX_ERROR_OK)
-		&& (globox_error_get_code(error) != GLOBOX_ERROR_FEATURE_UNAVAILABLE))
-	{
-		return;
-	}
-
-	x11_helpers_set_vsync(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
+	callback(reply, count, data);
+	free(reply);
 
 	// error always set
 }

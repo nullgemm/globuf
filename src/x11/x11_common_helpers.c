@@ -178,82 +178,127 @@ void* x11_helpers_event_loop(void* data)
 void x11_helpers_features_init(
 	struct globox* context,
 	struct x11_platform* platform,
-	void** features)
+	struct globox_config_request* configs,
+	size_t count)
 {
-	if ((context->feature_state != NULL)
-		&& (features[GLOBOX_FEATURE_STATE] != NULL))
+	for (size_t i = 0; i < count; ++i)
 	{
-		*(context->feature_state) =
-			*((struct globox_feature_state*)
-				features[GLOBOX_FEATURE_STATE]);
-	}
-
-	if ((context->feature_title != NULL)
-		&& (features[GLOBOX_FEATURE_TITLE] != NULL))
-	{
-		struct globox_feature_title* tmp = features[GLOBOX_FEATURE_TITLE];
-		context->feature_title->title = strdup(tmp->title);
-	}
-
-	if ((context->feature_icon != NULL)
-		&& (features[GLOBOX_FEATURE_ICON] != NULL))
-	{
-		struct globox_feature_icon* tmp = features[GLOBOX_FEATURE_ICON];
-		context->feature_icon->pixmap = malloc(tmp->len * 4);
-
-		if (context->feature_icon->pixmap != NULL)
+		switch (configs[i].feature)
 		{
-			memcpy(context->feature_icon->pixmap, tmp->pixmap, tmp->len * 4);
-			context->feature_icon->len = tmp->len;
+			case GLOBOX_FEATURE_STATE:
+			{
+				if ((context->feature_state != NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_state) =
+						*((struct globox_feature_state*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_TITLE:
+			{
+				if ((context->feature_title != NULL)
+					&& (configs[i].config != NULL))
+				{
+					struct globox_feature_title* tmp = configs[i].config;
+					context->feature_title->title = strdup(tmp->title);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_ICON:
+			{
+				if ((context->feature_icon != NULL)
+					&& (configs[i].config != NULL))
+				{
+					struct globox_feature_icon* tmp = configs[i].config;
+					context->feature_icon->pixmap = malloc(tmp->len * 4);
+
+					if (context->feature_icon->pixmap != NULL)
+					{
+						memcpy(context->feature_icon->pixmap, tmp->pixmap, tmp->len * 4);
+						context->feature_icon->len = tmp->len;
+					}
+					else
+					{
+						context->feature_icon->len = 0;
+					}
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_SIZE:
+			{
+				// handled directly in xcb's window creation code
+				if ((context->feature_size!= NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_size) =
+						*((struct globox_feature_size*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_POS:
+			{
+				// handled directly in xcb's window creation code
+				if ((context->feature_pos != NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_pos) =
+						*((struct globox_feature_pos*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_FRAME:
+			{
+				if ((context->feature_frame != NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_frame) =
+						*((struct globox_feature_frame*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_BACKGROUND:
+			{
+				// handled directly in xcb's window creation code for transparency,
+				// but some more configuration has to take place afterwards for blur
+				if ((context->feature_background != NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_background) =
+						*((struct globox_feature_background*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			case GLOBOX_FEATURE_VSYNC:
+			{
+				if ((context->feature_vsync != NULL)
+					&& (configs[i].config != NULL))
+				{
+					*(context->feature_vsync) =
+						*((struct globox_feature_vsync*)
+							configs[i].config);
+				}
+
+				break;
+			}
+			default:
+			{
+				// TODO error?
+				break;
+			}
 		}
-		else
-		{
-			context->feature_icon->len = 0;
-		}
-	}
-
-	// handled directly in xcb's window creation code
-	if ((context->feature_size!= NULL)
-		&& (features[GLOBOX_FEATURE_SIZE] != NULL))
-	{
-		*(context->feature_size) =
-			*((struct globox_feature_size*)
-				features[GLOBOX_FEATURE_SIZE]);
-	}
-
-	// handled directly in xcb's window creation code
-	if ((context->feature_pos != NULL)
-		&& (features[GLOBOX_FEATURE_POS] != NULL))
-	{
-		*(context->feature_pos) =
-			*((struct globox_feature_pos*)
-				features[GLOBOX_FEATURE_POS]);
-	}
-
-	if ((context->feature_frame != NULL)
-		&& (features[GLOBOX_FEATURE_FRAME] != NULL))
-	{
-		*(context->feature_frame) =
-			*((struct globox_feature_frame*)
-				features[GLOBOX_FEATURE_FRAME]);
-	}
-
-	// handled directly in xcb's window creation code for transparency,
-	// but some more configuration has to take place afterwards for blur
-	if ((context->feature_background != NULL)
-		&& (features[GLOBOX_FEATURE_BACKGROUND] != NULL))
-	{
-		*(context->feature_background) =
-			*((struct globox_feature_background*)
-				features[GLOBOX_FEATURE_BACKGROUND]);
-	}
-
-	if ((context->feature_vsync != NULL)
-		&& (features[GLOBOX_FEATURE_VSYNC] != NULL))
-	{
-		*(context->feature_vsync) =
-			*((struct globox_feature_vsync*)
-				features[GLOBOX_FEATURE_VSYNC]);
 	}
 }
 

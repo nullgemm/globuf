@@ -107,10 +107,13 @@ void globox_clean(
 
 void globox_window_create(
 	struct globox* context,
-	void** features,
+	struct globox_config_request* configs,
+	size_t count,
+	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void* data,
 	struct globox_error_info* error)
 {
-	context->backend_callbacks.window_create(context, features, error);
+	context->backend_callbacks.window_create(context, configs, count, callback, data, error);
 
 	// error always set
 }

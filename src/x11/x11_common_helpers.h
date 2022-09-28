@@ -18,7 +18,8 @@ void* x11_helpers_event_loop(
 void x11_helpers_features_init(
 	struct globox* context,
 	struct x11_platform* platform,
-	void** features);
+	struct globox_config_request* configs,
+	size_t count);
 
 void x11_helpers_set_interaction(
 	struct globox* context,
