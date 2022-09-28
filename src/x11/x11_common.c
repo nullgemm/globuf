@@ -303,6 +303,11 @@ void globox_x11_common_clean(
 		free((void*) context->feature_title->title);
 	}
 
+	if ((context->feature_icon != NULL) && (context->feature_icon->pixmap != NULL))
+	{
+		free((void*) context->feature_icon->pixmap);
+	}
+
 	globox_error_ok(error);
 }
 
@@ -1306,6 +1311,11 @@ void globox_x11_common_feature_set_icon(
 	}
 
 	// configure
+	if (context->feature_icon->pixmap != NULL)
+	{
+		free(context->feature_icon->pixmap);
+	}
+
 	context->feature_icon->pixmap = malloc(config->len * 4);
 
 	if (context->feature_icon->pixmap != NULL)
