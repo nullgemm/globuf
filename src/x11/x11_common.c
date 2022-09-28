@@ -298,6 +298,11 @@ void globox_x11_common_clean(
 		return;
 	}
 
+	if ((context->feature_title != NULL) && (context->feature_title->title != NULL))
+	{
+		free((void*) context->feature_title->title);
+	}
+
 	globox_error_ok(error);
 }
 
@@ -1259,6 +1264,11 @@ void globox_x11_common_feature_set_title(
 	}
 
 	// configure
+	if (context->feature_title->title != NULL)
+	{
+		free((void*) context->feature_title->title);
+	}
+
 	context->feature_title->title = strdup(config->title);
 	x11_helpers_set_title(context, platform, error);
 
