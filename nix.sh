@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# TODO get to folder with cool trick
+path="$(pwd)/$0"
+folder=$(dirname "$path")
+cd "$folder"
 
 ./make/lib/elf.sh development
 ./make/lib/x11.sh development common
