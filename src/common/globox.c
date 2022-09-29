@@ -244,7 +244,6 @@ void globox_update_content(
 	// error always set
 }
 
-// TODO implement getters in backends...
 // always available
 unsigned globox_get_width(
 	struct globox* context,
