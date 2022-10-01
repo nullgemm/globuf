@@ -31,7 +31,6 @@ flags+=("-std=c99" "-pedantic")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
-# TODO replace by `-Wno-error=` ?
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-Wno-unused-variable")

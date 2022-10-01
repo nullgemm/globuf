@@ -308,7 +308,7 @@ void x11_helpers_set_interaction(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
+	// TODO setter
 
 	globox_error_ok(error);
 }
@@ -615,7 +615,7 @@ void x11_helpers_set_size(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO move to platform-specific API
+	// TODO setter
 
 	globox_error_ok(error);
 }
@@ -625,7 +625,7 @@ void x11_helpers_set_pos(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO move to platform-specific API
+	// TODO setter
 
 	globox_error_ok(error);
 }
@@ -746,7 +746,7 @@ void x11_helpers_set_vsync(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
+	// TODO setter
 
 	globox_error_ok(error);
 }
