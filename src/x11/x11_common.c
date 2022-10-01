@@ -1040,7 +1040,6 @@ enum globox_event globox_x11_common_handle_events(
 	return globox_event;
 }
 
-// TODO check mallocs
 struct globox_config_features*
 	globox_x11_common_init_features(
 		struct globox* context,
@@ -1074,6 +1073,12 @@ struct globox_config_features*
 		malloc(sizeof (struct globox_feature_interaction));
 	features->count += 1;
 
+	if (context->feature_interaction == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	// available if atoms valid
 	if ((atoms[X11_ATOM_STATE] != XCB_NONE)
 		&& (atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL] != XCB_NONE)
@@ -1085,6 +1090,12 @@ struct globox_config_features*
 		context->feature_state =
 			malloc(sizeof (struct globox_feature_state));
 		features->count += 1;
+
+		if (context->feature_state == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			return NULL;
+		}
 	}
 
 	// always available
@@ -1093,6 +1104,12 @@ struct globox_config_features*
 		malloc(sizeof (struct globox_feature_title));
 	features->count += 1;
 
+	if (context->feature_title == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	// available if atom valid
 	if (atoms[X11_ATOM_ICON] != XCB_NONE)
 	{
@@ -1100,6 +1117,12 @@ struct globox_config_features*
 		context->feature_icon =
 			malloc(sizeof (struct globox_feature_icon));
 		features->count += 1;
+
+		if (context->feature_icon == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			return NULL;
+		}
 	}
 
 	// always available
@@ -1108,11 +1131,23 @@ struct globox_config_features*
 		malloc(sizeof (struct globox_feature_size));
 	features->count += 1;
 
+	if (context->feature_size == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_POS;
 	context->feature_pos =
 		malloc(sizeof (struct globox_feature_pos));
 	features->count += 1;
+
+	if (context->feature_pos == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
 
 	// available if atom valid
 	if (atoms[X11_ATOM_HINTS_MOTIF] != XCB_NONE)
@@ -1121,6 +1156,12 @@ struct globox_config_features*
 		context->feature_frame =
 			malloc(sizeof (struct globox_feature_frame));
 		features->count += 1;
+
+		if (context->feature_frame == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			return NULL;
+		}
 	}
 
 	// transparency is always available since globox requires 32-bit visuals
@@ -1128,6 +1169,12 @@ struct globox_config_features*
 	context->feature_background =
 		malloc(sizeof (struct globox_feature_background));
 	features->count += 1;
+
+	if (context->feature_background == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
 
 	// available if the _NET_SUPPPORTED prop. has the _NET_WM_FRAME_DRAWN atom
 	xcb_generic_error_t* xcb_error;
@@ -1171,6 +1218,12 @@ struct globox_config_features*
 			context->feature_vsync =
 				malloc(sizeof (struct globox_feature_vsync));
 			features->count += 1;
+
+			if (context->feature_vsync == NULL)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+				return NULL;
+			}
 
 			break;
 		}
