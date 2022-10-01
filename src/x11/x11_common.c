@@ -320,7 +320,12 @@ void globox_x11_common_window_create(
 	void* data,
 	struct globox_error_info* error)
 {
-	x11_helpers_features_init(context, platform, configs, count);
+	x11_helpers_features_init(context, platform, configs, count, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
 
 	// prepare window attributes
 	if ((context->feature_background != NULL)

@@ -30,6 +30,8 @@ void globox_error_init(
 		"invalid domain";
 	log[GLOBOX_ERROR_FD] =
 		"invalid file descriptor";
+	log[GLOBOX_ERROR_FEATURE_INVALID] =
+		"invalid feature init request";
 	log[GLOBOX_ERROR_FEATURE_UNAVAILABLE] =
 		"failed to set one or more features";
 	log[GLOBOX_ERROR_FEATURE_STATE_INVALID] =

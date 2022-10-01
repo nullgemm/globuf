@@ -179,7 +179,8 @@ void x11_helpers_features_init(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_config_request* configs,
-	size_t count)
+	size_t count,
+	struct globox_error_info* error)
 {
 	for (size_t i = 0; i < count; ++i)
 	{
@@ -295,8 +296,8 @@ void x11_helpers_features_init(
 			}
 			default:
 			{
-				// TODO error?
-				break;
+				globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_INVALID);
+				return;
 			}
 		}
 	}

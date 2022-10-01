@@ -19,7 +19,8 @@ void x11_helpers_features_init(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_config_request* configs,
-	size_t count);
+	size_t count,
+	struct globox_error_info* error);
 
 void x11_helpers_set_interaction(
 	struct globox* context,
