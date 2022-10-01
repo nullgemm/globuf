@@ -45,9 +45,7 @@ enum globox_event
 	GLOBOX_EVENT_RESIZED_SE,
 	GLOBOX_EVENT_RESIZED_E,
 	GLOBOX_EVENT_RESIZED_NE,
-	// lower-level system updates
-	GLOBOX_EVENT_CONTENT_DAMAGED, // need to render a part of the content again
-	GLOBOX_EVENT_DISPLAY_CHANGED, // need to render the whole content if dpi-aware
+	GLOBOX_EVENT_DAMAGED,
 };
 
 enum globox_interaction

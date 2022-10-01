@@ -894,6 +894,8 @@ enum globox_event globox_x11_common_handle_events(
 
 #if 0
 	// TODO handle and return all these
+	// moved events are to trigger screen info (size, density, etc.) updates
+	// (using dpishit in the example)
 	globox_event = GLOBOX_EVENT_RESTORED;
 	globox_event = GLOBOX_EVENT_MINIMIZED;
 	globox_event = GLOBOX_EVENT_MAXIMIZED;
@@ -907,9 +909,7 @@ enum globox_event globox_x11_common_handle_events(
 	globox_event = GLOBOX_EVENT_RESIZED_SE;
 	globox_event = GLOBOX_EVENT_RESIZED_E;
 	globox_event = GLOBOX_EVENT_RESIZED_NE;
-	// TODO implement these for a first test
-	globox_event = GLOBOX_EVENT_CONTENT_DAMAGED;
-	globox_event = GLOBOX_EVENT_DISPLAY_CHANGED;
+	globox_event = GLOBOX_EVENT_DAMAGED;
 #endif
 
 	switch (xcb_event->response_type & ~0x80)

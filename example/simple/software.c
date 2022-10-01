@@ -115,14 +115,9 @@ static void event_callback(void* data, void* event)
 			fprintf(stderr, "received `resized (north-east)` event\n");
 			break;
 		}
-		case GLOBOX_EVENT_CONTENT_DAMAGED:
+		case GLOBOX_EVENT_DAMAGED:
 		{
 			fprintf(stderr, "received `content damaged` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_DISPLAY_CHANGED:
-		{
-			fprintf(stderr, "received `display changed` event\n");
 			break;
 		}
 	}
