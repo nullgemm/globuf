@@ -921,6 +921,7 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_EXPOSE:
 		{
+			// TODO fill & process expose queue
 			break;
 		}
 		case XCB_CONFIGURE_NOTIFY:
@@ -955,6 +956,7 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_PROPERTY_NOTIFY:
 		{
+			// TODO handle title & state changes
 			break;
 		}
 		case XCB_CLIENT_MESSAGE:
@@ -1035,6 +1037,9 @@ enum globox_event globox_x11_common_handle_events(
 	}
 
 	// TODO handle non-programmatic window configuration
+	// title & state changes
+	// interactive mode
+	// exposition
 
 	globox_error_ok(error);
 	return globox_event;
