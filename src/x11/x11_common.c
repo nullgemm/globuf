@@ -183,6 +183,8 @@ void globox_x11_common_init(
 			"_NET_SUPPORTED",
 		[X11_ATOM_FRAME_DRAWN] =
 			"_NET_WM_FRAME_DRAWN",
+		[X11_ATOM_MOVERESIZE] =
+			"_NET_WM_MOVERESIZE",
 	};
 
 	for (int i = 0; i < X11_ATOM_COUNT; ++i)
@@ -229,6 +231,10 @@ void globox_x11_common_init(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
+
+	platform->saved_mouse_press_x = 0;
+	platform->saved_mouse_press_y = 0;
+	platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
 
 	globox_error_ok(error);
 }
@@ -1027,6 +1033,25 @@ enum globox_event globox_x11_common_handle_events(
 					break;
 				}
 			}
+
+			break;
+		}
+		case XCB_BUTTON_PRESS:
+		{
+			xcb_button_press_event_t* button_press =
+				(xcb_button_press_event_t*) xcb_event;
+
+			platform->saved_mouse_press_x = button_press->root_x;
+			platform->saved_mouse_press_y = button_press->root_y;
+			platform->saved_mouse_press_button = button_press->detail;
+
+			break;
+		}
+		case XCB_BUTTON_RELEASE:
+		{
+			platform->saved_mouse_press_x = 0;
+			platform->saved_mouse_press_y = 0;
+			platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
 
 			break;
 		}

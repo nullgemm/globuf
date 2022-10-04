@@ -26,6 +26,7 @@ enum x11_atoms
 	X11_ATOM_SYNC_REQUEST,
 	X11_ATOM_SYNC_REQUEST_COUNTER,
 	X11_ATOM_FRAME_DRAWN,
+	X11_ATOM_MOVERESIZE,
 	X11_ATOM_NET_SUPPORTED,
 	X11_ATOM_COUNT,
 };
@@ -73,6 +74,11 @@ struct x11_platform
 	bool xsync_request;
 	unsigned xsync_width;
 	unsigned xsync_height;
+
+	// saved action for globox mouse action
+	uint32_t saved_mouse_press_x;
+	uint32_t saved_mouse_press_y;
+	uint32_t saved_mouse_press_button;
 
 	// render handling
 	pthread_t thread_render_loop;

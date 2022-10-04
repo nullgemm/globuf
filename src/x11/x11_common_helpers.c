@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_errors.h>
 
 void* x11_helpers_render_loop(void* data)
@@ -308,7 +309,50 @@ void x11_helpers_set_interaction(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO setter
+	uint32_t table[] =
+	{
+		[GLOBOX_INTERACTION_STOP] = XCB_EWMH_WM_MOVERESIZE_CANCEL,
+		[GLOBOX_INTERACTION_MOVE] = XCB_EWMH_WM_MOVERESIZE_MOVE,
+		[GLOBOX_INTERACTION_N]    = XCB_EWMH_WM_MOVERESIZE_SIZE_TOP,
+		[GLOBOX_INTERACTION_NW]   = XCB_EWMH_WM_MOVERESIZE_SIZE_TOPLEFT,
+		[GLOBOX_INTERACTION_W]    = XCB_EWMH_WM_MOVERESIZE_SIZE_LEFT,
+		[GLOBOX_INTERACTION_SW]   = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOMLEFT,
+		[GLOBOX_INTERACTION_S]    = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOM,
+		[GLOBOX_INTERACTION_SE]   = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOMRIGHT,
+		[GLOBOX_INTERACTION_E]    = XCB_EWMH_WM_MOVERESIZE_SIZE_RIGHT,
+		[GLOBOX_INTERACTION_NE]   = XCB_EWMH_WM_MOVERESIZE_SIZE_TOPRIGHT,
+	};
+
+	uint32_t info[5] =
+	{
+		platform->saved_mouse_press_x,
+		platform->saved_mouse_press_y,
+		table[context->feature_interaction->action],
+		platform->saved_mouse_press_button,
+		1,
+	};
+
+	xcb_void_cookie_t cookie =
+		xcb_change_property_checked(
+			platform->conn,
+			XCB_PROP_MODE_REPLACE,
+			platform->win,
+			platform->atoms[X11_ATOM_MOVERESIZE],
+			XCB_ATOM_CARDINAL,
+			32,
+			5,
+			info);
+
+	xcb_generic_error_t* xcb_error =
+		xcb_request_check(
+			platform->conn,
+			cookie);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
+	}
 
 	globox_error_ok(error);
 }
