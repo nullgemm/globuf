@@ -944,14 +944,7 @@ enum globox_event globox_x11_common_handle_events(
 			// (using dpishit in the example)
 			#if 0
 			globox_event = GLOBOX_EVENT_MOVED;
-			globox_event = GLOBOX_EVENT_RESIZED_N;
-			globox_event = GLOBOX_EVENT_RESIZED_NW;
-			globox_event = GLOBOX_EVENT_RESIZED_W;
-			globox_event = GLOBOX_EVENT_RESIZED_SW;
-			globox_event = GLOBOX_EVENT_RESIZED_S;
-			globox_event = GLOBOX_EVENT_RESIZED_SE;
-			globox_event = GLOBOX_EVENT_RESIZED_E;
-			globox_event = GLOBOX_EVENT_RESIZED_NE;
+			globox_event = GLOBOX_EVENT_RESIZED;
 			#endif
 			break;
 		}
