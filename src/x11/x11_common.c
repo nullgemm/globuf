@@ -898,26 +898,6 @@ enum globox_event globox_x11_common_handle_events(
 	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
 	xcb_generic_event_t* xcb_event = event;
 
-#if 0
-	// TODO handle and return all these
-	// moved events are to trigger screen info (size, density, etc.) updates
-	// (using dpishit in the example)
-	globox_event = GLOBOX_EVENT_RESTORED;
-	globox_event = GLOBOX_EVENT_MINIMIZED;
-	globox_event = GLOBOX_EVENT_MAXIMIZED;
-	globox_event = GLOBOX_EVENT_FULLSCREEN;
-	globox_event = GLOBOX_EVENT_MOVED;
-	globox_event = GLOBOX_EVENT_RESIZED_N;
-	globox_event = GLOBOX_EVENT_RESIZED_NW;
-	globox_event = GLOBOX_EVENT_RESIZED_W;
-	globox_event = GLOBOX_EVENT_RESIZED_SW;
-	globox_event = GLOBOX_EVENT_RESIZED_S;
-	globox_event = GLOBOX_EVENT_RESIZED_SE;
-	globox_event = GLOBOX_EVENT_RESIZED_E;
-	globox_event = GLOBOX_EVENT_RESIZED_NE;
-	globox_event = GLOBOX_EVENT_DAMAGED;
-#endif
-
 	switch (xcb_event->response_type & ~0x80)
 	{
 		case XCB_NONE:
@@ -928,6 +908,7 @@ enum globox_event globox_x11_common_handle_events(
 		case XCB_EXPOSE:
 		{
 			// TODO fill & process expose queue
+			globox_event = GLOBOX_EVENT_DAMAGED;
 			break;
 		}
 		case XCB_CONFIGURE_NOTIFY:
@@ -958,11 +939,31 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
+			// TODO
+			// moved events are to trigger screen info (size, density, etc.) updates
+			// (using dpishit in the example)
+			#if 0
+			globox_event = GLOBOX_EVENT_MOVED;
+			globox_event = GLOBOX_EVENT_RESIZED_N;
+			globox_event = GLOBOX_EVENT_RESIZED_NW;
+			globox_event = GLOBOX_EVENT_RESIZED_W;
+			globox_event = GLOBOX_EVENT_RESIZED_SW;
+			globox_event = GLOBOX_EVENT_RESIZED_S;
+			globox_event = GLOBOX_EVENT_RESIZED_SE;
+			globox_event = GLOBOX_EVENT_RESIZED_E;
+			globox_event = GLOBOX_EVENT_RESIZED_NE;
+			#endif
 			break;
 		}
 		case XCB_PROPERTY_NOTIFY:
 		{
 			// TODO handle title & state changes
+			#if 0
+			globox_event = GLOBOX_EVENT_RESTORED;
+			globox_event = GLOBOX_EVENT_MINIMIZED;
+			globox_event = GLOBOX_EVENT_MAXIMIZED;
+			globox_event = GLOBOX_EVENT_FULLSCREEN;
+			#endif
 			break;
 		}
 		case XCB_CLIENT_MESSAGE:
