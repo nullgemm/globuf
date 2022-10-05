@@ -75,44 +75,9 @@ static void event_callback(void* data, void* event)
 			fprintf(stderr, "received `moved` event\n");
 			break;
 		}
-		case GLOBOX_EVENT_RESIZED_N:
+		case GLOBOX_EVENT_RESIZED:
 		{
-			fprintf(stderr, "received `resized (north)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_NW:
-		{
-			fprintf(stderr, "received `resized (north-west)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_W:
-		{
-			fprintf(stderr, "received `resized (west)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_SW:
-		{
-			fprintf(stderr, "received `resized (south-west)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_S:
-		{
-			fprintf(stderr, "received `resized (south)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_SE:
-		{
-			fprintf(stderr, "received `resized (south-east)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_E:
-		{
-			fprintf(stderr, "received `resized (east)` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED_NE:
-		{
-			fprintf(stderr, "received `resized (north-east)` event\n");
+			fprintf(stderr, "received `resized` event\n");
 			break;
 		}
 		case GLOBOX_EVENT_DAMAGED:
