@@ -42,16 +42,6 @@ void x11_helpers_set_icon(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_size(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error);
-
-void x11_helpers_set_pos(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error);
-
 void x11_helpers_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
