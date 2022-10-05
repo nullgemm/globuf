@@ -146,7 +146,7 @@ obj+=("\$folder_objects/res/shaders/gl1/square_frag_gl1.o")
 	vulkan)
 ninja_file=example_simple_x11_vulkan.ninja
 src+=("example/simple/vulkan.c")
-#TODO vulkan
+# TODO vulkan
 	;;
 
 	*)
