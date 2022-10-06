@@ -907,7 +907,9 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_EXPOSE:
 		{
-			// TODO fill & process expose queue
+			// TODO since we allocate a new buffer every time on the software backend,
+			// it is probably useless to implement an expose queue, we can simply return
+			// the damaged event and add a call to get the currently damaged area
 			globox_event = GLOBOX_EVENT_DAMAGED;
 			break;
 		}
