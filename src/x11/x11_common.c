@@ -944,13 +944,18 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_PROPERTY_NOTIFY:
 		{
-			// TODO handle title & state changes
-			#if 0
-			globox_event = GLOBOX_EVENT_RESTORED;
-			globox_event = GLOBOX_EVENT_MINIMIZED;
-			globox_event = GLOBOX_EVENT_MAXIMIZED;
-			globox_event = GLOBOX_EVENT_FULLSCREEN;
-			#endif
+			xcb_property_notify_event_t* state =
+				(xcb_property_notify_event_t*) xcb_event;
+
+			if (state->atom == platform->atoms[X11_ATOM_STATE])
+			{
+				globox_event = x11_helpers_get_state(context, platform, error);
+			}
+			else if (state->atom == XCB_ATOM_WM_NAME)
+			{
+				x11_helpers_get_title(context, platform, error);
+			}
+
 			break;
 		}
 		case XCB_CLIENT_MESSAGE:
@@ -1048,11 +1053,6 @@ enum globox_event globox_x11_common_handle_events(
 			break;
 		}
 	}
-
-	// TODO handle non-programmatic window configuration
-	// title & state changes
-	// interactive mode
-	// exposition
 
 	globox_error_ok(error);
 	return globox_event;

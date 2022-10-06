@@ -57,6 +57,16 @@ void x11_helpers_set_vsync(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
+enum globox_event x11_helpers_get_state(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
+void x11_helpers_get_title(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
 void x11_helpers_xcb_error_log(
 	struct globox* context,
 	struct x11_platform* platform,

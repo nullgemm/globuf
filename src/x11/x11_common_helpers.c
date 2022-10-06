@@ -775,6 +775,119 @@ void x11_helpers_set_vsync(
 	globox_error_ok(error);
 }
 
+enum globox_event x11_helpers_get_state(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	xcb_get_property_cookie_t cookie =
+		xcb_get_property(
+			platform->conn,
+			0,
+			platform->win,
+			platform->atoms[X11_ATOM_STATE],
+			XCB_ATOM_ATOM,
+			0,
+			32);
+
+	xcb_generic_error_t* xcb_error;
+	enum globox_event event = GLOBOX_EVENT_INVALID;
+
+	xcb_get_property_reply_t* reply =
+		xcb_get_property_reply(
+			platform->conn,
+			cookie,
+			&xcb_error);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		free(reply);
+		return event;
+	}
+
+	xcb_atom_t* value = (xcb_atom_t*) xcb_get_property_value(reply);
+
+	if (value == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		free(reply);
+		return event;
+	}
+
+	if (*value == platform->atoms[X11_ATOM_STATE_FULLSCREEN])
+	{
+		context->feature_state->state = GLOBOX_STATE_FULLSCREEN;
+		event = GLOBOX_EVENT_FULLSCREEN;
+	}
+	else if ((*value == platform->atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL])
+		|| (*value == platform->atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL]))
+	{
+		context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
+		event = GLOBOX_EVENT_MAXIMIZED;
+	}
+	else if (*value == platform->atoms[X11_ATOM_STATE_HIDDEN])
+	{
+		context->feature_state->state = GLOBOX_STATE_MINIMIZED;
+		event = GLOBOX_EVENT_MINIMIZED;
+	}
+	else
+	{
+		context->feature_state->state = GLOBOX_STATE_REGULAR;
+		event = GLOBOX_EVENT_RESTORED;
+	}
+
+	free(reply);
+	return event;
+}
+
+void x11_helpers_get_title(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	xcb_get_property_cookie_t cookie =
+		xcb_get_property(
+			platform->conn,
+			0,
+			platform->win,
+			XCB_ATOM_WM_NAME,
+			XCB_ATOM_STRING,
+			0,
+			32);
+
+	xcb_generic_error_t* xcb_error;
+
+	xcb_get_property_reply_t* reply =
+		xcb_get_property_reply(
+			platform->conn,
+			cookie,
+			&xcb_error);
+
+	if (xcb_error != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		return;
+	}
+
+	char* value = (char*) xcb_get_property_value(reply);
+
+	if (value == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		free(reply);
+		return;
+	}
+
+	if (context->feature_title->title != NULL)
+	{
+		free((void*) context->feature_title->title);
+	}
+
+	context->feature_title->title = strdup(value);
+	free(reply);
+}
+
 void x11_helpers_xcb_error_log(
 	struct globox* context,
 	struct x11_platform* platform,
