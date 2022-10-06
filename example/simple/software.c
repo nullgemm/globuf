@@ -70,14 +70,9 @@ static void event_callback(void* data, void* event)
 			fprintf(stderr, "received `closed` event\n");
 			break;
 		}
-		case GLOBOX_EVENT_MOVED:
+		case GLOBOX_EVENT_MOVED_RESIZED:
 		{
 			fprintf(stderr, "received `moved` event\n");
-			break;
-		}
-		case GLOBOX_EVENT_RESIZED:
-		{
-			fprintf(stderr, "received `resized` event\n");
 			break;
 		}
 		case GLOBOX_EVENT_DAMAGED:

@@ -939,13 +939,7 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			// TODO
-			// moved events are to trigger screen info (size, density, etc.) updates
-			// (using dpishit in the example)
-			#if 0
-			globox_event = GLOBOX_EVENT_MOVED;
-			globox_event = GLOBOX_EVENT_RESIZED;
-			#endif
+			globox_event = GLOBOX_EVENT_MOVED_RESIZED;
 			break;
 		}
 		case XCB_PROPERTY_NOTIFY:
