@@ -145,6 +145,14 @@ struct globox_error_info
 	unsigned line;
 };
 
+struct globox_rect
+{
+	int x;
+	int y;
+	int width;
+	int height;
+};
+
 struct globox_config_render
 {
 	void* data;
@@ -407,6 +415,10 @@ unsigned globox_get_width(
 	struct globox_error_info* error);
 
 unsigned globox_get_height(
+	struct globox* context,
+	struct globox_error_info* error);
+
+struct globox_rect globox_get_expose(
 	struct globox* context,
 	struct globox_error_info* error);
 

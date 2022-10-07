@@ -77,7 +77,26 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_DAMAGED:
 		{
-			fprintf(stderr, "received `content damaged` event\n");
+			struct globox_rect rect = globox_get_expose(data, &error);
+
+			if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+			{
+				fprintf(stderr, "received `content damaged` event\n");
+				break;
+			}
+
+			fprintf(
+				stderr,
+				"received `content damaged` event\n"
+				"x: %d\n"
+				"y: %d\n"
+				"width: %d\n"
+				"height: %d\n",
+				rect.x,
+				rect.y,
+				rect.width,
+				rect.height);
+
 			break;
 		}
 	}

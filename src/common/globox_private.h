@@ -14,6 +14,7 @@ struct globox
 	struct globox_config_render render_callback;
 	struct globox_config_events event_callbacks;
 	struct globox_config_backend backend_callbacks;
+	struct globox_rect expose;
 
 	// error handling
 	char* error_messages[GLOBOX_ERROR_COUNT];

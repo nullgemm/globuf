@@ -244,6 +244,7 @@ void globox_update_content(
 	// error always set
 }
 
+// TODO add helpers to use mutexes
 // always available
 unsigned globox_get_width(
 	struct globox* context,
@@ -262,4 +263,14 @@ unsigned globox_get_height(
 	globox_error_ok(error);
 
 	return context->feature_size->height;
+}
+
+// always available
+struct globox_rect globox_get_expose(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	globox_error_ok(error);
+
+	return context->expose;
 }
