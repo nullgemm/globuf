@@ -236,6 +236,8 @@ void globox_x11_common_init(
 	platform->saved_mouse_press_y = 0;
 	platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
 
+	// TODO initialize missing fields in platform and context
+
 	globox_error_ok(error);
 }
 

@@ -12,6 +12,7 @@
 	#include <stdlib.h>
 #endif
 
+// TODO reorder errors and add missing ones
 void globox_error_init(
 	struct globox* context)
 {

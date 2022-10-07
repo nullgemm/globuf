@@ -149,8 +149,8 @@ struct globox_rect
 {
 	int x;
 	int y;
-	int width;
-	int height;
+	unsigned width;
+	unsigned height;
 };
 
 struct globox_config_render
