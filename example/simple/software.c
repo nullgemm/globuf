@@ -119,7 +119,6 @@ static void render_callback(void* data)
 	struct globox* globox = data;
 	struct globox_error_info error = {0};
 
-	// TODO handle errors
 	size_t width = globox_get_width(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
