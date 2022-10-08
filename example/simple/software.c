@@ -30,11 +30,18 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 
 static void event_callback(void* data, void* event)
 {
+	struct globox* globox = data;
 	struct globox_error_info error = {0};
 
 	// print some debug info on internal events
 	enum globox_event abstract =
-		globox_handle_events(data, event, &error);
+		globox_handle_events(globox, event, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
 
 	switch (abstract)
 	{
@@ -80,11 +87,11 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_DAMAGED:
 		{
-			struct globox_rect rect = globox_get_expose(data, &error);
+			struct globox_rect rect = globox_get_expose(globox, &error);
 
 			if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 			{
-				fprintf(stderr, "received `content damaged` event\n");
+				globox_error_log(globox, &error);
 				break;
 			}
 
@@ -114,11 +121,30 @@ static void render_callback(void* data)
 
 	// TODO handle errors
 	size_t width = globox_get_width(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
+
 	size_t height = globox_get_height(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
 
 	uint32_t* argb =
 		globox_buffer_alloc_software(
 			globox, width, height, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
 
 	if (argb == NULL)
 	{
@@ -155,8 +181,20 @@ static void render_callback(void* data)
 
 	globox_update_content(globox, &update, &error);
 
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
+
 	globox_buffer_free_software(
 		globox, argb, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		return;
+	}
 }
 
 static void config_callback(struct globox_config_reply* replies, size_t count, void* data)
@@ -192,26 +230,44 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 int main(int argc, char** argv)
 {
 	struct globox_error_info error = {0};
+	struct globox_error_info error_early = {0};
 	printf("starting the simple globox example\n");
 
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
 #ifdef GLOBOX_EXAMPLE_X11
-	globox_prepare_init_x11_software(&config, &error);
+	globox_prepare_init_x11_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
 	struct globox* globox = globox_init(&config, &error);
 
+	// Unless the context allocation failed it is always possible to access
+	// error messages (even when the context initialization failed) so we can
+	// always handle the backend initialization error first.
+
+	// context allocation failed
 	if (globox == NULL)
 	{
 		fprintf(stderr, "\ncould not allocate the main globox context\n");
+	}
+
+	// Backend initialization failed. Since it happens before globox
+	// initialization and errors are accessible even if it fails, we can handle
+	// the errors in the right order regardless.
+	if (globox_error_get_code(&error_early) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error_early);
+		globox_clean(globox, &error);
 		return 1;
 	}
 
+	// The globox initialization had failed, make it known now if the backend
+	// initialization that happened before went fine.
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
@@ -222,6 +278,7 @@ int main(int argc, char** argv)
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
@@ -306,12 +363,20 @@ int main(int argc, char** argv)
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
 
 	// create the window
 	globox_window_create(globox, configs, 8, config_callback, globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	// register a render callback
 	struct globox_config_render render =
@@ -324,6 +389,7 @@ int main(int argc, char** argv)
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
@@ -333,6 +399,7 @@ int main(int argc, char** argv)
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
@@ -347,12 +414,29 @@ int main(int argc, char** argv)
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
 
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
 	// free resources correctly
 	globox_window_destroy(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
 	globox_clean(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
+		globox_error_log(globox, &error);
 		return 1;
 	}
 
