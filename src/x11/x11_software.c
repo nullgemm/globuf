@@ -35,6 +35,9 @@ void globox_x11_software_init(
 	// reference the backend in the main context
 	context->backend_data = backend;
 
+	// initialize values that can be initialized explicitly
+	backend->shared_pixmaps = false;
+
 	// initialize the platform
 	globox_x11_common_init(context, &(backend->platform), error);
 

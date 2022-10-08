@@ -26,8 +26,39 @@ struct globox* globox_init(
 	struct globox zero = {0};
 	*context = zero;
 
-	// copy the backend function pointers (same here, optimized by compilers)
+	struct globox_config_features features =
+	{
+		.list = NULL,
+		.count = 0,
+	};
+	context->features = features;
+
+	context->backend_data = NULL;
+
+	struct globox_config_render render_callback =
+	{
+		.data = NULL,
+		.callback = NULL,
+	};
+	context->render_callback = render_callback;
+
+	struct globox_config_events event_callbacks =
+	{
+		.data = NULL,
+		.handler = NULL,
+	};
+	context->event_callbacks = event_callbacks;
+
 	context->backend_callbacks = *config;
+
+	struct globox_rect expose =
+	{
+		.x = 0,
+		.y = 0,
+		.width = 0,
+		.height = 0,
+	};
+	context->expose = expose;
 
 	// initialize the error system
 	globox_error_init(context);

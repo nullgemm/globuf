@@ -212,6 +212,13 @@ void globox_x11_common_init(
 		free(reply);
 	}
 
+	// initialize window
+	platform->attr_mask = 0;
+	platform->attr_val[0] = 0;
+	platform->attr_val[1] = 0;
+	platform->attr_val[2] = 0;
+	platform->visual_depth = 0;
+
 	// lock xsync mutex
 	posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
 
@@ -222,6 +229,9 @@ void globox_x11_common_init(
 	}
 
 	platform->xsync_configure = true;
+	platform->xsync_request = false;
+	platform->xsync_width = 0;
+	platform->xsync_height = 0;
 
 	// unlock xsync mutex
 	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
@@ -232,11 +242,28 @@ void globox_x11_common_init(
 		return;
 	}
 
+	// initialize saved action
 	platform->saved_mouse_press_x = 0;
 	platform->saved_mouse_press_y = 0;
 	platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
 
-	// TODO initialize missing fields in platform and context
+	// initialize render thread
+	struct x11_thread_render_loop_data thread_render_loop_data =
+	{
+		.globox = NULL,
+		.platform = NULL,
+		.error = NULL,
+	};
+	platform->thread_render_loop_data = thread_render_loop_data;
+
+	// initialize render thread
+	struct x11_thread_event_loop_data thread_event_loop_data =
+	{
+		.globox = NULL,
+		.platform = NULL,
+		.error = NULL,
+	};
+	platform->thread_event_loop_data = thread_event_loop_data;
 
 	globox_error_ok(error);
 }
