@@ -52,22 +52,24 @@ struct x11_platform
 	pthread_mutex_t mutex_xsync;
 	pthread_cond_t cond_main;
 
-	// connection init
+	// connection
 	bool closed;
 	xcb_connection_t* conn;
 
+	// x11
 	int screen_id;
 	xcb_screen_t* screen_obj;
 	xcb_window_t root_win;
-
 	xcb_atom_t atoms[X11_ATOM_COUNT];
 
-	// window creation
+	// window
 	uint32_t attr_mask;
 	uint32_t attr_val[3];
 	xcb_window_t win;
 	int visual_depth;
 	xcb_visualid_t visual_id;
+
+	// xsync
 	xcb_sync_counter_t xsync_counter;
 	xcb_sync_int64_t xsync_value;
 	bool xsync_configure;
