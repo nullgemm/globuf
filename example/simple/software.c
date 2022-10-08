@@ -339,7 +339,6 @@ int main(int argc, char** argv)
 		"The window should now be visible.\n"
 		"We can keep computing here.\n");
 
-	// TODO temporarily disable this and test all setters (with sleeps)
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
 
