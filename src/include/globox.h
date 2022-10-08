@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 // # types
+// ## general types
 struct globox;
 
 enum globox_feature
@@ -153,6 +154,7 @@ struct globox_rect
 	unsigned height;
 };
 
+// ## config types
 struct globox_config_render
 {
 	void* data;
@@ -183,6 +185,7 @@ struct globox_config_reply
 	struct globox_error_info error;
 };
 
+// ## feature types
 struct globox_feature_interaction
 {
 	enum globox_interaction action;
@@ -231,6 +234,8 @@ struct globox_feature_vsync
 	bool vsync;
 };
 
+// ## backend configuration structure
+// depends on most of the above
 struct globox_config_backend
 {
 	void* data;
@@ -261,10 +266,6 @@ struct globox_config_backend
 	void (*window_stop)(
 		struct globox* context,
 		struct globox_error_info* error);
-	// feature registry
-	struct globox_config_features* (*init_features)(
-		struct globox* context,
-		struct globox_error_info* error);
 	// render callback
 	void (*init_render)(
 		struct globox* context,
@@ -278,6 +279,10 @@ struct globox_config_backend
 	enum globox_event (*handle_events)(
 		struct globox* context,
 		void* event,
+		struct globox_error_info* error);
+	// feature registry
+	struct globox_config_features* (*init_features)(
+		struct globox* context,
 		struct globox_error_info* error);
 	// features
 	void (*feature_set_interaction)(
@@ -296,7 +301,17 @@ struct globox_config_backend
 		struct globox* context,
 		struct globox_feature_icon* config,
 		struct globox_error_info* error);
-
+	// getters
+	unsigned (*get_width)(
+		struct globox* context,
+		struct globox_error_info* error);
+	unsigned (*get_height)(
+		struct globox* context,
+		struct globox_error_info* error);
+	struct globox_rect (*get_expose)(
+		struct globox* context,
+		struct globox_error_info* error);
+	// content update function
 	void (*update_content)(
 		struct globox* context,
 		void* data,
@@ -338,22 +353,6 @@ void globox_window_block(
 // close the window if still open and stop the loop
 void globox_window_stop(
 	struct globox* context,
-	struct globox_error_info* error);
-
-// ## errors
-void globox_error_log(
-	struct globox* context,
-	struct globox_error_info* error);
-const char* globox_error_get_msg(
-	struct globox* context,
-	struct globox_error_info* error);
-enum globox_error globox_error_get_code(
-	struct globox_error_info* error);
-const char* globox_error_get_file(
-	struct globox_error_info* error);
-unsigned globox_error_get_line(
-	struct globox_error_info* error);
-void globox_error_ok(
 	struct globox_error_info* error);
 
 // ## configuration (can always be called)
@@ -403,13 +402,7 @@ void globox_feature_set_icon(
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
 
-// # content updater (backend-specific but still cross-platform)
-void globox_update_content(
-	struct globox* context,
-	void* data,
-	struct globox_error_info* error);
-
-// # getters
+// ## getters
 unsigned globox_get_width(
 	struct globox* context,
 	struct globox_error_info* error);
@@ -420,6 +413,28 @@ unsigned globox_get_height(
 
 struct globox_rect globox_get_expose(
 	struct globox* context,
+	struct globox_error_info* error);
+
+// ## content updater (backend-specific but still cross-platform)
+void globox_update_content(
+	struct globox* context,
+	void* data,
+	struct globox_error_info* error);
+
+// ## errors
+void globox_error_log(
+	struct globox* context,
+	struct globox_error_info* error);
+const char* globox_error_get_msg(
+	struct globox* context,
+	struct globox_error_info* error);
+enum globox_error globox_error_get_code(
+	struct globox_error_info* error);
+const char* globox_error_get_file(
+	struct globox_error_info* error);
+unsigned globox_error_get_line(
+	struct globox_error_info* error);
+void globox_error_ok(
 	struct globox_error_info* error);
 
 #endif

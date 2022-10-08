@@ -77,6 +77,20 @@ void globox_x11_software_feature_set_icon(
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
 
+
+unsigned globox_x11_software_get_width(
+	struct globox* context,
+	struct globox_error_info* error);
+
+unsigned globox_x11_software_get_height(
+	struct globox* context,
+	struct globox_error_info* error);
+
+struct globox_rect globox_x11_software_get_expose(
+	struct globox* context,
+	struct globox_error_info* error);
+
+
 // for this backend, `data` is of type `struct globox_update_software*`
 void globox_x11_software_update_content(
 	struct globox* context,

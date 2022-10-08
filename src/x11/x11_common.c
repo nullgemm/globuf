@@ -1432,3 +1432,104 @@ void globox_x11_common_feature_set_icon(
 
 	globox_error_ok(error);
 }
+
+unsigned globox_x11_common_get_width(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return 0;
+	}
+
+	// save value
+	unsigned value = context->feature_size->width;
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return 0;
+	}
+
+	// return value
+	globox_error_ok(error);
+	return value;
+}
+
+unsigned globox_x11_common_get_height(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return 0;
+	}
+
+	// save value
+	unsigned value = context->feature_size->height;
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return 0;
+	}
+
+	// return value
+	globox_error_ok(error);
+	return value;
+}
+
+struct globox_rect globox_x11_common_get_expose(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	struct globox_rect dummy =
+	{
+		.x = 0,
+		.y = 0,
+		.width = 0,
+		.height = 0,
+	};
+
+	// lock mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return dummy;
+	}
+
+	// save value
+	struct globox_rect value = context->expose;
+
+	// unlock mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return dummy;
+	}
+
+	// return value
+	globox_error_ok(error);
+	return value;
+}

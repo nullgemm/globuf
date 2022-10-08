@@ -147,6 +147,7 @@ enum globox_event globox_x11_common_handle_events(
 	void* event,
 	struct globox_error_info* error);
 
+
 struct globox_config_features* globox_x11_common_init_features(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -174,6 +175,22 @@ void globox_x11_common_feature_set_icon(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_feature_icon* config,
+	struct globox_error_info* error);
+
+
+unsigned globox_x11_common_get_width(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
+unsigned globox_x11_common_get_height(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error);
+
+struct globox_rect globox_x11_common_get_expose(
+	struct globox* context,
+	struct x11_platform* platform,
 	struct globox_error_info* error);
 
 #endif

@@ -414,6 +414,40 @@ void globox_x11_software_feature_set_icon(
 }
 
 
+unsigned globox_x11_software_get_width(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// error always set
+	return globox_x11_common_get_width(context, platform, error);
+}
+
+unsigned globox_x11_software_get_height(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// error always set
+	return globox_x11_common_get_height(context, platform, error);
+}
+
+struct globox_rect globox_x11_software_get_expose(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// error always set
+	return globox_x11_common_get_expose(context, platform, error);
+}
+
+
 void globox_x11_software_update_content(
 	struct globox* context,
 	void* data,
@@ -593,6 +627,7 @@ void globox_x11_software_update_content(
 	globox_error_ok(error);
 }
 
+
 void globox_prepare_init_x11_software(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)
@@ -605,18 +640,22 @@ void globox_prepare_init_x11_software(
 	config->window_start = globox_x11_software_window_start;
 	config->window_block = globox_x11_software_window_block;
 	config->window_stop = globox_x11_software_window_stop;
-	config->init_features = globox_x11_software_init_features;
 	config->init_render = globox_x11_software_init_render;
 	config->init_events = globox_x11_software_init_events;
 	config->handle_events = globox_x11_software_handle_events;
+	config->init_features = globox_x11_software_init_features;
 	config->feature_set_interaction = globox_x11_software_feature_set_interaction;
 	config->feature_set_state = globox_x11_software_feature_set_state;
 	config->feature_set_title = globox_x11_software_feature_set_title;
 	config->feature_set_icon = globox_x11_software_feature_set_icon;
+	config->get_width = globox_x11_software_get_width;
+	config->get_height = globox_x11_software_get_height;
+	config->get_expose = globox_x11_software_get_expose;
 	config->update_content = globox_x11_software_update_content;
 
 	globox_error_ok(error);
 }
+
 
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)

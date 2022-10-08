@@ -234,6 +234,34 @@ void globox_feature_set_icon(
 }
 
 
+// always available
+unsigned globox_get_width(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	// error always set
+	return context->backend_callbacks.get_width(context, error);
+}
+
+// always available
+unsigned globox_get_height(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	// error always set
+	return context->backend_callbacks.get_height(context, error);
+}
+
+// always available
+struct globox_rect globox_get_expose(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	// error always set
+	return context->backend_callbacks.get_expose(context, error);
+}
+
+
 void globox_update_content(
 	struct globox* context,
 	void* data,
@@ -242,35 +270,4 @@ void globox_update_content(
 	context->backend_callbacks.update_content(context, data, error);
 
 	// error always set
-}
-
-// TODO add helpers to use mutexes
-// always available
-unsigned globox_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
-{
-	globox_error_ok(error);
-
-	return context->feature_size->width;
-}
-
-// always available
-unsigned globox_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
-{
-	globox_error_ok(error);
-
-	return context->feature_size->height;
-}
-
-// always available
-struct globox_rect globox_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
-{
-	globox_error_ok(error);
-
-	return context->expose;
 }
