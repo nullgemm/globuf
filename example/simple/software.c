@@ -1,6 +1,9 @@
 #include "globox.h"
 #include "globox_software.h"
+
+#ifdef GLOBOX_EXAMPLE_X11
 #include "globox_x11_software.h"
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -194,7 +197,9 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
+#ifdef GLOBOX_EXAMPLE_X11
 	globox_prepare_init_x11_software(&config, &error);
+#endif
 
 	// set function pointers and perform basic init
 	struct globox* globox = globox_init(&config, &error);

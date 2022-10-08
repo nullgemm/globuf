@@ -37,6 +37,7 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 ldflags+=("-z noexecstack")
+defines+=("-DGLOBOX_EXAMPLE_X11")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
