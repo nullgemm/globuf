@@ -189,21 +189,24 @@ echo ""; \
 echo "# copy headers"; \
 echo "build \$folder_include/globox.h: \$"; \
 echo "cp src/include/globox.h"; \
+echo "build \$folder_include/globox_software.h: \$"; \
+echo "cp src/include/globox_software.h"; \
+echo "build \$folder_include/globox_glx.h: \$"; \
+echo "cp src/include/globox_glx.h"; \
 echo "build \$folder_include/globox_egl.h: \$"; \
 echo "cp src/include/globox_egl.h"; \
 echo "build \$folder_include/globox_vulkan.h: \$"; \
 echo "cp src/include/globox_vulkan.h"; \
-echo "build \$folder_include/globox_software.h: \$"; \
-echo "cp src/include/globox_software.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
 echo "\$folder_include/globox.h \$"; \
+echo "\$folder_include/globox_software.h \$"; \
+echo "\$folder_include/globox_glx.h \$"; \
 echo "\$folder_include/globox_egl.h \$"; \
-echo "\$folder_include/globox_vulkan.h \$"; \
-echo "\$folder_include/globox_software.h"; \
+echo "\$folder_include/globox_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 

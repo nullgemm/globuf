@@ -10,7 +10,7 @@ backend=$2
 
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, egl, vulkan"
+echo "backend types: common, software, glx, egl, vulkan"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -130,6 +130,12 @@ src+=("src/x11/x11_software.c")
 src+=("src/x11/x11_software_helpers.c")
 	;;
 
+	glx)
+ninja_file=lib_x11_glx.ninja
+name+="_glx"
+src+=("src/x11/x11_glx.c")
+	;;
+
 	egl)
 ninja_file=lib_x11_egl.ninja
 name+="_egl"
@@ -225,14 +231,14 @@ echo ""; \
 if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox_x11_software.h: \$"; \
+echo "build \$folder_include/globox_x11_$backend.h: \$"; \
 echo "cp src/include/globox_x11_$backend.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_x11_software.h"; \
+echo "\$folder_include/globox_x11_$backend.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi
