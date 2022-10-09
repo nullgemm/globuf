@@ -62,8 +62,8 @@ void globox_error_init(
 		"failed to init posix cond attributes";
 	log[GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY] =
 		"failed to destroy posix cond attributes";
-	log[GLOBOX_ERROR_POSIX_COND_ATTR_SETTYPE] =
-		"failed to set type in posix cond attributes";
+	log[GLOBOX_ERROR_POSIX_COND_ATTR_SETCLOCK] =
+		"failed to set clock in posix cond attributes";
 	log[GLOBOX_ERROR_POSIX_THREAD_CREATE] =
 		"failed to create posix thread";
 	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT] =
@@ -107,6 +107,8 @@ void globox_error_init(
 		"failed to change an X11 property";
 	log[GLOBOX_ERROR_X11_PROP_GET] =
 		"failed to get an X11 property";
+	log[GLOBOX_ERROR_X11_PROP_VALUE_GET] =
+		"failed to get the value of an X11 property";
 	log[GLOBOX_ERROR_X11_ATTR_CHANGE] =
 		"failed to change an X11 attribute";
 	log[GLOBOX_ERROR_X11_GC_CREATE] =

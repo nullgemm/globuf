@@ -795,7 +795,7 @@ enum globox_event x11_helpers_get_state(
 
 	if (xcb_error != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
 		free(reply);
 		return event;
 	}
@@ -804,7 +804,7 @@ enum globox_event x11_helpers_get_state(
 
 	if (value == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_VALUE_GET);
 		free(reply);
 		return event;
 	}
@@ -860,7 +860,7 @@ void x11_helpers_get_title(
 
 	if (xcb_error != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
 		return;
 	}
 
@@ -868,7 +868,7 @@ void x11_helpers_get_title(
 
 	if (value == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_VALUE_GET);
 		free(reply);
 		return;
 	}

@@ -95,7 +95,7 @@ void globox_x11_common_init(
 
 	if (posix_error != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_SETTYPE);
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_SETCLOCK);
 		return;
 	}
 
