@@ -47,6 +47,7 @@ static void event_callback(void* data, void* event)
 	{
 		case GLOBOX_EVENT_INVALID:
 		{
+			// shouldn't be possible since we handle the error
 			fprintf(stderr, "received invalid event\n");
 			break;
 		}

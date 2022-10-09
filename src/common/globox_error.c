@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-#ifdef GLOBOX_ERROR_LOG_BASIC
+#if defined(GLOBOX_ERROR_LOG_MANUAL) || defined(GLOBOX_ERROR_LOG_THROW)
 	#include <stdio.h>
 #endif
 
@@ -142,17 +142,25 @@ void globox_error_log(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-#ifdef GLOBOX_ERROR_LOG_BASIC
 #ifndef GLOBOX_ERROR_SKIP
-	if (error->code < GLOBOX_ERROR_COUNT)
-	{
-		fprintf(stderr, "%s\n", context->error_messages[error->code]);
-	}
-	else
-	{
-		fprintf(stderr, "%s\n", context->error_messages[0]);
-	}
-#endif
+	#ifdef GLOBOX_ERROR_LOG_MANUAL
+		#ifdef GLOBOX_ERROR_LOG_DEBUG
+			fprintf(
+				stderr,
+				"error in %s line %u: ",
+				file,
+				line);
+		#endif
+
+		if (error->code < GLOBOX_ERROR_COUNT)
+		{
+			fprintf(stderr, "%s\n", context->error_messages[error->code]);
+		}
+		else
+		{
+			fprintf(stderr, "%s\n", context->error_messages[0]);
+		}
+	#endif
 #endif
 }
 
@@ -209,7 +217,6 @@ void globox_error_throw_extra(
 	error->line = line;
 
 	#ifdef GLOBOX_ERROR_LOG_THROW
-	#ifdef GLOBOX_ERROR_LOG_BASIC
 		#ifdef GLOBOX_ERROR_LOG_DEBUG
 			fprintf(
 				stderr,
@@ -218,8 +225,14 @@ void globox_error_throw_extra(
 				line);
 		#endif
 
-		globox_error_log(context, error);
-	#endif
+		if (error->code < GLOBOX_ERROR_COUNT)
+		{
+			fprintf(stderr, "%s\n", context->error_messages[error->code]);
+		}
+		else
+		{
+			fprintf(stderr, "%s\n", context->error_messages[0]);
+		}
 	#endif
 
 	#ifdef GLOBOX_ERROR_ABORT
