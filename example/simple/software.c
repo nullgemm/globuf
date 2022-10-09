@@ -251,6 +251,7 @@ int main(int argc, char** argv)
 	if (globox == NULL)
 	{
 		fprintf(stderr, "\ncould not allocate the main globox context\n");
+		return 1;
 	}
 
 	// Backend initialization failed. Since it happens before globox

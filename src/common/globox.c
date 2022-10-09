@@ -87,52 +87,6 @@ void globox_clean(
 {
 	context->backend_callbacks.clean(context, error);
 
-	// clean the feature data array
-	if (context->feature_interaction != NULL)
-	{
-		free(context->feature_interaction);
-	}
-
-	if (context->feature_state != NULL)
-	{
-		free(context->feature_state);
-	}
-
-	if (context->feature_title != NULL)
-	{
-		free(context->feature_title);
-	}
-
-	if (context->feature_icon != NULL)
-	{
-		free(context->feature_icon);
-	}
-
-	if (context->feature_size != NULL)
-	{
-		free(context->feature_size);
-	}
-
-	if (context->feature_pos != NULL)
-	{
-		free(context->feature_pos);
-	}
-
-	if (context->feature_frame != NULL)
-	{
-		free(context->feature_frame);
-	}
-
-	if (context->feature_background != NULL)
-	{
-		free(context->feature_background);
-	}
-
-	if (context->feature_vsync != NULL)
-	{
-		free(context->feature_vsync);
-	}
-
 	// error always set
 }
 

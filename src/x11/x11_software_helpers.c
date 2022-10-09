@@ -118,6 +118,7 @@ void x11_helpers_visual_transparent(
 
 			while ((iter_visuals.rem != 0) && (found_visual == false))
 			{
+				// infer false-positive
 				if ((iter_visuals.data != NULL)
 					&& (iter_visuals.data->format == pictformat))
 				{
