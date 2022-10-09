@@ -12,6 +12,14 @@
 #include <xcb/xcb.h>
 #include <xcb/present.h>
 
+static inline void free_check(const void* ptr)
+{
+	if (ptr != NULL)
+	{
+		free((void*) ptr);
+	}
+}
+
 void globox_x11_common_init(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -316,17 +324,25 @@ void globox_x11_common_clean(
 		return;
 	}
 
-	if (context->feature_title->title != NULL)
+	if (context->feature_title != NULL)
 	{
-		free((void*) context->feature_title->title);
+		free_check(context->feature_title->title);
 	}
 
-	if ((context->feature_icon != NULL) && (context->feature_icon->pixmap != NULL))
+	if (context->feature_icon != NULL)
 	{
-		free((void*) context->feature_icon->pixmap);
+		free_check(context->feature_icon->pixmap);
 	}
 
-	// TODO free features
+	free_check(context->feature_interaction);
+	free_check(context->feature_state);
+	free_check(context->feature_title);
+	free_check(context->feature_icon);
+	free_check(context->feature_size);
+	free_check(context->feature_pos);
+	free_check(context->feature_frame);
+	free_check(context->feature_background);
+	free_check(context->feature_vsync);
 
 	globox_error_ok(error);
 }
@@ -1442,10 +1458,7 @@ void globox_x11_common_feature_set_title(
 	}
 
 	// configure
-	if (context->feature_title->title != NULL)
-	{
-		free((void*) context->feature_title->title);
-	}
+	free_check(context->feature_title->title);
 
 	context->feature_title->title = strdup(config->title);
 	x11_helpers_set_title(context, platform, error);
@@ -1484,10 +1497,7 @@ void globox_x11_common_feature_set_icon(
 	}
 
 	// configure
-	if (context->feature_icon->pixmap != NULL)
-	{
-		free(context->feature_icon->pixmap);
-	}
+	free_check(context->feature_icon->pixmap);
 
 	context->feature_icon->pixmap = malloc(config->len * 4);
 
