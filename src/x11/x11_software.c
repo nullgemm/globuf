@@ -89,19 +89,15 @@ void globox_x11_software_window_create(
 		{
 			x11_helpers_visual_opaque(context, error);
 		}
-		else if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-		{
-			return;
-		}
 	}
 	else
 	{
 		x11_helpers_visual_opaque(context, error);
+	}
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-		{
-			return;
-		}
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
 	}
 
 	// run common X11 helper

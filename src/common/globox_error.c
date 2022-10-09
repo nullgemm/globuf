@@ -70,8 +70,10 @@ void globox_error_init(
 		"failed to init posix thread attributes";
 	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY] =
 		"failed to destroy posix thread attributes";
-	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH] =
-		"failt to set detach type in posix thread attributes";
+	log[GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE] =
+		"failed to set joinable type in posix thread attributes";
+	log[GLOBOX_ERROR_POSIX_THREAD_JOIN] =
+		"failed to join posix thread";
 	log[GLOBOX_ERROR_POSIX_SHM_VERSION] =
 		"failed to get SHM version";
 	log[GLOBOX_ERROR_POSIX_SHMDT] =

@@ -219,28 +219,11 @@ void globox_x11_common_init(
 	platform->attr_val[2] = 0;
 	platform->visual_depth = 0;
 
-	// lock xsync mutex
-	posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
+	// initialize xsync
 	platform->xsync_configure = true;
 	platform->xsync_request = false;
 	platform->xsync_width = 0;
 	platform->xsync_height = 0;
-
-	// unlock xsync mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
 
 	// initialize saved action
 	platform->saved_mouse_press_x = 0;
@@ -476,15 +459,6 @@ void globox_x11_common_window_create(
 	}
 
 	// create the xsync counter
-	// lock xsync mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
 	xcb_sync_int64_t value =
 	{
 		.hi = 0,
@@ -528,15 +502,6 @@ void globox_x11_common_window_create(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
-	}
-
-	// unlock xsync mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-	if (posix_error != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -637,7 +602,7 @@ void globox_x11_common_window_destroy(
 	}
 
 	// unlock xsync mutex
-	posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
 
 	if (posix_error != 0)
 	{
@@ -730,6 +695,23 @@ void globox_x11_common_window_block(
 	if (posix_cond_error != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_WAIT);
+		return;
+	}
+
+	posix_error = pthread_join(platform->thread_event_loop, NULL);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
+		return;
+	}
+
+	posix_error = pthread_join(platform->thread_render_loop, NULL);
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
+		return;
 	}
 
 	globox_error_ok(error);
@@ -807,11 +789,11 @@ void globox_x11_common_init_render(
 		return;
 	}
 
-	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	if (posix_error != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH);
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
 	}
 
@@ -873,11 +855,11 @@ void globox_x11_common_init_events(
 		return;
 	}
 
-	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	if (posix_error != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DETACH);
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
 	}
 
@@ -927,6 +909,7 @@ enum globox_event globox_x11_common_handle_events(
 	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
 	xcb_generic_event_t* xcb_event = event;
 
+	// only lock the main mutex when making changes to the context
 	switch (xcb_event->response_type & ~0x80)
 	{
 		case XCB_NONE:
@@ -939,10 +922,28 @@ enum globox_event globox_x11_common_handle_events(
 			xcb_expose_event_t* expose =
 				(xcb_expose_event_t*) xcb_event;
 
+			// lock mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
 			context->expose.x = expose->x;
 			context->expose.y = expose->y;
 			context->expose.width = expose->width;
 			context->expose.height = expose->height;
+
+			// unlock mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
 
 			globox_event = GLOBOX_EVENT_DAMAGED;
 			break;
@@ -983,6 +984,15 @@ enum globox_event globox_x11_common_handle_events(
 			xcb_property_notify_event_t* state =
 				(xcb_property_notify_event_t*) xcb_event;
 
+			// lock mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
 			if (state->atom == platform->atoms[X11_ATOM_STATE])
 			{
 				globox_event = x11_helpers_get_state(context, platform, error);
@@ -990,6 +1000,15 @@ enum globox_event globox_x11_common_handle_events(
 			else if (state->atom == XCB_ATOM_WM_NAME)
 			{
 				x11_helpers_get_title(context, platform, error);
+			}
+
+			// unlock mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
 			}
 
 			break;
@@ -1070,17 +1089,53 @@ enum globox_event globox_x11_common_handle_events(
 			xcb_button_press_event_t* button_press =
 				(xcb_button_press_event_t*) xcb_event;
 
+			// lock mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
 			platform->saved_mouse_press_x = button_press->root_x;
 			platform->saved_mouse_press_y = button_press->root_y;
 			platform->saved_mouse_press_button = button_press->detail;
+
+			// unlock mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
 
 			break;
 		}
 		case XCB_BUTTON_RELEASE:
 		{
+			// lock mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
 			platform->saved_mouse_press_x = 0;
 			platform->saved_mouse_press_y = 0;
 			platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
+
+			// unlock mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
 
 			break;
 		}

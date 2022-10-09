@@ -358,11 +358,12 @@ int main(int argc, char** argv)
 		.handler = event_callback,
 	};
 
-	globox_init_events(globox, &events, &error);
+	struct globox_error_info error_events = {0};
+	globox_init_events(globox, &events, &error_events);
 
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	if (globox_error_get_code(&error_events) != GLOBOX_ERROR_OK)
 	{
-		globox_error_log(globox, &error);
+		globox_error_log(globox, &error_events);
 		globox_clean(globox, &error);
 		return 1;
 	}
@@ -384,11 +385,12 @@ int main(int argc, char** argv)
 		.callback = render_callback,
 	};
 
-	globox_init_render(globox, &render, &error);
+	struct globox_error_info error_render = {0};
+	globox_init_render(globox, &render, &error_render);
 
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	if (globox_error_get_code(&error_render) != GLOBOX_ERROR_OK)
 	{
-		globox_error_log(globox, &error);
+		globox_error_log(globox, &error_render);
 		globox_clean(globox, &error);
 		return 1;
 	}
@@ -416,6 +418,24 @@ int main(int argc, char** argv)
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
 		globox_error_log(globox, &error);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	// handle event thread errors
+	if (globox_error_get_code(&error_events) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error_events);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	// handle render thread errors
+	if (globox_error_get_code(&error_render) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error_render);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;

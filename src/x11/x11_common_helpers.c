@@ -30,7 +30,7 @@ void* x11_helpers_render_loop(void* data)
 		if (posix_error != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			return NULL;
+			break;
 		}
 
 		if (platform->xsync_configure == true)
@@ -50,7 +50,7 @@ void* x11_helpers_render_loop(void* data)
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
-				return NULL;
+				break;
 			}
 
 			// remember to tell the window manager we finished rendering
@@ -62,7 +62,7 @@ void* x11_helpers_render_loop(void* data)
 			if (posix_error != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				return NULL;
+				break;
 			}
 
 			// save accessible size values
@@ -75,7 +75,7 @@ void* x11_helpers_render_loop(void* data)
 			if (posix_error != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				return NULL;
+				break;
 			}
 		}
 
@@ -85,7 +85,7 @@ void* x11_helpers_render_loop(void* data)
 		if (posix_error != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			return NULL;
+			break;
 		}
 
 		// run developer callback
@@ -97,7 +97,7 @@ void* x11_helpers_render_loop(void* data)
 		if (posix_error != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			return NULL;
+			break;
 		}
 
 		// tell the window manager the resize operation
@@ -126,7 +126,7 @@ void* x11_helpers_render_loop(void* data)
 			if (xcb_error != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-				return NULL;
+				break;
 			}
 		}
 
@@ -136,10 +136,11 @@ void* x11_helpers_render_loop(void* data)
 		if (posix_error != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			return NULL;
+			break;
 		}
 	}
 
+	pthread_exit(NULL);
 	return NULL;
 }
 
@@ -162,7 +163,7 @@ void* x11_helpers_event_loop(void* data)
 		if (event == NULL)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_WAIT);
-			return NULL;
+			break;
 		}
 
 		// run developer callback
@@ -173,6 +174,7 @@ void* x11_helpers_event_loop(void* data)
 		free(event);
 	}
 
+	pthread_exit(NULL);
 	return NULL;
 }
 
