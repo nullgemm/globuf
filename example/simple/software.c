@@ -282,16 +282,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// print the feature list
-	printf("\nreceived a list of available features:\n");
-
-	for (size_t i = 0; i < feature_list->count; ++i)
-	{
-		printf(" - %s\n", feature_names[feature_list->list[i]]);
-	}
-
-	free(feature_list);
-
 	// initialize features when creating the window
 	struct globox_feature_state state =
 	{
@@ -339,17 +329,72 @@ int main(int argc, char** argv)
 		.vsync = true,
 	};
 
-	struct globox_config_request configs[8] =
+	// configure the feature and print a list
+	printf("\nreceived a list of available features:\n");
+
+	struct globox_config_request configs[GLOBOX_FEATURE_COUNT] = {0};
+	size_t feature_added = 0;
+	size_t i = 0;
+
+	while (i < feature_list->count)
 	{
-		{GLOBOX_FEATURE_STATE, &state},
-		{GLOBOX_FEATURE_TITLE, &title},
-		{GLOBOX_FEATURE_ICON, &icon},
-		{GLOBOX_FEATURE_SIZE, &size},
-		{GLOBOX_FEATURE_POS, &pos},
-		{GLOBOX_FEATURE_FRAME, &frame},
-		{GLOBOX_FEATURE_BACKGROUND, &background},
-		{GLOBOX_FEATURE_VSYNC, &vsync},
-	};
+		enum globox_feature feature_id = feature_list->list[i];
+		printf(" - %s\n", feature_names[feature_id]);
+		++i;
+
+		switch (feature_id)
+		{
+			case GLOBOX_FEATURE_STATE:
+			{
+				configs[feature_added].config = &state;
+				break;
+			}
+			case GLOBOX_FEATURE_TITLE:
+			{
+				configs[feature_added].config = &title;
+				break;
+			}
+			case GLOBOX_FEATURE_ICON:
+			{
+				configs[feature_added].config = &icon;
+				break;
+			}
+			case GLOBOX_FEATURE_SIZE:
+			{
+				configs[feature_added].config = &size;
+				break;
+			}
+			case GLOBOX_FEATURE_POS:
+			{
+				configs[feature_added].config = &pos;
+				break;
+			}
+			case GLOBOX_FEATURE_FRAME:
+			{
+				configs[feature_added].config = &frame;
+				break;
+			}
+			case GLOBOX_FEATURE_BACKGROUND:
+			{
+				configs[feature_added].config = &background;
+				break;
+			}
+			case GLOBOX_FEATURE_VSYNC:
+			{
+				configs[feature_added].config = &vsync;
+				break;
+			}
+			default:
+			{
+				continue;
+			}
+		}
+
+		configs[feature_added].feature = feature_id;
+		++feature_added;
+	}
+
+	free(feature_list);
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =
@@ -369,7 +414,7 @@ int main(int argc, char** argv)
 	}
 
 	// create the window
-	globox_window_create(globox, configs, 8, config_callback, globox, &error);
+	globox_window_create(globox, configs, feature_added, config_callback, globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{

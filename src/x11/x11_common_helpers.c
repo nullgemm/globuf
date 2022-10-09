@@ -191,8 +191,7 @@ void x11_helpers_features_init(
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				if ((context->feature_state != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_state) =
 						*((struct globox_feature_state*)
@@ -203,8 +202,7 @@ void x11_helpers_features_init(
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				if ((context->feature_title != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					struct globox_feature_title* tmp = configs[i].config;
 					context->feature_title->title = strdup(tmp->title);
@@ -214,8 +212,7 @@ void x11_helpers_features_init(
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				if ((context->feature_icon != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					struct globox_feature_icon* tmp = configs[i].config;
 					context->feature_icon->pixmap = malloc(tmp->len * 4);
@@ -236,8 +233,7 @@ void x11_helpers_features_init(
 			case GLOBOX_FEATURE_SIZE:
 			{
 				// handled directly in xcb's window creation code
-				if ((context->feature_size!= NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_size) =
 						*((struct globox_feature_size*)
@@ -249,8 +245,7 @@ void x11_helpers_features_init(
 			case GLOBOX_FEATURE_POS:
 			{
 				// handled directly in xcb's window creation code
-				if ((context->feature_pos != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_pos) =
 						*((struct globox_feature_pos*)
@@ -261,8 +256,7 @@ void x11_helpers_features_init(
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				if ((context->feature_frame != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_frame) =
 						*((struct globox_feature_frame*)
@@ -275,8 +269,7 @@ void x11_helpers_features_init(
 			{
 				// handled directly in xcb's window creation code for transparency,
 				// but some more configuration has to take place afterwards for blur
-				if ((context->feature_background != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_background) =
 						*((struct globox_feature_background*)
@@ -287,8 +280,7 @@ void x11_helpers_features_init(
 			}
 			case GLOBOX_FEATURE_VSYNC:
 			{
-				if ((context->feature_vsync != NULL)
-					&& (configs[i].config != NULL))
+				if (configs[i].config != NULL)
 				{
 					*(context->feature_vsync) =
 						*((struct globox_feature_vsync*)
@@ -663,7 +655,7 @@ void x11_helpers_set_frame(
 {
 	uint32_t flags;
 
-	if ((context->feature_frame != NULL) && (context->feature_frame->frame == false))
+	if (context->feature_frame->frame == false)
 	{
 		flags = 2;
 	}

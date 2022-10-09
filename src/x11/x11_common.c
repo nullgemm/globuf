@@ -316,7 +316,7 @@ void globox_x11_common_clean(
 		return;
 	}
 
-	if ((context->feature_title != NULL) && (context->feature_title->title != NULL))
+	if (context->feature_title->title != NULL)
 	{
 		free((void*) context->feature_title->title);
 	}
@@ -325,6 +325,8 @@ void globox_x11_common_clean(
 	{
 		free((void*) context->feature_icon->pixmap);
 	}
+
+	// TODO free features
 
 	globox_error_ok(error);
 }
@@ -346,8 +348,7 @@ void globox_x11_common_window_create(
 	}
 
 	// prepare window attributes
-	if ((context->feature_background != NULL)
-		&& (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE))
+	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
 	{
 		platform->attr_mask =
 			XCB_CW_BORDER_PIXEL
@@ -995,7 +996,10 @@ enum globox_event globox_x11_common_handle_events(
 
 			if (state->atom == platform->atoms[X11_ATOM_STATE])
 			{
-				globox_event = x11_helpers_get_state(context, platform, error);
+				if (context->feature_state != NULL)
+				{
+					globox_event = x11_helpers_get_state(context, platform, error);
+				}
 			}
 			else if (state->atom == XCB_ATOM_WM_NAME)
 			{
@@ -1149,6 +1153,7 @@ enum globox_event globox_x11_common_handle_events(
 	return globox_event;
 }
 
+// TODO put this in backend instead of platform?
 struct globox_config_features*
 	globox_x11_common_init_features(
 		struct globox* context,
@@ -1285,6 +1290,7 @@ struct globox_config_features*
 		return NULL;
 	}
 
+	// TODO update this
 	// available if the _NET_SUPPPORTED prop. has the _NET_WM_FRAME_DRAWN atom
 	xcb_generic_error_t* xcb_error;
 
