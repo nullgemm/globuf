@@ -206,20 +206,20 @@ void globox_x11_software_window_destroy(
 	struct x11_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
+	// run common X11 helper
+	globox_x11_common_window_destroy(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
 	// lock mutex
 	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (posix_error != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
-	// run common X11 helper
-	globox_x11_common_window_destroy(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
 		return;
 	}
 

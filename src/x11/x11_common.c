@@ -627,6 +627,15 @@ void globox_x11_common_window_destroy(
 		return;
 	}
 
+	// lock main mutex
+	posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	// destroy the window
 	cookie =
 		xcb_destroy_window(
@@ -641,6 +650,15 @@ void globox_x11_common_window_destroy(
 	if (xcb_error != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_DESTROY);
+		return;
+	}
+
+	// unlock main mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
