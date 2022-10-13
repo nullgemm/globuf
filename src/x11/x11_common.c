@@ -1334,7 +1334,7 @@ struct globox_config_features*
 	}
 
 	int net_atoms_count =
-		xcb_get_property_value_length(reply);
+		xcb_get_property_value_length(reply) / (sizeof (xcb_atom_t));
 
 	xcb_atom_t* net_atoms =
 		xcb_get_property_value(reply);

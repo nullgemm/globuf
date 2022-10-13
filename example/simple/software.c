@@ -396,6 +396,7 @@ int main(int argc, char** argv)
 		++feature_added;
 	}
 
+	free(feature_list->list);
 	free(feature_list);
 
 	// register an event handler to track the window's state

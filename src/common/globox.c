@@ -86,6 +86,7 @@ void globox_clean(
 	struct globox_error_info* error)
 {
 	context->backend_callbacks.clean(context, error);
+	free(context);
 
 	// error always set
 }
