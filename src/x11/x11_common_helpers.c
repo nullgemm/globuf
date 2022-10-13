@@ -21,11 +21,31 @@ void* x11_helpers_render_loop(void* data)
 	struct x11_platform* platform = thread_render_loop_data->platform;
 	struct globox_error_info* error = thread_render_loop_data->error;
 
-	while (platform->closed == false)
+	// lock main mutex
+	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return NULL;
+	}
+
+	bool closed = platform->closed;
+
+	// unlock main mutex
+	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (posix_error != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return NULL;
+	}
+
+	while (closed == false)
 	{
 		// handle xsync
 		// lock xsync mutex
-		int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+		posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
 
 		if (posix_error != 0)
 		{
@@ -132,6 +152,26 @@ void* x11_helpers_render_loop(void* data)
 
 		// unlock xsync mutex
 		posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			break;
+		}
+
+		// lock main mutex
+		posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+		if (posix_error != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			break;
+		}
+
+		closed = platform->closed;
+
+		// unlock main mutex
+		posix_error = pthread_mutex_unlock(&(platform->mutex_main));
 
 		if (posix_error != 0)
 		{

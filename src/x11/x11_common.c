@@ -1066,7 +1066,7 @@ enum globox_event globox_x11_common_handle_events(
 					pthread_cond_broadcast(&(platform->cond_main));
 
 					// make the event loop thread exit gracefully
-					int posix_error = pthread_mutex_lock(&(platform->mutex_block));
+					int posix_error = pthread_mutex_lock(&(platform->mutex_main));
 
 					if (posix_error != 0)
 					{
@@ -1076,7 +1076,7 @@ enum globox_event globox_x11_common_handle_events(
 
 					platform->closed = true;
 
-					posix_error = pthread_mutex_unlock(&(platform->mutex_block));
+					posix_error = pthread_mutex_unlock(&(platform->mutex_main));
 
 					if (posix_error != 0)
 					{
