@@ -2,11 +2,13 @@ build
 inc
 make/output
 globox_bin_v*
+infer_*
 res/angle
 res/objconv
 res/egl_headers
 res/wayland_headers
 res/icon/iconpix.bin
+res/infer
 ci/*/log
 ci/osxcross_build_image/volumes
 ci/osxcross_build_image/scripts/pkg

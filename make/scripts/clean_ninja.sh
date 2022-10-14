@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# get into the right folder
-cd "$(dirname "$0")" || exit
-cd ../..
+# get in the right folder
+path="$(pwd)/$0"
+folder=$(dirname "$path")
+cd "$folder"/../.. || exit
 
 rm -rf make/output

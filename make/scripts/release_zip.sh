@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# get into the right folder
-cd "$(dirname "$0")" || exit
-cd ../..
+# get in the right folder
+path="$(pwd)/$0"
+folder=$(dirname "$path")
+cd "$folder"/../.. || exit
 
 tag=$(git tag --sort v:refname | tail -n 1)
 release=globox_bin_"$tag"
