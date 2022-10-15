@@ -67,9 +67,11 @@ void x11_helpers_get_title(
 	struct x11_platform* platform,
 	struct globox_error_info* error);
 
+#ifdef GLOBOX_ERROR_HELPER_XCB
 void x11_helpers_xcb_error_log(
 	struct globox* context,
 	struct x11_platform* platform,
 	xcb_generic_error_t* error);
+#endif
 
 #endif

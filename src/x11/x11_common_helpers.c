@@ -11,7 +11,10 @@
 #include <string.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+
+#ifdef GLOBOX_ERROR_HELPER_XCB
 #include <xcb/xcb_errors.h>
+#endif
 
 void* x11_helpers_render_loop(void* data)
 {
@@ -922,6 +925,7 @@ void x11_helpers_get_title(
 	free(reply);
 }
 
+#ifdef GLOBOX_ERROR_HELPER_XCB
 void x11_helpers_xcb_error_log(
 	struct globox* context,
 	struct x11_platform* platform,
@@ -986,3 +990,4 @@ void x11_helpers_xcb_error_log(
 
 	xcb_errors_context_free(errors_context);
 }
+#endif

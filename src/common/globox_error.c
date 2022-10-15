@@ -149,8 +149,8 @@ void globox_error_log(
 			fprintf(
 				stderr,
 				"error in %s line %u: ",
-				file,
-				line);
+				error->file,
+				error->line);
 		#endif
 
 		if (error->code < GLOBOX_ERROR_COUNT)
