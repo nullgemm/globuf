@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700
 
 #include "include/globox.h"
+#include "include/globox_x11.h"
 #include "common/globox_private.h"
 #include "x11/x11_common.h"
 #include "x11/x11_common_helpers.h"

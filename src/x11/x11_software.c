@@ -627,6 +627,31 @@ void globox_x11_software_update_content(
 }
 
 
+xcb_connection_t* globox_get_x11_conn(struct globox* context)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	return platform->conn;
+}
+
+xcb_window_t globox_get_x11_window(struct globox* context)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	return platform->win;
+}
+
+xcb_screen_t* globox_get_x11_screen(struct globox* context)
+{
+	struct x11_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	return platform->screen_obj;
+}
+
+
 void globox_prepare_init_x11_software(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)

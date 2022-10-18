@@ -239,11 +239,15 @@ echo "# copy headers"; \
 echo "build \$folder_include/globox_x11_$backend.h: \$"; \
 echo "cp src/include/globox_x11_$backend.h"; \
 echo ""; \
+echo "build \$folder_include/globox_x11.h: \$"; \
+echo "cp src/include/globox_x11.h"; \
+echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_x11_$backend.h"; \
+echo "\$folder_include/globox_x11_$backend.h \$"; \
+echo "\$folder_include/globox_x11.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi

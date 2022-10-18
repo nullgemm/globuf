@@ -9,6 +9,7 @@ cd "$folder"/../.. || exit
 build_type=$1
 build_platform=$2
 build_backend=$3
+build_example=$4
 
 # set params default values if needed
 if [ -z "$build_type" ]; then
@@ -23,6 +24,10 @@ if [ -z "$build_backend" ]; then
 	build_backend=software
 fi
 
+if [ -z "$build_example" ]; then
+	build_example=complex
+fi
+
 # generate ninja files
 case $build_platform in
 	x11)
@@ -30,7 +35,7 @@ case $build_platform in
 		./make/lib/elf.sh $build_type
 		./make/lib/x11.sh $build_type common
 		./make/lib/x11.sh $build_type $build_backend
-		./make/example/simple/x11.sh $build_type $build_backend
+		./make/example/$build_example/x11.sh $build_type $build_backend
 	;;
 
 	*)
@@ -49,7 +54,7 @@ case $build_platform in
 		samu -f ./make/output/lib_elf.ninja headers
 		samu -f ./make/output/lib_x11_"$build_backend".ninja headers
 
-		samu -f ./make/output/example_simple_x11_"$build_backend".ninja
+		samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja
 	;;
 
 	*)

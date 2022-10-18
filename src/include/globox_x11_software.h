@@ -1,6 +1,7 @@
 #ifndef H_GLOBOX_X11_SOFTWARE
 #define H_GLOBOX_X11_SOFTWARE
 
+#include "globox_x11.h"
 #include "globox_software.h"
 
 void globox_prepare_init_x11_software(

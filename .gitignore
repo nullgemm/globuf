@@ -9,6 +9,8 @@ res/egl_headers
 res/wayland_headers
 res/icon/iconpix.bin
 res/infer
+res/*.tar.xz
+res/*.zip
 ci/*/log
 ci/osxcross_build_image/volumes
 ci/osxcross_build_image/scripts/pkg
