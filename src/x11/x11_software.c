@@ -20,7 +20,7 @@ void globox_x11_software_init(
 	struct globox_error_info* error)
 {
 	// allocate the backend
-	struct x11_backend* backend = malloc(sizeof (struct x11_backend));
+	struct x11_software_backend* backend = malloc(sizeof (struct x11_software_backend));
 
 	if (backend == NULL)
 	{
@@ -29,7 +29,7 @@ void globox_x11_software_init(
 	}
 
 	// zero-initialize the backend
-	struct x11_backend zero = {0};
+	struct x11_software_backend zero = {0};
 	*backend = zero;
 
 	// reference the backend in the main context
@@ -48,7 +48,7 @@ void globox_x11_software_clean(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// clean the platform
@@ -68,7 +68,7 @@ void globox_x11_software_window_create(
 	void* data,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock mutex
@@ -203,7 +203,7 @@ void globox_x11_software_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -241,7 +241,7 @@ void globox_x11_software_window_start(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -256,7 +256,7 @@ void globox_x11_software_window_block(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper (mutex locked when unblocked)
@@ -271,7 +271,7 @@ void globox_x11_software_window_stop(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -288,7 +288,7 @@ void globox_x11_software_init_render(
 	struct globox_config_render* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -304,7 +304,7 @@ void globox_x11_software_init_events(
 	struct globox_config_events* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -320,7 +320,7 @@ enum globox_event globox_x11_software_handle_events(
 	void* event,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -342,7 +342,7 @@ struct globox_config_features* globox_x11_software_init_features(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -361,7 +361,7 @@ void globox_x11_software_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -375,7 +375,7 @@ void globox_x11_software_feature_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -389,7 +389,7 @@ void globox_x11_software_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -403,7 +403,7 @@ void globox_x11_software_feature_set_icon(
 	struct globox_feature_icon* config,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
@@ -417,7 +417,7 @@ unsigned globox_x11_software_get_width(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
@@ -428,7 +428,7 @@ unsigned globox_x11_software_get_height(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
@@ -439,7 +439,7 @@ struct globox_rect globox_x11_software_get_expose(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
@@ -452,7 +452,7 @@ void globox_x11_software_update_content(
 	void* data,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 	struct globox_update_software* update = data;
 
@@ -629,7 +629,7 @@ void globox_x11_software_update_content(
 
 xcb_connection_t* globox_get_x11_conn(struct globox* context)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	return platform->conn;
@@ -637,7 +637,7 @@ xcb_connection_t* globox_get_x11_conn(struct globox* context)
 
 xcb_window_t globox_get_x11_window(struct globox* context)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	return platform->win;
@@ -645,7 +645,7 @@ xcb_window_t globox_get_x11_window(struct globox* context)
 
 xcb_screen_t* globox_get_x11_screen(struct globox* context)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	return platform->screen_obj;
@@ -689,7 +689,7 @@ uint32_t* globox_buffer_alloc_software(
 	unsigned height,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	uint32_t* argb = NULL;
 	size_t len = 4 * width * height;
 
@@ -724,7 +724,7 @@ void globox_buffer_free_software(
 	uint32_t* buffer,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	if (backend->shared_pixmaps == false)

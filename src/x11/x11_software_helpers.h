@@ -5,7 +5,7 @@
 #include "x11/x11_common.h"
 #include <xcb/xcb_image.h>
 
-struct x11_backend
+struct x11_software_backend
 {
 	struct x11_platform platform;
 

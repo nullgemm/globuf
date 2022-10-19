@@ -16,7 +16,7 @@ void x11_helpers_visual_transparent(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	xcb_render_query_pict_formats_cookie_t cookie_pict;
@@ -175,7 +175,7 @@ void x11_helpers_visual_opaque(
 	struct globox* context,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	platform->visual_id = platform->screen_obj->root_visual;
@@ -243,7 +243,7 @@ void x11_helpers_shm_create(
 	size_t len,
 	struct globox_error_info* error)
 {
-	struct x11_backend* backend = context->backend_data;
+	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	int shmid =
