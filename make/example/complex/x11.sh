@@ -37,6 +37,7 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Ires/cursoryx/include")
+flags+=("-Ires/dpishit/include")
 ldflags+=("-z noexecstack")
 defines+=("-DGLOBOX_EXAMPLE_X11")
 
@@ -159,8 +160,8 @@ exit 1
 	;;
 esac
 
-link+=("xcb-present")
 link+=("xcb")
+link+=("xcb-xrm")
 ldlibs+=("-lpthread")
 
 # additional object files
@@ -170,6 +171,8 @@ libs+=("\$folder_library/x11/$name_lib""_common.a")
 libs+=("\$folder_library/globox.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx.a")
 libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
+libs+=("res/dpishit/lib/dpishit/dpishit.a")
+libs+=("res/dpishit/lib/dpishit/x11/dpishit_x11.a")
 
 # default target
 default+=("\$builddir/\$name")

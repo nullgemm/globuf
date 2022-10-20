@@ -1,10 +1,12 @@
 #include "globox.h"
 #include "globox_software.h"
 #include "cursoryx.h"
+#include "dpishit.h"
 
 #ifdef GLOBOX_EXAMPLE_X11
 #include "globox_x11_software.h"
 #include "cursoryx_x11.h"
+#include "dpishit_x11.h"
 #endif
 
 #include <stdbool.h>
@@ -482,7 +484,6 @@ int main(int argc, char** argv)
 	if (cursoryx == NULL)
 	{
 		fprintf(stderr, "\ncould not allocate the main cursoryx context\n");
-		globox_error_log(globox, &error_render);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
@@ -492,7 +493,6 @@ int main(int argc, char** argv)
 	{
 		cursoryx_error_log(cursoryx, &error_cursor);
 		cursoryx_clean(cursoryx, &error_cursor);
-		globox_error_log(globox, &error_render);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
@@ -504,7 +504,6 @@ int main(int argc, char** argv)
 	{
 		cursoryx_error_log(cursoryx, &error_cursor);
 		cursoryx_clean(cursoryx, &error_cursor);
-		globox_error_log(globox, &error_render);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
@@ -516,14 +515,116 @@ int main(int argc, char** argv)
 	{
 		cursoryx_error_log(cursoryx, &error_cursor);
 		cursoryx_clean(cursoryx, &error_cursor);
-		globox_error_log(globox, &error_render);
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
 
+	// and get some display info
+	struct dpishit_error_info error_display = {0};
+	struct dpishit_config_backend config_display = {0};
+
+#ifdef GLOBOX_EXAMPLE_X11
+	dpishit_prepare_init_x11(&config_display);
+
+	struct dpishit_x11_data dpishit_data =
+	{
+		.conn = globox_get_x11_conn(globox),
+		.window = globox_get_x11_window(globox),
+	};
+#endif
+
+	struct dpishit* dpishit = dpishit_init(&config_display, &error_display);
+
+	if (dpishit == NULL)
+	{
+		fprintf(stderr, "\ncould not allocate the main dpishit context\n");
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	dpishit_start(dpishit, &dpishit_data, &error_display);
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	struct dpishit_display_info display_info = dpishit_get(dpishit, &error_display);
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	printf(
+		"\ndisplay info:\n"
+		" - width: %u px\n"
+		" - height: %u px\n"
+		" - width: %u mm\n"
+		" - height: %u mm\n",
+		display_info.px_width,
+		display_info.px_height,
+		display_info.mm_width,
+		display_info.mm_height);
+
+	if (display_info.dpi_logic_valid == true)
+	{
+		printf(
+			" - logic dpi: %lf dpi\n",
+			display_info.dpi_logic);
+	}
+
+	if (display_info.scale_valid == true)
+	{
+		printf(
+			" - scale: %lf\n",
+			display_info.scale);
+	}
+
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
+
+	// stop dpishit
+	dpishit_stop(dpishit, &error_display);
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	dpishit_clean(dpishit, &error_display);
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	// stop cursoryx
 	cursoryx_stop(cursoryx, &error_cursor);
