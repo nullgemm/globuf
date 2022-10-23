@@ -32,9 +32,17 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
 };
 
+struct event_callback_data
+{
+	struct globox* globox;
+	struct dpishit* dpishit;
+};
+
 static void event_callback(void* data, void* event)
 {
-	struct globox* globox = data;
+	struct event_callback_data* event_callback_data = data;
+
+	struct globox* globox = event_callback_data->globox;
 	struct globox_error_info error = {0};
 
 	// print some debug info on internal events
@@ -103,16 +111,70 @@ static void event_callback(void* data, void* event)
 			fprintf(
 				stderr,
 				"received `content damaged` event\n"
-				"x: %d\n"
-				"y: %d\n"
-				"width: %d\n"
-				"height: %d\n",
+				" - x: %d px\n"
+				" - y: %d px\n"
+				" - width: %d px\n"
+				" - height: %d px\n",
 				rect.x,
 				rect.y,
 				rect.width,
 				rect.height);
 
 			break;
+		}
+	}
+
+	// handle dpi changes
+	struct dpishit* dpishit = event_callback_data->dpishit;
+	struct dpishit_error_info error_dpishit = {0};
+	struct dpishit_display_info display_info = {0};
+	bool dpishit_valid = false;
+
+	// TODO wait until window_block?
+	if (dpishit != NULL)
+	{
+		dpishit_valid =
+			dpishit_handle_event(
+				dpishit,
+				event,
+				&display_info,
+				&error_dpishit);
+
+		if (dpishit_error_get_code(&error_dpishit) != DPISHIT_ERROR_OK)
+		{
+			dpishit_error_log(dpishit, &error_dpishit);
+			return;
+		}
+
+		if (dpishit_valid == true)
+		{
+			fprintf(
+				stderr,
+				"\ndpishit returned display info:\n"
+				" - width: %u px\n"
+				" - height: %u px\n"
+				" - width: %u mm\n"
+				" - height: %u mm\n",
+				display_info.px_width,
+				display_info.px_height,
+				display_info.mm_width,
+				display_info.mm_height);
+
+			if (display_info.dpi_logic_valid == true)
+			{
+				fprintf(
+					stderr,
+					" - logic dpi: %lf dpi\n",
+					display_info.dpi_logic);
+			}
+
+			if (display_info.dpi_scale_valid == true)
+			{
+				fprintf(
+					stderr,
+					" - scale: %lf\n",
+					display_info.dpi_scale);
+			}
 		}
 	}
 }
@@ -403,10 +465,16 @@ int main(int argc, char** argv)
 	free(feature_list->list);
 	free(feature_list);
 
+	struct event_callback_data event_callback_data =
+	{
+		.globox = globox,
+		.dpishit = NULL,
+	};
+
 	// register an event handler to track the window's state
 	struct globox_config_events events =
 	{
-		.data = globox,
+		.data = &event_callback_data,
 		.handler = event_callback,
 	};
 
@@ -520,7 +588,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// and get some display info
+	// init dpishit
 	struct dpishit_error_info error_display = {0};
 	struct dpishit_config_backend config_display = {0};
 
@@ -544,6 +612,9 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	event_callback_data.dpishit = dpishit;
+
+	// start dpishit
 	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
 	{
 		dpishit_error_log(dpishit, &error_display);
@@ -562,42 +633,6 @@ int main(int argc, char** argv)
 		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
-	}
-
-	struct dpishit_display_info display_info = dpishit_get(dpishit, &error_display);
-
-	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
-	{
-		dpishit_error_log(dpishit, &error_display);
-		dpishit_clean(dpishit, &error_display);
-		globox_window_destroy(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
-	}
-
-	printf(
-		"\ndisplay info:\n"
-		" - width: %u px\n"
-		" - height: %u px\n"
-		" - width: %u mm\n"
-		" - height: %u mm\n",
-		display_info.px_width,
-		display_info.px_height,
-		display_info.mm_width,
-		display_info.mm_height);
-
-	if (display_info.dpi_logic_valid == true)
-	{
-		printf(
-			" - logic dpi: %lf dpi\n",
-			display_info.dpi_logic);
-	}
-
-	if (display_info.scale_valid == true)
-	{
-		printf(
-			" - scale: %lf\n",
-			display_info.scale);
 	}
 
 	// wait for the window to be closed
