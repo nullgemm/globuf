@@ -643,6 +643,14 @@ xcb_window_t globox_get_x11_window(struct globox* context)
 	return platform->win;
 }
 
+xcb_window_t globox_get_x11_root(struct globox* context)
+{
+	struct x11_software_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	return platform->root_win;
+}
+
 xcb_screen_t* globox_get_x11_screen(struct globox* context)
 {
 	struct x11_software_backend* backend = context->backend_data;

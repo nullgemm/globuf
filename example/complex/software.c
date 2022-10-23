@@ -599,6 +599,7 @@ int main(int argc, char** argv)
 	{
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
+		.root = globox_get_x11_root(globox),
 	};
 #endif
 
