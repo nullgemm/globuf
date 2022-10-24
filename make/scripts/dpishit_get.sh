@@ -6,7 +6,7 @@ folder=$(dirname "$path")
 cd "$folder"/../.. || exit
 
 # get libs
-version="v0.1.0"
+version="v0.1.1"
 
 cd res
 curl -L https://github.com/nullgemm/dpishit/releases/download/"$version"/dpishit_bin_"$version".zip -o dpishit.zip
