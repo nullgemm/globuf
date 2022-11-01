@@ -38,6 +38,7 @@ flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Ires/cursoryx/include")
 flags+=("-Ires/dpishit/include")
+flags+=("-Ires/willis/include")
 ldflags+=("-z noexecstack")
 defines+=("-DGLOBOX_EXAMPLE_X11")
 
@@ -161,7 +162,12 @@ exit 1
 esac
 
 link+=("xcb")
+link+=("xcb-xfixes")
+link+=("xcb-xinput")
+link+=("xcb-xkb")
 link+=("xcb-xrm")
+link+=("xkbcommon")
+link+=("xkbcommon-x11")
 ldlibs+=("-lpthread")
 
 # additional object files
@@ -173,6 +179,8 @@ libs+=("res/cursoryx/lib/cursoryx/cursoryx.a")
 libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
 libs+=("res/dpishit/lib/dpishit/dpishit.a")
 libs+=("res/dpishit/lib/dpishit/x11/dpishit_x11.a")
+libs+=("res/willis/lib/willis/willis.a")
+libs+=("res/willis/lib/willis/x11/willis_x11.a")
 
 # default target
 default+=("\$builddir/\$name")

@@ -2,11 +2,13 @@
 #include "globox_software.h"
 #include "cursoryx.h"
 #include "dpishit.h"
+#include "willis.h"
 
 #ifdef GLOBOX_EXAMPLE_X11
 #include "globox_x11_software.h"
 #include "cursoryx_x11.h"
 #include "dpishit_x11.h"
+#include "willis_x11.h"
 #endif
 
 #include <stdbool.h>
@@ -36,6 +38,8 @@ struct event_callback_data
 {
 	struct globox* globox;
 	struct dpishit* dpishit;
+	struct willis* willis;
+	bool mouse_grabbed;
 };
 
 static void event_callback(void* data, void* event)
@@ -175,6 +179,109 @@ static void event_callback(void* data, void* event)
 					" - scale: %lf\n",
 					display_info.dpi_scale);
 			}
+		}
+	}
+
+	// handle dpi changes
+	struct willis* willis = event_callback_data->willis;
+	struct willis_error_info error_willis = {0};
+	struct willis_event_info event_info = {0};
+
+	// TODO wait until window_block?
+	if (willis != NULL)
+	{
+		willis_handle_event(
+			willis,
+			event,
+			&event_info,
+			&error_willis);
+
+		if (willis_error_get_code(&error_willis) != WILLIS_ERROR_OK)
+		{
+			willis_error_log(willis, &error_willis);
+			return;
+		}
+
+		// handle keys
+		switch (event_info.event_code)
+		{
+			case WILLIS_KEY_G:
+			{
+				if (event_info.event_state != WILLIS_STATE_PRESS)
+				{
+					break;
+				}
+
+				if (event_callback_data->mouse_grabbed == false)
+				{
+					// TODO use return boolean?
+					willis_mouse_grab(willis, &error_willis);
+				}
+				else
+				{
+					// TODO use return boolean?
+					willis_mouse_ungrab(willis, &error_willis);
+				}
+
+				if (willis_error_get_code(&error_willis) != WILLIS_ERROR_OK)
+				{
+					willis_error_log(willis, &error_willis);
+					return;
+				}
+
+				event_callback_data->mouse_grabbed =
+					!event_callback_data->mouse_grabbed;
+
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		// print debug info
+		if (event_info.event_code != WILLIS_NONE)
+		{
+			fprintf(
+				stderr,
+				"\nwillis returned event info:\n"
+				" - code: %s\n"
+				" - state: %s\n",
+				willis_get_event_code_name(willis, event_info.event_code, &error_willis),
+				willis_get_event_state_name(willis, event_info.event_state, &error_willis));
+
+			if (event_info.event_code == WILLIS_MOUSE_MOTION)
+			{
+				if (event_callback_data->mouse_grabbed == false)
+				{
+					fprintf(
+						stderr,
+						" - mouse x: %d\n"
+						" - mouse y: %d\n",
+						event_info.mouse_x,
+						event_info.mouse_y);
+				}
+				else
+				{
+					fprintf(
+						stderr,
+						" - diff x: %d\n"
+						" - diff y: %d\n",
+						(int) (event_info.diff_x >> 32),
+						(int) (event_info.diff_y >> 32));
+				}
+			}
+			else if (event_info.utf8_size > 0)
+			{
+				fprintf(
+					stderr,
+					" - text: %.*s\n",
+					(int) event_info.utf8_size,
+					event_info.utf8_string);
+			}
+
+			fprintf(stderr, "\n");
 		}
 	}
 }
@@ -469,6 +576,8 @@ int main(int argc, char** argv)
 	{
 		.globox = globox,
 		.dpishit = NULL,
+		.willis = NULL,
+		.mouse_grabbed = false,
 	};
 
 	// register an event handler to track the window's state
@@ -588,6 +697,54 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// init willis
+	struct willis_error_info error_input = {0};
+	struct willis_config_backend config_input = {0};
+
+#ifdef GLOBOX_EXAMPLE_X11
+	willis_prepare_init_x11(&config_input);
+
+	struct willis_x11_data willis_data =
+	{
+		.conn = globox_get_x11_conn(globox),
+		.window = globox_get_x11_window(globox),
+		.root = globox_get_x11_root(globox),
+	};
+#endif
+
+	struct willis* willis = willis_init(&config_input, &error_input);
+
+	if (willis == NULL)
+	{
+		fprintf(stderr, "\ncould not allocate the main willis context\n");
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	event_callback_data.willis = willis;
+
+	// start willis
+	if (willis_error_get_code(&error_input) != WILLIS_ERROR_OK)
+	{
+		willis_error_log(willis, &error_input);
+		willis_clean(willis, &error_input);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	willis_start(willis, &willis_data, &error_input);
+
+	if (willis_error_get_code(&error_input) != WILLIS_ERROR_OK)
+	{
+		willis_error_log(willis, &error_input);
+		willis_clean(willis, &error_input);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
 	// init dpishit
 	struct dpishit_error_info error_display = {0};
 	struct dpishit_config_backend config_display = {0};
@@ -638,6 +795,29 @@ int main(int argc, char** argv)
 
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
+
+	// stop willis
+	willis_stop(willis, &error_input);
+
+	if (willis_error_get_code(&error_input) != WILLIS_ERROR_OK)
+	{
+		willis_error_log(willis, &error_input);
+		willis_clean(willis, &error_input);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	willis_clean(willis, &error_input);
+
+	if (willis_error_get_code(&error_input) != WILLIS_ERROR_OK)
+	{
+		willis_error_log(willis, &error_input);
+		willis_clean(willis, &error_input);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	// stop dpishit
 	dpishit_stop(dpishit, &error_display);
