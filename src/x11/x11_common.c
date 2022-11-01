@@ -950,6 +950,16 @@ enum globox_event globox_x11_common_handle_events(
 	{
 		case XCB_NONE:
 		{
+			#ifdef GLOBOX_ERROR_HELPER_XCB
+				xcb_generic_error_t* error_xcb =
+					(xcb_generic_error_t*) xcb_event;
+
+				x11_helpers_xcb_error_log(
+					context,
+					platform,
+					error_xcb);
+			#endif
+
 			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_INVALID);
 			return GLOBOX_EVENT_INVALID;
 		}
