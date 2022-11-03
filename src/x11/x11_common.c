@@ -483,6 +483,10 @@ void globox_x11_common_window_create(
 		.lo = 0,
 	};
 
+	platform->xsync_counter =
+		xcb_generate_id(
+			platform->conn);
+
 	cookie =
 		xcb_sync_create_counter(
 			platform->conn,
@@ -1116,6 +1120,7 @@ enum globox_event globox_x11_common_handle_events(
 					platform->xsync_value.hi = message->data.data32[3];
 					platform->xsync_value.lo = message->data.data32[2];
 					platform->xsync_configure = false;
+					platform->xsync_request = true;
 
 					// unlock xsync mutex
 					posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
