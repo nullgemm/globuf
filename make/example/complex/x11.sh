@@ -133,11 +133,6 @@ case $backend in
 ninja_file=example_complex_x11_software.ninja
 src+=("example/complex/software.c")
 link+=("xcb-shm")
-link+=("xcb-sync")
-link+=("xcb-randr")
-link+=("xcb-render")
-link+=("xcb-xfixes")
-link+=("xcb-cursor")
 	;;
 
 	egl)
@@ -162,6 +157,12 @@ exit 1
 esac
 
 link+=("xcb")
+link+=("xcb-cursor")
+link+=("xcb-image")
+link+=("xcb-randr")
+link+=("xcb-render")
+link+=("xcb-renderutil")
+link+=("xcb-sync")
 link+=("xcb-xfixes")
 link+=("xcb-xinput")
 link+=("xcb-xkb")
@@ -172,6 +173,7 @@ ldlibs+=("-lpthread")
 
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
+obj+=("\$folder_objects/res/cursor/cursorpix.o")
 libs+=("\$folder_library/x11/$name_lib""_$backend.a")
 libs+=("\$folder_library/x11/$name_lib""_common.a")
 libs+=("\$folder_library/globox.a")
@@ -272,7 +274,7 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule icon_pixmap"; \
+echo "rule pixmap"; \
 echo "    command = make/scripts/pixmap.sh"; \
 echo "    description = pixmap \$out"; \
 echo ""; \
@@ -283,6 +285,16 @@ echo "rule icon_object"; \
 echo "    command = objcopy \$objcopy \$"; \
 echo "    --redefine-syms=res/icon/syms.map \$"; \
 echo "    --rename-section .data=.iconpix \$"; \
+echo "    \$in \$out"; \
+echo "    description = objcopy \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule cursor_object"; \
+echo "    command = objcopy \$objcopy \$"; \
+echo "    --redefine-syms=res/cursor/syms.map \$"; \
+echo "    --rename-section .data=.cursorpix \$"; \
 echo "    \$in \$out"; \
 echo "    description = objcopy \$out"; \
 echo ""; \
@@ -355,9 +367,12 @@ done
 ## main targets
 { \
 echo "# main targets"; \
-echo "build res/icon/iconpix.bin: icon_pixmap"; \
+echo "build res/icon/iconpix.bin: pixmap"; \
+echo "build res/cursor/cursorpix.bin: pixmap"; \
 echo "build \$folder_objects/res/icon/iconpix.o: \$"; \
 echo "icon_object res/icon/iconpix.bin"; \
+echo "build \$folder_objects/res/cursor/cursorpix.o: \$"; \
+echo "cursor_object res/cursor/cursorpix.bin"; \
 echo ""; \
 echo "build \$folder_objects/res/shaders/gl1/square_vert_gl1.o: \$"; \
 echo "shader_vert_object res/shaders/gl1/square_vert_gl1.glsl"; \

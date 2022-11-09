@@ -21,6 +21,10 @@ extern unsigned char iconpix_beg;
 extern unsigned char iconpix_end;
 extern unsigned char iconpix_len;
 
+extern unsigned char cursorpix_beg;
+extern unsigned char cursorpix_end;
+extern unsigned char cursorpix_len;
+
 char* feature_names[GLOBOX_FEATURE_COUNT] =
 {
 	[GLOBOX_FEATURE_INTERACTION] = "interaction",
