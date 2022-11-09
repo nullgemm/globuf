@@ -41,8 +41,13 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 struct event_callback_data
 {
 	struct globox* globox;
+
+	struct cursoryx* cursoryx;
 	struct dpishit* dpishit;
 	struct willis* willis;
+
+	struct cursoryx_custom* mouse_custom[4];
+	size_t mouse_custom_active;
 	bool mouse_grabbed;
 };
 
@@ -186,6 +191,10 @@ static void event_callback(void* data, void* event)
 		}
 	}
 
+	// handle cursor changes
+	struct cursoryx* cursoryx = event_callback_data->cursoryx;
+	struct cursoryx_error_info error_cursoryx = {0};
+
 	// handle dpi changes
 	struct willis* willis = event_callback_data->willis;
 	struct willis_error_info error_willis = {0};
@@ -235,6 +244,38 @@ static void event_callback(void* data, void* event)
 
 				event_callback_data->mouse_grabbed =
 					!event_callback_data->mouse_grabbed;
+
+				break;
+			}
+			case WILLIS_KEY_M:
+			{
+				if ((event_info.event_state != WILLIS_STATE_PRESS)
+					|| (cursoryx == NULL))
+				{
+					break;
+				}
+
+				size_t cur = event_callback_data->mouse_custom_active;
+
+				++cur;
+
+				if (cur > 3)
+				{
+					cur = 0;
+				}
+
+				cursoryx_custom_set(
+					cursoryx,
+					event_callback_data->mouse_custom[cur],
+					&error_cursoryx);
+
+				if (cursoryx_error_get_code(&error_cursoryx) != CURSORYX_ERROR_OK)
+				{
+					cursoryx_error_log(cursoryx, &error_cursoryx);
+					return;
+				}
+
+				event_callback_data->mouse_custom_active = cur;
 
 				break;
 			}
@@ -581,6 +622,9 @@ int main(int argc, char** argv)
 		.globox = globox,
 		.dpishit = NULL,
 		.willis = NULL,
+		.cursoryx = NULL,
+		.mouse_custom = {0},
+		.mouse_custom_active = 4,
 		.mouse_grabbed = false,
 	};
 
@@ -690,6 +734,57 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// prepare custom cursors
+	event_callback_data.cursoryx = cursoryx;
+
+	struct cursoryx_custom_config cursor_config[4] =
+	{
+		{
+			.image = (uint32_t*) (&cursorpix_beg + 8 + (16*22*4)*0),
+			.width = 16,
+			.height = 22,
+			.x = 7,
+			.y = 13,
+		},
+		{
+			.image = (uint32_t*) (&cursorpix_beg + 16 + (16*22*4)*1),
+			.width = 16,
+			.height = 22,
+			.x = 7,
+			.y = 13,
+		},
+		{
+			.image = (uint32_t*) (&cursorpix_beg + 24 + (16*22*4)*2),
+			.width = 16,
+			.height = 22,
+			.x = 7,
+			.y = 13,
+		},
+		{
+			.image = (uint32_t*) (&cursorpix_beg + 32 + (16*22*4)*3),
+			.width = 16,
+			.height = 22,
+			.x = 7,
+			.y = 13,
+		},
+	};
+
+	for (size_t i = 0; i < 4; ++i)
+	{
+		event_callback_data.mouse_custom[i] =
+			cursoryx_custom_create(cursoryx, &(cursor_config[i]), &error_cursor);
+
+		if (cursoryx_error_get_code(&error_cursor) != CURSORYX_ERROR_OK)
+		{
+			cursoryx_error_log(cursoryx, &error_cursor);
+			cursoryx_clean(cursoryx, &error_cursor);
+			globox_window_destroy(globox, &error);
+			globox_clean(globox, &error);
+			return 1;
+		}
+	}
+
+	// set a default regular cursor for our window (wait/busy cursor)
 	cursoryx_set(cursoryx, CURSORYX_BUSY, &error_cursor);
 
 	if (cursoryx_error_get_code(&error_cursor) != CURSORYX_ERROR_OK)
