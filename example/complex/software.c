@@ -219,6 +219,7 @@ static void event_callback(void* data, void* event)
 	if (event_info.event_state != WILLIS_STATE_PRESS)
 	{
 		struct globox_feature_interaction action;
+		struct globox_feature_state state;
 
 		switch (event_info.event_code)
 		{
@@ -280,11 +281,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_W:
 			{
 				action.action = GLOBOX_INTERACTION_N;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -297,11 +294,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_Q:
 			{
 				action.action = GLOBOX_INTERACTION_NW;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -314,11 +307,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_A:
 			{
 				action.action = GLOBOX_INTERACTION_W;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -331,11 +320,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_Z:
 			{
 				action.action = GLOBOX_INTERACTION_SW;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -348,11 +333,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_X:
 			{
 				action.action = GLOBOX_INTERACTION_S;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -365,11 +346,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_C:
 			{
 				action.action = GLOBOX_INTERACTION_SE;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -382,11 +359,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_D:
 			{
 				action.action = GLOBOX_INTERACTION_E;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -399,11 +372,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_E:
 			{
 				action.action = GLOBOX_INTERACTION_NE;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -416,11 +385,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_S:
 			{
 				action.action = GLOBOX_INTERACTION_MOVE;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -433,11 +398,7 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_SPACE:
 			{
 				action.action = GLOBOX_INTERACTION_STOP;
-
-				globox_feature_set_interaction(
-					globox,
-					&action,
-					&error);
+				globox_feature_set_interaction(globox, &action, &error);
 
 				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 				{
@@ -445,6 +406,30 @@ static void event_callback(void* data, void* event)
 					return;
 				}
 
+				break;
+			}
+			case WILLIS_KEY_1:
+			{
+				state.state = GLOBOX_STATE_REGULAR;
+				globox_feature_set_state(globox, &state, &error);
+				break;
+			}
+			case WILLIS_KEY_2:
+			{
+				state.state = GLOBOX_STATE_MINIMIZED;
+				globox_feature_set_state(globox, &state, &error);
+				break;
+			}
+			case WILLIS_KEY_3:
+			{
+				state.state = GLOBOX_STATE_MAXIMIZED;
+				globox_feature_set_state(globox, &state, &error);
+				break;
+			}
+			case WILLIS_KEY_4:
+			{
+				state.state = GLOBOX_STATE_FULLSCREEN;
+				globox_feature_set_state(globox, &state, &error);
 				break;
 			}
 			default:
