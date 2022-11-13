@@ -317,11 +317,44 @@ void x11_helpers_features_init(
 	}
 }
 
+void x11_helpers_query_pointer(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	xcb_generic_error_t* error_xcb;
+
+	xcb_query_pointer_cookie_t cookie =
+		xcb_query_pointer(
+			platform->conn,
+			platform->win);
+
+	xcb_query_pointer_reply_t* reply =
+		xcb_query_pointer_reply(
+			platform->conn,
+			cookie,
+			&error_xcb);
+
+	if (error_xcb != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_QUERY_POINTER);
+
+		return;
+	}
+
+	platform->query_pointer_x = reply->root_x;
+	platform->query_pointer_y = reply->root_y;
+
+	globox_error_ok(error);
+}
+
 void x11_helpers_set_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
+	xcb_generic_error_t* xcb_error;
+
 	uint32_t table[] =
 	{
 		[GLOBOX_INTERACTION_STOP] = XCB_EWMH_WM_MOVERESIZE_CANCEL,
@@ -336,34 +369,54 @@ void x11_helpers_set_interaction(
 		[GLOBOX_INTERACTION_NE]   = XCB_EWMH_WM_MOVERESIZE_SIZE_TOPRIGHT,
 	};
 
-	uint32_t info[5] =
+	// query pointer coordinates
+	x11_helpers_query_pointer(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
-		platform->saved_mouse_press_x,
-		platform->saved_mouse_press_y,
-		table[context->feature_interaction->action],
-		platform->saved_mouse_press_button,
-		1,
+		return;
+	}
+
+	// start EWMH interactive move and resize
+	xcb_client_message_event_t event =
+	{
+		.response_type = XCB_CLIENT_MESSAGE,
+		.type = platform->atoms[X11_ATOM_MOVERESIZE],
+		.format = 32,
+		.window = platform->win,
+		.data =
+		{
+			.data32 =
+			{
+				platform->query_pointer_x,
+				platform->query_pointer_y,
+				table[context->feature_interaction->action],
+				platform->saved_mouse_press_button,
+				1,
+			},
+		},
 	};
 
-	xcb_void_cookie_t cookie =
-		xcb_change_property_checked(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_MOVERESIZE],
-			XCB_ATOM_CARDINAL,
-			32,
-			5,
-			info);
+	uint32_t mask =
+		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
+		| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
 
-	xcb_generic_error_t* xcb_error =
+	xcb_void_cookie_t cookie =
+		xcb_send_event_checked(
+			platform->conn,
+			1,
+			platform->win,
+			mask,
+			(const char*)(&event));
+
+	xcb_error =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
 	if (xcb_error != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
 		return;
 	}
 

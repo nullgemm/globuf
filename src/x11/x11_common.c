@@ -235,6 +235,8 @@ void globox_x11_common_init(
 	platform->xsync_height = 0;
 
 	// initialize saved action
+	platform->query_pointer_x = 0;
+	platform->query_pointer_y = 0;
 	platform->saved_mouse_press_x = 0;
 	platform->saved_mouse_press_y = 0;
 	platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;

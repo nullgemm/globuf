@@ -78,6 +78,8 @@ struct x11_platform
 	unsigned xsync_height;
 
 	// saved action for globox mouse action
+	uint32_t query_pointer_x;
+	uint32_t query_pointer_y;
 	uint32_t saved_mouse_press_x;
 	uint32_t saved_mouse_press_y;
 	uint32_t saved_mouse_press_button;

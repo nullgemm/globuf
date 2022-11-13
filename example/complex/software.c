@@ -216,15 +216,14 @@ static void event_callback(void* data, void* event)
 		}
 
 		// handle keys
+	if (event_info.event_state != WILLIS_STATE_PRESS)
+	{
+		struct globox_feature_interaction action;
+
 		switch (event_info.event_code)
 		{
 			case WILLIS_KEY_G:
 			{
-				if (event_info.event_state != WILLIS_STATE_PRESS)
-				{
-					break;
-				}
-
 				if (event_callback_data->mouse_grabbed == false)
 				{
 					// TODO use return boolean?
@@ -249,8 +248,7 @@ static void event_callback(void* data, void* event)
 			}
 			case WILLIS_KEY_M:
 			{
-				if ((event_info.event_state != WILLIS_STATE_PRESS)
-					|| (cursoryx == NULL))
+				if (cursoryx == NULL)
 				{
 					break;
 				}
@@ -279,11 +277,182 @@ static void event_callback(void* data, void* event)
 
 				break;
 			}
+			case WILLIS_KEY_W:
+			{
+				action.action = GLOBOX_INTERACTION_N;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_Q:
+			{
+				action.action = GLOBOX_INTERACTION_NW;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_A:
+			{
+				action.action = GLOBOX_INTERACTION_W;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_Z:
+			{
+				action.action = GLOBOX_INTERACTION_SW;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_X:
+			{
+				action.action = GLOBOX_INTERACTION_S;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_C:
+			{
+				action.action = GLOBOX_INTERACTION_SE;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_D:
+			{
+				action.action = GLOBOX_INTERACTION_E;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_E:
+			{
+				action.action = GLOBOX_INTERACTION_NE;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_S:
+			{
+				action.action = GLOBOX_INTERACTION_MOVE;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
+			case WILLIS_KEY_SPACE:
+			{
+				action.action = GLOBOX_INTERACTION_STOP;
+
+				globox_feature_set_interaction(
+					globox,
+					&action,
+					&error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+
+				break;
+			}
 			default:
 			{
 				break;
 			}
 		}
+	}
 
 		// print debug info
 		if (event_info.event_code != WILLIS_NONE)

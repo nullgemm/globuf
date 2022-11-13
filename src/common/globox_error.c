@@ -136,6 +136,8 @@ void globox_error_init(
 		"failed to set the X11 sync counter";
 	log[GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY] =
 		"failed to destroy the X11 sync counter";
+	log[GLOBOX_ERROR_X11_QUERY_POINTER] =
+		"failed to query X11 mouse pointer position";
 #endif
 }
 
