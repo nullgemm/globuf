@@ -478,6 +478,7 @@ void set_state_event(
 void set_state_atoms(
 	struct globox* context,
 	struct x11_platform* platform,
+	uint32_t action_hidden,
 	uint32_t action_maximized_horizontal,
 	uint32_t action_maximized_vertical,
 	uint32_t action_fullscreen,
@@ -518,6 +519,18 @@ void set_state_atoms(
 	{
 		return;
 	}
+
+	set_state_event(
+		context,
+		platform,
+		platform->atoms[X11_ATOM_STATE_HIDDEN],
+		action_hidden,
+		error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
 }
 
 // there is a bug in ewmh that prevents fullscreen from working properly
@@ -551,7 +564,7 @@ void x11_helpers_set_state(
 				return;
 			}
 
-			set_state_atoms(context, platform, 0, 0, 0, error);
+			set_state_atoms(context, platform, 0, 0, 0, 0, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
@@ -562,26 +575,10 @@ void x11_helpers_set_state(
 		}
 		case GLOBOX_STATE_MINIMIZED:
 		{
-			set_state_atoms(context, platform, 0, 0, 0, error);
+			set_state_atoms(context, platform, 1, 0, 0, 0, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				return;
-			}
-
-			cookie =
-				xcb_unmap_window_checked(
-					platform->conn,
-					platform->win);
-
-			xcb_error =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (xcb_error != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_UNMAP);
 				return;
 			}
 
@@ -605,7 +602,7 @@ void x11_helpers_set_state(
 				return;
 			}
 
-			set_state_atoms(context, platform, 1, 1, 0, error);
+			set_state_atoms(context, platform, 0, 1, 1, 0, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
@@ -632,7 +629,7 @@ void x11_helpers_set_state(
 				return;
 			}
 
-			set_state_atoms(context, platform, 0, 0, 1, error);
+			set_state_atoms(context, platform, 0, 0, 0, 1, error);
 
 			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
