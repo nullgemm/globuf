@@ -192,6 +192,8 @@ void globox_x11_common_init(
 			"_NET_WM_FRAME_DRAWN",
 		[X11_ATOM_MOVERESIZE] =
 			"_NET_WM_MOVERESIZE",
+		[X11_ATOM_CHANGE_STATE] =
+			"WM_CHANGE_STATE",
 		[X11_ATOM_NET_SUPPORTED] =
 			"_NET_SUPPORTED",
 	};
