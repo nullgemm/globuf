@@ -870,8 +870,9 @@ enum globox_event x11_helpers_get_state(
 	}
 
 	xcb_atom_t* value = (xcb_atom_t*) xcb_get_property_value(reply);
+	int len = xcb_get_property_value_length(reply);
 
-	if (value == NULL)
+	if ((len == 0) || (value == NULL))
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_VALUE_GET);
 		free(reply);
