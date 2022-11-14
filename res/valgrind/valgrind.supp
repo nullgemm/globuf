@@ -1,0 +1,39 @@
+{
+	radeon_dri
+	Memcheck:Leak
+	...
+	obj:/usr/lib/dri/radeonsi_dri.so
+	...
+}
+
+{
+	radeon_llvm
+	Memcheck:Leak
+	...
+	obj:/usr/lib/libLLVM*
+	...
+}
+
+{
+	egl
+	Memcheck:Leak
+	...
+	obj:/usr/lib/libEGL*
+	...
+}
+
+{
+	glx
+	Memcheck:Leak
+	...
+	obj:/usr/lib/libGLX*
+	...
+}
+
+{
+	dl_open
+	Memcheck:Leak
+	...
+	fun:dl_open_worker
+	...
+}
