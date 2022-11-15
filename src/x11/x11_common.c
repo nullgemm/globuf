@@ -237,11 +237,11 @@ void globox_x11_common_init(
 	platform->xsync_height = 0;
 
 	// initialize saved action
-	platform->query_pointer_x = 0;
-	platform->query_pointer_y = 0;
-	platform->saved_mouse_press_x = 0;
-	platform->saved_mouse_press_y = 0;
-	platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
+	platform->old_mouse_pos_x = 0;
+	platform->old_mouse_pos_y = 0;
+	platform->saved_mouse_pos_x = 0;
+	platform->saved_mouse_pos_y = 0;
+	platform->saved_mouse_button = XCB_BUTTON_INDEX_ANY;
 
 	// initialize render thread
 	struct x11_thread_render_loop_data thread_render_loop_data =
@@ -1149,9 +1149,31 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			platform->saved_mouse_press_x = button_press->root_x;
-			platform->saved_mouse_press_y = button_press->root_y;
-			platform->saved_mouse_press_button = button_press->detail;
+			platform->saved_mouse_button = button_press->detail;
+
+			// translate position in screen coordinates
+			xcb_generic_error_t* error_xcb;
+
+			xcb_translate_coordinates_cookie_t cookie_translate =
+				xcb_translate_coordinates(
+					platform->conn,
+					platform->win,
+					platform->root_win,
+					button_press->root_x,
+					button_press->root_y);
+
+			xcb_translate_coordinates_reply_t* reply_translate =
+				xcb_translate_coordinates_reply(
+					platform->conn,
+					cookie_translate,
+					&error_xcb);
+
+			if (error_xcb == NULL)
+			{
+				// TODO error?
+				platform->saved_mouse_pos_x = reply_translate->dst_x;
+				platform->saved_mouse_pos_y = reply_translate->dst_y;
+			}
 
 			// unlock mutex
 			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1175,9 +1197,9 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			platform->saved_mouse_press_x = 0;
-			platform->saved_mouse_press_y = 0;
-			platform->saved_mouse_press_button = XCB_BUTTON_INDEX_ANY;
+			platform->saved_mouse_pos_x = 0;
+			platform->saved_mouse_pos_y = 0;
+			platform->saved_mouse_button = XCB_BUTTON_INDEX_ANY;
 
 			// unlock mutex
 			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1186,6 +1208,81 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
+			}
+
+			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			{
+				struct globox_feature_interaction action =
+				{
+					.action = GLOBOX_INTERACTION_STOP,
+				};
+
+				globox_feature_set_interaction(context, &action, error);
+
+				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				{
+					break;
+				}
+			}
+
+			break;
+		}
+		case XCB_MOTION_NOTIFY:
+		{
+			// lock mutex
+			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
+			xcb_motion_notify_event_t* motion_event =
+				(xcb_motion_notify_event_t*) xcb_event;
+
+			// translate position in screen coordinates
+			xcb_generic_error_t* error_xcb;
+
+			xcb_translate_coordinates_cookie_t cookie_translate =
+				xcb_translate_coordinates(
+					platform->conn,
+					platform->win,
+					platform->root_win,
+					motion_event->event_x,
+					motion_event->event_y);
+
+			xcb_translate_coordinates_reply_t* reply_translate =
+				xcb_translate_coordinates_reply(
+					platform->conn,
+					cookie_translate,
+					&error_xcb);
+
+			if (error_xcb == NULL)
+			{
+				// TODO error?
+				platform->saved_mouse_pos_x = reply_translate->dst_x;
+				platform->saved_mouse_pos_y = reply_translate->dst_y;
+			}
+
+			// unlock mutex
+			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+
+			if (posix_error != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
+
+			if ((platform->atoms[X11_ATOM_MOVERESIZE] == XCB_NONE)
+				&& (context->feature_interaction->action != GLOBOX_INTERACTION_STOP))
+			{
+				x11_helpers_handle_interaction(context, platform, error);
+
+				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				{
+					break;
+				}
 			}
 
 			break;
