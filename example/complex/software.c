@@ -46,6 +46,7 @@ struct event_callback_data
 	struct dpishit* dpishit;
 	struct willis* willis;
 
+	struct globox_feature_interaction action;
 	struct cursoryx_custom* mouse_custom[4];
 	size_t mouse_custom_active;
 	bool mouse_grabbed;
@@ -218,7 +219,6 @@ static void event_callback(void* data, void* event)
 		// handle keys
 	if (event_info.event_state != WILLIS_STATE_PRESS)
 	{
-		struct globox_feature_interaction action;
 		struct globox_feature_state state;
 
 		switch (event_info.event_code)
@@ -280,132 +280,52 @@ static void event_callback(void* data, void* event)
 			}
 			case WILLIS_KEY_W:
 			{
-				action.action = GLOBOX_INTERACTION_N;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_N;
 				break;
 			}
 			case WILLIS_KEY_Q:
 			{
-				action.action = GLOBOX_INTERACTION_NW;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_NW;
 				break;
 			}
 			case WILLIS_KEY_A:
 			{
-				action.action = GLOBOX_INTERACTION_W;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_W;
 				break;
 			}
 			case WILLIS_KEY_Z:
 			{
-				action.action = GLOBOX_INTERACTION_SW;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_SW;
 				break;
 			}
 			case WILLIS_KEY_X:
 			{
-				action.action = GLOBOX_INTERACTION_S;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_S;
 				break;
 			}
 			case WILLIS_KEY_C:
 			{
-				action.action = GLOBOX_INTERACTION_SE;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_SE;
 				break;
 			}
 			case WILLIS_KEY_D:
 			{
-				action.action = GLOBOX_INTERACTION_E;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_E;
 				break;
 			}
 			case WILLIS_KEY_E:
 			{
-				action.action = GLOBOX_INTERACTION_NE;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_NE;
 				break;
 			}
 			case WILLIS_KEY_S:
 			{
-				action.action = GLOBOX_INTERACTION_MOVE;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_MOVE;
 				break;
 			}
-			case WILLIS_KEY_SPACE:
+			case WILLIS_MOUSE_CLICK_LEFT:
 			{
-				action.action = GLOBOX_INTERACTION_STOP;
-				globox_feature_set_interaction(globox, &action, &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-
+				event_callback_data->action.action = GLOBOX_INTERACTION_STOP;
 				break;
 			}
 			case WILLIS_KEY_1:
@@ -438,6 +358,32 @@ static void event_callback(void* data, void* event)
 			}
 		}
 	}
+	else
+	{
+		switch (event_info.event_code)
+		{
+			case WILLIS_MOUSE_CLICK_LEFT:
+			{
+				if (event_callback_data->action.action == GLOBOX_INTERACTION_STOP)
+				{
+					break;
+				}
+
+				globox_feature_set_interaction(globox, &(event_callback_data->action), &error);
+
+				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+				{
+					globox_error_log(globox, &error);
+					return;
+				}
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+
 
 		// print debug info
 		if (event_info.event_code != WILLIS_NONE)
@@ -777,6 +723,7 @@ int main(int argc, char** argv)
 		.dpishit = NULL,
 		.willis = NULL,
 		.cursoryx = NULL,
+		.action = { .action = GLOBOX_INTERACTION_STOP, },
 		.mouse_custom = {0},
 		.mouse_custom_active = 4,
 		.mouse_grabbed = false,

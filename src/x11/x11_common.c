@@ -190,8 +190,6 @@ void globox_x11_common_init(
 			"_NET_WM_SYNC_REQUEST_COUNTER",
 		[X11_ATOM_FRAME_DRAWN] =
 			"_NET_WM_FRAME_DRAWN",
-		[X11_ATOM_MOVERESIZE] =
-			"_NET_WM_MOVERESIZE",
 		[X11_ATOM_CHANGE_STATE] =
 			"WM_CHANGE_STATE",
 		[X11_ATOM_NET_SUPPORTED] =
@@ -241,7 +239,6 @@ void globox_x11_common_init(
 	platform->old_mouse_pos_y = 0;
 	platform->saved_mouse_pos_x = 0;
 	platform->saved_mouse_pos_y = 0;
-	platform->saved_mouse_button = XCB_BUTTON_INDEX_ANY;
 
 	// initialize render thread
 	struct x11_thread_render_loop_data thread_render_loop_data =
@@ -1149,30 +1146,12 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			platform->saved_mouse_button = button_press->detail;
+			// save current mouse position
+			x11_helpers_query_pointer(context, platform, error);
 
-			// translate position in screen coordinates
-			xcb_generic_error_t* error_xcb;
-
-			xcb_translate_coordinates_cookie_t cookie_translate =
-				xcb_translate_coordinates(
-					platform->conn,
-					platform->win,
-					platform->root_win,
-					button_press->root_x,
-					button_press->root_y);
-
-			xcb_translate_coordinates_reply_t* reply_translate =
-				xcb_translate_coordinates_reply(
-					platform->conn,
-					cookie_translate,
-					&error_xcb);
-
-			if (error_xcb == NULL)
+			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 			{
-				// TODO error?
-				platform->saved_mouse_pos_x = reply_translate->dst_x;
-				platform->saved_mouse_pos_y = reply_translate->dst_y;
+				break;
 			}
 
 			// unlock mutex
@@ -1197,9 +1176,14 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
+			// get current interaction type
+			enum globox_interaction action = context->feature_interaction->action;
+
+			// reset mouse position values
+			platform->old_mouse_pos_x = 0;
+			platform->old_mouse_pos_y = 0;
 			platform->saved_mouse_pos_x = 0;
 			platform->saved_mouse_pos_y = 0;
-			platform->saved_mouse_button = XCB_BUTTON_INDEX_ANY;
 
 			// unlock mutex
 			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1210,7 +1194,8 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			// reset interaction type
+			if (action != GLOBOX_INTERACTION_STOP)
 			{
 				struct globox_feature_interaction action =
 				{
@@ -1238,31 +1223,15 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
-			xcb_motion_notify_event_t* motion_event =
-				(xcb_motion_notify_event_t*) xcb_event;
-
-			// translate position in screen coordinates
-			xcb_generic_error_t* error_xcb;
-
-			xcb_translate_coordinates_cookie_t cookie_translate =
-				xcb_translate_coordinates(
-					platform->conn,
-					platform->win,
-					platform->root_win,
-					motion_event->event_x,
-					motion_event->event_y);
-
-			xcb_translate_coordinates_reply_t* reply_translate =
-				xcb_translate_coordinates_reply(
-					platform->conn,
-					cookie_translate,
-					&error_xcb);
-
-			if (error_xcb == NULL)
+			// handle interactive move & resize
+			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
 			{
-				// TODO error?
-				platform->saved_mouse_pos_x = reply_translate->dst_x;
-				platform->saved_mouse_pos_y = reply_translate->dst_y;
+				x11_helpers_handle_interaction(context, platform, error);
+
+				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				{
+					break;
+				}
 			}
 
 			// unlock mutex
@@ -1272,17 +1241,6 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
-			}
-
-			if ((platform->atoms[X11_ATOM_MOVERESIZE] == XCB_NONE)
-				&& (context->feature_interaction->action != GLOBOX_INTERACTION_STOP))
-			{
-				x11_helpers_handle_interaction(context, platform, error);
-
-				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-				{
-					break;
-				}
 			}
 
 			break;
@@ -1330,6 +1288,7 @@ struct globox_config_features*
 	context->feature_interaction =
 		malloc(sizeof (struct globox_feature_interaction));
 	features->count += 1;
+	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
 
 	if (context->feature_interaction == NULL)
 	{
@@ -1513,7 +1472,6 @@ void globox_x11_common_feature_set_interaction(
 
 	// configure
 	*(context->feature_interaction) = *config;
-	x11_helpers_set_interaction(context, platform, error);
 
 	// unlock mutex
 	posix_error = pthread_mutex_unlock(&(platform->mutex_main));

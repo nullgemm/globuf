@@ -318,77 +318,32 @@ void x11_helpers_features_init(
 	}
 }
 
-void x11_helpers_set_interaction(
+void x11_helpers_query_pointer(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
 	xcb_generic_error_t* error_xcb;
 
-	uint32_t table[] =
+	xcb_query_pointer_cookie_t cookie =
+		xcb_query_pointer(
+			platform->conn,
+			platform->win);
+
+	xcb_query_pointer_reply_t* reply =
+		xcb_query_pointer_reply(
+			platform->conn,
+			cookie,
+			&error_xcb);
+
+	if (error_xcb != NULL)
 	{
-		[GLOBOX_INTERACTION_STOP] = XCB_EWMH_WM_MOVERESIZE_CANCEL,
-		[GLOBOX_INTERACTION_MOVE] = XCB_EWMH_WM_MOVERESIZE_MOVE,
-		[GLOBOX_INTERACTION_N]    = XCB_EWMH_WM_MOVERESIZE_SIZE_TOP,
-		[GLOBOX_INTERACTION_NW]   = XCB_EWMH_WM_MOVERESIZE_SIZE_TOPLEFT,
-		[GLOBOX_INTERACTION_W]    = XCB_EWMH_WM_MOVERESIZE_SIZE_LEFT,
-		[GLOBOX_INTERACTION_SW]   = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOMLEFT,
-		[GLOBOX_INTERACTION_S]    = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOM,
-		[GLOBOX_INTERACTION_SE]   = XCB_EWMH_WM_MOVERESIZE_SIZE_BOTTOMRIGHT,
-		[GLOBOX_INTERACTION_E]    = XCB_EWMH_WM_MOVERESIZE_SIZE_RIGHT,
-		[GLOBOX_INTERACTION_NE]   = XCB_EWMH_WM_MOVERESIZE_SIZE_TOPRIGHT,
-	};
-
-	if (platform->atoms[X11_ATOM_MOVERESIZE] != XCB_NONE)
-	{
-		// start EWMH interactive move and resize
-		xcb_client_message_event_t event =
-		{
-			.response_type = XCB_CLIENT_MESSAGE,
-			.type = platform->atoms[X11_ATOM_MOVERESIZE],
-			.format = 32,
-			.window = platform->win,
-			.data =
-			{
-				.data32 =
-				{
-					platform->saved_mouse_pos_x,
-					platform->saved_mouse_pos_y,
-					table[context->feature_interaction->action],
-					platform->saved_mouse_button,
-					1,
-				},
-			},
-		};
-
-		uint32_t mask =
-			XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-			| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
-
-		xcb_void_cookie_t cookie =
-			xcb_send_event_checked(
-				platform->conn,
-				1,
-				platform->win,
-				mask,
-				(const char*)(&event));
-
-		error_xcb =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error_xcb != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
-			return;
-		}
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_QUERY_POINTER);
+		return;
 	}
-	else
-	{
-		platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
-		platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
-	}
+
+	platform->saved_mouse_pos_x = reply->root_x;
+	platform->saved_mouse_pos_y = reply->root_y;
 
 	globox_error_ok(error);
 }
@@ -399,6 +354,11 @@ void x11_helpers_handle_interaction(
 	struct globox_error_info* error)
 {
 	xcb_generic_error_t* error_xcb;
+
+	// save old & current mouse positions
+	platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
+	platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
+	x11_helpers_query_pointer(context, platform, error);
 
 	// get window position
 	xcb_get_geometry_cookie_t cookie_geom =
@@ -440,7 +400,7 @@ void x11_helpers_handle_interaction(
 	}
 
 	// compute window changes
-	uint32_t values[4];
+	int32_t values[4];
 
 	switch (context->feature_interaction->action)
 	{
@@ -525,9 +485,6 @@ void x11_helpers_handle_interaction(
 			break;
 		}
 	}
-
-	platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
-	platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
 
 	free(reply_translate);
 	free(reply_geom);

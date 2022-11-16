@@ -142,6 +142,8 @@ void globox_error_init(
 		"failed to translate X11 coords";
 	log[GLOBOX_ERROR_X11_CONFIGURE] =
 		"failed to configure X11 window";
+	log[GLOBOX_ERROR_X11_QUERY_POINTER] =
+		"failed to query X11 mouse pointer position";
 #endif
 }
 
