@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xcb/xcb.h>
-#include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 
 #ifdef GLOBOX_ERROR_HELPER_XCB
@@ -348,6 +347,9 @@ void x11_helpers_query_pointer(
 	globox_error_ok(error);
 }
 
+// there is also a bug in ewmh that prevents interactive move & resize from
+// working properly under certain desktop environments, so we implement
+// everything for this feature as well
 void x11_helpers_handle_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
