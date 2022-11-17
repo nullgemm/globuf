@@ -1134,9 +1134,6 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_BUTTON_PRESS:
 		{
-			xcb_button_press_event_t* button_press =
-				(xcb_button_press_event_t*) xcb_event;
-
 			// lock mutex
 			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
 
