@@ -26,101 +26,101 @@ void globox_x11_common_init(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	int posix_error;
+	int error_posix;
 	pthread_mutexattr_t mutex_attr;
 	pthread_condattr_t cond_attr;
 
 	// init pthread mutex attributes
-	posix_error = pthread_mutexattr_init(&mutex_attr);
+	error_posix = pthread_mutexattr_init(&mutex_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_INIT);
 		return;
 	}
 
 	// set pthread mutex type (error checking for now)
-	posix_error =
+	error_posix =
 		pthread_mutexattr_settype(
 			&mutex_attr,
 			PTHREAD_MUTEX_ERRORCHECK);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_SETTYPE);
 		return;
 	}
 
 	// init pthread mutex (main)
-	posix_error = pthread_mutex_init(&(platform->mutex_main), &mutex_attr);
+	error_posix = pthread_mutex_init(&(platform->mutex_main), &mutex_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
 		return;
 	}
 
 	// init pthread mutex (block)
-	posix_error = pthread_mutex_init(&(platform->mutex_block), &mutex_attr);
+	error_posix = pthread_mutex_init(&(platform->mutex_block), &mutex_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
 		return;
 	}
 
 	// init pthread mutex (xsync)
-	posix_error = pthread_mutex_init(&(platform->mutex_xsync), &mutex_attr);
+	error_posix = pthread_mutex_init(&(platform->mutex_xsync), &mutex_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
 		return;
 	}
 
 	// destroy pthread mutex attributes
-	posix_error = pthread_mutexattr_destroy(&mutex_attr);
+	error_posix = pthread_mutexattr_destroy(&mutex_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
 		return;
 	}
 
 	// init pthread cond attributes
-	posix_error = pthread_condattr_init(&cond_attr);
+	error_posix = pthread_condattr_init(&cond_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_INIT);
 		return;
 	}
 
 	// set pthread cond clock
-	posix_error =
+	error_posix =
 		pthread_condattr_setclock(
 			&cond_attr,
 			CLOCK_MONOTONIC);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_SETCLOCK);
 		return;
 	}
 
 	// init pthread cond
-	posix_error = pthread_cond_init(&(platform->cond_main), &cond_attr);
+	error_posix = pthread_cond_init(&(platform->cond_main), &cond_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_INIT);
 		return;
 	}
 
 	// destroy pthread cond attributes
-	posix_error = pthread_condattr_destroy(&cond_attr);
+	error_posix = pthread_condattr_destroy(&cond_attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
 		return;
@@ -131,9 +131,9 @@ void globox_x11_common_init(
 
 	// open a connection to the X server
 	platform->conn = xcb_connect(NULL, &(platform->screen_id));
-	posix_error = xcb_connection_has_error(platform->conn);
+	error_posix = xcb_connection_has_error(platform->conn);
 
-	if (posix_error > 0)
+	if (error_posix > 0)
 	{
 		xcb_disconnect(platform->conn);
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONN);
@@ -157,7 +157,7 @@ void globox_x11_common_init(
 	// get available atoms
 	xcb_intern_atom_cookie_t cookie;
 	xcb_intern_atom_reply_t* reply;
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 	uint8_t replace;
 
 	char* atom_names[X11_ATOM_COUNT] =
@@ -209,9 +209,9 @@ void globox_x11_common_init(
 		reply = xcb_intern_atom_reply(
 			platform->conn,
 			cookie,
-			&xcb_error);
+			&error_xcb);
 
-		if (xcb_error != NULL)
+		if (error_xcb != NULL)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_X11_ATOM_GET);
 			return;
@@ -266,61 +266,61 @@ void globox_x11_common_clean(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	int posix_error;
-	int posix_cond_error;
+	int error_posix;
+	int error_cond;
 
 	// close the connection to the X server
 	xcb_disconnect(platform->conn);
 
 	// lock block mutex to be able to destroy the cond
-	posix_error = pthread_mutex_lock(&(platform->mutex_block));
+	error_posix = pthread_mutex_lock(&(platform->mutex_block));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// destroy pthread cond
-	posix_cond_error = pthread_cond_destroy(&(platform->cond_main));
+	error_cond = pthread_cond_destroy(&(platform->cond_main));
 
 	// unlock block mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_block));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_block));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	if (posix_cond_error != 0)
+	if (error_cond != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_DESTROY);
 		return;
 	}
 
 	// destroy pthread mutex (xsync)
-	posix_error = pthread_mutex_destroy(&(platform->mutex_xsync));
+	error_posix = pthread_mutex_destroy(&(platform->mutex_xsync));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
 		return;
 	}
 
 	// destroy pthread mutex (block)
-	posix_error = pthread_mutex_destroy(&(platform->mutex_block));
+	error_posix = pthread_mutex_destroy(&(platform->mutex_block));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
 		return;
 	}
 
 	// destroy pthread mutex (main)
-	posix_error = pthread_mutex_destroy(&(platform->mutex_main));
+	error_posix = pthread_mutex_destroy(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
 		return;
@@ -404,12 +404,12 @@ void globox_x11_common_window_create(
 			platform->attr_mask,
 			platform->attr_val);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_CREATE);
 		return;
@@ -433,12 +433,12 @@ void globox_x11_common_window_create(
 			2,
 			supported);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -459,12 +459,12 @@ void globox_x11_common_window_create(
 			platform->attr_mask,
 			platform->attr_val);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_ATTR_CHANGE);
 		return;
@@ -487,12 +487,12 @@ void globox_x11_common_window_create(
 			platform->xsync_counter,
 			value);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_CREATE);
 		return;
@@ -510,12 +510,12 @@ void globox_x11_common_window_create(
 			1,
 			&(platform->xsync_counter));
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -590,15 +590,15 @@ void globox_x11_common_window_destroy(
 {
 	// destroy the xsync counter
 	// lock xsync mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 	xcb_void_cookie_t cookie;
 
 	cookie =
@@ -606,30 +606,30 @@ void globox_x11_common_window_destroy(
 			platform->conn,
 			platform->xsync_counter);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY);
 		return;
 	}
 
 	// unlock xsync mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// lock main mutex
-	posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -641,21 +641,21 @@ void globox_x11_common_window_destroy(
 			platform->conn,
 			platform->win);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_DESTROY);
 		return;
 	}
 
 	// unlock main mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -703,46 +703,46 @@ void globox_x11_common_window_block(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	int posix_error;
-	int posix_cond_error;
+	int error_posix;
+	int error_cond;
 
 	// lock block mutex
-	posix_error = pthread_mutex_lock(&(platform->mutex_block));
+	error_posix = pthread_mutex_lock(&(platform->mutex_block));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
-	posix_cond_error = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+	error_cond = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
 
 	// unlock block mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_block));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_block));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	if (posix_cond_error != 0)
+	if (error_cond != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_WAIT);
 		return;
 	}
 
-	posix_error = pthread_join(platform->thread_event_loop, NULL);
+	error_posix = pthread_join(platform->thread_event_loop, NULL);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
 		return;
 	}
 
-	posix_error = pthread_join(platform->thread_render_loop, NULL);
+	error_posix = pthread_join(platform->thread_render_loop, NULL);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
 		return;
@@ -812,20 +812,20 @@ void globox_x11_common_init_render(
 
 	// start the render loop in a new thread
 	// init thread attributes
-	int posix_error;
+	int error_posix;
 	pthread_attr_t attr;
 
-	posix_error = pthread_attr_init(&attr);
+	error_posix = pthread_attr_init(&attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
 		return;
 	}
 
-	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
@@ -842,23 +842,23 @@ void globox_x11_common_init_render(
 	platform->thread_render_loop_data = data;
 
 	// start function in a new thread
-	posix_error =
+	error_posix =
 		pthread_create(
 			&(platform->thread_render_loop),
 			&attr,
 			x11_helpers_render_loop,
 			&(platform->thread_render_loop_data));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
 		return;
 	}
 
 	// destroy the attributes
-	posix_error = pthread_attr_destroy(&attr);
+	error_posix = pthread_attr_destroy(&attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
 		return;
@@ -878,20 +878,20 @@ void globox_x11_common_init_events(
 
 	// start the event loop in a new thread
 	// init thread attributes
-	int posix_error;
+	int error_posix;
 	pthread_attr_t attr;
 
-	posix_error = pthread_attr_init(&attr);
+	error_posix = pthread_attr_init(&attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
 		return;
 	}
 
-	posix_error = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
@@ -908,23 +908,23 @@ void globox_x11_common_init_events(
 	platform->thread_event_loop_data = data;
 
 	// start function in a new thread
-	posix_error =
+	error_posix =
 		pthread_create(
 			&(platform->thread_event_loop),
 			&attr,
 			x11_helpers_event_loop,
 			&(platform->thread_event_loop_data));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
 		return;
 	}
 
 	// destroy the attributes
-	posix_error = pthread_attr_destroy(&attr);
+	error_posix = pthread_attr_destroy(&attr);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
 		return;
@@ -967,9 +967,9 @@ enum globox_event globox_x11_common_handle_events(
 				(xcb_expose_event_t*) xcb_event;
 
 			// lock mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -981,9 +981,9 @@ enum globox_event globox_x11_common_handle_events(
 			context->expose.height = expose->height;
 
 			// unlock mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -998,9 +998,9 @@ enum globox_event globox_x11_common_handle_events(
 				(xcb_configure_notify_event_t*) xcb_event;
 
 			// lock xsync mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -1012,9 +1012,9 @@ enum globox_event globox_x11_common_handle_events(
 			platform->xsync_configure = true;
 
 			// unlock xsync mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -1029,9 +1029,9 @@ enum globox_event globox_x11_common_handle_events(
 				(xcb_property_notify_event_t*) xcb_event;
 
 			// lock mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -1050,9 +1050,9 @@ enum globox_event globox_x11_common_handle_events(
 			}
 
 			// unlock mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -1075,9 +1075,9 @@ enum globox_event globox_x11_common_handle_events(
 					pthread_cond_broadcast(&(platform->cond_main));
 
 					// make the event loop thread exit gracefully
-					int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+					int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-					if (posix_error != 0)
+					if (error_posix != 0)
 					{
 						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 						break;
@@ -1085,9 +1085,9 @@ enum globox_event globox_x11_common_handle_events(
 
 					platform->closed = true;
 
-					posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+					error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-					if (posix_error != 0)
+					if (error_posix != 0)
 					{
 						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 						break;
@@ -1102,9 +1102,9 @@ enum globox_event globox_x11_common_handle_events(
 					== platform->atoms[X11_ATOM_SYNC_REQUEST])
 				{
 					// lock xsync mutex
-					int posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+					int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
 
-					if (posix_error != 0)
+					if (error_posix != 0)
 					{
 						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 						break;
@@ -1117,9 +1117,9 @@ enum globox_event globox_x11_common_handle_events(
 					platform->xsync_request = true;
 
 					// unlock xsync mutex
-					posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+					error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-					if (posix_error != 0)
+					if (error_posix != 0)
 					{
 						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 						break;
@@ -1135,9 +1135,9 @@ enum globox_event globox_x11_common_handle_events(
 		case XCB_BUTTON_PRESS:
 		{
 			// lock mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -1152,9 +1152,9 @@ enum globox_event globox_x11_common_handle_events(
 			}
 
 			// unlock mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -1165,9 +1165,9 @@ enum globox_event globox_x11_common_handle_events(
 		case XCB_BUTTON_RELEASE:
 		{
 			// lock mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -1183,9 +1183,9 @@ enum globox_event globox_x11_common_handle_events(
 			platform->saved_mouse_pos_y = 0;
 
 			// unlock mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -1212,9 +1212,9 @@ enum globox_event globox_x11_common_handle_events(
 		case XCB_MOTION_NOTIFY:
 		{
 			// lock mutex
-			int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -1232,9 +1232,9 @@ enum globox_event globox_x11_common_handle_events(
 			}
 
 			// unlock mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -1393,7 +1393,7 @@ struct globox_config_features*
 
 	// TODO update this
 	// available if the _NET_SUPPPORTED prop. has the _NET_WM_FRAME_DRAWN atom
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 
 	xcb_get_property_cookie_t cookie =
 		xcb_get_property(
@@ -1409,9 +1409,9 @@ struct globox_config_features*
 		xcb_get_property_reply(
 			platform->conn,
 			cookie,
-			&xcb_error);
+			&error_xcb);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
 
@@ -1460,9 +1460,9 @@ void globox_x11_common_feature_set_interaction(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -1472,9 +1472,9 @@ void globox_x11_common_feature_set_interaction(
 	*(context->feature_interaction) = *config;
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -1496,9 +1496,9 @@ void globox_x11_common_feature_set_state(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -1509,9 +1509,9 @@ void globox_x11_common_feature_set_state(
 	x11_helpers_set_state(context, platform, error);
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -1533,9 +1533,9 @@ void globox_x11_common_feature_set_title(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -1548,9 +1548,9 @@ void globox_x11_common_feature_set_title(
 	x11_helpers_set_title(context, platform, error);
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -1572,9 +1572,9 @@ void globox_x11_common_feature_set_icon(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -1598,9 +1598,9 @@ void globox_x11_common_feature_set_icon(
 	x11_helpers_set_icon(context, platform, error);
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -1621,9 +1621,9 @@ unsigned globox_x11_common_get_width(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
@@ -1633,9 +1633,9 @@ unsigned globox_x11_common_get_width(
 	unsigned value = context->feature_size->width;
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
@@ -1652,9 +1652,9 @@ unsigned globox_x11_common_get_height(
 	struct globox_error_info* error)
 {
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
@@ -1664,9 +1664,9 @@ unsigned globox_x11_common_get_height(
 	unsigned value = context->feature_size->height;
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
@@ -1691,9 +1691,9 @@ struct globox_rect globox_x11_common_get_expose(
 	};
 
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return dummy;
@@ -1703,9 +1703,9 @@ struct globox_rect globox_x11_common_get_expose(
 	struct globox_rect value = context->expose;
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return dummy;

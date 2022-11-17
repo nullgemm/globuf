@@ -72,9 +72,9 @@ void globox_x11_software_window_create(
 	struct x11_platform* platform = &(backend->platform);
 
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -196,9 +196,9 @@ void globox_x11_software_window_create(
 			platform->conn);
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
@@ -223,9 +223,9 @@ void globox_x11_software_window_destroy(
 	}
 
 	// lock mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
@@ -234,9 +234,9 @@ void globox_x11_software_window_destroy(
 	xcb_free_pixmap(platform->conn, backend->software_pixmap);
 
 	// unlock mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;

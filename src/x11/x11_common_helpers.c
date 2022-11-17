@@ -25,9 +25,9 @@ void* x11_helpers_render_loop(void* data)
 	struct globox_error_info* error = thread_render_loop_data->error;
 
 	// lock main mutex
-	int posix_error = pthread_mutex_lock(&(platform->mutex_main));
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return NULL;
@@ -36,9 +36,9 @@ void* x11_helpers_render_loop(void* data)
 	bool closed = platform->closed;
 
 	// unlock main mutex
-	posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return NULL;
@@ -48,9 +48,9 @@ void* x11_helpers_render_loop(void* data)
 	{
 		// handle xsync
 		// lock xsync mutex
-		posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+		error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 			break;
@@ -59,9 +59,9 @@ void* x11_helpers_render_loop(void* data)
 		if (platform->xsync_configure == true)
 		{
 			// lock main mutex
-			posix_error = pthread_mutex_lock(&(platform->mutex_main));
+			error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 				break;
@@ -72,9 +72,9 @@ void* x11_helpers_render_loop(void* data)
 			context->feature_size->height = platform->xsync_height;
 
 			// unlock main mutex
-			posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-			if (posix_error != 0)
+			if (error_posix != 0)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
@@ -82,9 +82,9 @@ void* x11_helpers_render_loop(void* data)
 		}
 
 		// unlock xsync mutex
-		posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+		error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
@@ -94,9 +94,9 @@ void* x11_helpers_render_loop(void* data)
 		context->render_callback.callback(context->render_callback.data);
 
 		// lock xsync mutex
-		posix_error = pthread_mutex_lock(&(platform->mutex_xsync));
+		error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 			break;
@@ -117,12 +117,12 @@ void* x11_helpers_render_loop(void* data)
 					platform->xsync_counter,
 					platform->xsync_value);
 
-			xcb_generic_error_t* xcb_error =
+			xcb_generic_error_t* error_xcb =
 				xcb_request_check(
 					platform->conn,
 					cookie);
 
-			if (xcb_error != NULL)
+			if (error_xcb != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
 				break;
@@ -130,18 +130,18 @@ void* x11_helpers_render_loop(void* data)
 		}
 
 		// unlock xsync mutex
-		posix_error = pthread_mutex_unlock(&(platform->mutex_xsync));
+		error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
 
 		// lock main mutex
-		posix_error = pthread_mutex_lock(&(platform->mutex_main));
+		error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 			break;
@@ -150,9 +150,9 @@ void* x11_helpers_render_loop(void* data)
 		closed = platform->closed;
 
 		// unlock main mutex
-		posix_error = pthread_mutex_unlock(&(platform->mutex_main));
+		error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
-		if (posix_error != 0)
+		if (error_posix != 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
@@ -555,12 +555,12 @@ void set_state_event(
 			mask,
 			(const char*)(&event));
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
 		return;
@@ -619,7 +619,7 @@ void set_state_hidden(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 
 	if (platform->atoms[X11_ATOM_CHANGE_STATE] != XCB_NONE)
 	{
@@ -651,12 +651,12 @@ void set_state_hidden(
 				mask,
 				(const char*)(&event));
 
-		xcb_error =
+		error_xcb =
 			xcb_request_check(
 				platform->conn,
 				cookie);
 
-		if (xcb_error != NULL)
+		if (error_xcb != NULL)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
 			return;
@@ -687,7 +687,7 @@ void x11_helpers_set_state(
 	struct globox_error_info* error)
 {
 	xcb_void_cookie_t cookie;
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 
 	switch (context->feature_state->state)
 	{
@@ -698,12 +698,12 @@ void x11_helpers_set_state(
 					platform->conn,
 					platform->win);
 
-			xcb_error =
+			error_xcb =
 				xcb_request_check(
 					platform->conn,
 					cookie);
 
-			if (xcb_error != NULL)
+			if (error_xcb != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
 				return;
@@ -736,12 +736,12 @@ void x11_helpers_set_state(
 					platform->conn,
 					platform->win);
 
-			xcb_error =
+			error_xcb =
 				xcb_request_check(
 					platform->conn,
 					cookie);
 
-			if (xcb_error != NULL)
+			if (error_xcb != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
 				return;
@@ -763,12 +763,12 @@ void x11_helpers_set_state(
 					platform->conn,
 					platform->win);
 
-			xcb_error =
+			error_xcb =
 				xcb_request_check(
 					platform->conn,
 					cookie);
 
-			if (xcb_error != NULL)
+			if (error_xcb != NULL)
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
 				return;
@@ -809,12 +809,12 @@ void x11_helpers_set_title(
 			strlen(context->feature_title->title) + 1,
 			context->feature_title->title);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -839,12 +839,12 @@ void x11_helpers_set_icon(
 			context->feature_icon->len,
 			context->feature_icon->pixmap);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -898,12 +898,12 @@ void x11_helpers_set_frame(
 			5,
 			motif_hints);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -936,12 +936,12 @@ void x11_helpers_set_background(
 			0,
 			NULL);
 
-	xcb_generic_error_t* xcb_error =
+	xcb_generic_error_t* error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -959,12 +959,12 @@ void x11_helpers_set_background(
 			0,
 			NULL);
 
-	xcb_error =
+	error_xcb =
 		xcb_request_check(
 			platform->conn,
 			cookie);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
 		return;
@@ -998,16 +998,16 @@ enum globox_event x11_helpers_get_state(
 			0,
 			32);
 
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 	enum globox_event event = GLOBOX_EVENT_INVALID;
 
 	xcb_get_property_reply_t* reply =
 		xcb_get_property_reply(
 			platform->conn,
 			cookie,
-			&xcb_error);
+			&error_xcb);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
 		free(reply);
@@ -1065,15 +1065,15 @@ void x11_helpers_get_title(
 			0,
 			32);
 
-	xcb_generic_error_t* xcb_error;
+	xcb_generic_error_t* error_xcb;
 
 	xcb_get_property_reply_t* reply =
 		xcb_get_property_reply(
 			platform->conn,
 			cookie,
-			&xcb_error);
+			&error_xcb);
 
-	if (xcb_error != NULL)
+	if (error_xcb != NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
 		return;
@@ -1104,9 +1104,9 @@ void x11_helpers_xcb_error_log(
 	xcb_generic_error_t* error)
 {
 	xcb_errors_context_t* errors_context;
-	int posix_error = xcb_errors_context_new(platform->conn, &errors_context);
+	int error_posix = xcb_errors_context_new(platform->conn, &errors_context);
 
-	if (posix_error != 0)
+	if (error_posix != 0)
 	{
 		fprintf(stderr, "could not allocate the xcb errors context\n");
 		return;
