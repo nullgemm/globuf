@@ -9,6 +9,6 @@ cd "$folder"/../.. || exit
 version="v0.1.3"
 
 cd res
-curl -L https://github.com/nullgemm/dpishit/releases/download/"$version"/dpishit_bin_"$version".zip -o dpishit.zip
+curl -L https://github.com/nullgemm/dpishit/releases/download/"$version"/dpishit_bin_dbg_"$version".zip -o dpishit.zip
 unzip dpishit.zip
 mv dpishit_bin_"$version" dpishit
