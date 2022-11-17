@@ -1288,13 +1288,14 @@ struct globox_config_features*
 	context->feature_interaction =
 		malloc(sizeof (struct globox_feature_interaction));
 	features->count += 1;
-	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
 
 	if (context->feature_interaction == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
+
+	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
 
 	// available if atoms valid
 	if ((atoms[X11_ATOM_STATE] != XCB_NONE)
