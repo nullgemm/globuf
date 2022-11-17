@@ -6,7 +6,7 @@ folder=$(dirname "$path")
 cd "$folder"/../.. || exit
 
 # get libs
-version="v0.1.0"
+version="v0.1.2"
 
 cd res
 curl -L https://github.com/nullgemm/willis/releases/download/"$version"/willis_bin_"$version".zip -o willis.zip
