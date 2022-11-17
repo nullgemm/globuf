@@ -282,14 +282,14 @@ echo ""; \
 
 { \
 echo "rule icon_object"; \
-echo "    command = \$cc -Ires/icon -c \$in -o \$out"; \
+echo "    command = \$cc -Ires/icon -c res/icon/iconpix.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule cursor_object"; \
-echo "    command = \$cc -Ires/cursor -c \$in -o \$out"; \
+echo "    command = \$cc -Ires/cursor -c res/cursor/cursorpix.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -364,9 +364,9 @@ echo "# main targets"; \
 echo "build res/icon/iconpix.bin: pixmap"; \
 echo "build res/cursor/cursorpix.bin: pixmap"; \
 echo "build \$folder_objects/res/icon/iconpix.o: \$"; \
-echo "icon_object res/icon/iconpix.S"; \
+echo "icon_object res/icon/iconpix.bin"; \
 echo "build \$folder_objects/res/cursor/cursorpix.o: \$"; \
-echo "cursor_object res/cursor/cursorpix.S"; \
+echo "cursor_object res/cursor/cursorpix.bin"; \
 echo ""; \
 echo "build \$folder_objects/res/shaders/gl1/square_vert_gl1.o: \$"; \
 echo "shader_vert_object res/shaders/gl1/square_vert_gl1.glsl"; \
