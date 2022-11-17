@@ -11,9 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern unsigned char iconpix_beg;
-extern unsigned char iconpix_end;
-extern unsigned char iconpix_len;
+extern uint8_t iconpix[];
+extern int iconpix_size;
 
 char* feature_names[GLOBOX_FEATURE_COUNT] =
 {
@@ -300,7 +299,7 @@ int main(int argc, char** argv)
 		// acceptable implementation-defined behavior
 		// since it's also the implementation that
 		// allows us to bundle resources like so
-		.pixmap = (uint32_t*) &iconpix_beg,
+		.pixmap = (uint32_t*) iconpix,
 		.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 	};
 

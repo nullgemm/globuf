@@ -17,13 +17,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern unsigned char iconpix_beg;
-extern unsigned char iconpix_end;
-extern unsigned char iconpix_len;
+extern uint8_t iconpix[];
+extern int iconpix_size;
 
-extern unsigned char cursorpix_beg;
-extern unsigned char cursorpix_end;
-extern unsigned char cursorpix_len;
+extern uint8_t cursorpix[];
+extern int cursorpix_size;
 
 char* feature_names[GLOBOX_FEATURE_COUNT] =
 {
@@ -618,7 +616,7 @@ int main(int argc, char** argv)
 		// acceptable implementation-defined behavior
 		// since it's also the implementation that
 		// allows us to bundle resources like so
-		.pixmap = (uint32_t*) &iconpix_beg,
+		.pixmap = (uint32_t*) iconpix,
 		.len = 2 + (16 * 16) + 2 + (32 * 32) + 2 + (64 * 64),
 	};
 
@@ -841,28 +839,28 @@ int main(int argc, char** argv)
 	struct cursoryx_custom_config cursor_config[4] =
 	{
 		{
-			.image = (uint32_t*) (&cursorpix_beg + 8 + (16*22*4)*0),
+			.image = (uint32_t*) (cursorpix + 8 + (16*22*4)*0),
 			.width = 16,
 			.height = 22,
 			.x = 7,
 			.y = 13,
 		},
 		{
-			.image = (uint32_t*) (&cursorpix_beg + 16 + (16*22*4)*1),
+			.image = (uint32_t*) (cursorpix + 16 + (16*22*4)*1),
 			.width = 16,
 			.height = 22,
 			.x = 7,
 			.y = 13,
 		},
 		{
-			.image = (uint32_t*) (&cursorpix_beg + 24 + (16*22*4)*2),
+			.image = (uint32_t*) (cursorpix + 24 + (16*22*4)*2),
 			.width = 16,
 			.height = 22,
 			.x = 7,
 			.y = 13,
 		},
 		{
-			.image = (uint32_t*) (&cursorpix_beg + 32 + (16*22*4)*3),
+			.image = (uint32_t*) (cursorpix + 32 + (16*22*4)*3),
 			.width = 16,
 			.height = 22,
 			.x = 7,
