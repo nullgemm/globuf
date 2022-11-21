@@ -194,6 +194,8 @@ void globox_x11_common_init(
 			"WM_CHANGE_STATE",
 		[X11_ATOM_NET_SUPPORTED] =
 			"_NET_SUPPORTED",
+		[X11_ATOM_NET_FRAME_EXTENTS] =
+			"_NET_FRAME_EXTENTS",
 	};
 
 	for (int i = 0; i < X11_ATOM_COUNT; ++i)
@@ -239,6 +241,11 @@ void globox_x11_common_init(
 	platform->old_mouse_pos_y = 0;
 	platform->saved_mouse_pos_x = 0;
 	platform->saved_mouse_pos_y = 0;
+	platform->saved_window = true;
+	platform->saved_window_geometry[0] = 0;
+	platform->saved_window_geometry[1] = 0;
+	platform->saved_window_geometry[2] = 0;
+	platform->saved_window_geometry[3] = 0;
 
 	// initialize render thread
 	struct x11_thread_render_loop_data thread_render_loop_data =
@@ -1134,6 +1141,9 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_BUTTON_PRESS:
 		{
+			xcb_button_press_event_t* press =
+				(xcb_button_press_event_t*) xcb_event;
+
 			// lock mutex
 			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -1144,12 +1154,9 @@ enum globox_event globox_x11_common_handle_events(
 			}
 
 			// save current mouse position
-			x11_helpers_query_pointer(context, platform, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				break;
-			}
+			platform->saved_window = false;
+			platform->saved_mouse_pos_x = press->root_x;
+			platform->saved_mouse_pos_y = press->root_y;
 
 			// unlock mutex
 			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1211,6 +1218,9 @@ enum globox_event globox_x11_common_handle_events(
 		}
 		case XCB_MOTION_NOTIFY:
 		{
+			xcb_motion_notify_event_t* motion =
+				(xcb_motion_notify_event_t*) xcb_event;
+
 			// lock mutex
 			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -1223,6 +1233,101 @@ enum globox_event globox_x11_common_handle_events(
 			// handle interactive move & resize
 			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
 			{
+				// on the first update after click, update the position of the window
+				if (platform->saved_window == false)
+				{
+					xcb_generic_error_t* error_xcb;
+
+					// get window size
+					xcb_get_geometry_cookie_t cookie_geom =
+						xcb_get_geometry(
+							platform->conn,
+							platform->win);
+
+					xcb_get_geometry_reply_t* reply_geom =
+						xcb_get_geometry_reply(
+							platform->conn,
+							cookie_geom,
+							&error_xcb);
+
+					if (error_xcb != NULL)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_X11_GEOMETRY_GET);
+						break;
+					}
+
+					// get window position
+					xcb_translate_coordinates_cookie_t cookie_translate =
+						xcb_translate_coordinates(
+							platform->conn,
+							platform->win,
+							reply_geom->root,
+							0,
+							0);
+
+					xcb_translate_coordinates_reply_t* reply_translate =
+						xcb_translate_coordinates_reply(
+							platform->conn,
+							cookie_translate,
+							&error_xcb);
+
+					if (error_xcb != NULL)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_X11_TRANSLATE_COORDS);
+						break;
+					}
+
+					// save window info
+					platform->saved_window_geometry[0] = reply_translate->dst_x;
+					platform->saved_window_geometry[1] = reply_translate->dst_y;
+					platform->saved_window_geometry[2] = reply_geom->width;
+					platform->saved_window_geometry[3] = reply_geom->height;
+					platform->saved_window = true;
+
+					free(reply_translate);
+					free(reply_geom);
+
+					// get window frame size
+					xcb_get_property_cookie_t cookie_frame =
+						xcb_get_property(
+							platform->conn,
+							0,
+							platform->win,
+							platform->atoms[X11_ATOM_NET_FRAME_EXTENTS],
+							XCB_ATOM_CARDINAL,
+							0,
+							32);
+
+					xcb_get_property_reply_t* reply_frame =
+						xcb_get_property_reply(
+							platform->conn,
+							cookie_frame,
+							&error_xcb);
+
+					if (error_xcb != NULL)
+					{
+						globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
+						break;
+					}
+
+					// update window info to account for the size of the frame
+					uint32_t* value = xcb_get_property_value(reply_frame);
+					int value_len = xcb_get_property_value_length(reply_frame);
+
+					if (value_len >= 3)
+					{
+						platform->saved_window_geometry[0] -= value[0];
+						platform->saved_window_geometry[1] -= value[2];
+					}
+
+					free(reply_frame);
+				}
+
+				platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
+				platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
+				platform->saved_mouse_pos_x = motion->root_x;
+				platform->saved_mouse_pos_y = motion->root_y;
+
 				x11_helpers_handle_interaction(context, platform, error);
 
 				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)

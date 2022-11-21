@@ -317,36 +317,6 @@ void x11_helpers_features_init(
 	}
 }
 
-void x11_helpers_query_pointer(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_generic_error_t* error_xcb;
-
-	xcb_query_pointer_cookie_t cookie =
-		xcb_query_pointer(
-			platform->conn,
-			platform->win);
-
-	xcb_query_pointer_reply_t* reply =
-		xcb_query_pointer_reply(
-			platform->conn,
-			cookie,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_QUERY_POINTER);
-		return;
-	}
-
-	platform->saved_mouse_pos_x = reply->root_x;
-	platform->saved_mouse_pos_y = reply->root_y;
-
-	globox_error_ok(error);
-}
-
 // there is also a bug in ewmh that prevents interactive move & resize from
 // working properly under certain desktop environments, so we implement
 // everything for this feature as well
@@ -357,139 +327,70 @@ void x11_helpers_handle_interaction(
 {
 	xcb_generic_error_t* error_xcb;
 
-	// save old & current mouse positions
-	platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
-	platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
-	x11_helpers_query_pointer(context, platform, error);
-
-	// get window position
-	xcb_get_geometry_cookie_t cookie_geom =
-		xcb_get_geometry(
-			platform->conn,
-			platform->win);
-
-	xcb_get_geometry_reply_t* reply_geom =
-		xcb_get_geometry_reply(
-			platform->conn,
-			cookie_geom,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_GEOMETRY_GET);
-		return;
-	}
-
-	// translate position in screen coordinates
-	xcb_translate_coordinates_cookie_t cookie_translate =
-		xcb_translate_coordinates(
-			platform->conn,
-			platform->win,
-			platform->root_win,
-			reply_geom->x,
-			reply_geom->y);
-
-	xcb_translate_coordinates_reply_t* reply_translate =
-		xcb_translate_coordinates_reply(
-			platform->conn,
-			cookie_translate,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_TRANSLATE_COORDS);
-		return;
-	}
-
 	// compute window changes
-	int32_t values[4];
-
 	switch (context->feature_interaction->action)
 	{
 		case GLOBOX_INTERACTION_MOVE:
 		{
-			values[0] = reply_translate->dst_x + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[1] = reply_translate->dst_y + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height;
+			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_N:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height + platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
+			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_NW:
 		{
-			values[0] = reply_translate->dst_x + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[1] = reply_translate->dst_y + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			values[2] = reply_geom->width + platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			values[3] = reply_geom->height + platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
+			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
+			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_W:
 		{
-			values[0] = reply_translate->dst_x + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			values[3] = reply_geom->height;
+			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
 			break;
 		}
 		case GLOBOX_INTERACTION_SW:
 		{
-			values[0] = reply_translate->dst_x + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			values[3] = reply_geom->height + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
+			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_S:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_SE:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[3] = reply_geom->height + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
 			break;
 		}
 		case GLOBOX_INTERACTION_E:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[3] = reply_geom->height;
+			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
 			break;
 		}
 		case GLOBOX_INTERACTION_NE:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y + platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			values[2] = reply_geom->width + platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			values[3] = reply_geom->height + platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
+			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
+			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
+			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
 			break;
 		}
 		default:
 		{
-			values[0] = reply_translate->dst_x;
-			values[1] = reply_translate->dst_y;
-			values[2] = reply_geom->width;
-			values[3] = reply_geom->height;
 			break;
 		}
 	}
-
-	free(reply_translate);
-	free(reply_geom);
 
 	// set window position
 	xcb_void_cookie_t cookie_configure =
@@ -500,7 +401,7 @@ void x11_helpers_handle_interaction(
 			| XCB_CONFIG_WINDOW_Y
 			| XCB_CONFIG_WINDOW_WIDTH
 			| XCB_CONFIG_WINDOW_HEIGHT,
-			values);
+			platform->saved_window_geometry);
 
 	error_xcb =
 		xcb_request_check(

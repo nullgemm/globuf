@@ -22,11 +22,6 @@ void x11_helpers_features_init(
 	size_t count,
 	struct globox_error_info* error);
 
-void x11_helpers_query_pointer(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error);
-
 void x11_helpers_handle_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
