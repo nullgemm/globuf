@@ -422,6 +422,8 @@ static void event_callback(void* data, void* event)
 					" - text: %.*s\n",
 					(int) event_info.utf8_size,
 					event_info.utf8_string);
+
+				free(event_info.utf8_string);
 			}
 
 			fprintf(stderr, "\n");
