@@ -7,6 +7,7 @@
 #include "x11/x11_common.h"
 #include <stdlib.h>
 #include <sys/shm.h>
+#include <unistd.h>
 #include <xcb/render.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_image.h>
@@ -246,11 +247,28 @@ void x11_helpers_shm_create(
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
+	// if the app is being run as root, make sure everyone can access
+	// the shared memory segment, otherwise unprivilieged X servers
+	// might not be able to display the content of the window...
+	int mode;
+	uid_t uid = getuid();
+
+	if (uid == 0)
+	{
+		mode = 0666; // maximize compatibility for the POSIX superuser
+	}
+	else
+	{
+		mode = 0600; // maximize safety for regular users
+	}
+
+	// X11 does not seem to support POSIX SHMs, so we have to endure MIT-SHMs
+	// and manage our shared memory segment using old SysV calls
 	int shmid =
 		shmget(
 			IPC_PRIVATE,
 			len,
-			IPC_CREAT | 0666);
+			IPC_CREAT | mode);
 
 	if (shmid == -1)
 	{
