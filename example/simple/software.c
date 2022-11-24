@@ -415,16 +415,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// create the window
-	globox_window_create(globox, configs, feature_added, config_callback, globox, &error);
-
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-	{
-		globox_error_log(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
-	}
-
 	// register a render callback
 	struct globox_config_render render =
 	{
@@ -438,6 +428,16 @@ int main(int argc, char** argv)
 	if (globox_error_get_code(&error_render) != GLOBOX_ERROR_OK)
 	{
 		globox_error_log(globox, &error_render);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	// create the window
+	globox_window_create(globox, configs, feature_added, config_callback, globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}

@@ -746,16 +746,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// create the window
-	globox_window_create(globox, configs, feature_added, config_callback, globox, &error);
-
-	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-	{
-		globox_error_log(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
-	}
-
 	// register a render callback
 	struct globox_config_render render =
 	{
@@ -773,22 +763,15 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// display the window
-	globox_window_start(globox, &error);
+	// create the window
+	globox_window_create(globox, configs, feature_added, config_callback, globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
 		globox_error_log(globox, &error);
-		globox_window_destroy(globox, &error);
 		globox_clean(globox, &error);
 		return 1;
 	}
-
-	// do some more stuff while the window runs in another thread
-	printf(
-		"\nThis is a message from the main thread.\n"
-		"The window should now be visible.\n"
-		"We can keep computing here.\n");
 
 	// for instance, we can set the mouse cursor
 	struct cursoryx_error_info error_cursor = {0};
@@ -992,6 +975,23 @@ int main(int argc, char** argv)
 		globox_clean(globox, &error);
 		return 1;
 	}
+
+	// display the window
+	globox_window_start(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	// do some more stuff while the window runs in another thread
+	printf(
+		"\nThis is a message from the main thread.\n"
+		"The window should now be visible.\n"
+		"We can keep computing here.\n");
 
 	// wait for the window to be closed
 	globox_window_block(globox, &error);

@@ -676,7 +676,86 @@ void globox_x11_common_window_start(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// map
+	// init thread attributes
+	int error_posix;
+	pthread_attr_t attr;
+
+	error_posix = pthread_attr_init(&attr);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
+		return;
+	}
+
+	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
+		return;
+	}
+
+	// start the event loop in a new thread
+	// init thread function data
+	struct x11_thread_event_loop_data event_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->thread_event_loop_data = event_data;
+
+	// start function in a new thread
+	error_posix =
+		pthread_create(
+			&(platform->thread_event_loop),
+			&attr,
+			x11_helpers_event_loop,
+			&(platform->thread_event_loop_data));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		return;
+	}
+
+	// start the render loop in a new thread
+	// init thread function data
+	struct x11_thread_render_loop_data render_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->thread_render_loop_data = render_data;
+
+	// start function in a new thread
+	error_posix =
+		pthread_create(
+			&(platform->thread_render_loop),
+			&attr,
+			x11_helpers_render_loop,
+			&(platform->thread_render_loop_data));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		return;
+	}
+
+	// destroy the attributes
+	error_posix = pthread_attr_destroy(&attr);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
+		return;
+	}
+
+	// map window
 	xcb_void_cookie_t cookie =
 		xcb_map_window_checked(
 			platform->conn,
@@ -693,7 +772,7 @@ void globox_x11_common_window_start(
 		return;
 	}
 
-	// flush
+	// flush connection
 	int error_flush = xcb_flush(platform->conn);
 
 	if (error_flush <= 0)
@@ -816,61 +895,6 @@ void globox_x11_common_init_render(
 {
 	// set the event callback
 	context->render_callback = *config;
-
-	// start the render loop in a new thread
-	// init thread attributes
-	int error_posix;
-	pthread_attr_t attr;
-
-	error_posix = pthread_attr_init(&attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
-		return;
-	}
-
-	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
-		return;
-	}
-
-	// init thread function data
-	struct x11_thread_render_loop_data data =
-	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
-
-	platform->thread_render_loop_data = data;
-
-	// start function in a new thread
-	error_posix =
-		pthread_create(
-			&(platform->thread_render_loop),
-			&attr,
-			x11_helpers_render_loop,
-			&(platform->thread_render_loop_data));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
-		return;
-	}
-
-	// destroy the attributes
-	error_posix = pthread_attr_destroy(&attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
-		return;
-	}
-
 	globox_error_ok(error);
 }
 
@@ -882,61 +906,6 @@ void globox_x11_common_init_events(
 {
 	// set the event callback
 	context->event_callbacks = *config;
-
-	// start the event loop in a new thread
-	// init thread attributes
-	int error_posix;
-	pthread_attr_t attr;
-
-	error_posix = pthread_attr_init(&attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
-		return;
-	}
-
-	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
-		return;
-	}
-
-	// init thread function data
-	struct x11_thread_event_loop_data data =
-	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
-
-	platform->thread_event_loop_data = data;
-
-	// start function in a new thread
-	error_posix =
-		pthread_create(
-			&(platform->thread_event_loop),
-			&attr,
-			x11_helpers_event_loop,
-			&(platform->thread_event_loop_data));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
-		return;
-	}
-
-	// destroy the attributes
-	error_posix = pthread_attr_destroy(&attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
-		return;
-	}
-
 	globox_error_ok(error);
 }
 
