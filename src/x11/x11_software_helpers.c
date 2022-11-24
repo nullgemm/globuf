@@ -250,7 +250,7 @@ void x11_helpers_shm_create(
 		shmget(
 			IPC_PRIVATE,
 			len,
-			IPC_CREAT | 0600);
+			IPC_CREAT | 0666);
 
 	if (shmid == -1)
 	{
