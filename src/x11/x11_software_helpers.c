@@ -263,7 +263,7 @@ void x11_helpers_shm_create(
 	}
 
 	backend->software_shm.shmid = shmid;
-	backend->software_shm.shmaddr = shmat(shmid, 0, 0);
+	backend->software_shm.shmaddr = shmat(shmid, NULL, 0);
 
 	if (backend->software_shm.shmaddr == ((void*) -1))
 	{
