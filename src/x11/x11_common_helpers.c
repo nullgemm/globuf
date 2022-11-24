@@ -920,9 +920,8 @@ enum globox_event x11_helpers_get_state(
 
 	if ((len == 0) || (value == NULL))
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_VALUE_GET);
 		free(reply);
-		return event;
+		return GLOBOX_EVENT_UNKNOWN;
 	}
 
 	if (*value == platform->atoms[X11_ATOM_STATE_FULLSCREEN])
