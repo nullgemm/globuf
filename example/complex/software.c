@@ -454,6 +454,12 @@ static void render_callback(void* data)
 		return;
 	}
 
+	if ((width == 0) || (height == 0))
+	{
+		// skip rendering if the window area is 0
+		return;
+	}
+
 	uint32_t* argb =
 		globox_buffer_alloc_software(
 			globox, width, height, &error);
