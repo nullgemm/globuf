@@ -35,7 +35,10 @@ case $build_platform in
 		./make/lib/elf.sh $build_type
 		./make/lib/x11.sh $build_type common
 		./make/lib/x11.sh $build_type $build_backend
-		./make/example/$build_example/x11.sh $build_type $build_backend
+
+		if [ "$build_example" != "none" ]; then
+			./make/example/$build_example/x11.sh $build_type $build_backend
+		fi
 	;;
 
 	*)
@@ -54,7 +57,9 @@ case $build_platform in
 		samu -f ./make/output/lib_elf.ninja headers
 		samu -f ./make/output/lib_x11_"$build_backend".ninja headers
 
-		samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja
+		if [ "$build_example" != "none" ]; then
+			samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja
+		fi
 	;;
 
 	*)
