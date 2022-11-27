@@ -89,10 +89,12 @@ struct x11_platform
 	// render handling
 	pthread_t thread_render_loop;
 	struct x11_thread_render_loop_data thread_render_loop_data;
+	void (*render_init_callback)(struct globox*, struct globox_error_info*);
 
 	// event handling
 	pthread_t thread_event_loop;
 	struct x11_thread_event_loop_data thread_event_loop_data;
+	void (*event_init_callback)(struct globox*, struct globox_error_info*);
 };
 
 void globox_x11_common_init(

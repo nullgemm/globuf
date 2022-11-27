@@ -7,6 +7,7 @@ struct globox_config_egl
 {
 	int major_version;
 	int minor_version;
+	int* attributes;
 };
 
 void globox_init_egl(

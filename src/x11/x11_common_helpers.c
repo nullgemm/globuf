@@ -44,6 +44,17 @@ void* x11_helpers_render_loop(void* data)
 		return NULL;
 	}
 
+	// thread init callback
+	if (platform->render_init_callback != NULL)
+	{
+		platform->render_init_callback(context, error);
+
+		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return NULL;
+		}
+	}
+
 	while (closed == false)
 	{
 		// handle xsync
@@ -172,6 +183,17 @@ void* x11_helpers_event_loop(void* data)
 	struct globox_error_info* error = thread_event_loop_data->error;
 
 	xcb_generic_event_t* event;
+
+	// thread init callback
+	if (platform->event_init_callback != NULL)
+	{
+		platform->event_init_callback(context, error);
+
+		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		{
+			return NULL;
+		}
+	}
 
 	while (platform->closed == false)
 	{

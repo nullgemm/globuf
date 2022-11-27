@@ -38,8 +38,20 @@ void globox_x11_software_init(
 	// initialize values that can be initialized explicitly
 	backend->shared_pixmaps = false;
 
+	// open a connection to the X server
+	struct x11_platform* platform = &(backend->platform);
+	platform->conn = xcb_connect(NULL, &(platform->screen_id));
+	int error_posix = xcb_connection_has_error(platform->conn);
+
+	if (error_posix > 0)
+	{
+		xcb_disconnect(platform->conn);
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONN);
+		return;
+	}
+
 	// initialize the platform
-	globox_x11_common_init(context, &(backend->platform), error);
+	globox_x11_common_init(context, platform, error);
 
 	// error always set
 }
@@ -50,6 +62,9 @@ void globox_x11_software_clean(
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
+
+	// close the connection to the X server
+	xcb_disconnect(platform->conn);
 
 	// clean the platform
 	globox_x11_common_clean(context, platform, error);

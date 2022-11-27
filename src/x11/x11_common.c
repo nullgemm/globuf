@@ -129,17 +129,6 @@ void globox_x11_common_init(
 	// initialize the "closed" boolean
 	platform->closed = false;
 
-	// open a connection to the X server
-	platform->conn = xcb_connect(NULL, &(platform->screen_id));
-	error_posix = xcb_connection_has_error(platform->conn);
-
-	if (error_posix > 0)
-	{
-		xcb_disconnect(platform->conn);
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONN);
-		return;
-	}
-
 	// get the screen obj from the id the dirty way (there is no other option)
 	const struct xcb_setup_t* setup = xcb_get_setup(platform->conn);
 	xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
@@ -255,6 +244,7 @@ void globox_x11_common_init(
 		.error = NULL,
 	};
 	platform->thread_render_loop_data = thread_render_loop_data;
+	platform->render_init_callback = NULL;
 
 	// initialize render thread
 	struct x11_thread_event_loop_data thread_event_loop_data =
@@ -264,6 +254,7 @@ void globox_x11_common_init(
 		.error = NULL,
 	};
 	platform->thread_event_loop_data = thread_event_loop_data;
+	platform->event_init_callback = NULL;
 
 	globox_error_ok(error);
 }
@@ -275,9 +266,6 @@ void globox_x11_common_clean(
 {
 	int error_posix;
 	int error_cond;
-
-	// close the connection to the X server
-	xcb_disconnect(platform->conn);
 
 	// lock block mutex to be able to destroy the cond
 	error_posix = pthread_mutex_lock(&(platform->mutex_block));

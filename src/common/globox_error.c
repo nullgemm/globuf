@@ -144,6 +144,22 @@ void globox_error_init(
 		"failed to configure X11 window";
 	log[GLOBOX_ERROR_X11_QUERY_POINTER] =
 		"failed to query X11 mouse pointer position";
+	log[GLOBOX_ERROR_X11_GLX_FB_CONF_LIST] =
+		"failed to get X11 GLX framebuffer configurations list";
+	log[GLOBOX_ERROR_X11_GLX_FB_INVALID] =
+		"failed to use X11 GLX framebuffer configuration";
+	log[GLOBOX_ERROR_X11_GLX_FB_CONF_ATTR] =
+		"failed to get X11 GLX framebuffer configuration attributes";
+	log[GLOBOX_ERROR_X11_GLX_ATTR_ARB] =
+		"failed to get X11 GLX Attributes ARB extension function pointer";
+	log[GLOBOX_ERROR_X11_GLX_CONTEXT] =
+		"failed to create a X11 GLX context";
+	log[GLOBOX_ERROR_X11_GLX_WINDOW] =
+		"failed to create X11 GLX window";
+	log[GLOBOX_ERROR_X11_GLX_MAKE_CURRENT] =
+		"failed to make X11 GLX context current";
+	log[GLOBOX_ERROR_X11_GLX_DISPLAY_OPEN] =
+		"failed to open X11 display with Xlib";
 #endif
 }
 

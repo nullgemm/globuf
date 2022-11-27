@@ -5,22 +5,23 @@ path="$(pwd)/$0"
 folder=$(dirname "$path")
 cd "$folder"/../.. || exit
 
-mkdir -p res/egl_headers/GL
-mkdir -p res/egl_headers/GLES2
-mkdir -p res/egl_headers/EGL
-mkdir -p res/egl_headers/KHR
+# get EGL
+mkdir -p res/egl/GL
+mkdir -p res/egl/GLES2
+mkdir -p res/egl/EGL
+mkdir -p res/egl/KHR
 
 curl -L "https://www.khronos.org/registry/OpenGL/api/GL/wglext.h" -o \
-	res/egl_headers/GL/wglext.h
+	res/egl/GL/wglext.h
 curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2.h" -o \
-	res/egl_headers/GLES2/gl2.h
+	res/egl/GLES2/gl2.h
 curl -L "https://www.khronos.org/registry/OpenGL/api/GLES2/gl2platform.h" -o \
-	res/egl_headers/GLES2/gl2platform.h
+	res/egl/GLES2/gl2platform.h
 curl -L "https://www.khronos.org/registry/EGL/api/EGL/egl.h" -o \
-	res/egl_headers/EGL/egl.h
+	res/egl/EGL/egl.h
 curl -L "https://www.khronos.org/registry/EGL/api/EGL/eglext.h" -o \
-	res/egl_headers/EGL/eglext.h
+	res/egl/EGL/eglext.h
 curl -L "https://www.khronos.org/registry/EGL/api/EGL/eglplatform.h" -o \
-	res/egl_headers/EGL/eglplatform.h
+	res/egl/EGL/eglplatform.h
 curl -L "https://www.khronos.org/registry/EGL/api/KHR/khrplatform.h" -o \
-	res/egl_headers/KHR/khrplatform.h
+	res/egl/KHR/khrplatform.h

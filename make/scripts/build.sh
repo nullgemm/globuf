@@ -21,11 +21,11 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=software
+	build_backend=glx
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=complex
+	build_example=simple
 fi
 
 # generate ninja files

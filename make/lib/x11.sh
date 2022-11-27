@@ -139,6 +139,7 @@ src+=("src/x11/x11_software_helpers.c")
 ninja_file=lib_x11_glx.ninja
 name+="_glx"
 src+=("src/x11/x11_glx.c")
+src+=("src/x11/x11_glx_helpers.c")
 	;;
 
 	egl)
