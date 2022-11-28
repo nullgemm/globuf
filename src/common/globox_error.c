@@ -160,6 +160,32 @@ void globox_error_init(
 		"failed to make X11 GLX context current";
 	log[GLOBOX_ERROR_X11_GLX_DISPLAY_OPEN] =
 		"failed to open X11 display with Xlib";
+	log[GLOBOX_ERROR_X11_EGL_SWAP] =
+		"failed to swap X11 EGL buffers";
+	log[GLOBOX_ERROR_X11_EGL_DESTROY_SURFACE] =
+		"failed to destroy X11 EGL surface";
+	log[GLOBOX_ERROR_X11_EGL_DESTROY_CONTEXT] =
+		"failed to destroy X11 EGL context";
+	log[GLOBOX_ERROR_X11_EGL_TERMINATE] =
+		"failed to terminate X11 EGL";
+	log[GLOBOX_ERROR_X11_EGL_DISPLAY_GET] =
+		"failed to get X11 EGL display";
+	log[GLOBOX_ERROR_X11_EGL_INIT] =
+		"failed to init X11 EGL";
+	log[GLOBOX_ERROR_X11_EGL_BIND_API] =
+		"failed to bind X11 EGL API";
+	log[GLOBOX_ERROR_X11_EGL_CONFIG] =
+		"failed to get X11 EGL configuration";
+	log[GLOBOX_ERROR_X11_EGL_CONTEXT_CREATE] =
+		"failed to create X11 EGL context";
+	log[GLOBOX_ERROR_X11_EGL_CONFIG_ATTR] =
+		"failed to create get X11 EGL configuration attributes";
+	log[GLOBOX_ERROR_X11_EGL_WINDOW_SURFACE] =
+		"failed to create X11 EGL window surface";
+	log[GLOBOX_ERROR_X11_EGL_MAKE_CURRENT] =
+		"failed to make X11 EGL context current";
+	log[GLOBOX_ERROR_X11_EGL_SWAP_INTERVAL] =
+		"failed to set X11 EGL swap interval";
 #endif
 }
 

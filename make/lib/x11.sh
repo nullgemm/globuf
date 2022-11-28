@@ -146,6 +146,7 @@ src+=("src/x11/x11_glx_helpers.c")
 ninja_file=lib_x11_egl.ninja
 name+="_egl"
 src+=("src/x11/x11_egl.c")
+src+=("src/x11/x11_egl_helpers.c")
 	;;
 
 	vulkan)

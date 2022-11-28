@@ -130,7 +130,6 @@ case $backend in
 ninja_file=example_simple_x11_software.ninja
 src+=("example/simple/software.c")
 link+=("xcb-shm")
-link+=("xcb-sync")
 link+=("xcb-randr")
 link+=("xcb-render")
 	;;
@@ -140,7 +139,6 @@ ninja_file=example_simple_x11_glx.ninja
 src+=("example/simple/opengl.c")
 link+=("gl")
 link+=("glesv2")
-link+=("xcb-sync")
 link+=("x11")
 link+=("x11-xcb")
 link+=("xrender")
@@ -150,10 +148,11 @@ defines+=("-DGLOBOX_EXAMPLE_GLX")
 
 	egl)
 ninja_file=example_simple_x11_egl.ninja
-src+=("example/simple/egl.c")
+src+=("example/simple/opengl.c")
 link+=("egl")
 link+=("glesv2")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+defines+=("-DGLOBOX_EXAMPLE_EGL")
 	;;
 
 	vulkan)
@@ -169,6 +168,7 @@ exit 1
 esac
 
 link+=("xcb-present")
+link+=("xcb-sync")
 link+=("xcb")
 ldlibs+=("-lpthread")
 

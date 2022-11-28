@@ -1,8 +1,12 @@
 #include "globox.h"
 #include "globox_software.h"
 
-#ifdef GLOBOX_EXAMPLE_GLX
-#include "globox_x11_glx.h"
+#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_GLX)
+	#include "globox_x11_glx.h"
+#elif defined(GLOBOX_EXAMPLE_EGL)
+	#include "globox_x11_egl.h"
+#endif
 #endif
 
 #include <stdbool.h>
@@ -12,8 +16,10 @@
 #include <stdlib.h>
 #include <GLES2/gl2.h>
 
-#ifdef GLOBOX_EXAMPLE_GLX
-#include <GL/glx.h>
+#if defined(GLOBOX_EXAMPLE_GLX)
+	#include <GL/glx.h>
+#elif defined(GLOBOX_EXAMPLE_EGL)
+	#include <EGL/egl.h>
 #endif
 
 extern uint8_t iconpix[];
@@ -40,7 +46,7 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
 };
 
-#ifdef GLOBOX_EXAMPLE_GLX
+#if defined(GLOBOX_EXAMPLE_GLX)
 int glx_config_attrib[] =
 {
 	GLX_DOUBLEBUFFER, True,
@@ -53,6 +59,17 @@ int glx_config_attrib[] =
 	GLX_ALPHA_SIZE, 8,
 	GLX_DEPTH_SIZE, 24,
 	None,
+};
+#elif defined(GLOBOX_EXAMPLE_EGL)
+EGLint egl_config_attrib[] =
+{
+	EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+	EGL_RED_SIZE, 8,
+	EGL_GREEN_SIZE, 8,
+	EGL_BLUE_SIZE, 8,
+	EGL_ALPHA_SIZE, 8,
+	EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+	EGL_NONE,
 };
 #endif
 
@@ -326,8 +343,10 @@ int main(int argc, char** argv)
 	struct globox_config_backend config = {0};
 
 #ifdef GLOBOX_EXAMPLE_X11
-#ifdef GLOBOX_EXAMPLE_GLX
+#if defined(GLOBOX_EXAMPLE_GLX)
 	globox_prepare_init_x11_glx(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_EGL)
+	globox_prepare_init_x11_egl(&config, &error_early);
 #endif
 #endif
 
@@ -365,7 +384,7 @@ int main(int argc, char** argv)
 	}
 
 	// set OpenGL configuration attributes
-#ifdef GLOBOX_EXAMPLE_GLX
+#if defined(GLOBOX_EXAMPLE_GLX)
 	struct globox_config_glx config_opengl =
 	{
 		.major_version = 2,
@@ -374,6 +393,15 @@ int main(int argc, char** argv)
 	};
 
 	globox_init_glx(globox, &config_opengl, &error);
+#elif defined(GLOBOX_EXAMPLE_EGL)
+	struct globox_config_egl config_opengl =
+	{
+		.major_version = 2,
+		.minor_version = 0,
+		.attributes = egl_config_attrib,
+	};
+
+	globox_init_egl(globox, &config_opengl, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
