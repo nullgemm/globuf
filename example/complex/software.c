@@ -142,7 +142,6 @@ static void event_callback(void* data, void* event)
 	struct dpishit_display_info display_info = {0};
 	bool dpishit_valid = false;
 
-	// TODO wait until window_block?
 	if (dpishit != NULL)
 	{
 		dpishit_valid =
@@ -199,7 +198,6 @@ static void event_callback(void* data, void* event)
 	struct willis_error_info error_willis = {0};
 	struct willis_event_info event_info = {0};
 
-	// TODO wait until window_block?
 	if (willis != NULL)
 	{
 		willis_handle_event(
@@ -225,12 +223,10 @@ static void event_callback(void* data, void* event)
 			{
 				if (event_callback_data->mouse_grabbed == false)
 				{
-					// TODO use return boolean?
 					willis_mouse_grab(willis, &error_willis);
 				}
 				else
 				{
-					// TODO use return boolean?
 					willis_mouse_ungrab(willis, &error_willis);
 				}
 

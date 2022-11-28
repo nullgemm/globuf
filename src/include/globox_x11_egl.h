@@ -2,6 +2,7 @@
 #define H_GLOBOX_X11_EGL
 
 #include "globox.h"
+#include "globox_x11.h"
 #include "globox_egl.h"
 
 void globox_prepare_init_x11_egl(

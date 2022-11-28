@@ -10,7 +10,7 @@ backend=$2
 
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: software, egl, vulkan"
+echo "backend types: software, glx, egl, vulkan"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -135,13 +135,25 @@ src+=("example/complex/software.c")
 link+=("xcb-shm")
 	;;
 
+	glx)
+ninja_file=example_complex_x11_glx.ninja
+src+=("example/complex/opengl.c")
+link+=("gl")
+link+=("glesv2")
+link+=("x11")
+link+=("x11-xcb")
+link+=("xrender")
+obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+defines+=("-DGLOBOX_EXAMPLE_GLX")
+	;;
+
 	egl)
 ninja_file=example_complex_x11_egl.ninja
-src+=("example/complex/egl.c")
+src+=("example/complex/opengl.c")
 link+=("egl")
 link+=("glesv2")
-obj+=("\$folder_objects/res/shaders/gl1/square_vert_gl1.o")
-obj+=("\$folder_objects/res/shaders/gl1/square_frag_gl1.o")
+obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+defines+=("-DGLOBOX_EXAMPLE_EGL")
 	;;
 
 	vulkan)
@@ -295,22 +307,9 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule shader_vert_object"; \
-echo "    command = objcopy \$objcopy \$"; \
-echo "    --redefine-syms=res/shaders/gl1/syms.map \$"; \
-echo "    --rename-section .data=.square_vert \$"; \
-echo "    \$in \$out"; \
-echo "    description = objcopy \$out"; \
-echo ""; \
-} >> "$output/$ninja_file"
-
-{ \
-echo "rule shader_frag_object"; \
-echo "    command = objcopy \$objcopy \$"; \
-echo "    --redefine-syms=res/shaders/gl1/syms.map \$"; \
-echo "    --rename-section .data=.square_frag \$"; \
-echo "    \$in \$out"; \
-echo "    description = objcopy \$out"; \
+echo "rule shaders_object"; \
+echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders.S -o \$out"; \
+echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
@@ -368,11 +367,8 @@ echo "icon_object res/icon/iconpix.bin"; \
 echo "build \$folder_objects/res/cursor/cursorpix.o: \$"; \
 echo "cursor_object res/cursor/cursorpix.bin"; \
 echo ""; \
-echo "build \$folder_objects/res/shaders/gl1/square_vert_gl1.o: \$"; \
-echo "shader_vert_object res/shaders/gl1/square_vert_gl1.glsl"; \
-echo ""; \
-echo "build \$folder_objects/res/shaders/gl1/square_frag_gl1.o: \$"; \
-echo "shader_frag_object res/shaders/gl1/square_frag_gl1.glsl"; \
+echo "build \$folder_objects/res/shaders/gl1/shaders.o: \$"; \
+echo "shaders_object res/shaders/gl1/square_vert_gl1.glsl res/shaders/gl1/square_frag_gl1.glsl"; \
 echo ""; \
 } >> "$output/$ninja_file"
 

@@ -98,10 +98,10 @@ static void event_callback(void* data, void* event)
 			fprintf(
 				stderr,
 				"received `content damaged` event\n"
-				"x: %d\n"
-				"y: %d\n"
-				"width: %d\n"
-				"height: %d\n",
+				" - x: %d px\n"
+				" - y: %d px\n"
+				" - width: %d px\n"
+				" - height: %d px\n",
 				rect.x,
 				rect.y,
 				rect.width,
@@ -132,6 +132,12 @@ static void render_callback(void* data)
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
 		globox_error_log(globox, &error);
+		return;
+	}
+
+	if ((width == 0) || (height == 0))
+	{
+		// skip rendering if the window area is 0
 		return;
 	}
 
