@@ -160,6 +160,8 @@ void globox_error_init(
 		"failed to make X11 GLX context current";
 	log[GLOBOX_ERROR_X11_GLX_DISPLAY_OPEN] =
 		"failed to open X11 display with Xlib";
+	log[GLOBOX_ERROR_X11_GLX_VSYNC] =
+		"failed to get required X11 GLX VSync extension function pointer";
 	log[GLOBOX_ERROR_X11_EGL_SWAP] =
 		"failed to swap X11 EGL buffers";
 	log[GLOBOX_ERROR_X11_EGL_DESTROY_SURFACE] =

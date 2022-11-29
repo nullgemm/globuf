@@ -617,6 +617,9 @@ static void render_callback(void* data)
 
 	globox_update_content(globox, NULL, &error);
 
+	// reducing latency when resizing
+	glFinish();
+
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
 		globox_error_log(globox, &error);

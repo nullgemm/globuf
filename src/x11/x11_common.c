@@ -1314,7 +1314,6 @@ enum globox_event globox_x11_common_handle_events(
 	return globox_event;
 }
 
-// TODO put this in backend instead of platform?
 struct globox_config_features*
 	globox_x11_common_init_features(
 		struct globox* context,
@@ -1452,64 +1451,6 @@ struct globox_config_features*
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
-
-	// TODO update this
-	// available if the _NET_SUPPPORTED prop. has the _NET_WM_FRAME_DRAWN atom
-	xcb_generic_error_t* error_xcb;
-
-	xcb_get_property_cookie_t cookie =
-		xcb_get_property(
-			platform->conn,
-			0,
-			platform->root_win,
-			atoms[X11_ATOM_NET_SUPPORTED],
-			XCB_ATOM_ATOM,
-			0,
-			1024);
-
-	xcb_get_property_reply_t* reply =
-		xcb_get_property_reply(
-			platform->conn,
-			cookie,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
-
-		return features;
-	}
-
-	int net_atoms_count =
-		xcb_get_property_value_length(reply) / (sizeof (xcb_atom_t));
-
-	xcb_atom_t* net_atoms =
-		xcb_get_property_value(reply);
-
-	int i = 0;
-
-	while (i < net_atoms_count)
-	{
-		if (net_atoms[i] == platform->atoms[X11_ATOM_FRAME_DRAWN])
-		{
-			features->list[features->count] = GLOBOX_FEATURE_VSYNC;
-			context->feature_vsync =
-				malloc(sizeof (struct globox_feature_vsync));
-			features->count += 1;
-
-			if (context->feature_vsync == NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
-				return NULL;
-			}
-
-			break;
-		}
-
-		++i;
-	}
-
-	free(reply);
 
 	globox_error_ok(error);
 	return features;

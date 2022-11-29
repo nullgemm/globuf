@@ -322,12 +322,12 @@ void globox_x11_glx_window_start(
 			backend->display,
 			platform->screen_id);
 
-	bool attribs_support =
+	bool arb_ext =
 		x11_helpers_glx_ext_support(
 			list,
 			"GLX_ARB_create_context");
 
-	if (attribs_support == true)
+	if (arb_ext == true)
 	{
 		// get function pointer
 		GLXContext (*glXCreateContextAttribsARB)() =
@@ -385,6 +385,51 @@ void globox_x11_glx_window_start(
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_GLX_WINDOW);
 		return;
+	}
+
+	// configure VSync if available
+	if (context->feature_vsync != NULL)
+	{
+		// check for Adaptive VSync extension
+		bool tear_ext =
+			x11_helpers_glx_ext_support(
+				list,
+				"EXT_swap_control_tear");
+
+		// enable VSync
+		int interval;
+
+		if (context->feature_vsync->vsync == true)
+		{
+			if (tear_ext == true)
+			{
+				interval = -1;
+			}
+			else
+			{
+				interval = 1;
+			}
+		}
+		else
+		{
+			interval = 0;
+		}
+
+		// get extension function pointer
+		PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
+
+		glXSwapIntervalEXT =
+			(PFNGLXSWAPINTERVALEXTPROC)
+				glXGetProcAddressARB(
+					(const GLubyte*) "glXSwapIntervalEXT");
+
+		if (glXSwapIntervalEXT != NULL)
+		{
+			glXSwapIntervalEXT(
+				backend->display,
+				backend->win,
+				interval);
+		}
 	}
 
 	// run common X11 helper
@@ -492,7 +537,36 @@ struct globox_config_features* globox_x11_glx_init_features(
 	struct globox_config_features* features =
 		globox_x11_common_init_features(context, platform, error);
 
-	// no extra failure check at the moment
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return features;
+	}
+
+	// available if the VSync extension is available
+	const char* list =
+		glXQueryExtensionsString(
+			backend->display,
+			platform->screen_id);
+
+	// check for VSync extension
+	bool vsync_ext =
+		x11_helpers_glx_ext_support(
+			list,
+			"GLX_EXT_swap_control");
+
+	if (vsync_ext == true)
+	{
+		features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+		context->feature_vsync =
+			malloc(sizeof (struct globox_feature_vsync));
+		features->count += 1;
+
+		if (context->feature_vsync == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			return NULL;
+		}
+	}
 
 	// return the newly created features info structure
 	// error always set
