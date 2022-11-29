@@ -415,7 +415,22 @@ struct globox_config_features* globox_x11_egl_init_features(
 	struct globox_config_features* features =
 		globox_x11_common_init_features(context, platform, error);
 
-	// no extra failure check at the moment
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return features;
+	}
+
+	// VSync is always available (kind of) with EGL!
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	context->feature_vsync =
+		malloc(sizeof (struct globox_feature_vsync));
+	features->count += 1;
+
+	if (context->feature_vsync == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
 
 	// return the newly created features info structure
 	// error always set

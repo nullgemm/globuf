@@ -30,7 +30,18 @@ void x11_helpers_egl_bind(struct globox* context, struct globox_error_info* erro
 	}
 
 	// set swap interval
-	error_egl = eglSwapInterval(backend->display, 0);
+	int interval;
+
+	if (context->feature_vsync->vsync == true)
+	{
+		interval = 1;
+	}
+	else
+	{
+		interval = 0;
+	}
+
+	error_egl = eglSwapInterval(backend->display, interval);
 
 	if (error_egl == EGL_FALSE)
 	{
