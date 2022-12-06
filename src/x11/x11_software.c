@@ -354,7 +354,52 @@ enum globox_event globox_x11_software_handle_events(
 			event,
 			error);
 
-	// no extra failure check at the moment
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return out;
+	}
+
+	// process configure event specifically
+	xcb_generic_event_t* xcb_event = event;
+
+	// only lock the main mutex when making changes to the context
+	switch (xcb_event->response_type & ~0x80)
+	{
+		case XCB_CONFIGURE_NOTIFY:
+		{
+			xcb_configure_notify_event_t* configure =
+				(xcb_configure_notify_event_t*) xcb_event;
+
+			// lock xsync mutex
+			int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
+
+			if (error_posix != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				break;
+			}
+
+			// safe value updates
+			if ((platform->xsync_configure == true)
+				&& (platform->xsync_request == true))
+			{
+				platform->xsync_end = true;
+			}
+
+			// unlock xsync mutex
+			error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+			if (error_posix != 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				break;
+			}
+
+			out = GLOBOX_EVENT_MOVED_RESIZED;
+			break;
+		}
+	}
+
 
 	// error always set
 	return out;

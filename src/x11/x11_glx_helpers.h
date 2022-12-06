@@ -15,6 +15,8 @@ struct x11_glx_backend
 	GLXFBConfig fb_config;
 	GLXContext glx;
 	GLXWindow win;
+	int error_base;
+	int event_base;
 };
 
 bool x11_helpers_glx_ext_support(

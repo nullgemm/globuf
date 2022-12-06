@@ -10,6 +10,7 @@
 
 #include <pthread.h>
 #include <stdlib.h>
+#include <xcb/glx.h>
 #include <xcb/xcb.h>
 #include <GL/glx.h>
 #include <X11/extensions/Xrender.h>
@@ -60,6 +61,18 @@ void globox_x11_glx_init(
 
 	XSetEventQueueOwner(backend->display, XCBOwnsEventQueue);
 	platform->screen_id = XDefaultScreen(backend->display);
+
+	Bool error_glx =
+		glXQueryExtension(
+			backend->display,
+			&(backend->error_base),
+			&(backend->event_base));
+
+	if (error_glx == False)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_GLX);
+		return;
+	}
 
 	// initialize the platform
 	globox_x11_common_init(context, platform, error);
@@ -432,6 +445,11 @@ void globox_x11_glx_window_start(
 		}
 	}
 
+	glXSelectEvent(
+		backend->display,
+		backend->win,
+		GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK);
+
 	// run common X11 helper
 	globox_x11_common_window_start(context, platform, error);
 
@@ -511,13 +529,52 @@ enum globox_event globox_x11_glx_handle_events(
 	struct x11_glx_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
-	// run common X11 helper
-	enum globox_event out =
-		globox_x11_common_handle_events(
-			context,
-			platform,
-			event,
-			error);
+	// process GLX events
+	enum globox_event out;
+	xcb_generic_event_t* xcb_event = event;
+
+	int event_swap = backend->event_base + XCB_GLX_BUFFER_SWAP_COMPLETE;
+	int event_type = xcb_event->response_type & ~0x80;
+
+	if (event_type == event_swap)
+	{
+		// synchronize with XSync
+		out = GLOBOX_EVENT_UNKNOWN;
+		// lock xsync mutex
+		int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
+
+		if (error_posix != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return out;
+		}
+
+		// safe value updates
+		if ((platform->xsync_configure == true)
+			&& (platform->xsync_request == true))
+		{
+			platform->xsync_end = true;
+		}
+
+		// unlock xsync mutex
+		error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
+
+		if (error_posix != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return out;
+		}
+	}
+	else
+	{
+		// run common X11 helper
+		out =
+			globox_x11_common_handle_events(
+				context,
+				platform,
+				event,
+				error);
+	}
 
 	// no extra failure check at the moment
 

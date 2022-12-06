@@ -67,7 +67,8 @@ void* x11_helpers_render_loop(void* data)
 			break;
 		}
 
-		if (platform->xsync_configure == true)
+		if ((platform->xsync_end == true)
+			&& (platform->xsync_configure == true))
 		{
 			// lock main mutex
 			error_posix = pthread_mutex_lock(&(platform->mutex_main));
@@ -115,7 +116,8 @@ void* x11_helpers_render_loop(void* data)
 
 		// tell the window manager the resize operation
 		// associated with the current xsync counter completed
-		if ((platform->xsync_configure == true)
+		if ((platform->xsync_end == true)
+			&& (platform->xsync_configure == true)
 			&& (platform->xsync_request == true))
 		{
 			// wait for the next request

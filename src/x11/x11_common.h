@@ -73,6 +73,7 @@ struct x11_platform
 	// xsync
 	xcb_sync_counter_t xsync_counter;
 	xcb_sync_int64_t xsync_value;
+	bool xsync_end;
 	bool xsync_configure;
 	bool xsync_request;
 	unsigned xsync_width;
