@@ -380,10 +380,9 @@ enum globox_event globox_x11_software_handle_events(
 			}
 
 			// safe value updates
-			if ((platform->xsync_configure == true)
-				&& (platform->xsync_request == true))
+			if (platform->xsync_status == GLOBOX_XSYNC_CONFIGURED)
 			{
-				platform->xsync_end = true;
+				platform->xsync_status = GLOBOX_XSYNC_ACKNOWLEDGED;
 			}
 
 			// unlock xsync mutex

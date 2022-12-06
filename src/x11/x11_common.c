@@ -220,9 +220,7 @@ void globox_x11_common_init(
 	platform->visual_depth = 0;
 
 	// initialize xsync
-	platform->xsync_end = true;
-	platform->xsync_configure = true;
-	platform->xsync_request = false;
+	platform->xsync_status = GLOBOX_XSYNC_FINISHED;
 	platform->xsync_width = 0;
 	platform->xsync_height = 0;
 
@@ -974,7 +972,11 @@ enum globox_event globox_x11_common_handle_events(
 			// safe value updates
 			platform->xsync_width = configure->width;
 			platform->xsync_height = configure->height;
-			platform->xsync_configure = true;
+
+			if (platform->xsync_status == GLOBOX_XSYNC_WAITING)
+			{
+				platform->xsync_status = GLOBOX_XSYNC_CONFIGURED;
+			}
 
 			// unlock xsync mutex
 			error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
@@ -1078,9 +1080,7 @@ enum globox_event globox_x11_common_handle_events(
 					// save the last xsync value
 					platform->xsync_value.hi = message->data.data32[3];
 					platform->xsync_value.lo = message->data.data32[2];
-					platform->xsync_end = false;
-					platform->xsync_configure = false;
-					platform->xsync_request = true;
+					platform->xsync_status = GLOBOX_XSYNC_WAITING;
 
 					// unlock xsync mutex
 					error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));

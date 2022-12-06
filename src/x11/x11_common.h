@@ -32,6 +32,14 @@ enum x11_atoms
 	X11_ATOM_COUNT,
 };
 
+enum globox_xsync_status
+{
+	GLOBOX_XSYNC_WAITING = 0,
+	GLOBOX_XSYNC_CONFIGURED,
+	GLOBOX_XSYNC_ACKNOWLEDGED,
+	GLOBOX_XSYNC_FINISHED,
+};
+
 struct x11_thread_render_loop_data
 {
 	struct globox* globox;
@@ -71,11 +79,9 @@ struct x11_platform
 	xcb_visualid_t visual_id;
 
 	// xsync
+	enum globox_xsync_status xsync_status;
 	xcb_sync_counter_t xsync_counter;
 	xcb_sync_int64_t xsync_value;
-	bool xsync_end;
-	bool xsync_configure;
-	bool xsync_request;
 	unsigned xsync_width;
 	unsigned xsync_height;
 
