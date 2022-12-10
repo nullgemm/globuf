@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+// common to all backends supporting software rendering
+
 struct globox_update_software
 {
 	uint32_t* buf;
@@ -15,16 +17,5 @@ struct globox_update_software
 	unsigned width;
 	unsigned height;
 };
-
-uint32_t* globox_buffer_alloc_software(
-	struct globox* context,
-	unsigned width,
-	unsigned height,
-	struct globox_error_info* error);
-
-void globox_buffer_free_software(
-	struct globox* context,
-	uint32_t* buffer,
-	struct globox_error_info* error);
 
 #endif

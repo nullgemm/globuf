@@ -819,7 +819,7 @@ void globox_prepare_init_x11_software(
 
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)
-uint32_t* globox_buffer_alloc_software(
+uint32_t* globox_buffer_alloc_x11_software(
 	struct globox* context,
 	unsigned width,
 	unsigned height,
@@ -855,7 +855,7 @@ uint32_t* globox_buffer_alloc_software(
 	return argb;
 }
 
-void globox_buffer_free_software(
+void globox_buffer_free_x11_software(
 	struct globox* context,
 	uint32_t* buffer,
 	struct globox_error_info* error)

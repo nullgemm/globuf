@@ -457,8 +457,10 @@ static void render_callback(void* data)
 	}
 
 	uint32_t* argb =
-		globox_buffer_alloc_software(
+#ifdef GLOBOX_EXAMPLE_X11
+		globox_buffer_alloc_x11_software(
 			globox, width, height, &error);
+#endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
@@ -507,8 +509,10 @@ static void render_callback(void* data)
 		return;
 	}
 
-	globox_buffer_free_software(
+#ifdef GLOBOX_EXAMPLE_X11
+	globox_buffer_free_x11_software(
 		globox, argb, &error);
+#endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{

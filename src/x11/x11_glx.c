@@ -799,7 +799,7 @@ void globox_prepare_init_x11_glx(
 
 
 // OpenGL configuration setter
-void globox_init_glx(
+void globox_init_x11_glx(
 	struct globox* context,
 	struct globox_config_glx* config,
 	struct globox_error_info* error)

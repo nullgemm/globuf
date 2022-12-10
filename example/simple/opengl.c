@@ -400,7 +400,6 @@ int main(int argc, char** argv)
 		.attributes = glx_config_attrib,
 	};
 
-	globox_init_glx(globox, &config_opengl, &error);
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	struct globox_config_egl config_opengl =
 	{
@@ -408,8 +407,14 @@ int main(int argc, char** argv)
 		.minor_version = 0,
 		.attributes = egl_config_attrib,
 	};
+#endif
 
-	globox_init_egl(globox, &config_opengl, &error);
+#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_GLX)
+	globox_init_x11_glx(globox, &config_opengl, &error);
+#elif defined(GLOBOX_EXAMPLE_EGL)
+	globox_init_x11_egl(globox, &config_opengl, &error);
+#endif
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
