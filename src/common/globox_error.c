@@ -190,6 +190,12 @@ void globox_error_init(
 		"failed to make X11 EGL context current";
 	log[GLOBOX_ERROR_X11_EGL_SWAP_INTERVAL] =
 		"failed to set X11 EGL swap interval";
+	log[GLOBOX_ERROR_X11_VULKAN_SURFACE_CREATE] =
+		"failed to create X11 Vulkan surface";
+	log[GLOBOX_ERROR_X11_VULKAN_EXTENSIONS_LIST] =
+		"failed to list Vulkan extensions";
+	log[GLOBOX_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE] =
+		"could not find the XCB Vulkan extension";
 #endif
 }
 

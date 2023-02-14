@@ -159,7 +159,9 @@ defines+=("-DGLOBOX_EXAMPLE_EGL")
 	vulkan)
 ninja_file=example_complex_x11_vulkan.ninja
 src+=("example/complex/vulkan.c")
-# TODO vulkan
+link+=("vulkan")
+obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+libs+=("\$folder_library/globox_vulkan.a")
 	;;
 
 	*)
@@ -307,8 +309,15 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule shaders_object"; \
+echo "rule shaders_object_gl1"; \
 echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders.S -o \$out"; \
+echo "    description = \$cc \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule shaders_object_vk1"; \
+echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -368,7 +377,10 @@ echo "build \$folder_objects/res/cursor/cursorpix.o: \$"; \
 echo "cursor_object res/cursor/cursorpix.bin"; \
 echo ""; \
 echo "build \$folder_objects/res/shaders/gl1/shaders.o: \$"; \
-echo "shaders_object res/shaders/gl1/square_vert_gl1.glsl res/shaders/gl1/square_frag_gl1.glsl"; \
+echo "shaders_object_gl1 res/shaders/gl1/square_vert_gl1.glsl res/shaders/gl1/square_frag_gl1.glsl"; \
+echo ""; \
+echo "build \$folder_objects/res/shaders/vk1/shaders.o: \$"; \
+echo "shaders_object_vk1 res/shaders/vk1/square_vert_vk1.spv res/shaders/vk1/square_frag_vk1.spv"; \
 echo ""; \
 } >> "$output/$ninja_file"
 

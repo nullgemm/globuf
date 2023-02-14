@@ -21,20 +21,24 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=egl
+	build_backend=vulkan
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=complex
+	build_example=simple
 fi
 
 # generate ninja files
 case $build_platform in
 	x11)
 		rm -rf build make/output
-		./make/lib/elf.sh $build_type
+		./make/lib/elf.sh $build_type common
 		./make/lib/x11.sh $build_type common
 		./make/lib/x11.sh $build_type $build_backend
+
+		if [ "$build_backend" == "vulkan" ]; then
+			./make/lib/elf.sh $build_type $build_backend
+		fi
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/x11.sh $build_type $build_backend
@@ -56,6 +60,10 @@ case $build_platform in
 
 		samu -f ./make/output/lib_elf.ninja headers
 		samu -f ./make/output/lib_x11_"$build_backend".ninja headers
+
+		if [ "$build_backend" == "vulkan" ]; then
+			samu -f ./make/output/lib_elf_"$build_backend".ninja
+		fi
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja

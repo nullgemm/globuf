@@ -6,9 +6,11 @@ cd ../..
 
 # params
 build=$1
+backend=$2
 
-echo "syntax reminder: $0 <build type>"
+echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
+echo "backend types: common, vulkan"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -110,10 +112,29 @@ exit 1
 	;;
 esac
 
-# common globox lib for elf executables
+# customize depending on the chosen backend type
+if [ -z "$backend" ]; then
+	backend=software
+fi
+
+case $backend in
+	common)
 ninja_file=lib_elf.ninja
 src+=("src/common/globox.c")
 src+=("src/common/globox_error.c")
+	;;
+
+	vulkan)
+ninja_file=lib_elf_vulkan.ninja
+name+="_vulkan"
+src+=("src/common/globox_vulkan.c")
+	;;
+
+	*)
+echo "invalid backend"
+exit 1
+	;;
+esac
 
 # default target
 default+=("\$folder_library/\$name.a")

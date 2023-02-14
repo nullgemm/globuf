@@ -24,11 +24,11 @@
 extern uint8_t iconpix[];
 extern int iconpix_size;
 
-extern uint8_t square_frag[];
-extern int square_frag_size;
+extern uint8_t square_frag_gl1[];
+extern int square_frag_gl1_size;
 
-extern uint8_t square_vert[];
-extern int square_vert_size;
+extern uint8_t square_vert_gl1[];
+extern int square_vert_gl1_size;
 
 #define VERTEX_ATTR_POSITION 0
 
@@ -84,15 +84,15 @@ static void compile_shaders()
 
 	// compile OpenGL or glES shaders
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	const char * const square_vert_gl = (char*) &square_vert;
-	GLint square_vert_size_gl = square_vert_size;
+	const char * const square_vert_gl = (char*) &square_vert_gl1;
+	GLint square_vert_size_gl = square_vert_gl1_size;
 	glShaderSource(vertex_shader, 1, &square_vert_gl, &square_vert_size_gl);
 	fprintf(stderr, "compiling vertex shader:\n%.*s\n", square_vert_size_gl, square_vert_gl);
 	glCompileShader(vertex_shader);
 
 	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char * const square_frag_gl = (char*) &square_frag;
-	GLint square_frag_size_gl = square_frag_size;
+	const char * const square_frag_gl = (char*) &square_frag_gl1;
+	GLint square_frag_size_gl = square_frag_gl1_size;
 	glShaderSource(fragment_shader, 1, &square_frag_gl, &square_frag_size_gl);
 	fprintf(stderr, "compiling fragment shader:\n%.*s\n", square_frag_size_gl, square_frag_gl);
 	glCompileShader(fragment_shader);

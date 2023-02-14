@@ -153,6 +153,7 @@ src+=("src/x11/x11_egl_helpers.c")
 ninja_file=lib_x11_vulkan.ninja
 name+="_vulkan"
 src+=("src/x11/x11_vulkan.c")
+src+=("src/x11/x11_vulkan_helpers.c")
 	;;
 
 	*)
