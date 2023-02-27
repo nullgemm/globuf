@@ -45,12 +45,57 @@ struct globox_render_data
 	bool shaders;
 
 	// vulkan info
-	// TODO
+	VkDevice device;
+	VkShaderModule module_vert;
+	VkShaderModule module_frag;
 };
 
-static void compile_shaders()
+static void compile_shaders(
+	VkDevice* device,
+	VkShaderModule* module_vert,
+	VkShaderModule* module_frag)
 {
-	// TODO
+	VkShaderModuleCreateInfo info_vert =
+	{
+		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.codeSize = square_vert_vk1_size,
+		.pCode = (uint32_t*) &square_vert_vk1,
+	};
+
+	VkResult error_vk =
+		vkCreateShaderModule(
+			*device,
+			&info_vert,
+			NULL,
+			module_vert);
+
+	if (error_vk != VK_SUCCESS)
+	{
+		return;
+	}
+
+	VkShaderModuleCreateInfo info_flag =
+	{
+		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.codeSize = square_frag_vk1_size,
+		.pCode = (uint32_t*) &square_frag_vk1,
+	};
+
+	error_vk =
+		vkCreateShaderModule(
+			*device,
+			&info_flag,
+			NULL,
+			module_frag);
+
+	if (error_vk != VK_SUCCESS)
+	{
+		return;
+	}
 }
 
 static void init_vulkan(struct globox_render_data* data)
@@ -185,7 +230,11 @@ static void render_callback(void* data)
 
 	if (render_data->shaders == true)
 	{
-		compile_shaders();
+		compile_shaders(
+			&(render_data->device),
+			&(render_data->module_vert),
+			&(render_data->module_frag));
+
 		render_data->shaders = false;
 	}
 
