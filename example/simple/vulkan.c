@@ -1,14 +1,17 @@
 #include "globox.h"
 
 #ifdef GLOBOX_EXAMPLE_X11
-	#include "globox_x11_vulkan.h"
+#include "globox_x11_vulkan.h"
 #endif
 
+#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <vulkan/vulkan_core.h>
 
 extern uint8_t iconpix[];
 extern int iconpix_size;
@@ -34,11 +37,33 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 
 struct globox_render_data
 {
+	// globox info
 	struct globox* globox;
+
+	int width;
+	int height;
 	bool shaders;
+
+	// vulkan info
+	// TODO
 };
 
 static void compile_shaders()
+{
+	// TODO
+}
+
+static void init_vulkan(struct globox_render_data* data)
+{
+	// TODO
+}
+
+static void config_vulkan(struct globox_render_data* data)
+{
+	// TODO
+}
+
+static void clean_vulkan(struct globox_render_data* data)
 {
 	// TODO
 }
@@ -164,6 +189,7 @@ static void render_callback(void* data)
 		render_data->shaders = false;
 	}
 
+	// render with vulkan
 	// TODO
 
 	globox_update_content(globox, NULL, &error);
@@ -228,7 +254,7 @@ int main(int argc, char** argv)
 	// context allocation failed
 	if (globox == NULL)
 	{
-		fprintf(stderr, "\ncould not allocate the main globox context\n");
+		fprintf(stderr, "could not allocate the main globox context\n");
 		return 1;
 	}
 
@@ -250,6 +276,17 @@ int main(int argc, char** argv)
 		globox_clean(globox, &error);
 		return 1;
 	}
+
+	// initialize vulkan
+	struct globox_render_data render_data =
+	{
+		.globox = globox,
+		.width = 0,
+		.height = 0,
+		.shaders = true,
+	};
+
+	init_vulkan(&render_data);
 
 	// get available features
 	struct globox_config_features* feature_list =
@@ -395,12 +432,6 @@ int main(int argc, char** argv)
 	}
 
 	// register a render callback
-	struct globox_render_data render_data =
-	{
-		.globox = globox,
-		.shaders = true,
-	};
-
 	struct globox_config_render render =
 	{
 		.data = &render_data,
@@ -426,6 +457,9 @@ int main(int argc, char** argv)
 		globox_clean(globox, &error);
 		return 1;
 	}
+
+	// configure vulkan
+	config_vulkan(&render_data);
 
 	// display the window
 	globox_window_start(globox, &error);
@@ -474,6 +508,8 @@ int main(int argc, char** argv)
 	}
 
 	// free resources correctly
+	clean_vulkan(&render_data);
+
 	globox_window_destroy(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
