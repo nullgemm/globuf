@@ -13,6 +13,8 @@
 #include <string.h>
 #include <vulkan/vulkan_core.h>
 
+#define LAYERS_COUNT 2
+
 extern uint8_t iconpix[];
 extern int iconpix_size;
 
@@ -39,6 +41,7 @@ struct globox_render_data
 {
 	// globox info
 	struct globox* globox;
+	struct globox_config_vulkan config;
 
 	int width;
 	int height;
@@ -48,7 +51,220 @@ struct globox_render_data
 	VkDevice device;
 	VkShaderModule module_vert;
 	VkShaderModule module_frag;
+
+	VkInstance instance;
 };
+
+static void init_vulkan(struct globox_render_data* data)
+{
+	struct globox_error_info globox_error = {0};
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// get vulkan extensions from globox
+	uint32_t ext_globox_len;
+	const char** ext_globox;
+
+	globox_get_extensions_vulkan(
+		data->globox,
+		&ext_globox_len,
+		&ext_globox,
+		&globox_error);
+
+	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(data->globox, &globox_error);
+		globox_clean(data->globox, &globox_error);
+		return;
+	}
+
+	// get instance extensions
+	uint32_t inst_ext_count = 0;
+
+	error =
+		vkEnumerateInstanceExtensionProperties(
+			NULL,
+			&inst_ext_count,
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count instance extensions\n");
+		return;
+	}
+
+	VkExtensionProperties* inst_ext_props =
+		malloc(inst_ext_count * (sizeof (VkExtensionProperties)));
+
+	if (inst_ext_props == NULL)
+	{
+		fprintf(stderr, "could not allocate instance extensions list\n");
+		return;
+	}
+
+	error =
+		vkEnumerateInstanceExtensionProperties(
+			NULL,
+			&inst_ext_count,
+			inst_ext_props);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list instance extensions\n");
+		return;
+	}
+
+	// print instance extensions
+	printf("\navailable vulkan instance extensions:\n");
+
+	for (uint32_t i = 0; i < inst_ext_count; ++i)
+	{
+		printf(
+			" - %s version %u\n",
+			inst_ext_props[i].extensionName,
+			inst_ext_props[i].specVersion);
+	}
+
+	// get layers list
+	uint32_t layer_props_len = 0;
+	VkLayerProperties* layer_props = NULL;
+
+	error = vkEnumerateInstanceLayerProperties(&layer_props_len, NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list instance layer properties\n");
+		return;
+	}
+
+	layer_props = malloc(layer_props_len * (sizeof (VkLayerProperties)));
+
+	if (layer_props == NULL)
+	{
+		fprintf(stderr, "could not allocate instance layer properties list\n");
+		return;
+	}
+
+	error = vkEnumerateInstanceLayerProperties(&layer_props_len, layer_props);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list instance layer properties\n");
+		return;
+	}
+
+	// print instance layer properties
+	printf("\navailable vulkan instance layers:\n");
+
+	for (uint32_t i = 0; i < layer_props_len; ++i)
+	{
+		printf(
+			" - %s version %u\n",
+			layer_props[i].layerName,
+			layer_props[i].specVersion);
+	}
+
+	// check required layers
+	uint32_t layers_needed_count = LAYERS_COUNT;
+	const char* layers_needed[LAYERS_COUNT] =
+	{
+		"VK_LAYER_KHRONOS_validation",
+		"VK_LAYER_LUNARG_api_dump",
+	};
+
+	bool layers_found[LAYERS_COUNT] =
+	{
+		0,
+	};
+
+	// layers to request
+	uint32_t layers_len = 0;
+	const char* layers[LAYERS_COUNT] =
+	{
+		0,
+	};
+
+	// check layers
+	printf("\nusing vulkan instance layers:\n");
+
+	for (uint32_t i = 0; i < layer_props_len; ++i)
+	{
+		uint32_t k = 0;
+
+		while (k < layers_needed_count)
+		{
+			if ((layers_found[k] == false)
+				&& (strcmp(layer_props[i].layerName, layers_needed[k]) == 0))
+			{
+				// save as a layer to request
+				layers[layers_len] = layers_needed[k];
+				printf(" - %s\n", layers[layers_len]);
+				++layers_len;
+				// skip saved layers
+				layers_found[k] = true;
+				++k;
+
+				continue;
+			}
+
+			++k;
+		}
+	}
+
+	// create vulkan instance
+	VkApplicationInfo app_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		.pNext = NULL,
+		.pApplicationName = "globox example",
+		.applicationVersion = 1,
+		.pEngineName = "globox vulkan example",
+		.engineVersion = 1,
+		.apiVersion = VK_MAKE_VERSION(1, 0, 0),
+	};
+
+	VkInstanceCreateInfo instance_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.pApplicationInfo = &app_info,
+		.enabledLayerCount = layers_len,
+		.ppEnabledLayerNames = layers,
+		.enabledExtensionCount = ext_globox_len,
+		.ppEnabledExtensionNames = ext_globox,
+	};
+
+	error = vkCreateInstance(&instance_info, NULL, &(data->instance));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could create the vulkan instance\n");
+		return;
+	}
+
+	// set vulkan config
+	data->config.instance = data->instance;
+	data->config.allocator = NULL;
+
+	globox_init_vulkan(data->globox, &(data->config), &globox_error);
+
+	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(data->globox, &globox_error);
+		globox_clean(data->globox, &globox_error);
+		return;
+	}
+}
+
+static void config_vulkan(struct globox_render_data* data)
+{
+	// TODO
+}
+
+static void clean_vulkan(struct globox_render_data* data)
+{
+	// TODO
+}
 
 static void compile_shaders(
 	VkDevice* device,
@@ -96,21 +312,6 @@ static void compile_shaders(
 	{
 		return;
 	}
-}
-
-static void init_vulkan(struct globox_render_data* data)
-{
-	// TODO
-}
-
-static void config_vulkan(struct globox_render_data* data)
-{
-	// TODO
-}
-
-static void clean_vulkan(struct globox_render_data* data)
-{
-	// TODO
 }
 
 static void event_callback(void* data, void* event)
