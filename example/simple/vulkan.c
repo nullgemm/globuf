@@ -139,7 +139,7 @@ static void init_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
-		fprintf(stderr, "could not list instance layer properties\n");
+		fprintf(stderr, "could not count instance layer properties\n");
 		return;
 	}
 
@@ -265,7 +265,46 @@ static void init_vulkan(struct globox_render_data* data)
 
 static void config_vulkan(struct globox_render_data* data)
 {
-	// TODO
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// get physical devices list
+	uint32_t phys_devs_len;
+	VkPhysicalDevice* phys_devs;
+
+	error =
+		vkEnumeratePhysicalDevices(
+			data->instance,
+			&phys_devs_len,
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count physical devices\n");
+		return;
+	}
+
+	phys_devs = malloc(phys_devs_len * (sizeof (VkPhysicalDevice)));
+
+	if (phys_devs == NULL)
+	{
+		fprintf(stderr, "could not allocate physical devices list\n");
+		return;
+	}
+
+	error =
+		vkEnumeratePhysicalDevices(
+			data->instance,
+			&phys_devs_len,
+			phys_devs);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list physical devices\n");
+		return;
+	}
+
+	// select physical device
+	// HERE
 }
 
 static void clean_vulkan(struct globox_render_data* data)
