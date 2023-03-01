@@ -124,6 +124,13 @@ static void init_vulkan(struct globox_render_data* data)
 			inst_ext_props[i].specVersion);
 	}
 
+	printf("\nusing vulkan instance extensions:\n");
+
+	for (uint32_t i = 0; i < ext_globox_len; ++i)
+	{
+		printf(" - %s\n", ext_globox[i]);
+	}
+
 	// get layers list
 	uint32_t layer_props_len = 0;
 	VkLayerProperties* layer_props = NULL;
