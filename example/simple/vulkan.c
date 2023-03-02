@@ -13,7 +13,7 @@
 #include <string.h>
 #include <vulkan/vulkan_core.h>
 
-#define LAYERS_COUNT 2
+#define LAYERS_COUNT 1
 
 extern uint8_t iconpix[];
 extern int iconpix_size;
@@ -35,6 +35,118 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_FRAME] = "frame",
 	[GLOBOX_FEATURE_BACKGROUND] = "background",
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
+};
+
+struct vk_mem_type_props
+{
+	enum VkMemoryPropertyFlagBits flag;
+	const char* name;
+};
+
+struct vk_mem_type_props vk_mem_type_props_list[] =
+{
+	{
+		.flag = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		.name = "device local",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+		.name = "host visible",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		.name = "host coherent",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+		.name = "host cached",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT,
+		.name = "lazily allocated",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_PROTECTED_BIT,
+		.name = "protected",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD,
+		.name = "device coherent",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD,
+		.name = "device uncached",
+	},
+	{
+		.flag = VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV,
+		.name = "RDMA capable",
+	},
+};
+
+struct vk_mem_heap_props
+{
+	enum VkMemoryHeapFlagBits flag;
+	const char* name;
+};
+
+struct vk_mem_heap_props vk_mem_heap_props_list[] =
+{
+	{
+		.flag = VK_MEMORY_HEAP_DEVICE_LOCAL_BIT,
+		.name = "device local",
+	},
+	{
+		.flag = VK_MEMORY_HEAP_MULTI_INSTANCE_BIT,
+		.name = "multi instance",
+	},
+	{
+		.flag = VK_MEMORY_HEAP_MULTI_INSTANCE_BIT_KHR,
+		.name = "multi instance",
+	},
+};
+
+struct vk_queue_fam_props
+{
+	enum VkQueueFlagBits flag;
+	const char* name;
+};
+
+struct vk_queue_fam_props vk_queue_fam_props_list[] =
+{
+	{
+		.flag = VK_QUEUE_GRAPHICS_BIT,
+		.name = "graphics",
+	},
+	{
+		.flag = VK_QUEUE_COMPUTE_BIT,
+		.name = "compute",
+	},
+	{
+		.flag = VK_QUEUE_TRANSFER_BIT,
+		.name = "transfer",
+	},
+	{
+		.flag = VK_QUEUE_SPARSE_BINDING_BIT,
+		.name = "sparse binding",
+	},
+	{
+		.flag = VK_QUEUE_PROTECTED_BIT,
+		.name = "protected",
+	},
+	{
+		.flag = VK_QUEUE_VIDEO_DECODE_BIT_KHR,
+		.name = "video decode",
+	},
+#ifdef VK_ENABLE_BETA_EXTENSIONS
+	{
+		.flag = VK_QUEUE_VIDEO_ENCODE_BIT_KHR,
+		.name = "video encode",
+	},
+#endif
+	{
+		.flag = VK_QUEUE_OPTICAL_FLOW_BIT_NV,
+		.name = "optical flow",
+	},
 };
 
 struct globox_render_data
@@ -124,6 +236,8 @@ static void init_vulkan(struct globox_render_data* data)
 			inst_ext_props[i].specVersion);
 	}
 
+	free(inst_ext_props);
+
 	printf("\nusing vulkan instance extensions:\n");
 
 	for (uint32_t i = 0; i < ext_globox_len; ++i)
@@ -171,11 +285,12 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// check required layers
+	// TODO move all 3 in common struct in single array
 	uint32_t layers_needed_count = LAYERS_COUNT;
 	const char* layers_needed[LAYERS_COUNT] =
 	{
 		"VK_LAYER_KHRONOS_validation",
-		"VK_LAYER_LUNARG_api_dump",
+		//"VK_LAYER_LUNARG_api_dump",
 	};
 
 	bool layers_found[LAYERS_COUNT] =
@@ -216,6 +331,8 @@ static void init_vulkan(struct globox_render_data* data)
 			++k;
 		}
 	}
+
+	free(layer_props);
 
 	// create vulkan instance
 	VkApplicationInfo app_info =
@@ -265,6 +382,7 @@ static void init_vulkan(struct globox_render_data* data)
 
 static void config_vulkan(struct globox_render_data* data)
 {
+	struct globox_error_info globox_error = {0};
 	VkResult error = VK_ERROR_UNKNOWN;
 
 	// get physical devices list
@@ -300,16 +418,198 @@ static void config_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "could not list physical devices\n");
+		free(phys_devs);
 		return;
 	}
 
 	// select physical device
-	// HERE
+	uint32_t selected_device = 0;
+	uint32_t selected_queue = 0;
+	bool found_device = false;
+
+	size_t mem_type_props_list_len =
+		(sizeof (vk_mem_type_props_list)) / (sizeof (struct vk_mem_type_props));
+
+	size_t mem_heap_props_list_len =
+		(sizeof (vk_mem_heap_props_list)) / (sizeof (struct vk_mem_heap_props));
+
+	size_t queue_fam_props_list_len =
+		(sizeof (vk_queue_fam_props_list)) / (sizeof (struct vk_queue_fam_props));
+
+	for (uint32_t i = 0; i < phys_devs_len; ++i)
+	{
+		// print all physical device memory properties
+		VkPhysicalDeviceMemoryProperties phys_devs_mem_props =
+		{
+			0,
+		};
+
+		vkGetPhysicalDeviceMemoryProperties(
+			phys_devs[i],
+			&phys_devs_mem_props);
+
+		for (uint32_t k = 0; k < phys_devs_mem_props.memoryTypeCount; ++k)
+		{
+			VkMemoryPropertyFlags flags =
+				phys_devs_mem_props.memoryTypes[k].propertyFlags;
+
+			uint32_t id =
+				phys_devs_mem_props.memoryTypes[k].heapIndex;
+
+			printf(
+				"\nphysical device memory type #%u flags (heap index: %u)\n",
+				k, id);
+
+			for (uint32_t m = 0; m < mem_type_props_list_len; ++m)
+			{
+				if ((vk_mem_type_props_list[m].flag & flags) != 0)
+				{
+					printf(" - %s\n", vk_mem_type_props_list[m].name);
+				}
+			}
+		}
+
+		for (uint32_t k = 0; k < phys_devs_mem_props.memoryHeapCount; ++k)
+		{
+			VkDeviceSize size = 
+				phys_devs_mem_props.memoryHeaps[k].size;
+
+			VkMemoryHeapFlags flags =
+				phys_devs_mem_props.memoryHeaps[k].flags;
+
+			printf(
+				"\nphysical device memory heap #%u flags (size: %lu)\n",
+				k, (size_t) size);
+
+			for (uint32_t m = 0; m < mem_heap_props_list_len; ++m)
+			{
+				if ((vk_mem_heap_props_list[m].flag & flags) != 0)
+				{
+					printf(" - %s\n", vk_mem_heap_props_list[m].name);
+				}
+			}
+		}
+
+		// get physical device properties
+		VkPhysicalDeviceProperties phys_dev_props =
+		{
+			0,
+		};
+
+		vkGetPhysicalDeviceProperties(
+			phys_devs[i],
+			&phys_dev_props);
+
+		// get physical device queue family properties
+		uint32_t phys_dev_queue_fam_props_len = 0;
+		VkQueueFamilyProperties* phys_dev_queue_fam_props;
+
+		vkGetPhysicalDeviceQueueFamilyProperties(
+			phys_devs[i],
+			&phys_dev_queue_fam_props_len,
+			NULL);
+
+		phys_dev_queue_fam_props =
+			malloc(phys_dev_queue_fam_props_len * (sizeof (VkQueueFamilyProperties)));
+
+		if (phys_dev_queue_fam_props == NULL)
+		{
+			fprintf(stderr, "could not allocate physical devices list\n");
+			free(phys_devs);
+			return;
+		}
+
+		vkGetPhysicalDeviceQueueFamilyProperties(
+			phys_devs[i],
+			&phys_dev_queue_fam_props_len,
+			phys_dev_queue_fam_props);
+
+		// search for a suitable queue family
+		for (uint32_t k = 0; k < phys_dev_queue_fam_props_len; ++k)
+		{
+			VkQueueFlags flags =
+				phys_dev_queue_fam_props[k].queueFlags;
+
+			uint32_t count =
+				phys_dev_queue_fam_props[k].queueCount;
+
+			printf(
+				"\nqueue family #%u flags (number of queues: %u)\n",
+				k,
+				count);
+
+			for (uint32_t m = 0; m < queue_fam_props_list_len; ++m)
+			{
+				if ((vk_queue_fam_props_list[m].flag & flags) != 0)
+				{
+					printf(" - %s\n", vk_queue_fam_props_list[m].name);
+				}
+			}
+
+			if (found_device == true)
+			{
+				continue;
+			}
+
+			VkBool32 support =
+				globox_presentation_support_vulkan(
+					data->globox,
+					phys_devs[i],
+					k,
+					&globox_error);
+
+			if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+			{
+				globox_error_log(data->globox, &globox_error);
+				globox_clean(data->globox, &globox_error);
+				free(phys_devs);
+				return;
+			}
+
+			if (support == VK_TRUE)
+			{
+				found_device = true;
+				selected_device = i;
+				selected_queue = k;
+			}
+		}
+
+		// print some debug info
+		printf(
+			"\nVulkan device #%u\n"
+			"   Max. Vulkan version supported: 0x%0x\n"
+			"   Driver version: 0x%0x\n"
+			"   Vendor ID: 0x%0x\n"
+			"   Device ID: 0x%0x\n"
+			"   Device name: %s\n"
+			"   Presentation support: %u\n",
+			i,
+			phys_dev_props.apiVersion,
+			phys_dev_props.driverVersion,
+			phys_dev_props.vendorID,
+			phys_dev_props.deviceID,
+			phys_dev_props.deviceName,
+			found_device);
+	}
+
+	// print selected device and queue family indices
+	if (found_device == false)
+	{
+		fprintf(stderr, "none of the available devices support presentation\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	printf("\nselected device #%u / queue family #%u\n",
+		selected_device,
+		selected_queue);
+
+	free(phys_devs);
 }
 
 static void clean_vulkan(struct globox_render_data* data)
 {
-	// TODO
 }
 
 static void compile_shaders(
