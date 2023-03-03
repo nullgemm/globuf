@@ -37,6 +37,28 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
 };
 
+// layers to enable
+struct vk_layers
+{
+	const char* name;
+	bool found;
+};
+
+struct vk_layers vk_layers_list[] =
+{
+	{
+		.name = "VK_LAYER_KHRONOS_validation",
+		.found = false,
+	},
+#if 0
+	{
+		.name = "VK_LAYER_LUNARG_api_dump",
+		.found = false,
+	},
+#endif
+};
+
+// mem type props
 struct vk_mem_type_props
 {
 	enum VkMemoryPropertyFlagBits flag;
@@ -83,6 +105,7 @@ struct vk_mem_type_props vk_mem_type_props_list[] =
 	},
 };
 
+// mem heap props
 struct vk_mem_heap_props
 {
 	enum VkMemoryHeapFlagBits flag;
@@ -133,11 +156,11 @@ struct vk_queue_fam_props vk_queue_fam_props_list[] =
 		.flag = VK_QUEUE_PROTECTED_BIT,
 		.name = "protected",
 	},
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 	{
 		.flag = VK_QUEUE_VIDEO_DECODE_BIT_KHR,
 		.name = "video decode",
 	},
-#ifdef VK_ENABLE_BETA_EXTENSIONS
 	{
 		.flag = VK_QUEUE_VIDEO_ENCODE_BIT_KHR,
 		.name = "video encode",
@@ -285,25 +308,15 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// check required layers
-	// TODO move all 3 in common struct in single array
-	uint32_t layers_needed_count = LAYERS_COUNT;
-	const char* layers_needed[LAYERS_COUNT] =
-	{
-		"VK_LAYER_KHRONOS_validation",
-		//"VK_LAYER_LUNARG_api_dump",
-	};
+	size_t layers_list_len = (sizeof (vk_layers_list)) / (sizeof (struct vk_layers));
+	const char** layers_found = malloc(layers_list_len);
+	uint32_t layers_found_count = 0;
 
-	bool layers_found[LAYERS_COUNT] =
+	if (layers_found == NULL)
 	{
-		0,
-	};
-
-	// layers to request
-	uint32_t layers_len = 0;
-	const char* layers[LAYERS_COUNT] =
-	{
-		0,
-	};
+		fprintf(stderr, "could not allocate found layers list\n");
+		return;
+	}
 
 	// check layers
 	printf("\nusing vulkan instance layers:\n");
@@ -312,17 +325,18 @@ static void init_vulkan(struct globox_render_data* data)
 	{
 		uint32_t k = 0;
 
-		while (k < layers_needed_count)
+		while (k < layers_list_len)
 		{
-			if ((layers_found[k] == false)
-				&& (strcmp(layer_props[i].layerName, layers_needed[k]) == 0))
+			if ((vk_layers_list[k].found == false)
+				&& (strcmp(layer_props[i].layerName, vk_layers_list[k].name) == 0))
 			{
 				// save as a layer to request
-				layers[layers_len] = layers_needed[k];
-				printf(" - %s\n", layers[layers_len]);
-				++layers_len;
+				layers_found[layers_found_count] = vk_layers_list[k].name;
+				printf(" - %s\n", layers_found[layers_found_count]);
+				++layers_found_count;
+
 				// skip saved layers
-				layers_found[k] = true;
+				vk_layers_list[k].found = true;
 				++k;
 
 				continue;
@@ -352,13 +366,14 @@ static void init_vulkan(struct globox_render_data* data)
 		.pNext = NULL,
 		.flags = 0,
 		.pApplicationInfo = &app_info,
-		.enabledLayerCount = layers_len,
-		.ppEnabledLayerNames = layers,
+		.enabledLayerCount = layers_found_count,
+		.ppEnabledLayerNames = layers_found,
 		.enabledExtensionCount = ext_globox_len,
 		.ppEnabledExtensionNames = ext_globox,
 	};
 
 	error = vkCreateInstance(&instance_info, NULL, &(data->instance));
+	free(layers_found);
 
 	if (error != VK_SUCCESS)
 	{
