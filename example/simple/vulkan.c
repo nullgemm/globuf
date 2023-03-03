@@ -44,7 +44,7 @@ struct vk_layers
 	bool found;
 };
 
-struct vk_layers vk_layers_list[] =
+struct vk_layers vk_layers[] =
 {
 	{
 		.name = "VK_LAYER_KHRONOS_validation",
@@ -59,13 +59,13 @@ struct vk_layers vk_layers_list[] =
 };
 
 // mem type props
-struct vk_mem_type_props
+struct vk_mem_types
 {
 	enum VkMemoryPropertyFlagBits flag;
 	const char* name;
 };
 
-struct vk_mem_type_props vk_mem_type_props_list[] =
+struct vk_mem_types vk_mem_types[] =
 {
 	{
 		.flag = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -106,13 +106,13 @@ struct vk_mem_type_props vk_mem_type_props_list[] =
 };
 
 // mem heap props
-struct vk_mem_heap_props
+struct vk_mem_heaps
 {
 	enum VkMemoryHeapFlagBits flag;
 	const char* name;
 };
 
-struct vk_mem_heap_props vk_mem_heap_props_list[] =
+struct vk_mem_heaps vk_mem_heaps[] =
 {
 	{
 		.flag = VK_MEMORY_HEAP_DEVICE_LOCAL_BIT,
@@ -128,13 +128,13 @@ struct vk_mem_heap_props vk_mem_heap_props_list[] =
 	},
 };
 
-struct vk_queue_fam_props
+struct vk_queue_fams
 {
 	enum VkQueueFlagBits flag;
 	const char* name;
 };
 
-struct vk_queue_fam_props vk_queue_fam_props_list[] =
+struct vk_queue_fams vk_queue_fams[] =
 {
 	{
 		.flag = VK_QUEUE_GRAPHICS_BIT,
@@ -308,8 +308,8 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// check required layers
-	size_t layers_list_len = (sizeof (vk_layers_list)) / (sizeof (struct vk_layers));
-	const char** layers_found = malloc(layers_list_len);
+	size_t layers_len = (sizeof (vk_layers)) / (sizeof (struct vk_layers));
+	const char** layers_found = malloc(layers_len);
 	uint32_t layers_found_count = 0;
 
 	if (layers_found == NULL)
@@ -325,18 +325,18 @@ static void init_vulkan(struct globox_render_data* data)
 	{
 		uint32_t k = 0;
 
-		while (k < layers_list_len)
+		while (k < layers_len)
 		{
-			if ((vk_layers_list[k].found == false)
-				&& (strcmp(layer_props[i].layerName, vk_layers_list[k].name) == 0))
+			if ((vk_layers[k].found == false)
+				&& (strcmp(layer_props[i].layerName, vk_layers[k].name) == 0))
 			{
 				// save as a layer to request
-				layers_found[layers_found_count] = vk_layers_list[k].name;
+				layers_found[layers_found_count] = vk_layers[k].name;
 				printf(" - %s\n", layers_found[layers_found_count]);
 				++layers_found_count;
 
 				// skip saved layers
-				vk_layers_list[k].found = true;
+				vk_layers[k].found = true;
 				++k;
 
 				continue;
@@ -442,14 +442,14 @@ static void config_vulkan(struct globox_render_data* data)
 	uint32_t selected_queue = 0;
 	bool found_device = false;
 
-	size_t mem_type_props_list_len =
-		(sizeof (vk_mem_type_props_list)) / (sizeof (struct vk_mem_type_props));
+	size_t mem_types_len =
+		(sizeof (vk_mem_types)) / (sizeof (struct vk_mem_types));
 
-	size_t mem_heap_props_list_len =
-		(sizeof (vk_mem_heap_props_list)) / (sizeof (struct vk_mem_heap_props));
+	size_t mem_heaps_len =
+		(sizeof (vk_mem_heaps)) / (sizeof (struct vk_mem_heaps));
 
-	size_t queue_fam_props_list_len =
-		(sizeof (vk_queue_fam_props_list)) / (sizeof (struct vk_queue_fam_props));
+	size_t queue_fams_len =
+		(sizeof (vk_queue_fams)) / (sizeof (struct vk_queue_fams));
 
 	for (uint32_t i = 0; i < phys_devs_len; ++i)
 	{
@@ -475,11 +475,11 @@ static void config_vulkan(struct globox_render_data* data)
 				"\nphysical device memory type #%u flags (heap index: %u)\n",
 				k, id);
 
-			for (uint32_t m = 0; m < mem_type_props_list_len; ++m)
+			for (uint32_t m = 0; m < mem_types_len; ++m)
 			{
-				if ((vk_mem_type_props_list[m].flag & flags) != 0)
+				if ((vk_mem_types[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_mem_type_props_list[m].name);
+					printf(" - %s\n", vk_mem_types[m].name);
 				}
 			}
 		}
@@ -496,11 +496,11 @@ static void config_vulkan(struct globox_render_data* data)
 				"\nphysical device memory heap #%u flags (size: %lu)\n",
 				k, (size_t) size);
 
-			for (uint32_t m = 0; m < mem_heap_props_list_len; ++m)
+			for (uint32_t m = 0; m < mem_heaps_len; ++m)
 			{
-				if ((vk_mem_heap_props_list[m].flag & flags) != 0)
+				if ((vk_mem_heaps[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_mem_heap_props_list[m].name);
+					printf(" - %s\n", vk_mem_heaps[m].name);
 				}
 			}
 		}
@@ -516,18 +516,18 @@ static void config_vulkan(struct globox_render_data* data)
 			&phys_dev_props);
 
 		// get physical device queue family properties
-		uint32_t phys_dev_queue_fam_props_len = 0;
-		VkQueueFamilyProperties* phys_dev_queue_fam_props;
+		uint32_t phys_dev_queue_fams_len = 0;
+		VkQueueFamilyProperties* phys_dev_queue_fams;
 
 		vkGetPhysicalDeviceQueueFamilyProperties(
 			phys_devs[i],
-			&phys_dev_queue_fam_props_len,
+			&phys_dev_queue_fams_len,
 			NULL);
 
-		phys_dev_queue_fam_props =
-			malloc(phys_dev_queue_fam_props_len * (sizeof (VkQueueFamilyProperties)));
+		phys_dev_queue_fams =
+			malloc(phys_dev_queue_fams_len * (sizeof (VkQueueFamilyProperties)));
 
-		if (phys_dev_queue_fam_props == NULL)
+		if (phys_dev_queue_fams == NULL)
 		{
 			fprintf(stderr, "could not allocate physical devices list\n");
 			free(phys_devs);
@@ -536,28 +536,28 @@ static void config_vulkan(struct globox_render_data* data)
 
 		vkGetPhysicalDeviceQueueFamilyProperties(
 			phys_devs[i],
-			&phys_dev_queue_fam_props_len,
-			phys_dev_queue_fam_props);
+			&phys_dev_queue_fams_len,
+			phys_dev_queue_fams);
 
 		// search for a suitable queue family
-		for (uint32_t k = 0; k < phys_dev_queue_fam_props_len; ++k)
+		for (uint32_t k = 0; k < phys_dev_queue_fams_len; ++k)
 		{
 			VkQueueFlags flags =
-				phys_dev_queue_fam_props[k].queueFlags;
+				phys_dev_queue_fams[k].queueFlags;
 
 			uint32_t count =
-				phys_dev_queue_fam_props[k].queueCount;
+				phys_dev_queue_fams[k].queueCount;
 
 			printf(
 				"\nqueue family #%u flags (number of queues: %u)\n",
 				k,
 				count);
 
-			for (uint32_t m = 0; m < queue_fam_props_list_len; ++m)
+			for (uint32_t m = 0; m < queue_fams_len; ++m)
 			{
-				if ((vk_queue_fam_props_list[m].flag & flags) != 0)
+				if ((vk_queue_fams[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_queue_fam_props_list[m].name);
+					printf(" - %s\n", vk_queue_fams[m].name);
 				}
 			}
 
