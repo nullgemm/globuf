@@ -128,6 +128,7 @@ struct vk_mem_heaps vk_mem_heaps[] =
 	},
 };
 
+// queue family props
 struct vk_queue_fams
 {
 	enum VkQueueFlagBits flag;
