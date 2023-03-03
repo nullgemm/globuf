@@ -250,7 +250,7 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// print instance extensions
-	printf("\navailable vulkan instance extensions:\n");
+	printf("available vulkan instance extensions:\n");
 
 	for (uint32_t i = 0; i < inst_ext_count; ++i)
 	{
@@ -262,7 +262,7 @@ static void init_vulkan(struct globox_render_data* data)
 
 	free(inst_ext_props);
 
-	printf("\nusing vulkan instance extensions:\n");
+	printf("using vulkan instance extensions:\n");
 
 	for (uint32_t i = 0; i < ext_globox_len; ++i)
 	{
@@ -298,7 +298,7 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// print instance layer properties
-	printf("\navailable vulkan instance layers:\n");
+	printf("available vulkan instance layers:\n");
 
 	for (uint32_t i = 0; i < layer_props_len; ++i)
 	{
@@ -320,7 +320,7 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// check layers
-	printf("\nusing vulkan instance layers:\n");
+	printf("using vulkan instance layers:\n");
 
 	for (uint32_t i = 0; i < layer_props_len; ++i)
 	{
@@ -465,12 +465,12 @@ static void config_vulkan(struct globox_render_data* data)
 			&phys_dev_props);
 
 		printf(
-			"\nVulkan device #%u\n"
-			"   Max. Vulkan version supported: 0x%0x\n"
-			"   Driver version: 0x%0x\n"
-			"   Vendor ID: 0x%0x\n"
-			"   Device ID: 0x%0x\n"
-			"   Device name: %s\n",
+			"vulkan device #%u\n"
+			"   max. vulkan version supported: 0x%0x\n"
+			"   driver version: 0x%0x\n"
+			"   vendor ID: 0x%0x\n"
+			"   device ID: 0x%0x\n"
+			"   device name: %s\n",
 			i,
 			phys_dev_props.apiVersion,
 			phys_dev_props.driverVersion,
@@ -488,7 +488,7 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_devs[i],
 			&phys_devs_mem_props);
 
-		printf("   Physical device memory types:\n");
+		printf("   physical device memory types:\n");
 
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryTypeCount; ++k)
 		{
@@ -511,7 +511,7 @@ static void config_vulkan(struct globox_render_data* data)
 			}
 		}
 
-		printf("   Physical device memory heaps:\n");
+		printf("   physical device memory heaps:\n");
 
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryHeapCount; ++k)
 		{
@@ -559,7 +559,7 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_dev_queue_fams);
 
 		// search for a suitable queue family
-		printf("   Queue families:\n");
+		printf("   queue families:\n");
 
 		for (uint32_t k = 0; k < phys_dev_queue_fams_len; ++k)
 		{
@@ -597,7 +597,7 @@ static void config_vulkan(struct globox_render_data* data)
 				return;
 			}
 
-			printf("   Presentation support: %u\n", support);
+			printf("   presentation support: %u\n", support);
 
 			if ((found_device == false) && (support == VK_TRUE))
 			{
@@ -617,7 +617,7 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	printf("\nselected device #%u / queue family #%u\n",
+	printf("selected device #%u / queue family #%u\n",
 		selected_device,
 		selected_queue);
 
@@ -815,7 +815,7 @@ static void render_callback(void* data)
 
 static void config_callback(struct globox_config_reply* replies, size_t count, void* data)
 {
-	fprintf(stderr, "\nwindow configured succesfully, printing information:\n");
+	fprintf(stderr, "window configured succesfully, printing information:\n");
 
 	struct globox* context = data;
 	const char* message = NULL;
@@ -957,7 +957,7 @@ int main(int argc, char** argv)
 	};
 
 	// configure the feature and print a list
-	printf("\nreceived a list of available features:\n");
+	printf("received a list of available features:\n");
 
 	struct globox_config_request configs[GLOBOX_FEATURE_COUNT] = {0};
 	size_t feature_added = 0;
@@ -1084,9 +1084,9 @@ int main(int argc, char** argv)
 
 	// do some more stuff while the window runs in another thread
 	printf(
-		"\nThis is a message from the main thread.\n"
-		"The window should now be visible.\n"
-		"We can keep computing here.\n");
+		"this is a message from the main thread.\n"
+		"the window should now be visible.\n"
+		"we can keep computing here.\n");
 
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
