@@ -453,6 +453,30 @@ static void config_vulkan(struct globox_render_data* data)
 
 	for (uint32_t i = 0; i < phys_devs_len; ++i)
 	{
+		// get physical device properties
+		VkPhysicalDeviceProperties phys_dev_props =
+		{
+			0,
+		};
+
+		vkGetPhysicalDeviceProperties(
+			phys_devs[i],
+			&phys_dev_props);
+
+		printf(
+			"\nVulkan device #%u\n"
+			"   Max. Vulkan version supported: 0x%0x\n"
+			"   Driver version: 0x%0x\n"
+			"   Vendor ID: 0x%0x\n"
+			"   Device ID: 0x%0x\n"
+			"   Device name: %s\n",
+			i,
+			phys_dev_props.apiVersion,
+			phys_dev_props.driverVersion,
+			phys_dev_props.vendorID,
+			phys_dev_props.deviceID,
+			phys_dev_props.deviceName);
+
 		// print all physical device memory properties
 		VkPhysicalDeviceMemoryProperties phys_devs_mem_props =
 		{
@@ -463,6 +487,8 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_devs[i],
 			&phys_devs_mem_props);
 
+		printf("   Physical device memory types:\n");
+
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryTypeCount; ++k)
 		{
 			VkMemoryPropertyFlags flags =
@@ -472,17 +498,19 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryTypes[k].heapIndex;
 
 			printf(
-				"\nphysical device memory type #%u flags (heap index: %u)\n",
+				"      #%u (heap index: %u) - flags:\n",
 				k, id);
 
 			for (uint32_t m = 0; m < mem_types_len; ++m)
 			{
 				if ((vk_mem_types[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_mem_types[m].name);
+					printf("       - %s\n", vk_mem_types[m].name);
 				}
 			}
 		}
+
+		printf("   Physical device memory heaps:\n");
 
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryHeapCount; ++k)
 		{
@@ -493,27 +521,17 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryHeaps[k].flags;
 
 			printf(
-				"\nphysical device memory heap #%u flags (size: %lu)\n",
+				"      #%u (size: %lu) - flags:\n",
 				k, (size_t) size);
 
 			for (uint32_t m = 0; m < mem_heaps_len; ++m)
 			{
 				if ((vk_mem_heaps[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_mem_heaps[m].name);
+					printf("       - %s\n", vk_mem_heaps[m].name);
 				}
 			}
 		}
-
-		// get physical device properties
-		VkPhysicalDeviceProperties phys_dev_props =
-		{
-			0,
-		};
-
-		vkGetPhysicalDeviceProperties(
-			phys_devs[i],
-			&phys_dev_props);
 
 		// get physical device queue family properties
 		uint32_t phys_dev_queue_fams_len = 0;
@@ -540,6 +558,8 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_dev_queue_fams);
 
 		// search for a suitable queue family
+		printf("   Queue families:\n");
+
 		for (uint32_t k = 0; k < phys_dev_queue_fams_len; ++k)
 		{
 			VkQueueFlags flags =
@@ -549,7 +569,7 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_dev_queue_fams[k].queueCount;
 
 			printf(
-				"\nqueue family #%u flags (number of queues: %u)\n",
+				"      #%u (number of queues: %u) - flags:\n",
 				k,
 				count);
 
@@ -557,13 +577,8 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				if ((vk_queue_fams[m].flag & flags) != 0)
 				{
-					printf(" - %s\n", vk_queue_fams[m].name);
+					printf("       - %s\n", vk_queue_fams[m].name);
 				}
-			}
-
-			if (found_device == true)
-			{
-				continue;
 			}
 
 			VkBool32 support =
@@ -581,30 +596,15 @@ static void config_vulkan(struct globox_render_data* data)
 				return;
 			}
 
-			if (support == VK_TRUE)
+			printf("   Presentation support: %u\n", support);
+
+			if ((found_device == false) && (support == VK_TRUE))
 			{
 				found_device = true;
 				selected_device = i;
 				selected_queue = k;
 			}
 		}
-
-		// print some debug info
-		printf(
-			"\nVulkan device #%u\n"
-			"   Max. Vulkan version supported: 0x%0x\n"
-			"   Driver version: 0x%0x\n"
-			"   Vendor ID: 0x%0x\n"
-			"   Device ID: 0x%0x\n"
-			"   Device name: %s\n"
-			"   Presentation support: %u\n",
-			i,
-			phys_dev_props.apiVersion,
-			phys_dev_props.driverVersion,
-			phys_dev_props.vendorID,
-			phys_dev_props.deviceID,
-			phys_dev_props.deviceName,
-			found_device);
 	}
 
 	// print selected device and queue family indices
@@ -838,8 +838,6 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
 		}
 	}
-
-	fprintf(stderr, "\n");
 }
 
 int main(int argc, char** argv)
