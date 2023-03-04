@@ -464,11 +464,11 @@ static void config_vulkan(struct globox_render_data* data)
 
 		printf(
 			"vulkan device #%u\n"
-			"   max. vulkan version supported: 0x%0x\n"
-			"   driver version: 0x%0x\n"
-			"   vendor ID: 0x%0x\n"
-			"   device ID: 0x%0x\n"
-			"   device name: %s\n",
+			"\tmax. vulkan version supported: 0x%0x\n"
+			"\tdriver version: 0x%0x\n"
+			"\tvendor ID: 0x%0x\n"
+			"\tdevice ID: 0x%0x\n"
+			"\tdevice name: %s\n",
 			i,
 			phys_dev_props.apiVersion,
 			phys_dev_props.driverVersion,
@@ -486,7 +486,7 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_devs[i],
 			&phys_devs_mem_props);
 
-		printf("   physical device memory types:\n");
+		printf("\tphysical device memory types:\n");
 
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryTypeCount; ++k)
 		{
@@ -497,19 +497,19 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryTypes[k].heapIndex;
 
 			printf(
-				"      #%u (heap index: %u) - flags:\n",
+				"\t\t#%u (heap index: %u) - flags:\n",
 				k, id);
 
 			for (uint32_t m = 0; m < mem_types_len; ++m)
 			{
 				if ((vk_mem_types[m].flag & flags) != 0)
 				{
-					printf("       - %s\n", vk_mem_types[m].name);
+					printf("\t\t - %s\n", vk_mem_types[m].name);
 				}
 			}
 		}
 
-		printf("   physical device memory heaps:\n");
+		printf("\tphysical device memory heaps:\n");
 
 		for (uint32_t k = 0; k < phys_devs_mem_props.memoryHeapCount; ++k)
 		{
@@ -520,14 +520,14 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryHeaps[k].flags;
 
 			printf(
-				"      #%u (size: %lu) - flags:\n",
+				"\t\t#%u (size: %lu) - flags:\n",
 				k, (size_t) size);
 
 			for (uint32_t m = 0; m < mem_heaps_len; ++m)
 			{
 				if ((vk_mem_heaps[m].flag & flags) != 0)
 				{
-					printf("       - %s\n", vk_mem_heaps[m].name);
+					printf("\t\t - %s\n", vk_mem_heaps[m].name);
 				}
 			}
 		}
@@ -557,7 +557,7 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_dev_queue_fams);
 
 		// search for a suitable queue family
-		printf("   queue families:\n");
+		printf("\tqueue families:\n");
 
 		for (uint32_t k = 0; k < phys_dev_queue_fams_len; ++k)
 		{
@@ -568,7 +568,7 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_dev_queue_fams[k].queueCount;
 
 			printf(
-				"      #%u (number of queues: %u) - flags:\n",
+				"\t\t#%u (number of queues: %u) - flags:\n",
 				k,
 				count);
 
@@ -576,7 +576,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				if ((vk_queue_fams[m].flag & flags) != 0)
 				{
-					printf("       - %s\n", vk_queue_fams[m].name);
+					printf("\t\t - %s\n", vk_queue_fams[m].name);
 				}
 			}
 
@@ -595,7 +595,7 @@ static void config_vulkan(struct globox_render_data* data)
 				return;
 			}
 
-			printf("   presentation support: %u\n", support);
+			printf("\tpresentation support: %u\n", support);
 
 			if ((found_device == false) && (support == VK_TRUE))
 			{
