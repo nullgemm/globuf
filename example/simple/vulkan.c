@@ -253,7 +253,7 @@ static void init_vulkan(struct globox_render_data* data)
 	for (uint32_t i = 0; i < inst_ext_count; ++i)
 	{
 		printf(
-			" - %s version %u\n",
+			"\t%s version %u\n",
 			inst_ext_props[i].extensionName,
 			inst_ext_props[i].specVersion);
 	}
@@ -264,7 +264,7 @@ static void init_vulkan(struct globox_render_data* data)
 
 	for (uint32_t i = 0; i < ext_globox_len; ++i)
 	{
-		printf(" - %s\n", ext_globox[i]);
+		printf("\t%s\n", ext_globox[i]);
 	}
 
 	// get layers list
@@ -301,7 +301,7 @@ static void init_vulkan(struct globox_render_data* data)
 	for (uint32_t i = 0; i < layer_props_len; ++i)
 	{
 		printf(
-			" - %s version %u\n",
+			"\t%s version %u\n",
 			layer_props[i].layerName,
 			layer_props[i].specVersion);
 	}
@@ -331,7 +331,7 @@ static void init_vulkan(struct globox_render_data* data)
 			{
 				// save as a layer to request
 				layers_found[layers_found_count] = vk_layers[k].name;
-				printf(" - %s\n", layers_found[layers_found_count]);
+				printf("\t%s\n", layers_found[layers_found_count]);
 				++layers_found_count;
 
 				// skip saved layers
@@ -463,7 +463,7 @@ static void config_vulkan(struct globox_render_data* data)
 			&phys_dev_props);
 
 		printf(
-			"vulkan device #%u\n"
+			"vulkan device #%u:\n"
 			"\tmax. vulkan version supported: 0x%0x\n"
 			"\tdriver version: 0x%0x\n"
 			"\tvendor ID: 0x%0x\n"
@@ -504,7 +504,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				if ((vk_mem_types[m].flag & flags) != 0)
 				{
-					printf("\t\t - %s\n", vk_mem_types[m].name);
+					printf("\t\t\t%s\n", vk_mem_types[m].name);
 				}
 			}
 		}
@@ -527,7 +527,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				if ((vk_mem_heaps[m].flag & flags) != 0)
 				{
-					printf("\t\t - %s\n", vk_mem_heaps[m].name);
+					printf("\t\t\t%s\n", vk_mem_heaps[m].name);
 				}
 			}
 		}
@@ -576,7 +576,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				if ((vk_queue_fams[m].flag & flags) != 0)
 				{
-					printf("\t\t - %s\n", vk_queue_fams[m].name);
+					printf("\t\t\t%s\n", vk_queue_fams[m].name);
 				}
 			}
 
@@ -744,11 +744,11 @@ static void event_callback(void* data, void* event)
 
 			fprintf(
 				stderr,
-				"received `content damaged` event\n"
-				" - x: %d px\n"
-				" - y: %d px\n"
-				" - width: %d px\n"
-				" - height: %d px\n",
+				"received `content damaged` event:\n"
+				"\tx: %d px\n"
+				"\ty: %d px\n"
+				"\twidth: %d px\n"
+				"\theight: %d px\n",
 				rect.x,
 				rect.y,
 				rect.width,
@@ -834,7 +834,7 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 				message = globox_error_get_msg(context, &replies[i].error);
 			}
 
-			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
+			fprintf(stderr, "\t%s: %s\n", feature_names[feature], message);
 		}
 	}
 }
@@ -964,7 +964,7 @@ int main(int argc, char** argv)
 	while (i < feature_list->count)
 	{
 		enum globox_feature feature_id = feature_list->list[i];
-		printf(" - %s\n", feature_names[feature_id]);
+		printf("\t%s\n", feature_names[feature_id]);
 		++i;
 
 		switch (feature_id)
