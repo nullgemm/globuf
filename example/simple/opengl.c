@@ -212,11 +212,11 @@ static void event_callback(void* data, void* event)
 
 			fprintf(
 				stderr,
-				"received `content damaged` event\n"
-				" - x: %d px\n"
-				" - y: %d px\n"
-				" - width: %d px\n"
-				" - height: %d px\n",
+				"received `content damaged` event:\n"
+				"\tx: %d px\n"
+				"\ty: %d px\n"
+				"\twidth: %d px\n"
+				"\theight: %d px\n",
 				rect.x,
 				rect.y,
 				rect.width,
@@ -334,7 +334,7 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 				message = globox_error_get_msg(context, &replies[i].error);
 			}
 
-			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
+			fprintf(stderr, "\t%s: %s\n", feature_names[feature], message);
 		}
 	}
 }
@@ -490,7 +490,7 @@ int main(int argc, char** argv)
 	while (i < feature_list->count)
 	{
 		enum globox_feature feature_id = feature_list->list[i];
-		printf(" - %s\n", feature_names[feature_id]);
+		printf("\t%s\n", feature_names[feature_id]);
 		++i;
 
 		switch (feature_id)

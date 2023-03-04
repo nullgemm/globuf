@@ -238,11 +238,11 @@ static void event_callback(void* data, void* event)
 
 			fprintf(
 				stderr,
-				"received `content damaged` event\n"
-				" - x: %d px\n"
-				" - y: %d px\n"
-				" - width: %d px\n"
-				" - height: %d px\n",
+				"received `content damaged` event:\n"
+				"\tx: %d px\n"
+				"\ty: %d px\n"
+				"\twidth: %d px\n"
+				"\theight: %d px\n",
 				rect.x,
 				rect.y,
 				rect.width,
@@ -278,10 +278,10 @@ static void event_callback(void* data, void* event)
 			fprintf(
 				stderr,
 				"dpishit returned display info:\n"
-				" - width: %u px\n"
-				" - height: %u px\n"
-				" - width: %u mm\n"
-				" - height: %u mm\n",
+				"\twidth: %u px\n"
+				"\theight: %u px\n"
+				"\twidth: %u mm\n"
+				"\theight: %u mm\n",
 				display_info.px_width,
 				display_info.px_height,
 				display_info.mm_width,
@@ -291,7 +291,7 @@ static void event_callback(void* data, void* event)
 			{
 				fprintf(
 					stderr,
-					" - logic dpi: %lf dpi\n",
+					"\tlogic dpi: %lf dpi\n",
 					display_info.dpi_logic);
 			}
 
@@ -299,7 +299,7 @@ static void event_callback(void* data, void* event)
 			{
 				fprintf(
 					stderr,
-					" - scale: %lf\n",
+					"\tscale: %lf\n",
 					display_info.dpi_scale);
 			}
 		}
@@ -501,8 +501,8 @@ static void event_callback(void* data, void* event)
 			fprintf(
 				stderr,
 				"willis returned event info:\n"
-				" - code: %s\n"
-				" - state: %s\n",
+				"\tcode: %s\n"
+				"\tstate: %s\n",
 				willis_get_event_code_name(willis, event_info.event_code, &error_willis),
 				willis_get_event_state_name(willis, event_info.event_state, &error_willis));
 
@@ -512,8 +512,8 @@ static void event_callback(void* data, void* event)
 				{
 					fprintf(
 						stderr,
-						" - mouse x: %d\n"
-						" - mouse y: %d\n",
+						"\tmouse x: %d\n"
+						"\tmouse y: %d\n",
 						event_info.mouse_x,
 						event_info.mouse_y);
 				}
@@ -521,8 +521,8 @@ static void event_callback(void* data, void* event)
 				{
 					fprintf(
 						stderr,
-						" - diff x: %d\n"
-						" - diff y: %d\n",
+						"\tdiff x: %d\n"
+						"\tdiff y: %d\n",
 						(int) (event_info.diff_x >> 32),
 						(int) (event_info.diff_y >> 32));
 				}
@@ -531,7 +531,7 @@ static void event_callback(void* data, void* event)
 			{
 				fprintf(
 					stderr,
-					" - text: %.*s\n",
+					"\ttext: %.*s\n",
 					(int) event_info.utf8_size,
 					event_info.utf8_string);
 
@@ -648,7 +648,7 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 				message = globox_error_get_msg(context, &replies[i].error);
 			}
 
-			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
+			fprintf(stderr, "\t%s: %s\n", feature_names[feature], message);
 		}
 	}
 }
@@ -804,7 +804,7 @@ int main(int argc, char** argv)
 	while (i < feature_list->count)
 	{
 		enum globox_feature feature_id = feature_list->list[i];
-		printf(" - %s\n", feature_names[feature_id]);
+		printf("\t%s\n", feature_names[feature_id]);
 		++i;
 
 		switch (feature_id)
