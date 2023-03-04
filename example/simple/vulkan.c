@@ -1084,9 +1084,9 @@ int main(int argc, char** argv)
 
 	// do some more stuff while the window runs in another thread
 	printf(
-		"this is a message from the main thread.\n"
-		"the window should now be visible.\n"
-		"we can keep computing here.\n");
+		"this is a message from the main thread\n"
+		"the window should now be visible\n"
+		"we can keep computing here\n");
 
 	// wait for the window to be closed
 	globox_window_block(globox, &error);

@@ -208,7 +208,7 @@ static void render_callback(void* data)
 
 static void config_callback(struct globox_config_reply* replies, size_t count, void* data)
 {
-	fprintf(stderr, "\nwindow configured succesfully, printing information:\n");
+	fprintf(stderr, "window configured succesfully, printing information:\n");
 
 	struct globox* context = data;
 	const char* message = NULL;
@@ -232,8 +232,6 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 			fprintf(stderr, " - %s: %s\n", feature_names[feature], message);
 		}
 	}
-
-	fprintf(stderr, "\n");
 }
 
 int main(int argc, char** argv)
@@ -259,7 +257,7 @@ int main(int argc, char** argv)
 	// context allocation failed
 	if (globox == NULL)
 	{
-		fprintf(stderr, "\ncould not allocate the main globox context\n");
+		fprintf(stderr, "could not allocate the main globox context\n");
 		return 1;
 	}
 
@@ -341,7 +339,7 @@ int main(int argc, char** argv)
 	};
 
 	// configure the feature and print a list
-	printf("\nreceived a list of available features:\n");
+	printf("received a list of available features:\n");
 
 	struct globox_config_request configs[GLOBOX_FEATURE_COUNT] = {0};
 	size_t feature_added = 0;
@@ -465,9 +463,9 @@ int main(int argc, char** argv)
 
 	// do some more stuff while the window runs in another thread
 	printf(
-		"\nThis is a message from the main thread.\n"
-		"The window should now be visible.\n"
-		"We can keep computing here.\n");
+		"this is a message from the main thread\n"
+		"the window should now be visible\n"
+		"we can keep computing here\n");
 
 	// wait for the window to be closed
 	globox_window_block(globox, &error);
