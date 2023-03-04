@@ -13,8 +13,6 @@
 #include <string.h>
 #include <vulkan/vulkan_core.h>
 
-#define LAYERS_COUNT 1
-
 extern uint8_t iconpix[];
 extern int iconpix_size;
 
