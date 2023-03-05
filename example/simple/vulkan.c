@@ -476,6 +476,129 @@ static void config_vulkan(struct globox_render_data* data)
 			phys_dev_props.deviceID,
 			phys_dev_props.deviceName);
 
+		// get physical device features
+		VkPhysicalDeviceFeatures phys_dev_feat =
+		{
+			0,
+		};
+
+		vkGetPhysicalDeviceFeatures(
+			phys_devs[i],
+			&phys_dev_feat);
+
+		printf(
+			"\tsupported features:\n"
+			"\t\trobustBufferAccess: %d\n"
+			"\t\tfullDrawIndexUint32: %d\n"
+			"\t\timageCubeArray: %d\n"
+			"\t\tindependentBlend: %d\n"
+			"\t\tgeometryShader: %d\n"
+			"\t\ttessellationShader: %d\n"
+			"\t\tsampleRateShading: %d\n"
+			"\t\tdualSrcBlend: %d\n"
+			"\t\tlogicOp: %d\n"
+			"\t\tmultiDrawIndirect: %d\n"
+			"\t\tdrawIndirectFirstInstance: %d\n"
+			"\t\tdepthClamp: %d\n"
+			"\t\tdepthBiasClamp: %d\n"
+			"\t\tfillModeNonSolid: %d\n"
+			"\t\tdepthBounds: %d\n"
+			"\t\twideLines: %d\n"
+			"\t\tlargePoints: %d\n"
+			"\t\talphaToOne: %d\n"
+			"\t\tmultiViewport: %d\n"
+			"\t\tsamplerAnisotropy: %d\n"
+			"\t\ttextureCompressionETC2: %d\n"
+			"\t\ttextureCompressionASTC_LDR: %d\n"
+			"\t\ttextureCompressionBC: %d\n"
+			"\t\tocclusionQueryPrecise: %d\n"
+			"\t\tpipelineStatisticsQuery: %d\n"
+			"\t\tvertexPipelineStoresAndAtomics: %d\n"
+			"\t\tfragmentStoresAndAtomics: %d\n"
+			"\t\tshaderTessellationAndGeometryPointSize: %d\n"
+			"\t\tshaderImageGatherExtended: %d\n"
+			"\t\tshaderStorageImageExtendedFormats: %d\n"
+			"\t\tshaderStorageImageMultisample: %d\n"
+			"\t\tshaderStorageImageReadWithoutFormat: %d\n"
+			"\t\tshaderStorageImageWriteWithoutFormat: %d\n"
+			"\t\tshaderUniformBufferArrayDynamicIndexing: %d\n"
+			"\t\tshaderSampledImageArrayDynamicIndexing: %d\n"
+			"\t\tshaderStorageBufferArrayDynamicIndexing: %d\n"
+			"\t\tshaderStorageImageArrayDynamicIndexing: %d\n"
+			"\t\tshaderClipDistance: %d\n"
+			"\t\tshaderCullDistance: %d\n"
+			"\t\tshaderFloat64: %d\n"
+			"\t\tshaderInt64: %d\n"
+			"\t\tshaderInt16: %d\n"
+			"\t\tshaderResourceResidency: %d\n"
+			"\t\tshaderResourceMinLod: %d\n"
+			"\t\tsparseBinding: %d\n"
+			"\t\tsparseResidencyBuffer: %d\n"
+			"\t\tsparseResidencyImage2D: %d\n"
+			"\t\tsparseResidencyImage3D: %d\n"
+			"\t\tsparseResidency2Samples: %d\n"
+			"\t\tsparseResidency4Samples: %d\n"
+			"\t\tsparseResidency8Samples: %d\n"
+			"\t\tsparseResidency16Samples: %d\n"
+			"\t\tsparseResidencyAliased: %d\n"
+			"\t\tvariableMultisampleRate: %d\n"
+			"\t\tinheritedQueries: %d\n",
+			phys_dev_feat.robustBufferAccess,
+			phys_dev_feat.fullDrawIndexUint32,
+			phys_dev_feat.imageCubeArray,
+			phys_dev_feat.independentBlend,
+			phys_dev_feat.geometryShader,
+			phys_dev_feat.tessellationShader,
+			phys_dev_feat.sampleRateShading,
+			phys_dev_feat.dualSrcBlend,
+			phys_dev_feat.logicOp,
+			phys_dev_feat.multiDrawIndirect,
+			phys_dev_feat.drawIndirectFirstInstance,
+			phys_dev_feat.depthClamp,
+			phys_dev_feat.depthBiasClamp,
+			phys_dev_feat.fillModeNonSolid,
+			phys_dev_feat.depthBounds,
+			phys_dev_feat.wideLines,
+			phys_dev_feat.largePoints,
+			phys_dev_feat.alphaToOne,
+			phys_dev_feat.multiViewport,
+			phys_dev_feat.samplerAnisotropy,
+			phys_dev_feat.textureCompressionETC2,
+			phys_dev_feat.textureCompressionASTC_LDR,
+			phys_dev_feat.textureCompressionBC,
+			phys_dev_feat.occlusionQueryPrecise,
+			phys_dev_feat.pipelineStatisticsQuery,
+			phys_dev_feat.vertexPipelineStoresAndAtomics,
+			phys_dev_feat.fragmentStoresAndAtomics,
+			phys_dev_feat.shaderTessellationAndGeometryPointSize,
+			phys_dev_feat.shaderImageGatherExtended,
+			phys_dev_feat.shaderStorageImageExtendedFormats,
+			phys_dev_feat.shaderStorageImageMultisample,
+			phys_dev_feat.shaderStorageImageReadWithoutFormat,
+			phys_dev_feat.shaderStorageImageWriteWithoutFormat,
+			phys_dev_feat.shaderUniformBufferArrayDynamicIndexing,
+			phys_dev_feat.shaderSampledImageArrayDynamicIndexing,
+			phys_dev_feat.shaderStorageBufferArrayDynamicIndexing,
+			phys_dev_feat.shaderStorageImageArrayDynamicIndexing,
+			phys_dev_feat.shaderClipDistance,
+			phys_dev_feat.shaderCullDistance,
+			phys_dev_feat.shaderFloat64,
+			phys_dev_feat.shaderInt64,
+			phys_dev_feat.shaderInt16,
+			phys_dev_feat.shaderResourceResidency,
+			phys_dev_feat.shaderResourceMinLod,
+			phys_dev_feat.sparseBinding,
+			phys_dev_feat.sparseResidencyBuffer,
+			phys_dev_feat.sparseResidencyImage2D,
+			phys_dev_feat.sparseResidencyImage3D,
+			phys_dev_feat.sparseResidency2Samples,
+			phys_dev_feat.sparseResidency4Samples,
+			phys_dev_feat.sparseResidency8Samples,
+			phys_dev_feat.sparseResidency16Samples,
+			phys_dev_feat.sparseResidencyAliased,
+			phys_dev_feat.variableMultisampleRate,
+			phys_dev_feat.inheritedQueries);
+
 		// print all physical device memory properties
 		VkPhysicalDeviceMemoryProperties phys_devs_mem_props =
 		{
@@ -497,14 +620,19 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryTypes[k].heapIndex;
 
 			printf(
-				"\t\t#%u (heap index: %u) - flags:\n",
+				"\t\ttype #%u:\n\t\t\theap index: %u\n",
 				k, id);
 
-			for (uint32_t m = 0; m < mem_types_len; ++m)
+			if (flags != 0)
 			{
-				if ((vk_mem_types[m].flag & flags) != 0)
+				printf("\t\t\tflags:\n");
+
+				for (uint32_t m = 0; m < mem_types_len; ++m)
 				{
-					printf("\t\t\t%s\n", vk_mem_types[m].name);
+					if ((vk_mem_types[m].flag & flags) != 0)
+					{
+						printf("\t\t\t\t%s\n", vk_mem_types[m].name);
+					}
 				}
 			}
 		}
@@ -520,14 +648,19 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryHeaps[k].flags;
 
 			printf(
-				"\t\t#%u (size: %lu) - flags:\n",
+				"\t\theap #%u:\n\t\t\tsize: %lu\n",
 				k, (size_t) size);
 
-			for (uint32_t m = 0; m < mem_heaps_len; ++m)
+			if (flags != 0)
 			{
-				if ((vk_mem_heaps[m].flag & flags) != 0)
+				printf("\t\t\tflags:\n");
+
+				for (uint32_t m = 0; m < mem_heaps_len; ++m)
 				{
-					printf("\t\t\t%s\n", vk_mem_heaps[m].name);
+					if ((vk_mem_heaps[m].flag & flags) != 0)
+					{
+						printf("\t\t\t\t%s\n", vk_mem_heaps[m].name);
+					}
 				}
 			}
 		}
@@ -568,15 +701,20 @@ static void config_vulkan(struct globox_render_data* data)
 				phys_dev_queue_fams[k].queueCount;
 
 			printf(
-				"\t\t#%u (number of queues: %u) - flags:\n",
+				"\t\tqueue #%u:\n\t\t\tqueue count: %u\n",
 				k,
 				count);
 
-			for (uint32_t m = 0; m < queue_fams_len; ++m)
+			if (flags != 0)
 			{
-				if ((vk_queue_fams[m].flag & flags) != 0)
+				printf("\t\t\tflags:\n");
+
+				for (uint32_t m = 0; m < queue_fams_len; ++m)
 				{
-					printf("\t\t\t%s\n", vk_queue_fams[m].name);
+					if ((vk_queue_fams[m].flag & flags) != 0)
+					{
+						printf("\t\t\t\t%s\n", vk_queue_fams[m].name);
+					}
 				}
 			}
 
@@ -595,7 +733,7 @@ static void config_vulkan(struct globox_render_data* data)
 				return;
 			}
 
-			printf("\tpresentation support: %u\n", support);
+			printf("\t\t\tpresentation support: %u\n", support);
 
 			if ((found_device == false) && (support == VK_TRUE))
 			{
