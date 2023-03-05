@@ -56,6 +56,21 @@ struct vk_layers vk_layers[] =
 #endif
 };
 
+// device extensions to enable
+struct vk_extensions
+{
+	const char* name;
+	bool found;
+};
+
+struct vk_extensions vk_extensions[] =
+{
+	{
+		.name = VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		.found = false,
+	},
+};
+
 // mem type props
 struct vk_mem_types
 {
@@ -742,6 +757,8 @@ static void config_vulkan(struct globox_render_data* data)
 				selected_queue = k;
 			}
 		}
+
+		free(phys_dev_queue_fams);
 	}
 
 	// print selected device and queue family indices
@@ -757,11 +774,179 @@ static void config_vulkan(struct globox_render_data* data)
 		selected_device,
 		selected_queue);
 
+	// get device extensions list
+	VkExtensionProperties* ext_props;
+	uint32_t ext_props_len;
+
+	error =
+		vkEnumerateDeviceExtensionProperties(
+			phys_devs[selected_device],
+			NULL,
+			&ext_props_len,
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't count vulkan device extensions\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	ext_props = malloc(ext_props_len * (sizeof (VkExtensionProperties)));
+
+	if (ext_props == NULL)
+	{
+		fprintf(stderr, "couldn't allocate vulkan device extensions list\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	error =
+		vkEnumerateDeviceExtensionProperties(
+			phys_devs[selected_device],
+			NULL,
+			&ext_props_len,
+			ext_props);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't list vulkan device extensions\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	printf("available vulkan device extensions:\n");
+
+	for (uint32_t i = 0; i < ext_props_len; ++i)
+	{
+		printf(
+			"\t%s (vulkan version: %u)\n",
+			ext_props[i].extensionName,
+			ext_props[i].specVersion);
+	}
+
+	// check needed device extensions
+	size_t ext_len =
+		(sizeof (vk_extensions)) / (sizeof (struct vk_extensions));
+	const char** ext_found =
+		malloc(ext_len);
+	uint32_t ext_found_count =
+		0;
+
+	if (ext_found == NULL)
+	{
+		fprintf(stderr, "could not allocate found device extensions list\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	// check layers
+	printf("using vulkan device extensions:\n");
+
+	for (uint32_t i = 0; i < ext_props_len; ++i)
+	{
+		uint32_t k = 0;
+
+		while (k < ext_len)
+		{
+			if ((vk_extensions[k].found == false)
+				&& (strcmp(ext_props[i].extensionName, vk_extensions[k].name) == 0))
+			{
+				// save as a layer to request
+				ext_found[ext_found_count] = vk_extensions[k].name;
+				printf("\t%s\n", ext_found[ext_found_count]);
+				++ext_found_count;
+
+				// skip saved layers
+				vk_extensions[k].found = true;
+				++k;
+
+				continue;
+			}
+
+			++k;
+		}
+	}
+
+	free(ext_props);
+
+	if (ext_found_count < ext_len)
+	{
+		fprintf(stderr, "couldn't get all the required vulkan device extensions\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	// get device layers properties
+	VkLayerProperties* dev_layers;
+	uint32_t dev_layers_len;
+
+	error =
+		vkEnumerateDeviceLayerProperties(
+			phys_devs[selected_device],
+			&dev_layers_len,
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't count vulkan device layers\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	dev_layers = malloc(dev_layers_len * (sizeof (VkLayerProperties)));
+
+	if (dev_layers == NULL)
+	{
+		fprintf(stderr, "couldn't allocate vulkan device layers list\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	error =
+		vkEnumerateDeviceLayerProperties(
+			phys_devs[selected_device],
+			&dev_layers_len,
+			dev_layers);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't list vulkan device layers\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	printf("available vulkan device layers:\n");
+
+	for (uint32_t i = 0; i < dev_layers_len; ++i)
+	{
+		printf(
+			"\t%s version %u (vulkan version: %u):\n\t\tdescription: %s\n",
+			dev_layers[i].layerName,
+			dev_layers[i].implementationVersion,
+			dev_layers[i].specVersion,
+			dev_layers[i].description);
+	}
+
+	// create device
+	// TODO
+
+	free(dev_layers);
+	free(ext_found);
 	free(phys_devs);
 }
 
 static void clean_vulkan(struct globox_render_data* data)
 {
+	// TODO
 }
 
 static void compile_shaders(
