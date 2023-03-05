@@ -625,7 +625,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 			if (flags != 0)
 			{
-				printf("\t\t\tflags:\n");
+				printf("\t\t\tflags (empty if unknown):\n");
 
 				for (uint32_t m = 0; m < mem_types_len; ++m)
 				{
@@ -653,7 +653,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 			if (flags != 0)
 			{
-				printf("\t\t\tflags:\n");
+				printf("\t\t\tflags (empty if unknown):\n");
 
 				for (uint32_t m = 0; m < mem_heaps_len; ++m)
 				{
@@ -707,7 +707,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 			if (flags != 0)
 			{
-				printf("\t\t\tflags:\n");
+				printf("\t\t\tflags (empty if unknown):\n");
 
 				for (uint32_t m = 0; m < queue_fams_len; ++m)
 				{
