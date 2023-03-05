@@ -71,6 +71,7 @@ struct vk_dev_ext vk_dev_ext[] =
 	},
 };
 
+#if 0
 // device layers to enable
 struct vk_dev_layers
 {
@@ -85,6 +86,7 @@ struct vk_dev_layers vk_dev_layers[] =
 		.found = false,
 	},
 };
+#endif
 
 // mem type props
 struct vk_mem_types
@@ -897,6 +899,7 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
+#if 0
 	// get device layers properties
 	VkLayerProperties* dev_layer_props;
 	uint32_t dev_layer_props_len;
@@ -993,18 +996,72 @@ static void config_vulkan(struct globox_render_data* data)
 	}
 
 	free(dev_layer_props);
+#endif
 
 	// create device
+	float queue_priorities[1] = { 1.0f }; // default priority for this example
+
+	VkDeviceQueueCreateInfo queue_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.queueFamilyIndex = selected_queue,
+		.queueCount = 1,
+		.pQueuePriorities = queue_priorities,
+	};
+
+	VkDeviceCreateInfo device_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.queueCreateInfoCount = 1,
+		.pQueueCreateInfos = &queue_create_info,
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = NULL,
+		.enabledExtensionCount = dev_ext_found_count,
+		.ppEnabledExtensionNames = dev_ext_found,
+		.pEnabledFeatures = NULL, // we don't need any special feature
+	};
+
+	vkCreateDevice(
+		phys_devs[selected_device],
+		&device_create_info,
+		NULL,
+		&(data->device));
+
+	// create semaphores
 	// TODO
 
+#if 0
 	free(dev_layers_found);
+#endif
 	free(dev_ext_found);
 	free(phys_devs);
 }
 
 static void clean_vulkan(struct globox_render_data* data)
 {
-	// TODO
+	vkDestroyShaderModule(
+		data->device,
+		data->module_vert,
+		NULL);
+
+	vkDestroyShaderModule(
+		data->device,
+		data->module_frag,
+		NULL);
+
+	vkDeviceWaitIdle(data->device);
+
+	vkDestroyDevice(
+		data->device,
+		NULL);
+
+	vkDestroyInstance(
+		data->instance,
+		NULL);
 }
 
 static void compile_shaders(
@@ -1497,8 +1554,6 @@ int main(int argc, char** argv)
 	}
 
 	// free resources correctly
-	clean_vulkan(&render_data);
-
 	globox_window_destroy(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -1515,6 +1570,8 @@ int main(int argc, char** argv)
 		globox_error_log(globox, &error);
 		return 1;
 	}
+
+	clean_vulkan(&render_data);
 
 	return 0;
 }
