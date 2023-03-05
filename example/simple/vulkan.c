@@ -71,6 +71,21 @@ struct vk_extensions vk_extensions[] =
 	},
 };
 
+// device layers to enable
+struct vk_dev_layers
+{
+	const char* name;
+	bool found;
+};
+
+struct vk_dev_layers vk_dev_layers[] =
+{
+	{
+		.name = "VK_LAYER_KHRONOS_validation",
+		.found = false,
+	},
+};
+
 // mem type props
 struct vk_mem_types
 {
@@ -883,13 +898,13 @@ static void config_vulkan(struct globox_render_data* data)
 	}
 
 	// get device layers properties
-	VkLayerProperties* dev_layers;
-	uint32_t dev_layers_len;
+	VkLayerProperties* dev_layer_props;
+	uint32_t dev_layer_props_len;
 
 	error =
 		vkEnumerateDeviceLayerProperties(
 			phys_devs[selected_device],
-			&dev_layers_len,
+			&dev_layer_props_len,
 			NULL);
 
 	if (error != VK_SUCCESS)
@@ -900,9 +915,9 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	dev_layers = malloc(dev_layers_len * (sizeof (VkLayerProperties)));
+	dev_layer_props = malloc(dev_layer_props_len * (sizeof (VkLayerProperties)));
 
-	if (dev_layers == NULL)
+	if (dev_layer_props == NULL)
 	{
 		fprintf(stderr, "couldn't allocate vulkan device layers list\n");
 		globox_clean(data->globox, &globox_error);
@@ -913,8 +928,8 @@ static void config_vulkan(struct globox_render_data* data)
 	error =
 		vkEnumerateDeviceLayerProperties(
 			phys_devs[selected_device],
-			&dev_layers_len,
-			dev_layers);
+			&dev_layer_props_len,
+			dev_layer_props);
 
 	if (error != VK_SUCCESS)
 	{
@@ -926,20 +941,63 @@ static void config_vulkan(struct globox_render_data* data)
 
 	printf("available vulkan device layers:\n");
 
-	for (uint32_t i = 0; i < dev_layers_len; ++i)
+	for (uint32_t i = 0; i < dev_layer_props_len; ++i)
 	{
 		printf(
 			"\t%s version %u (vulkan version: %u):\n\t\tdescription: %s\n",
-			dev_layers[i].layerName,
-			dev_layers[i].implementationVersion,
-			dev_layers[i].specVersion,
-			dev_layers[i].description);
+			dev_layer_props[i].layerName,
+			dev_layer_props[i].implementationVersion,
+			dev_layer_props[i].specVersion,
+			dev_layer_props[i].description);
 	}
+
+	// check required device layers
+	size_t dev_layers_len =
+		(sizeof (vk_dev_layers)) / (sizeof (struct vk_dev_layers));
+	const char** dev_layers_found =
+		malloc(dev_layers_len);
+	uint32_t dev_layers_found_count =
+		0;
+
+	if (dev_layers_found == NULL)
+	{
+		fprintf(stderr, "could not allocate found device layers list\n");
+		return;
+	}
+
+	printf("using vulkan device layers:\n");
+
+	for (uint32_t i = 0; i < dev_layer_props_len; ++i)
+	{
+		uint32_t k = 0;
+
+		while (k < dev_layers_len)
+		{
+			if ((vk_dev_layers[k].found == false)
+				&& (strcmp(dev_layer_props[i].layerName, vk_dev_layers[k].name) == 0))
+			{
+				// save as a layer to request
+				dev_layers_found[dev_layers_found_count] = vk_dev_layers[k].name;
+				printf("\t%s\n", dev_layers_found[dev_layers_found_count]);
+				++dev_layers_found_count;
+
+				// skip saved layers
+				vk_dev_layers[k].found = true;
+				++k;
+
+				continue;
+			}
+
+			++k;
+		}
+	}
+
+	free(dev_layer_props);
 
 	// create device
 	// TODO
 
-	free(dev_layers);
+	free(dev_layers_found);
 	free(ext_found);
 	free(phys_devs);
 }
