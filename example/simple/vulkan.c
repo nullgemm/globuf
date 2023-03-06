@@ -200,6 +200,8 @@ struct globox_render_data
 	VkDevice device;
 	VkShaderModule module_vert;
 	VkShaderModule module_frag;
+	VkSemaphore semaphore_present;
+	VkSemaphore semaphore_render;
 
 	VkInstance instance;
 };
@@ -916,7 +918,42 @@ static void config_vulkan(struct globox_render_data* data)
 		&(data->device));
 
 	// create semaphores
-	// TODO
+	VkSemaphoreCreateInfo semaphore_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+	};
+
+	error =
+		vkCreateSemaphore(
+			data->device,
+			&semaphore_create_info,
+			NULL,
+			&(data->semaphore_present));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't create present semaphore\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
+
+	error =
+		vkCreateSemaphore(
+			data->device,
+			&semaphore_create_info,
+			NULL,
+			&(data->semaphore_render));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't create render semaphore\n");
+		globox_clean(data->globox, &globox_error);
+		free(phys_devs);
+		return;
+	}
 
 	free(dev_ext_found);
 	free(phys_devs);
@@ -935,6 +972,16 @@ static void clean_vulkan(struct globox_render_data* data)
 		NULL);
 
 	vkDeviceWaitIdle(data->device);
+
+	vkDestroySemaphore(
+		data->device,
+		data->semaphore_present,
+		NULL);
+
+	vkDestroySemaphore(
+		data->device,
+		data->semaphore_render,
+		NULL);
 
 	vkDestroyDevice(
 		data->device,
