@@ -710,7 +710,13 @@ static void config_vulkan(struct globox_render_data* data)
 			&phys_dev_queue_fams_len,
 			phys_dev_queue_fams);
 
-		// search for a suitable queue family
+		// Search for a suitable queue family.
+		// More specifically, we want a graphics queue supporting presentation.
+		// We don't support using separate graphics & presentation queues since:
+		//  - hardware with graphics queues without presentation support doesn't
+		//    currently exist in reality and will probably never exist at all
+		//  - purposefully using two separate queues with hardware offering
+		//    presentation support on multiple queues is useless here
 		printf("\tqueue families:\n");
 
 		for (uint32_t k = 0; k < phys_dev_queue_fams_len; ++k)
