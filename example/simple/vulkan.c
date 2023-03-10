@@ -204,6 +204,7 @@ struct globox_render_data
 	VkSemaphore semaphore_render;
 
 	VkInstance instance;
+	VkQueue queue;
 };
 
 static void init_vulkan(struct globox_render_data* data)
@@ -755,7 +756,9 @@ static void config_vulkan(struct globox_render_data* data)
 
 			printf("\t\t\tpresentation support: %u\n", support);
 
-			if ((found_device == false) && (support == VK_TRUE))
+			if ((found_device == false)
+				&& (support == VK_TRUE)
+				&& ((flags & VK_QUEUE_GRAPHICS_BIT) != 0))
 			{
 				found_device = true;
 				selected_device = i;
@@ -917,6 +920,12 @@ static void config_vulkan(struct globox_render_data* data)
 		NULL,
 		&(data->device));
 
+	vkGetDeviceQueue(
+		data->device,
+		selected_queue,
+		0,
+		&(data->queue));
+
 	// create semaphores
 	VkSemaphoreCreateInfo semaphore_create_info =
 	{
@@ -955,6 +964,9 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
+	// TODO setup validation layers debug callback
+
+	// free resources
 	free(dev_ext_found);
 	free(phys_devs);
 }
