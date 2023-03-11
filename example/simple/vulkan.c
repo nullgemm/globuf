@@ -977,6 +977,11 @@ static void config_vulkan(struct globox_render_data* data)
 	free(phys_devs);
 }
 
+static void swapchain_vulkan(struct globox_render_data* data)
+{
+	// TODO
+}
+
 static void clean_vulkan(struct globox_render_data* data)
 {
 	vkDestroyShaderModule(
@@ -1171,6 +1176,14 @@ static void render_callback(void* data)
 	{
 		// skip rendering if the window area is 0
 		return;
+	}
+
+	// re-create the swapchain when the window size changes
+	if ((width != render_data->width) || (height != render_data->height))
+	{
+		render_data->width = width;
+		render_data->height = height;
+		swapchain_vulkan(render_data);
 	}
 
 	if (render_data->shaders == true)
