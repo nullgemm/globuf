@@ -586,6 +586,15 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		free(data->surf_formats);
 		return;
 	}
+
+	// create image views
+	// TODO
+
+	// create render pass
+	// TODO
+
+	// create framebuffers
+	// TODO
 }
 
 static void init_vulkan(struct globox_render_data* data)
@@ -1348,14 +1357,17 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	data->swapchain = VK_NULL_HANDLE;
+	// create fence
+	// TODO
 
-	// TODO setup validation layers debug callback
+	// setup validation layers debug callback
+	// TODO
 
 	// free resources
 	free(dev_ext_found);
 }
 
+// TODO transform into pipeline & command pool creation function
 static void compile_shaders(
 	VkDevice* device,
 	VkShaderModule* module_vert,
@@ -1520,6 +1532,7 @@ static void render_callback(void* data)
 	}
 
 	// re-create the swapchain when the window size changes
+	// TODO also handle suboptimal swapchains
 	if ((width != render_data->width) || (height != render_data->height))
 	{
 		render_data->width = width;
@@ -1629,6 +1642,7 @@ int main(int argc, char** argv)
 	}
 
 	// initialize vulkan
+	// TODO reorder (and complete)
 	struct globox_render_data render_data =
 	{
 		.globox = globox,
@@ -1636,6 +1650,7 @@ int main(int argc, char** argv)
 		.height = 0,
 		.shaders = true,
 		.phys_devs = NULL,
+		.swapchain = VK_NULL_HANDLE,
 		.swapchain_images = NULL,
 		.surf_modes = NULL,
 		.surf_formats = NULL,
