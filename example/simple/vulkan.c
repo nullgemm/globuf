@@ -253,6 +253,9 @@ struct globox_render_data
 	// vulkan surface
 	VkSurfaceKHR* surf;
 	VkSurfaceCapabilitiesKHR surf_caps;
+	VkExtent2D extent;
+	VkFormat format;
+	VkColorSpaceKHR color_space;
 
 	VkSurfaceFormatKHR* surf_formats;
 	uint32_t surf_formats_index;
@@ -382,7 +385,7 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	data->surf_modes =
 		malloc(data->surf_modes_len * (sizeof (VkPresentModeKHR)));
 
-	if (data->surf_formats == NULL)
+	if (data->surf_modes == NULL)
 	{
 		fprintf(stderr, "could not allocate surface presentation modes list\n");
 		free(data->surf_formats);
@@ -470,31 +473,34 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		image_count = data->surf_caps.maxImageCount;
 	}
 
-	VkExtent2D extent = data->surf_caps.currentExtent;
+	data->extent = data->surf_caps.currentExtent;
 
-	if ((extent.width == UINT32_MAX) && (extent.height == UINT32_MAX))
+	if ((data->extent.width == UINT32_MAX) && (data->extent.height == UINT32_MAX))
 	{
-		extent.width = data->width;
-		extent.height = data->height;
+		data->extent.width = data->width;
+		data->extent.height = data->height;
 
-		if (extent.width < data->surf_caps.minImageExtent.width)
+		if (data->extent.width < data->surf_caps.minImageExtent.width)
 		{
-			extent.width = data->surf_caps.minImageExtent.width;
+			data->extent.width = data->surf_caps.minImageExtent.width;
 		}
-		else if (extent.width > data->surf_caps.maxImageExtent.width)
+		else if (data->extent.width > data->surf_caps.maxImageExtent.width)
 		{
-			extent.width = data->surf_caps.maxImageExtent.width;
+			data->extent.width = data->surf_caps.maxImageExtent.width;
 		}
 
-		if (extent.height < data->surf_caps.minImageExtent.height)
+		if (data->extent.height < data->surf_caps.minImageExtent.height)
 		{
-			extent.height = data->surf_caps.minImageExtent.height;
+			data->extent.height = data->surf_caps.minImageExtent.height;
 		}
-		else if (extent.height > data->surf_caps.maxImageExtent.height)
+		else if (data->extent.height > data->surf_caps.maxImageExtent.height)
 		{
-			extent.height = data->surf_caps.maxImageExtent.height;
+			data->extent.height = data->surf_caps.maxImageExtent.height;
 		}
 	}
+
+	data->format = data->surf_formats[data->surf_formats_index].format;
+	data->color_space = data->surf_formats[data->surf_formats_index].colorSpace;
 
 	VkSwapchainCreateInfoKHR swapchain_create_info =
 	{
@@ -503,9 +509,9 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		.flags = 0,
 		.surface = *(data->surf),
 		.minImageCount = image_count,
-		.imageFormat = data->surf_formats[data->surf_formats_index].format,
-		.imageColorSpace = data->surf_formats[data->surf_formats_index].colorSpace,
-		.imageExtent = extent,
+		.imageFormat = data->format,
+		.imageColorSpace = data->color_space,
+		.imageExtent = data->extent,
 		.imageArrayLayers = 1,
 		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 
