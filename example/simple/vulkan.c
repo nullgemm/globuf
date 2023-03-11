@@ -249,6 +249,7 @@ struct globox_render_data
 	VkPhysicalDevice* phys_devs;
 	uint32_t phys_devs_index;
 	uint32_t phys_devs_len;
+	uint32_t selected_queue;
 
 	// vulkan surface
 	VkSurfaceKHR* surf;
@@ -269,6 +270,10 @@ struct globox_render_data
 	VkImage* swapchain_images;
 	VkImageView* swapchain_image_views;
 	uint32_t swapchain_images_len;
+
+	// vulkan pipeline
+	VkPipelineShaderStageCreateInfo shader_stages[2];
+	VkCommandPool cmd_pool;
 };
 
 static inline void free_check(const void* ptr)
@@ -920,7 +925,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 	// select physical device
 	data->phys_devs_index = 0;
-	uint32_t selected_queue = 0;
+	data->selected_queue = 0;
 	bool found_device = false;
 
 	size_t mem_types_len =
@@ -1229,7 +1234,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				found_device = true;
 				data->phys_devs_index = i;
-				selected_queue = k;
+				data->selected_queue = k;
 			}
 		}
 
@@ -1247,7 +1252,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 	printf("selected device #%u / queue family #%u\n",
 		data->phys_devs_index,
-		selected_queue);
+		data->selected_queue);
 
 	// get device extensions list
 	VkExtensionProperties* dev_ext_props;
@@ -1362,7 +1367,7 @@ static void config_vulkan(struct globox_render_data* data)
 		.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.queueFamilyIndex = selected_queue,
+		.queueFamilyIndex = data->selected_queue,
 		.queueCount = 1,
 		.pQueuePriorities = queue_priorities,
 	};
@@ -1389,7 +1394,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 	vkGetDeviceQueue(
 		data->device,
-		selected_queue,
+		data->selected_queue,
 		0,
 		&(data->queue));
 
@@ -1441,12 +1446,12 @@ static void config_vulkan(struct globox_render_data* data)
 	free(dev_ext_found);
 }
 
-// TODO transform into pipeline & command pool creation function
-static void compile_shaders(
-	VkDevice* device,
-	VkShaderModule* module_vert,
-	VkShaderModule* module_frag)
+// TODO move this in main()?
+static void pipeline_vulkan(struct globox_render_data* data)
 {
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// create vertex shader module
 	VkShaderModuleCreateInfo info_vert =
 	{
 		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -1456,18 +1461,19 @@ static void compile_shaders(
 		.pCode = (uint32_t*) &square_vert_vk1,
 	};
 
-	VkResult error_vk =
+	error =
 		vkCreateShaderModule(
-			*device,
+			data->device,
 			&info_vert,
 			NULL,
-			module_vert);
+			&(data->module_vert));
 
-	if (error_vk != VK_SUCCESS)
+	if (error != VK_SUCCESS)
 	{
 		return;
 	}
 
+	// create fragment shader module
 	VkShaderModuleCreateInfo info_flag =
 	{
 		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -1477,17 +1483,74 @@ static void compile_shaders(
 		.pCode = (uint32_t*) &square_frag_vk1,
 	};
 
-	error_vk =
+	error =
 		vkCreateShaderModule(
-			*device,
+			data->device,
 			&info_flag,
 			NULL,
-			module_frag);
+			&(data->module_frag));
 
-	if (error_vk != VK_SUCCESS)
+	if (error != VK_SUCCESS)
 	{
 		return;
 	}
+
+	// create shader pipeline stages
+	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.stage = VK_SHADER_STAGE_VERTEX_BIT,
+		.module = data->module_vert,
+		.pName = "main",
+		.pSpecializationInfo = NULL,
+	};
+
+	data->shader_stages[0] = vert_shader_stage_create_info;
+
+	VkPipelineShaderStageCreateInfo frag_shader_stage_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.stage = VK_SHADER_STAGE_VERTEX_BIT,
+		.module = data->module_frag,
+		.pName = "main",
+		.pSpecializationInfo = NULL,
+	};
+
+	data->shader_stages[1] = frag_shader_stage_create_info;
+
+	// create fixed function stages
+	// TODO
+
+	// build the pipeline
+	// TODO
+
+	// create command pool
+	VkCommandPoolCreateInfo cmd_pool_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		.pNext = NULL,
+		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		.queueFamilyIndex = data->selected_queue,
+	};
+
+	error =
+		vkCreateCommandPool(
+			data->device,
+			&cmd_pool_create_info,
+			NULL,
+			&(data->cmd_pool));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// create command buffer
+	// TODO
 }
 
 static void event_callback(void* data, void* event)
@@ -1618,11 +1681,7 @@ static void render_callback(void* data)
 
 	if (render_data->shaders == true)
 	{
-		compile_shaders(
-			&(render_data->device),
-			&(render_data->module_vert),
-			&(render_data->module_frag));
-
+		pipeline_vulkan(render_data);
 		render_data->shaders = false;
 	}
 
@@ -1975,6 +2034,11 @@ int main(int argc, char** argv)
 	}
 
 	// vulkan cleanup
+	vkDestroyCommandPool(
+		render_data.device,
+		render_data.cmd_pool,
+		NULL);
+
 	swapchain_free_vulkan(&render_data);
 	free_check(render_data.phys_devs);
 
