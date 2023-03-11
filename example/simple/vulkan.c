@@ -267,6 +267,7 @@ struct globox_render_data
 
 	VkSwapchainKHR swapchain;
 	VkImage* swapchain_images;
+	VkImageView* swapchain_image_views;
 	uint32_t swapchain_images_len;
 };
 
@@ -279,6 +280,22 @@ static inline void free_check(const void* ptr)
 }
 
 // TODO move this back down
+static void swapchain_free_vulkan(struct globox_render_data* data)
+{
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		vkDestroyImageView(
+			data->device,
+			data->swapchain_image_views[i],
+			NULL);
+	}
+
+	free_check(data->swapchain_image_views);
+	free_check(data->swapchain_images);
+	free_check(data->surf_modes);
+	free_check(data->surf_formats);
+}
+
 static void swapchain_vulkan(struct globox_render_data* data)
 {
 	printf("creating vulkan swapchain\n");
@@ -588,7 +605,64 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	}
 
 	// create image views
-	// TODO
+	data->swapchain_image_views =
+		malloc(data->swapchain_images_len * (sizeof (VkImageView)));
+
+	if (data->swapchain_image_views == NULL)
+	{
+		fprintf(stderr, "could not allocate swapchain image view list\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	VkImageViewCreateInfo image_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.image = VK_NULL_HANDLE,
+		.viewType = VK_IMAGE_VIEW_TYPE_2D,
+		.format = data->format,
+		.components =
+		{
+			.r = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.g = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.b = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.a = VK_COMPONENT_SWIZZLE_IDENTITY,
+		},
+		.subresourceRange =
+		{
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1,
+		},
+	};
+
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		image_create_info.image = data->swapchain_images[i];
+
+		error =
+			vkCreateImageView(
+				data->device,
+				&image_create_info,
+				NULL,
+				&(data->swapchain_image_views[i]));
+
+		if (error != VK_SUCCESS)
+		{
+			fprintf(stderr, "could not list swapchain images\n");
+			free(data->swapchain_image_views);
+			free(data->swapchain_images);
+			free(data->surf_modes);
+			free(data->surf_formats);
+			return;
+		}
+	}
 
 	// create render pass
 	// TODO
@@ -1538,10 +1612,7 @@ static void render_callback(void* data)
 		render_data->width = width;
 		render_data->height = height;
 
-		free_check(render_data->swapchain_images);
-		free_check(render_data->surf_modes);
-		free_check(render_data->surf_formats);
-
+		swapchain_free_vulkan(render_data);
 		swapchain_vulkan(render_data);
 	}
 
@@ -1654,6 +1725,7 @@ int main(int argc, char** argv)
 		.swapchain_images = NULL,
 		.surf_modes = NULL,
 		.surf_formats = NULL,
+		.swapchain_images_len = 0,
 	};
 
 	init_vulkan(&render_data);
@@ -1903,6 +1975,7 @@ int main(int argc, char** argv)
 	}
 
 	// vulkan cleanup
+	swapchain_free_vulkan(&render_data);
 	free_check(render_data.phys_devs);
 
 	vkDestroyShaderModule(
