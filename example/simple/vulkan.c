@@ -238,6 +238,7 @@ struct globox_render_data
 	VkInstance instance;
 	VkDevice device;
 	VkQueue queue;
+	VkSwapchainKHR swapchain;
 
 	VkShaderModule module_vert;
 	VkShaderModule module_frag;
@@ -449,6 +450,81 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	printf("using vulkan surface presentation mode:\n\t%s\n", mode_name);
 
 	// create swapchain
+	uint32_t image_count = data->surf_caps.minImageCount + 1;
+
+	if ((data->surf_caps.maxImageCount > 0)
+		&& (image_count > data->surf_caps.maxImageCount))
+	{
+		image_count = data->surf_caps.maxImageCount;
+	}
+
+	VkExtent2D extent = data->surf_caps.currentExtent;
+
+	if ((extent.width == UINT32_MAX) && (extent.height == UINT32_MAX))
+	{
+		extent.width = data->width;
+		extent.height = data->height;
+
+		if (extent.width < data->surf_caps.minImageExtent.width)
+		{
+			extent.width = data->surf_caps.minImageExtent.width;
+		}
+		else if (extent.width > data->surf_caps.maxImageExtent.width)
+		{
+			extent.width = data->surf_caps.maxImageExtent.width;
+		}
+
+		if (extent.height < data->surf_caps.minImageExtent.height)
+		{
+			extent.height = data->surf_caps.minImageExtent.height;
+		}
+		else if (extent.height > data->surf_caps.maxImageExtent.height)
+		{
+			extent.height = data->surf_caps.maxImageExtent.height;
+		}
+	}
+
+	VkSwapchainCreateInfoKHR swapchain_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		.pNext = NULL,
+		.flags = 0,
+		.surface = *(data->surf),
+		.minImageCount = image_count,
+		.imageFormat = data->surf_formats[data->surf_formats_index].format,
+		.imageColorSpace = data->surf_formats[data->surf_formats_index].colorSpace,
+		.imageExtent = extent,
+		.imageArrayLayers = 1,
+		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		// again we only support presentation from the graphics queue
+		// so we can just always use the exclusive image sharing mode
+		// (for which queue family index count & indices are ignored)
+		.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+		.queueFamilyIndexCount = 0,
+		.pQueueFamilyIndices = NULL,
+
+		.preTransform = data->surf_caps.currentTransform,
+		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		.presentMode = data->surf_modes[data->surf_modes_index],
+		.clipped = VK_TRUE,
+		.oldSwapchain = data->swapchain,
+	};
+
+	error =
+		vkCreateSwapchainKHR(
+			data->device,
+			&swapchain_create_info,
+			NULL,
+			&(data->swapchain));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not create a swapchain\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
 }
 
 static void init_vulkan(struct globox_render_data* data)
@@ -1211,48 +1287,12 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
+	data->swapchain = VK_NULL_HANDLE;
+
 	// TODO setup validation layers debug callback
 
 	// free resources
 	free(dev_ext_found);
-}
-
-static void clean_vulkan(struct globox_render_data* data)
-{
-	if (data->phys_devs != NULL)
-	{
-		free(data->phys_devs);
-	}
-
-	vkDestroyShaderModule(
-		data->device,
-		data->module_vert,
-		NULL);
-
-	vkDestroyShaderModule(
-		data->device,
-		data->module_frag,
-		NULL);
-
-	vkDeviceWaitIdle(data->device);
-
-	vkDestroySemaphore(
-		data->device,
-		data->semaphore_present,
-		NULL);
-
-	vkDestroySemaphore(
-		data->device,
-		data->semaphore_render,
-		NULL);
-
-	vkDestroyDevice(
-		data->device,
-		NULL);
-
-	vkDestroyInstance(
-		data->instance,
-		NULL);
 }
 
 static void compile_shaders(
@@ -1753,6 +1793,13 @@ int main(int argc, char** argv)
 	}
 
 	// free resources correctly
+	// vulkan cleanup
+	vkDestroySwapchainKHR(
+		render_data.device,
+		render_data.swapchain,
+		NULL);
+
+	// globox cleanup
 	globox_window_destroy(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -1770,7 +1817,42 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	clean_vulkan(&render_data);
+	// vulkan cleanup
+	if (render_data.phys_devs != NULL)
+	{
+		free(render_data.phys_devs);
+	}
+
+	vkDestroyShaderModule(
+		render_data.device,
+		render_data.module_vert,
+		NULL);
+
+	vkDestroyShaderModule(
+		render_data.device,
+		render_data.module_frag,
+		NULL);
+
+	vkDeviceWaitIdle(
+		render_data.device);
+
+	vkDestroySemaphore(
+		render_data.device,
+		render_data.semaphore_present,
+		NULL);
+
+	vkDestroySemaphore(
+		render_data.device,
+		render_data.semaphore_render,
+		NULL);
+
+	vkDestroyDevice(
+		render_data.device,
+		NULL);
+
+	vkDestroyInstance(
+		render_data.instance,
+		NULL);
 
 	return 0;
 }
