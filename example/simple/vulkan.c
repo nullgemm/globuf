@@ -1,3 +1,4 @@
+// TODO handle all errors properly
 #include "globox.h"
 
 #ifdef GLOBOX_EXAMPLE_X11
@@ -186,6 +187,42 @@ struct vk_queue_fams vk_queue_fams[] =
 	},
 };
 
+// presentation mode
+struct vk_pres_modes
+{
+	VkPresentModeKHR mode;
+	const char* name;
+};
+
+// ordered by priority
+struct vk_pres_modes vk_pres_modes[] =
+{
+	{
+		.mode = VK_PRESENT_MODE_FIFO_KHR,
+		.name = "fifo",
+	},
+	{
+		.mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+		.name = "fifo relaxed",
+	},
+	{
+		.mode = VK_PRESENT_MODE_IMMEDIATE_KHR,
+		.name = "immediate",
+	},
+	{
+		.mode = VK_PRESENT_MODE_MAILBOX_KHR,
+		.name = "mailbox",
+	},
+	{
+		.mode = VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR,
+		.name = "shared demand refresh",
+	},
+	{
+		.mode = VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR,
+		.name = "shared continuous refresh",
+	},
+};
+
 struct globox_render_data
 {
 	// globox info
@@ -196,16 +233,223 @@ struct globox_render_data
 	int height;
 	bool shaders;
 
-	// vulkan info
+
+	// vulkan general info
+	VkInstance instance;
 	VkDevice device;
+	VkQueue queue;
+
 	VkShaderModule module_vert;
 	VkShaderModule module_frag;
+
 	VkSemaphore semaphore_present;
 	VkSemaphore semaphore_render;
 
-	VkInstance instance;
-	VkQueue queue;
+	// vulkan physical device
+	VkPhysicalDevice* phys_devs;
+	uint32_t phys_devs_index;
+	uint32_t phys_devs_len;
+
+	// vulkan surface
+	VkSurfaceKHR* surf;
+	VkSurfaceCapabilitiesKHR surf_caps;
+
+	VkSurfaceFormatKHR* surf_formats;
+	uint32_t surf_formats_index;
+	uint32_t surf_formats_len;
+
+	VkPresentModeKHR* surf_modes;
+	uint32_t surf_modes_index;
+	uint32_t surf_modes_len;
 };
+
+// TODO move this back down
+static void swapchain_vulkan(struct globox_render_data* data)
+{
+	struct globox_error_info globox_error = {0};
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// get the vulkan surface from globox
+	data->surf = globox_get_surface_vulkan(data->globox, &globox_error);
+
+	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(data->globox, &globox_error);
+		return;
+	}
+
+	// get surface formats
+	error =
+		vkGetPhysicalDeviceSurfaceFormatsKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_formats_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count surface formats\n");
+		return;
+	}
+
+	data->surf_formats =
+		malloc(data->surf_formats_len * (sizeof (VkSurfaceFormatKHR)));
+
+	if (data->surf_formats == NULL)
+	{
+		fprintf(stderr, "could not allocate surface formats list\n");
+		return;
+	}
+
+	error =
+		vkGetPhysicalDeviceSurfaceFormatsKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_formats_len),
+			data->surf_formats);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list surface formats\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	// check vulkan surface formats
+	uint32_t i = 0;
+
+	while (i < data->surf_formats_len)
+	{
+		if ((data->surf_formats[i].format == VK_FORMAT_B8G8R8A8_UNORM)
+			&& (data->surf_formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
+		{
+			printf("found compatible surface format\n");
+			break;
+		}
+
+		++i;
+	}
+
+	if (i == data->surf_formats_len)
+	{
+		fprintf(stderr, "could not find compatible surface format");
+		free(data->surf_formats);
+		return;
+	}
+
+	// get surface capabilities
+	error =
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_caps));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not get surface capabilities\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	// get surface present modes
+	error =
+		vkGetPhysicalDeviceSurfacePresentModesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_modes_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count surface presentation modes\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	data->surf_modes =
+		malloc(data->surf_modes_len * (sizeof (VkPresentModeKHR)));
+
+	if (data->surf_formats == NULL)
+	{
+		fprintf(stderr, "could not allocate surface presentation modes list\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	error =
+		vkGetPhysicalDeviceSurfacePresentModesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_modes_len),
+			data->surf_modes);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list surface presentation modes\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	if (data->surf_modes_len == 0)
+	{
+		fprintf(stderr, "could not find any surface presentation mode\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	printf("vulkan surface presentation modes:\n");
+
+	size_t pres_modes_len =
+		(sizeof (vk_pres_modes)) / (sizeof (struct vk_pres_modes));
+
+	size_t surf_mode_order =
+		pres_modes_len;
+
+	for (uint32_t i = 0; i < data->surf_modes_len; ++i)
+	{
+		size_t k = 0;
+
+		while (k < pres_modes_len)
+		{
+			if (data->surf_modes[i] == vk_pres_modes[k].mode)
+			{
+				// print presentation mode name
+				printf("\t%s\n", vk_pres_modes[k].name);
+
+				// save as presentation mode if higher priority than current one
+				if (surf_mode_order > k)
+				{
+					data->surf_modes_index = i;
+					surf_mode_order = k;
+				}
+
+				break;
+			}
+
+			++k;
+		}
+	}
+
+	// print selected presentation mode
+	const char* mode_name;
+
+	if (surf_mode_order == pres_modes_len)
+	{
+		mode_name = "unknown";
+		// in case there is absolutely nothing we know of, use whatever we can
+		data->surf_modes_index = 0;
+	}
+	else
+	{
+		mode_name = vk_pres_modes[surf_mode_order].name;
+	}
+
+	printf("using vulkan surface presentation mode:\n\t%s\n", mode_name);
+
+	// create swapchain
+}
 
 static void init_vulkan(struct globox_render_data* data)
 {
@@ -421,13 +665,10 @@ static void config_vulkan(struct globox_render_data* data)
 	VkResult error = VK_ERROR_UNKNOWN;
 
 	// get physical devices list
-	uint32_t phys_devs_len;
-	VkPhysicalDevice* phys_devs;
-
 	error =
 		vkEnumeratePhysicalDevices(
 			data->instance,
-			&phys_devs_len,
+			&(data->phys_devs_len),
 			NULL);
 
 	if (error != VK_SUCCESS)
@@ -436,9 +677,9 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	phys_devs = malloc(phys_devs_len * (sizeof (VkPhysicalDevice)));
+	data->phys_devs = malloc(data->phys_devs_len * (sizeof (VkPhysicalDevice)));
 
-	if (phys_devs == NULL)
+	if (data->phys_devs == NULL)
 	{
 		fprintf(stderr, "could not allocate physical devices list\n");
 		return;
@@ -447,18 +688,18 @@ static void config_vulkan(struct globox_render_data* data)
 	error =
 		vkEnumeratePhysicalDevices(
 			data->instance,
-			&phys_devs_len,
-			phys_devs);
+			&(data->phys_devs_len),
+			data->phys_devs);
 
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "could not list physical devices\n");
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
 	// select physical device
-	uint32_t selected_device = 0;
+	data->phys_devs_index = 0;
 	uint32_t selected_queue = 0;
 	bool found_device = false;
 
@@ -471,7 +712,7 @@ static void config_vulkan(struct globox_render_data* data)
 	size_t queue_fams_len =
 		(sizeof (vk_queue_fams)) / (sizeof (struct vk_queue_fams));
 
-	for (uint32_t i = 0; i < phys_devs_len; ++i)
+	for (uint32_t i = 0; i < data->phys_devs_len; ++i)
 	{
 		// get physical device properties
 		VkPhysicalDeviceProperties phys_dev_props =
@@ -480,7 +721,7 @@ static void config_vulkan(struct globox_render_data* data)
 		};
 
 		vkGetPhysicalDeviceProperties(
-			phys_devs[i],
+			data->phys_devs[i],
 			&phys_dev_props);
 
 		printf(
@@ -504,7 +745,7 @@ static void config_vulkan(struct globox_render_data* data)
 		};
 
 		vkGetPhysicalDeviceFeatures(
-			phys_devs[i],
+			data->phys_devs[i],
 			&phys_dev_feat);
 
 		printf(
@@ -627,7 +868,7 @@ static void config_vulkan(struct globox_render_data* data)
 		};
 
 		vkGetPhysicalDeviceMemoryProperties(
-			phys_devs[i],
+			data->phys_devs[i],
 			&phys_devs_mem_props);
 
 		printf("\tphysical device memory types:\n");
@@ -691,7 +932,7 @@ static void config_vulkan(struct globox_render_data* data)
 		VkQueueFamilyProperties* phys_dev_queue_fams;
 
 		vkGetPhysicalDeviceQueueFamilyProperties(
-			phys_devs[i],
+			data->phys_devs[i],
 			&phys_dev_queue_fams_len,
 			NULL);
 
@@ -701,12 +942,12 @@ static void config_vulkan(struct globox_render_data* data)
 		if (phys_dev_queue_fams == NULL)
 		{
 			fprintf(stderr, "could not allocate physical devices list\n");
-			free(phys_devs);
+			free(data->phys_devs);
 			return;
 		}
 
 		vkGetPhysicalDeviceQueueFamilyProperties(
-			phys_devs[i],
+			data->phys_devs[i],
 			&phys_dev_queue_fams_len,
 			phys_dev_queue_fams);
 
@@ -748,7 +989,7 @@ static void config_vulkan(struct globox_render_data* data)
 			VkBool32 support =
 				globox_presentation_support_vulkan(
 					data->globox,
-					phys_devs[i],
+					data->phys_devs[i],
 					k,
 					&globox_error);
 
@@ -756,7 +997,7 @@ static void config_vulkan(struct globox_render_data* data)
 			{
 				globox_error_log(data->globox, &globox_error);
 				globox_clean(data->globox, &globox_error);
-				free(phys_devs);
+				free(data->phys_devs);
 				return;
 			}
 
@@ -767,7 +1008,7 @@ static void config_vulkan(struct globox_render_data* data)
 				&& ((flags & VK_QUEUE_GRAPHICS_BIT) != 0))
 			{
 				found_device = true;
-				selected_device = i;
+				data->phys_devs_index = i;
 				selected_queue = k;
 			}
 		}
@@ -780,12 +1021,12 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "none of the available devices support presentation\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
 	printf("selected device #%u / queue family #%u\n",
-		selected_device,
+		data->phys_devs_index,
 		selected_queue);
 
 	// get device extensions list
@@ -794,7 +1035,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 	error =
 		vkEnumerateDeviceExtensionProperties(
-			phys_devs[selected_device],
+			data->phys_devs[data->phys_devs_index],
 			NULL,
 			&dev_ext_props_len,
 			NULL);
@@ -803,7 +1044,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't count vulkan device extensions\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -813,13 +1054,13 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't allocate vulkan device extensions list\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
 	error =
 		vkEnumerateDeviceExtensionProperties(
-			phys_devs[selected_device],
+			data->phys_devs[data->phys_devs_index],
 			NULL,
 			&dev_ext_props_len,
 			dev_ext_props);
@@ -828,7 +1069,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't list vulkan device extensions\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -851,7 +1092,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "could not allocate found device extensions list\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -889,7 +1130,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't get all the required vulkan device extensions\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -921,7 +1162,7 @@ static void config_vulkan(struct globox_render_data* data)
 	};
 
 	vkCreateDevice(
-		phys_devs[selected_device],
+		data->phys_devs[data->phys_devs_index],
 		&device_create_info,
 		NULL,
 		&(data->device));
@@ -951,7 +1192,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't create present semaphore\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -966,7 +1207,7 @@ static void config_vulkan(struct globox_render_data* data)
 	{
 		fprintf(stderr, "couldn't create render semaphore\n");
 		globox_clean(data->globox, &globox_error);
-		free(phys_devs);
+		free(data->phys_devs);
 		return;
 	}
 
@@ -974,16 +1215,15 @@ static void config_vulkan(struct globox_render_data* data)
 
 	// free resources
 	free(dev_ext_found);
-	free(phys_devs);
-}
-
-static void swapchain_vulkan(struct globox_render_data* data)
-{
-	// TODO
 }
 
 static void clean_vulkan(struct globox_render_data* data)
 {
+	if (data->phys_devs != NULL)
+	{
+		free(data->phys_devs);
+	}
+
 	vkDestroyShaderModule(
 		data->device,
 		data->module_vert,
