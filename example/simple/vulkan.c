@@ -238,7 +238,6 @@ struct globox_render_data
 	VkInstance instance;
 	VkDevice device;
 	VkQueue queue;
-	VkSwapchainKHR swapchain;
 
 	VkShaderModule module_vert;
 	VkShaderModule module_frag;
@@ -262,11 +261,24 @@ struct globox_render_data
 	VkPresentModeKHR* surf_modes;
 	uint32_t surf_modes_index;
 	uint32_t surf_modes_len;
+
+	VkSwapchainKHR swapchain;
+	VkImage* swapchain_images;
+	uint32_t swapchain_images_len;
 };
+
+static inline void free_check(const void* ptr)
+{
+	if (ptr != NULL)
+	{
+		free((void*) ptr);
+	}
+}
 
 // TODO move this back down
 static void swapchain_vulkan(struct globox_render_data* data)
 {
+	printf("creating vulkan swapchain\n");
 	struct globox_error_info globox_error = {0};
 	VkResult error = VK_ERROR_UNKNOWN;
 
@@ -521,6 +533,49 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "could not create a swapchain\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	// get swapchain images
+	error =
+		vkGetSwapchainImagesKHR(
+			data->device,
+			data->swapchain,
+			&(data->swapchain_images_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count swapchain images\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	data->swapchain_images =
+		malloc(data->swapchain_images_len * (sizeof (VkImage)));
+
+	if (data->swapchain_images == NULL)
+	{
+		fprintf(stderr, "could not allocate swapchain images list\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	error =
+		vkGetSwapchainImagesKHR(
+			data->device,
+			data->swapchain,
+			&(data->swapchain_images_len),
+			data->swapchain_images);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list swapchain images\n");
+		free(data->swapchain_images);
 		free(data->surf_modes);
 		free(data->surf_formats);
 		return;
@@ -1463,6 +1518,11 @@ static void render_callback(void* data)
 	{
 		render_data->width = width;
 		render_data->height = height;
+
+		free_check(render_data->swapchain_images);
+		free_check(render_data->surf_modes);
+		free_check(render_data->surf_formats);
+
 		swapchain_vulkan(render_data);
 	}
 
@@ -1569,6 +1629,10 @@ int main(int argc, char** argv)
 		.width = 0,
 		.height = 0,
 		.shaders = true,
+		.phys_devs = NULL,
+		.swapchain_images = NULL,
+		.surf_modes = NULL,
+		.surf_formats = NULL,
 	};
 
 	init_vulkan(&render_data);
@@ -1818,10 +1882,7 @@ int main(int argc, char** argv)
 	}
 
 	// vulkan cleanup
-	if (render_data.phys_devs != NULL)
-	{
-		free(render_data.phys_devs);
-	}
+	free_check(render_data.phys_devs);
 
 	vkDestroyShaderModule(
 		render_data.device,
