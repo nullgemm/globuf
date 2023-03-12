@@ -273,7 +273,12 @@ struct globox_render_data
 
 	// vulkan pipeline
 	VkPipelineShaderStageCreateInfo shader_stages[2];
+	VkPipelineLayout pipeline_layout;
+	VkPipeline pipeline;
+
+	VkRenderPass render_pass;
 	VkCommandPool cmd_pool;
+	VkFramebuffer* framebuffers;
 };
 
 static inline void free_check(const void* ptr)
@@ -670,10 +675,119 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	}
 
 	// create render pass
-	// TODO
+	VkAttachmentDescription color_attach =
+	{
+		.flags = 0,
+		.format = data->format,
+		.samples = VK_SAMPLE_COUNT_1_BIT,
+		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+	};
+
+	VkAttachmentReference color_attach_ref =
+	{
+		.attachment = 0,
+		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+	};
+
+	VkSubpassDescription subpass =
+	{
+		.flags = 0,
+		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		.inputAttachmentCount = 0,
+		.pInputAttachments = NULL,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &color_attach_ref,
+		.pResolveAttachments = NULL,
+		.pDepthStencilAttachment = NULL,
+		.preserveAttachmentCount = 0,
+		.pPreserveAttachments = NULL,
+	};
+
+	VkRenderPassCreateInfo render_pass_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.attachmentCount = 1,
+		.pAttachments = &color_attach,
+		.subpassCount = 1,
+		.pSubpasses = &subpass,
+		.dependencyCount = 0,
+		.pDependencies = NULL,
+	};
+
+	error =
+		vkCreateRenderPass(
+			data->device,
+			&render_pass_info,
+			NULL,
+			&(data->render_pass));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not create render pass\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
 
 	// create framebuffers
-	// TODO
+	data->framebuffers =
+		malloc(data->swapchain_images_len * (sizeof (VkFramebuffer)));
+
+	if (data->framebuffers == NULL)
+	{
+		fprintf(stderr, "could not allocate framebuffers list\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	VkFramebufferCreateInfo framebuffer_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.renderPass = data->render_pass,
+		.attachmentCount = 1,
+		.pAttachments = NULL,
+		.width = data->extent.width,
+		.height = data->extent.height,
+		.layers = 1,
+	};
+
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		framebuffer_create_info.pAttachments =
+			&(data->swapchain_image_views[i]);
+
+		error =
+			vkCreateFramebuffer(
+				data->device,
+				&framebuffer_create_info,
+				NULL,
+				&(data->framebuffers[i]));
+
+		if (error != VK_SUCCESS)
+		{
+			if (data->framebuffers == NULL)
+			{
+				fprintf(stderr, "could not allocate framebuffers list\n");
+				free(data->framebuffers);
+				free(data->swapchain_images);
+				free(data->surf_modes);
+				free(data->surf_formats);
+				return;
+			}
+		}
+	}
 }
 
 static void init_vulkan(struct globox_render_data* data)
@@ -1458,7 +1572,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.pNext = NULL,
 		.flags = 0,
 		.codeSize = square_vert_vk1_size,
-		.pCode = (uint32_t*) &square_vert_vk1,
+		.pCode = (uint32_t*) square_vert_vk1,
 	};
 
 	error =
@@ -1480,7 +1594,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.pNext = NULL,
 		.flags = 0,
 		.codeSize = square_frag_vk1_size,
-		.pCode = (uint32_t*) &square_frag_vk1,
+		.pCode = (uint32_t*) square_frag_vk1,
 	};
 
 	error =
@@ -1514,19 +1628,226 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.stage = VK_SHADER_STAGE_VERTEX_BIT,
+		.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
 		.module = data->module_frag,
 		.pName = "main",
 		.pSpecializationInfo = NULL,
 	};
 
+	// configure dynamic state
 	data->shader_stages[1] = frag_shader_stage_create_info;
 
-	// create fixed function stages
+	VkDynamicState dynamic_states[] =
+	{
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR,
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamic_states_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.dynamicStateCount =
+			(uint32_t) ((sizeof (dynamic_states)) / (sizeof (VkDynamicState))),
+		.pDynamicStates = dynamic_states,
+	};
+
+	// create pipeline stages
+	// vertex input state
+	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.vertexBindingDescriptionCount = 0,
+		.pVertexBindingDescriptions = NULL,
+		.vertexAttributeDescriptionCount = 0,
+		.pVertexAttributeDescriptions = NULL,
+	};
+
+	// pipeline assembly state
+	VkPipelineInputAssemblyStateCreateInfo input_asm_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+		.primitiveRestartEnable = VK_FALSE,
+	};
+
+	// viewport state
+	VkViewport viewport =
+	{
+		.x = 0.0f,
+		.y = 0.0f,
+		.width = data->extent.width,
+		.height = data->extent.height,
+		.minDepth = 0.0f,
+		.maxDepth = 1.0f,
+	};
+
+	VkRect2D scissor =
+	{
+		.offset = {0, 0},
+		.extent = data->extent,
+	};
+
+	VkPipelineViewportStateCreateInfo viewport_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.viewportCount = 1,
+		.pViewports = &viewport,
+		.scissorCount = 1,
+		.pScissors = &scissor,
+	};
+
+	// rasterizer state
+	VkPipelineRasterizationStateCreateInfo rasterizer_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.depthClampEnable = VK_FALSE,
+		.rasterizerDiscardEnable = VK_FALSE,
+		.polygonMode = VK_POLYGON_MODE_FILL,
+		.cullMode = VK_CULL_MODE_BACK_BIT,
+		.frontFace = VK_FRONT_FACE_CLOCKWISE,
+		.depthBiasEnable = VK_FALSE,
+		.depthBiasConstantFactor = 0.0f,
+		.depthBiasClamp = 0.0f,
+		.depthBiasSlopeFactor = 0.0f,
+		.lineWidth = 1.0f,
+	};
+
+	// TODO alpha
+	// multisampling state
+	VkPipelineMultisampleStateCreateInfo multisampling_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+		.sampleShadingEnable = VK_FALSE,
+		.minSampleShading = 1.0f,
+		.pSampleMask = NULL,
+		.alphaToCoverageEnable = VK_FALSE,
+		.alphaToOneEnable = VK_FALSE,
+	};
+
+	// depth/stencil state
 	// TODO
+#if 0
+	VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.depthTestEnable = ,
+		.depthWriteEnable = ,
+		.depthCompareOp = ,
+		.depthBoundsTestEnable = ,
+		.stencilTestEnable = ,
+		.front = ,
+		.back = ,
+		.minDepthBounds = ,
+		.maxDepthBounds = ,
+	};
+#endif
+
+	// TODO alpha
+	// color blend attachment state
+	VkPipelineColorBlendAttachmentState color_blend_attach_state =
+	{
+		.blendEnable = VK_FALSE, // VK_TRUE
+		.srcColorBlendFactor = VK_BLEND_FACTOR_ONE, // VK_BLEND_FACTOR_SRC_ALPHA
+		.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO, // VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA
+		.colorBlendOp = VK_BLEND_OP_ADD,
+		.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+		.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+		.alphaBlendOp = VK_BLEND_OP_ADD,
+		.colorWriteMask =
+			VK_COLOR_COMPONENT_R_BIT
+			| VK_COLOR_COMPONENT_G_BIT
+			| VK_COLOR_COMPONENT_B_BIT
+			| VK_COLOR_COMPONENT_A_BIT,
+	};
+
+	VkPipelineColorBlendStateCreateInfo color_blend_state_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.logicOpEnable = VK_FALSE,
+		.logicOp = VK_LOGIC_OP_COPY,
+		.attachmentCount = 1,
+		.pAttachments = &color_blend_attach_state,
+		.blendConstants = {0.0f, 0.0f, 0.0f, 0.0f},
+	};
 
 	// build the pipeline
-	// TODO
+	VkPipelineLayoutCreateInfo pipeline_layout_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.setLayoutCount = 0,
+		.pSetLayouts = NULL,
+		.pushConstantRangeCount = 0,
+		.pPushConstantRanges = NULL,
+	};
+
+	error =
+		vkCreatePipelineLayout(
+			data->device,
+			&pipeline_layout_create_info,
+			NULL,
+			&(data->pipeline_layout));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// TODO handle pipeline derivation?
+	VkGraphicsPipelineCreateInfo pipeline_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.stageCount = 2,
+		.pStages = data->shader_stages,
+		.pVertexInputState = &vertex_input_state_create_info,
+		.pInputAssemblyState = &input_asm_state_create_info,
+		.pTessellationState = NULL,
+		.pViewportState = &viewport_state_create_info,
+		.pRasterizationState = &rasterizer_state_create_info,
+		.pMultisampleState = &multisampling_state_create_info,
+		.pDepthStencilState = NULL, //&depth_stencil_state_create_info,
+		.pColorBlendState = &color_blend_state_create_info,
+		.pDynamicState = &dynamic_states_create_info,
+		.layout = data->pipeline_layout,
+		.renderPass = data->render_pass,
+		.subpass = 0,
+		.basePipelineHandle = VK_NULL_HANDLE,
+		.basePipelineIndex = -1,
+	};
+
+	error =
+		vkCreateGraphicsPipelines(
+			data->device,
+			VK_NULL_HANDLE,
+			1,
+			&pipeline_create_info,
+			NULL,
+			&(data->pipeline));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
 
 	// create command pool
 	VkCommandPoolCreateInfo cmd_pool_create_info =
@@ -2034,9 +2355,34 @@ int main(int argc, char** argv)
 	}
 
 	// vulkan cleanup
+	for (size_t i = 0; i < render_data.swapchain_images_len; ++i)
+	{
+		vkDestroyFramebuffer(
+			render_data.device,
+			render_data.framebuffers[i],
+			NULL);
+	}
+
+	free_check(render_data.framebuffers);
+
 	vkDestroyCommandPool(
 		render_data.device,
 		render_data.cmd_pool,
+		NULL);
+
+	vkDestroyPipeline(
+		render_data.device,
+		render_data.pipeline,
+		NULL);
+
+	vkDestroyPipelineLayout(
+		render_data.device,
+		render_data.pipeline_layout,
+		NULL);
+
+	vkDestroyRenderPass(
+		render_data.device,
+		render_data.render_pass,
 		NULL);
 
 	swapchain_free_vulkan(&render_data);
