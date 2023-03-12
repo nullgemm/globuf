@@ -1,12 +1,12 @@
 #version 450
-layout (location = 0) in vec4 vPosition;
 
-out gl_PerVertex
-{
-	vec4 gl_Position;
-};
+vec2 positions[4] = vec2[](
+	vec2(-0.5, -0.5),
+	vec2(0.5, -0.5),
+	vec2(0.5, 0.5),
+	vec2(-0.5, 0.5)
+);
 
-void main()
-{
-	gl_Position = vPosition;
+void main() {
+	gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
 }

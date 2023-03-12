@@ -244,6 +244,7 @@ struct globox_render_data
 
 	VkSemaphore semaphore_present;
 	VkSemaphore semaphore_render;
+	VkFence fence_frame;
 
 	// vulkan physical device
 	VkPhysicalDevice* phys_devs;
@@ -276,9 +277,11 @@ struct globox_render_data
 	VkPipelineLayout pipeline_layout;
 	VkPipeline pipeline;
 
-	VkRenderPass render_pass;
-	VkCommandPool cmd_pool;
 	VkFramebuffer* framebuffers;
+	VkRenderPass render_pass;
+
+	VkCommandPool cmd_pool;
+	VkCommandBuffer cmd_buf;
 };
 
 static inline void free_check(const void* ptr)
@@ -367,6 +370,7 @@ static void swapchain_vulkan(struct globox_render_data* data)
 			&& (data->surf_formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
 		{
 			printf("found compatible surface format\n");
+			data->surf_formats_index = i;
 			break;
 		}
 
@@ -708,6 +712,17 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		.pPreserveAttachments = NULL,
 	};
 
+	VkSubpassDependency dependency =
+	{
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = 0,
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		.dependencyFlags = 0,
+	};
+
 	VkRenderPassCreateInfo render_pass_info =
 	{
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
@@ -717,8 +732,8 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		.pAttachments = &color_attach,
 		.subpassCount = 1,
 		.pSubpasses = &subpass,
-		.dependencyCount = 0,
-		.pDependencies = NULL,
+		.dependencyCount = 1,
+		.pDependencies = &dependency,
 	};
 
 	error =
@@ -1551,7 +1566,27 @@ static void config_vulkan(struct globox_render_data* data)
 	}
 
 	// create fence
-	// TODO
+	VkFenceCreateInfo fence_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = VK_FENCE_CREATE_SIGNALED_BIT,
+	};
+
+	error =
+		vkCreateFence(
+			data->device,
+			&fence_create_info,
+			NULL,
+			&(data->fence_frame));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't create frame fence\n");
+		globox_clean(data->globox, &globox_error);
+		free(data->phys_devs);
+		return;
+	}
 
 	// setup validation layers debug callback
 	// TODO
@@ -1871,7 +1906,209 @@ static void pipeline_vulkan(struct globox_render_data* data)
 	}
 
 	// create command buffer
-	// TODO
+	VkCommandBufferAllocateInfo cmd_buf_alloc_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = NULL,
+		.commandPool = data->cmd_pool,
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 1,
+	};
+
+	error =
+		vkAllocateCommandBuffers(
+			data->device,
+			&cmd_buf_alloc_info,
+			&(data->cmd_buf));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+}
+
+static void render_vulkan(struct globox_render_data* data)
+{
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	vkWaitForFences(
+		data->device,
+		1,
+		&(data->fence_frame),
+		VK_TRUE,
+		UINT64_MAX);
+
+	uint32_t image_index;
+
+	vkAcquireNextImageKHR(
+		data->device,
+		data->swapchain,
+		UINT64_MAX,
+		data->semaphore_render,
+		VK_NULL_HANDLE,
+		&image_index);
+
+	vkResetCommandBuffer(
+		data->cmd_buf,
+		0);
+
+	VkCommandBufferBeginInfo cmd_buf_begin_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.pInheritanceInfo = NULL,
+	};
+
+	error =
+		vkBeginCommandBuffer(
+			data->cmd_buf,
+			&cmd_buf_begin_info);
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	VkClearValue clear_color =
+	{
+		.color.float32 =
+		{
+			164.0f / 255.0f,
+			30.0f / 255.0f,
+			34.0f / 255.0f,
+			0.0f,
+		},
+	};
+
+	VkRenderPassBeginInfo render_pass_begin_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		.pNext = NULL,
+		.renderPass = data->render_pass,
+		.framebuffer = data->framebuffers[image_index],
+		.renderArea =
+		{
+			.offset = {0, 0},
+			.extent = data->extent,
+		},
+		.clearValueCount = 1,
+		.pClearValues = &clear_color,
+	};
+
+	vkCmdBeginRenderPass(
+		data->cmd_buf,
+		&render_pass_begin_info,
+		VK_SUBPASS_CONTENTS_INLINE);
+
+	vkCmdBindPipeline(
+		data->cmd_buf,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		data->pipeline);
+
+	VkViewport viewport =
+	{
+		.x = 0.0f,
+		.y = 0.0f,
+		.width = data->extent.width,
+		.height = data->extent.height,
+		.minDepth = 0.0f,
+		.maxDepth = 1.0f,
+	};
+
+	vkCmdSetViewport(
+		data->cmd_buf,
+		0,
+		1,
+		&viewport);
+
+	VkRect2D scissor =
+	{
+		.offset = {0, 0},
+		.extent = data->extent,
+	};
+
+	vkCmdSetScissor(
+		data->cmd_buf,
+		0,
+		1,
+		&scissor);
+
+	vkCmdDraw(
+		data->cmd_buf,
+		4,
+		1,
+		0,
+		0);
+
+	vkCmdEndRenderPass(
+		data->cmd_buf);
+
+	error =
+		vkEndCommandBuffer(
+			data->cmd_buf);
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	vkResetFences(
+		data->device,
+		1,
+		&(data->fence_frame));
+
+	// submit the command buffer
+	VkPipelineStageFlags dest_stage_mask =
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	VkSubmitInfo submit_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &(data->semaphore_render),
+		.pWaitDstStageMask = &dest_stage_mask,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &(data->cmd_buf),
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = &(data->semaphore_present),
+	};
+
+	error =
+		vkQueueSubmit(
+			data->queue,
+			1,
+			&submit_info,
+			data->fence_frame);
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// present
+	VkPresentInfoKHR present_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.pNext = NULL,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &(data->semaphore_present),
+		.swapchainCount = 1,
+		.pSwapchains = &(data->swapchain),
+		.pImageIndices = &image_index,
+		.pResults = NULL,
+	};
+
+	error =
+		vkQueuePresentKHR(
+			data->queue,
+			&present_info);
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
 }
 
 static void event_callback(void* data, void* event)
@@ -2007,7 +2244,7 @@ static void render_callback(void* data)
 	}
 
 	// render with vulkan
-	// TODO
+	render_vulkan(render_data);
 
 	globox_update_content(globox, NULL, &error);
 
@@ -2400,6 +2637,11 @@ int main(int argc, char** argv)
 
 	vkDeviceWaitIdle(
 		render_data.device);
+
+	vkDestroyFence(
+		render_data.device,
+		render_data.fence_frame,
+		NULL);
 
 	vkDestroySemaphore(
 		render_data.device,
