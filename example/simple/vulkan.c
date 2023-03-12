@@ -282,6 +282,9 @@ struct globox_render_data
 
 	VkCommandPool cmd_pool;
 	VkCommandBuffer cmd_buf;
+
+	VkBuffer vertex_buf;
+	VkDeviceMemory vertex_buf_mem;
 };
 
 static inline void free_check(const void* ptr)
@@ -1705,15 +1708,30 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	// create pipeline stages
 	// vertex input state
+	VkVertexInputBindingDescription vertex_binding_desc =
+	{
+		.binding = 0,
+		.stride = 2 * (sizeof (float)),
+		.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+	};
+
+	VkVertexInputAttributeDescription vertex_attr_desc =
+	{
+		.location = 0,
+		.binding = 0,
+		.format = VK_FORMAT_R32G32_SFLOAT,
+		.offset = 0,
+	};
+
 	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info =
 	{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.vertexBindingDescriptionCount = 0,
-		.pVertexBindingDescriptions = NULL,
-		.vertexAttributeDescriptionCount = 0,
-		.pVertexAttributeDescriptions = NULL,
+		.vertexBindingDescriptionCount = 1,
+		.pVertexBindingDescriptions = &vertex_binding_desc,
+		.vertexAttributeDescriptionCount = 1,
+		.pVertexAttributeDescriptions = &vertex_attr_desc,
 	};
 
 	// pipeline assembly state
@@ -1939,6 +1957,106 @@ static void pipeline_vulkan(struct globox_render_data* data)
 	{
 		return;
 	}
+
+	// create vertex buffer
+	VkBufferCreateInfo buffer_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.size = 4 * 2 * (sizeof (float)), // four vertices
+		.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+		.queueFamilyIndexCount = 0,
+		.pQueueFamilyIndices = NULL,
+	};
+
+	error =
+		vkCreateBuffer(
+			data->device,
+			&buffer_create_info,
+			NULL,
+			&(data->vertex_buf));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// get buffer memory requirements
+	VkMemoryRequirements mem_req =
+	{
+		0,
+	};
+
+	vkGetBufferMemoryRequirements(
+		data->device,
+		data->vertex_buf,
+		&mem_req);
+
+	// find compatible memory type
+	VkPhysicalDeviceMemoryProperties mem_props =
+	{
+		0,
+	};
+
+	vkGetPhysicalDeviceMemoryProperties(
+		data->phys_devs[data->phys_devs_index],
+		&mem_props);
+
+	uint32_t mem_type = 0;
+	uint32_t mem_type_bit = 1;
+	VkMemoryPropertyFlags buffer_flags =
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+		| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+	while (mem_type < mem_props.memoryTypeCount)
+	{
+		VkMemoryPropertyFlags mem_flags =
+			mem_props.memoryTypes[mem_type].propertyFlags;
+
+		if (((mem_req.memoryTypeBits & mem_type_bit) == mem_type_bit)
+			&& ((mem_flags & buffer_flags) == buffer_flags))
+		{
+			break;
+		}
+
+		mem_type_bit <<= 1;
+		mem_type += 1;
+	}
+
+	// allocate memory
+	VkMemoryAllocateInfo alloc_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		.pNext = NULL,
+		.allocationSize = mem_req.size,
+		.memoryTypeIndex = mem_type,
+	};
+
+	error =
+		vkAllocateMemory(
+			data->device,
+			&alloc_info,
+			NULL,
+			&(data->vertex_buf_mem));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	error =
+		vkBindBufferMemory(
+			data->device,
+			data->vertex_buf,
+			data->vertex_buf_mem,
+			0);
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
 }
 
 static void render_vulkan(struct globox_render_data* data)
@@ -1946,6 +2064,7 @@ static void render_vulkan(struct globox_render_data* data)
 	VkResult error = VK_ERROR_UNKNOWN;
 	uint32_t image_index;
 
+	// start
 	vkWaitForFences(
 		data->device,
 		1,
@@ -1983,6 +2102,7 @@ static void render_vulkan(struct globox_render_data* data)
 		return;
 	}
 
+	// clear color
 	VkClearValue clear_color =
 	{
 		.color.float32 =
@@ -2014,11 +2134,47 @@ static void render_vulkan(struct globox_render_data* data)
 		&render_pass_begin_info,
 		VK_SUBPASS_CONTENTS_INLINE);
 
+	// pipeline
 	vkCmdBindPipeline(
 		data->cmd_buf,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		data->pipeline);
 
+	// vertex buffer
+	float vertices[] =
+	{
+		-100.0f / data->width, +100.0f / data->height,
+		-100.0f / data->width, -100.0f / data->height,
+		+100.0f / data->width, -100.0f / data->height,
+		+100.0f / data->width, +100.0f / data->height,
+	};
+
+	void* vertex_data;
+
+	vkMapMemory(
+		data->device,
+		data->vertex_buf_mem,
+		0,
+		sizeof (vertices),
+		0,
+		&vertex_data);
+
+	memcpy(vertex_data, vertices, sizeof (vertices));
+
+	vkUnmapMemory(
+		data->device,
+		data->vertex_buf_mem);
+
+	VkDeviceSize vertex_offsets = 0;
+
+	vkCmdBindVertexBuffers(
+		data->cmd_buf,
+		0,
+		1,
+		&(data->vertex_buf),
+		&vertex_offsets);
+
+	// viewport
 	VkViewport viewport =
 	{
 		.x = 0.0f,
@@ -2035,6 +2191,7 @@ static void render_vulkan(struct globox_render_data* data)
 		1,
 		&viewport);
 
+	// scissor
 	VkRect2D scissor =
 	{
 		.offset = {0, 0},
@@ -2047,6 +2204,7 @@ static void render_vulkan(struct globox_render_data* data)
 		1,
 		&scissor);
 
+	// draw
 	vkCmdDraw(
 		data->cmd_buf,
 		4,
@@ -2054,6 +2212,7 @@ static void render_vulkan(struct globox_render_data* data)
 		0,
 		0);
 
+	// end
 	vkCmdEndRenderPass(
 		data->cmd_buf);
 
@@ -2606,6 +2765,16 @@ int main(int argc, char** argv)
 	// vulkan cleanup
 	vkDeviceWaitIdle(
 		render_data.device);
+
+	vkFreeMemory(
+		render_data.device,
+		render_data.vertex_buf_mem,
+		NULL);
+
+	vkDestroyBuffer(
+		render_data.device,
+		render_data.vertex_buf,
+		NULL);
 
 	vkDestroyCommandPool(
 		render_data.device,
