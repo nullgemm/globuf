@@ -295,8 +295,18 @@ static inline void free_check(const void* ptr)
 // TODO move this back down
 static void swapchain_free_vulkan(struct globox_render_data* data)
 {
+	vkDestroyRenderPass(
+		data->device,
+		data->render_pass,
+		NULL);
+
 	for (size_t i = 0; i < data->swapchain_images_len; ++i)
 	{
+		vkDestroyFramebuffer(
+			data->device,
+			data->framebuffers[i],
+			NULL);
+
 		vkDestroyImageView(
 			data->device,
 			data->swapchain_image_views[i],
@@ -307,6 +317,11 @@ static void swapchain_free_vulkan(struct globox_render_data* data)
 	free_check(data->swapchain_images);
 	free_check(data->surf_modes);
 	free_check(data->surf_formats);
+
+	vkDestroySwapchainKHR(
+		data->device,
+		data->swapchain,
+		NULL);
 }
 
 static void swapchain_vulkan(struct globox_render_data* data)
@@ -557,7 +572,7 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		.presentMode = data->surf_modes[data->surf_modes_index],
 		.clipped = VK_TRUE,
-		.oldSwapchain = data->swapchain,
+		.oldSwapchain = VK_NULL_HANDLE,
 	};
 
 	error =
@@ -1846,7 +1861,6 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	// TODO handle pipeline derivation?
 	VkGraphicsPipelineCreateInfo pipeline_create_info =
 	{
 		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -1930,6 +1944,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 static void render_vulkan(struct globox_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
+	uint32_t image_index;
 
 	vkWaitForFences(
 		data->device,
@@ -1937,8 +1952,6 @@ static void render_vulkan(struct globox_render_data* data)
 		&(data->fence_frame),
 		VK_TRUE,
 		UINT64_MAX);
-
-	uint32_t image_index;
 
 	vkAcquireNextImageKHR(
 		data->device,
@@ -2232,7 +2245,7 @@ static void render_callback(void* data)
 	{
 		render_data->width = width;
 		render_data->height = height;
-
+		vkDeviceWaitIdle(render_data->device);
 		swapchain_free_vulkan(render_data);
 		swapchain_vulkan(render_data);
 	}
@@ -2343,6 +2356,7 @@ int main(int argc, char** argv)
 		.surf_modes = NULL,
 		.surf_formats = NULL,
 		.swapchain_images_len = 0,
+		.render_pass = VK_NULL_HANDLE,
 	};
 
 	init_vulkan(&render_data);
@@ -2568,10 +2582,8 @@ int main(int argc, char** argv)
 
 	// free resources correctly
 	// vulkan cleanup
-	vkDestroySwapchainKHR(
-		render_data.device,
-		render_data.swapchain,
-		NULL);
+	vkDeviceWaitIdle( render_data.device);
+	swapchain_free_vulkan(&render_data);
 
 	// globox cleanup
 	globox_window_destroy(globox, &error);
@@ -2592,15 +2604,8 @@ int main(int argc, char** argv)
 	}
 
 	// vulkan cleanup
-	for (size_t i = 0; i < render_data.swapchain_images_len; ++i)
-	{
-		vkDestroyFramebuffer(
-			render_data.device,
-			render_data.framebuffers[i],
-			NULL);
-	}
-
-	free_check(render_data.framebuffers);
+	vkDeviceWaitIdle(
+		render_data.device);
 
 	vkDestroyCommandPool(
 		render_data.device,
@@ -2617,12 +2622,7 @@ int main(int argc, char** argv)
 		render_data.pipeline_layout,
 		NULL);
 
-	vkDestroyRenderPass(
-		render_data.device,
-		render_data.render_pass,
-		NULL);
-
-	swapchain_free_vulkan(&render_data);
+	free_check(render_data.framebuffers);
 	free_check(render_data.phys_devs);
 
 	vkDestroyShaderModule(
