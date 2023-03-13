@@ -1,4 +1,3 @@
-// TODO handle all errors properly
 #include "globox.h"
 
 #ifdef GLOBOX_EXAMPLE_X11
@@ -1760,26 +1759,6 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.alphaToOneEnable = VK_FALSE,
 	};
 
-	// depth/stencil state
-	// TODO
-#if 0
-	VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.depthTestEnable = ,
-		.depthWriteEnable = ,
-		.depthCompareOp = ,
-		.depthBoundsTestEnable = ,
-		.stencilTestEnable = ,
-		.front = ,
-		.back = ,
-		.minDepthBounds = ,
-		.maxDepthBounds = ,
-	};
-#endif
-
 	// TODO alpha
 	// color blend attachment state
 	VkPipelineColorBlendAttachmentState color_blend_attach_state =
@@ -1848,7 +1827,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.pViewportState = &viewport_state_create_info,
 		.pRasterizationState = &rasterizer_state_create_info,
 		.pMultisampleState = &multisampling_state_create_info,
-		.pDepthStencilState = NULL, //&depth_stencil_state_create_info,
+		.pDepthStencilState = NULL,
 		.pColorBlendState = &color_blend_state_create_info,
 		.pDynamicState = &dynamic_states_create_info,
 		.layout = data->pipeline_layout,
