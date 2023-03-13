@@ -56,6 +56,21 @@ struct vk_inst_layers vk_inst_layers[] =
 #endif
 };
 
+// additional instance extensions to enable
+struct vk_inst_ext
+{
+	const char* name;
+	bool found;
+};
+
+struct vk_inst_ext vk_inst_ext[] =
+{
+	{
+		.name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+		.found = false,
+	},
+};
+
 // device extensions to enable
 struct vk_dev_ext
 {
@@ -363,13 +378,58 @@ static void init_vulkan(struct globox_render_data* data)
 			inst_ext_props[i].specVersion);
 	}
 
-	free(inst_ext_props);
+	// check needed instance extensions
+	size_t inst_ext_len = (sizeof (vk_inst_ext)) / (sizeof (struct vk_inst_ext));
+	const char** inst_ext_found = malloc((inst_ext_len + ext_globox_len) * (sizeof (const char*)));
+	uint32_t inst_ext_found_count = 0;
+
+	if (inst_ext_found == NULL)
+	{
+		fprintf(stderr, "could not allocate found instance extensions list\n");
+		return;
+	}
 
 	printf("using vulkan instance extensions:\n");
 
 	for (uint32_t i = 0; i < ext_globox_len; ++i)
 	{
+		inst_ext_found[inst_ext_len + i] = ext_globox[i];
 		printf("\t%s\n", ext_globox[i]);
+	}
+
+	printf("using additional vulkan instance extensions:\n");
+
+	for (uint32_t i = 0; i < inst_ext_count; ++i)
+	{
+		uint32_t k = 0;
+
+		while (k < inst_ext_len)
+		{
+			if ((vk_inst_ext[k].found == false)
+				&& (strcmp(inst_ext_props[i].extensionName, vk_inst_ext[k].name) == 0))
+			{
+				// save as an extension to request
+				inst_ext_found[inst_ext_found_count] = vk_inst_ext[k].name;
+				printf("\t%s\n", inst_ext_found[inst_ext_found_count]);
+				++inst_ext_found_count;
+
+				// skip saved extensions
+				vk_inst_ext[k].found = true;
+				++k;
+
+				continue;
+			}
+
+			++k;
+		}
+	}
+
+	free(inst_ext_props);
+
+	if (inst_ext_found_count < inst_ext_len)
+	{
+		fprintf(stderr, "couldn't get all the required vulkan instance extensions\n");
+		return;
 	}
 
 	// get layers list
@@ -415,7 +475,7 @@ static void init_vulkan(struct globox_render_data* data)
 	size_t inst_layers_len =
 		(sizeof (vk_inst_layers)) / (sizeof (struct vk_inst_layers));
 	const char** inst_layers_found =
-		malloc(inst_layers_len);
+		malloc(inst_layers_len * (sizeof (const char*)));
 	uint32_t inst_layers_found_count =
 		0;
 
@@ -475,12 +535,13 @@ static void init_vulkan(struct globox_render_data* data)
 		.pApplicationInfo = &app_info,
 		.enabledLayerCount = inst_layers_found_count,
 		.ppEnabledLayerNames = inst_layers_found,
-		.enabledExtensionCount = ext_globox_len,
-		.ppEnabledExtensionNames = ext_globox,
+		.enabledExtensionCount = inst_ext_len + ext_globox_len,
+		.ppEnabledExtensionNames = inst_ext_found,
 	};
 
 	error = vkCreateInstance(&instance_info, NULL, &(data->instance));
 	free(inst_layers_found);
+	free(inst_ext_found);
 
 	if (error != VK_SUCCESS)
 	{
@@ -928,7 +989,7 @@ static void config_vulkan(struct globox_render_data* data)
 
 	// check needed device extensions
 	size_t dev_ext_len = (sizeof (vk_dev_ext)) / (sizeof (struct vk_dev_ext));
-	const char** dev_ext_found = malloc(dev_ext_len);
+	const char** dev_ext_found = malloc(dev_ext_len * (sizeof (const char*)));
 	uint32_t dev_ext_found_count = 0;
 
 	if (dev_ext_found == NULL)
@@ -939,7 +1000,6 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	// check layers
 	printf("using vulkan device extensions:\n");
 
 	for (uint32_t i = 0; i < dev_ext_props_len; ++i)
@@ -951,12 +1011,12 @@ static void config_vulkan(struct globox_render_data* data)
 			if ((vk_dev_ext[k].found == false)
 				&& (strcmp(dev_ext_props[i].extensionName, vk_dev_ext[k].name) == 0))
 			{
-				// save as a layer to request
+				// save as an extension to request
 				dev_ext_found[dev_ext_found_count] = vk_dev_ext[k].name;
 				printf("\t%s\n", dev_ext_found[dev_ext_found_count]);
 				++dev_ext_found_count;
 
-				// skip saved layers
+				// skip saved extensions
 				vk_dev_ext[k].found = true;
 				++k;
 
