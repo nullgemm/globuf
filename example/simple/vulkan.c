@@ -2548,20 +2548,13 @@ int main(int argc, char** argv)
 	}
 
 	// initialize vulkan
-	// TODO reorder (and complete)
 	struct globox_render_data render_data =
 	{
 		.globox = globox,
 		.width = 0,
 		.height = 0,
 		.shaders = true,
-		.phys_devs = NULL,
-		.swapchain = VK_NULL_HANDLE,
-		.swapchain_images = NULL,
-		.surf_modes = NULL,
-		.surf_formats = NULL,
 		.swapchain_images_len = 0,
-		.render_pass = VK_NULL_HANDLE,
 	};
 
 	init_vulkan(&render_data);
