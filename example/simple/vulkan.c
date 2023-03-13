@@ -295,534 +295,6 @@ static inline void free_check(const void* ptr)
 	}
 }
 
-// TODO move this back down
-static void swapchain_free_vulkan(struct globox_render_data* data)
-{
-	vkDestroyRenderPass(
-		data->device,
-		data->render_pass,
-		NULL);
-
-	for (size_t i = 0; i < data->swapchain_images_len; ++i)
-	{
-		vkDestroyFramebuffer(
-			data->device,
-			data->framebuffers[i],
-			NULL);
-
-		vkDestroyImageView(
-			data->device,
-			data->swapchain_image_views[i],
-			NULL);
-	}
-
-	free_check(data->swapchain_image_views);
-	free_check(data->swapchain_images);
-	free_check(data->surf_modes);
-	free_check(data->surf_formats);
-
-	vkDestroySwapchainKHR(
-		data->device,
-		data->swapchain,
-		NULL);
-}
-
-static void swapchain_vulkan(struct globox_render_data* data)
-{
-	printf("creating vulkan swapchain\n");
-	struct globox_error_info globox_error = {0};
-	VkResult error = VK_ERROR_UNKNOWN;
-
-	// get the vulkan surface from globox
-	data->surf = globox_get_surface_vulkan(data->globox, &globox_error);
-
-	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
-	{
-		globox_error_log(data->globox, &globox_error);
-		return;
-	}
-
-	// get surface formats
-	error =
-		vkGetPhysicalDeviceSurfaceFormatsKHR(
-			data->phys_devs[data->phys_devs_index],
-			*(data->surf),
-			&(data->surf_formats_len),
-			NULL);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not count surface formats\n");
-		return;
-	}
-
-	data->surf_formats =
-		malloc(data->surf_formats_len * (sizeof (VkSurfaceFormatKHR)));
-
-	if (data->surf_formats == NULL)
-	{
-		fprintf(stderr, "could not allocate surface formats list\n");
-		return;
-	}
-
-	error =
-		vkGetPhysicalDeviceSurfaceFormatsKHR(
-			data->phys_devs[data->phys_devs_index],
-			*(data->surf),
-			&(data->surf_formats_len),
-			data->surf_formats);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not list surface formats\n");
-		free(data->surf_formats);
-		return;
-	}
-
-	// check vulkan surface formats
-	uint32_t i = 0;
-
-	while (i < data->surf_formats_len)
-	{
-		if ((data->surf_formats[i].format == VK_FORMAT_B8G8R8A8_UNORM)
-			&& (data->surf_formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
-		{
-			printf("found compatible surface format\n");
-			data->surf_formats_index = i;
-			break;
-		}
-
-		++i;
-	}
-
-	if (i == data->surf_formats_len)
-	{
-		fprintf(stderr, "could not find compatible surface format");
-		free(data->surf_formats);
-		return;
-	}
-
-	// get surface capabilities
-	error =
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-			data->phys_devs[data->phys_devs_index],
-			*(data->surf),
-			&(data->surf_caps));
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not get surface capabilities\n");
-		free(data->surf_formats);
-		return;
-	}
-
-	// get surface present modes
-	error =
-		vkGetPhysicalDeviceSurfacePresentModesKHR(
-			data->phys_devs[data->phys_devs_index],
-			*(data->surf),
-			&(data->surf_modes_len),
-			NULL);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not count surface presentation modes\n");
-		free(data->surf_formats);
-		return;
-	}
-
-	data->surf_modes =
-		malloc(data->surf_modes_len * (sizeof (VkPresentModeKHR)));
-
-	if (data->surf_modes == NULL)
-	{
-		fprintf(stderr, "could not allocate surface presentation modes list\n");
-		free(data->surf_formats);
-		return;
-	}
-
-	error =
-		vkGetPhysicalDeviceSurfacePresentModesKHR(
-			data->phys_devs[data->phys_devs_index],
-			*(data->surf),
-			&(data->surf_modes_len),
-			data->surf_modes);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not list surface presentation modes\n");
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	if (data->surf_modes_len == 0)
-	{
-		fprintf(stderr, "could not find any surface presentation mode\n");
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	printf("vulkan surface presentation modes:\n");
-
-	size_t pres_modes_len =
-		(sizeof (vk_pres_modes)) / (sizeof (struct vk_pres_modes));
-
-	size_t surf_mode_order =
-		pres_modes_len;
-
-	for (uint32_t i = 0; i < data->surf_modes_len; ++i)
-	{
-		size_t k = 0;
-
-		while (k < pres_modes_len)
-		{
-			if (data->surf_modes[i] == vk_pres_modes[k].mode)
-			{
-				// print presentation mode name
-				printf("\t%s\n", vk_pres_modes[k].name);
-
-				// save as presentation mode if higher priority than current one
-				if (surf_mode_order > k)
-				{
-					data->surf_modes_index = i;
-					surf_mode_order = k;
-				}
-
-				break;
-			}
-
-			++k;
-		}
-	}
-
-	// print selected presentation mode
-	const char* mode_name;
-
-	if (surf_mode_order == pres_modes_len)
-	{
-		mode_name = "unknown";
-		// in case there is absolutely nothing we know of, use whatever we can
-		data->surf_modes_index = 0;
-	}
-	else
-	{
-		mode_name = vk_pres_modes[surf_mode_order].name;
-	}
-
-	printf("using vulkan surface presentation mode:\n\t%s\n", mode_name);
-
-	// create swapchain
-	uint32_t image_count = data->surf_caps.minImageCount + 1;
-
-	if ((data->surf_caps.maxImageCount > 0)
-		&& (image_count > data->surf_caps.maxImageCount))
-	{
-		image_count = data->surf_caps.maxImageCount;
-	}
-
-	data->extent = data->surf_caps.currentExtent;
-
-	if ((data->extent.width == UINT32_MAX) && (data->extent.height == UINT32_MAX))
-	{
-		data->extent.width = data->width;
-		data->extent.height = data->height;
-
-		if (data->extent.width < data->surf_caps.minImageExtent.width)
-		{
-			data->extent.width = data->surf_caps.minImageExtent.width;
-		}
-		else if (data->extent.width > data->surf_caps.maxImageExtent.width)
-		{
-			data->extent.width = data->surf_caps.maxImageExtent.width;
-		}
-
-		if (data->extent.height < data->surf_caps.minImageExtent.height)
-		{
-			data->extent.height = data->surf_caps.minImageExtent.height;
-		}
-		else if (data->extent.height > data->surf_caps.maxImageExtent.height)
-		{
-			data->extent.height = data->surf_caps.maxImageExtent.height;
-		}
-	}
-
-	data->format = data->surf_formats[data->surf_formats_index].format;
-	data->color_space = data->surf_formats[data->surf_formats_index].colorSpace;
-
-	VkSwapchainCreateInfoKHR swapchain_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-		.pNext = NULL,
-		.flags = 0,
-		.surface = *(data->surf),
-		.minImageCount = image_count,
-		.imageFormat = data->format,
-		.imageColorSpace = data->color_space,
-		.imageExtent = data->extent,
-		.imageArrayLayers = 1,
-		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-
-		// again we only support presentation from the graphics queue
-		// so we can just always use the exclusive image sharing mode
-		// (for which queue family index count & indices are ignored)
-		.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
-		.queueFamilyIndexCount = 0,
-		.pQueueFamilyIndices = NULL,
-
-		.preTransform = data->surf_caps.currentTransform,
-		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.presentMode = data->surf_modes[data->surf_modes_index],
-		.clipped = VK_TRUE,
-		.oldSwapchain = VK_NULL_HANDLE,
-	};
-
-	error =
-		vkCreateSwapchainKHR(
-			data->device,
-			&swapchain_create_info,
-			NULL,
-			&(data->swapchain));
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not create a swapchain\n");
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	// get swapchain images
-	error =
-		vkGetSwapchainImagesKHR(
-			data->device,
-			data->swapchain,
-			&(data->swapchain_images_len),
-			NULL);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not count swapchain images\n");
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	data->swapchain_images =
-		malloc(data->swapchain_images_len * (sizeof (VkImage)));
-
-	if (data->swapchain_images == NULL)
-	{
-		fprintf(stderr, "could not allocate swapchain images list\n");
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	error =
-		vkGetSwapchainImagesKHR(
-			data->device,
-			data->swapchain,
-			&(data->swapchain_images_len),
-			data->swapchain_images);
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not list swapchain images\n");
-		free(data->swapchain_images);
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	// create image views
-	data->swapchain_image_views =
-		malloc(data->swapchain_images_len * (sizeof (VkImageView)));
-
-	if (data->swapchain_image_views == NULL)
-	{
-		fprintf(stderr, "could not allocate swapchain image view list\n");
-		free(data->swapchain_images);
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	VkImageViewCreateInfo image_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.image = VK_NULL_HANDLE,
-		.viewType = VK_IMAGE_VIEW_TYPE_2D,
-		.format = data->format,
-		.components =
-		{
-			.r = VK_COMPONENT_SWIZZLE_IDENTITY,
-			.g = VK_COMPONENT_SWIZZLE_IDENTITY,
-			.b = VK_COMPONENT_SWIZZLE_IDENTITY,
-			.a = VK_COMPONENT_SWIZZLE_IDENTITY,
-		},
-		.subresourceRange =
-		{
-			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-			.baseMipLevel = 0,
-			.levelCount = 1,
-			.baseArrayLayer = 0,
-			.layerCount = 1,
-		},
-	};
-
-	for (size_t i = 0; i < data->swapchain_images_len; ++i)
-	{
-		image_create_info.image = data->swapchain_images[i];
-
-		error =
-			vkCreateImageView(
-				data->device,
-				&image_create_info,
-				NULL,
-				&(data->swapchain_image_views[i]));
-
-		if (error != VK_SUCCESS)
-		{
-			fprintf(stderr, "could not list swapchain images\n");
-			free(data->swapchain_image_views);
-			free(data->swapchain_images);
-			free(data->surf_modes);
-			free(data->surf_formats);
-			return;
-		}
-	}
-
-	// create render pass
-	VkAttachmentDescription color_attach =
-	{
-		.flags = 0,
-		.format = data->format,
-		.samples = VK_SAMPLE_COUNT_1_BIT,
-		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-	};
-
-	VkAttachmentReference color_attach_ref =
-	{
-		.attachment = 0,
-		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-	};
-
-	VkSubpassDescription subpass =
-	{
-		.flags = 0,
-		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-		.inputAttachmentCount = 0,
-		.pInputAttachments = NULL,
-		.colorAttachmentCount = 1,
-		.pColorAttachments = &color_attach_ref,
-		.pResolveAttachments = NULL,
-		.pDepthStencilAttachment = NULL,
-		.preserveAttachmentCount = 0,
-		.pPreserveAttachments = NULL,
-	};
-
-	VkSubpassDependency dependency =
-	{
-		.srcSubpass = VK_SUBPASS_EXTERNAL,
-		.dstSubpass = 0,
-		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		.srcAccessMask = 0,
-		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-		.dependencyFlags = 0,
-	};
-
-	VkRenderPassCreateInfo render_pass_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.attachmentCount = 1,
-		.pAttachments = &color_attach,
-		.subpassCount = 1,
-		.pSubpasses = &subpass,
-		.dependencyCount = 1,
-		.pDependencies = &dependency,
-	};
-
-	error =
-		vkCreateRenderPass(
-			data->device,
-			&render_pass_info,
-			NULL,
-			&(data->render_pass));
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "could not create render pass\n");
-		free(data->swapchain_images);
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	// create framebuffers
-	data->framebuffers =
-		malloc(data->swapchain_images_len * (sizeof (VkFramebuffer)));
-
-	if (data->framebuffers == NULL)
-	{
-		fprintf(stderr, "could not allocate framebuffers list\n");
-		free(data->swapchain_images);
-		free(data->surf_modes);
-		free(data->surf_formats);
-		return;
-	}
-
-	VkFramebufferCreateInfo framebuffer_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.renderPass = data->render_pass,
-		.attachmentCount = 1,
-		.pAttachments = NULL,
-		.width = data->extent.width,
-		.height = data->extent.height,
-		.layers = 1,
-	};
-
-	for (size_t i = 0; i < data->swapchain_images_len; ++i)
-	{
-		framebuffer_create_info.pAttachments =
-			&(data->swapchain_image_views[i]);
-
-		error =
-			vkCreateFramebuffer(
-				data->device,
-				&framebuffer_create_info,
-				NULL,
-				&(data->framebuffers[i]));
-
-		if (error != VK_SUCCESS)
-		{
-			if (data->framebuffers == NULL)
-			{
-				fprintf(stderr, "could not allocate framebuffers list\n");
-				free(data->framebuffers);
-				free(data->swapchain_images);
-				free(data->surf_modes);
-				free(data->surf_formats);
-				return;
-			}
-		}
-	}
-}
-
 static void init_vulkan(struct globox_render_data* data)
 {
 	struct globox_error_info globox_error = {0};
@@ -1613,83 +1085,566 @@ static void config_vulkan(struct globox_render_data* data)
 	free(dev_ext_found);
 }
 
-// TODO move this in main()?
+static void swapchain_free_vulkan(struct globox_render_data* data)
+{
+	vkDestroyRenderPass(
+		data->device,
+		data->render_pass,
+		NULL);
+
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		vkDestroyFramebuffer(
+			data->device,
+			data->framebuffers[i],
+			NULL);
+
+		vkDestroyImageView(
+			data->device,
+			data->swapchain_image_views[i],
+			NULL);
+	}
+
+	free_check(data->swapchain_image_views);
+	free_check(data->swapchain_images);
+	free_check(data->surf_modes);
+	free_check(data->surf_formats);
+
+	vkDestroySwapchainKHR(
+		data->device,
+		data->swapchain,
+		NULL);
+}
+
+static void swapchain_vulkan(struct globox_render_data* data)
+{
+	printf("creating vulkan swapchain\n");
+	struct globox_error_info globox_error = {0};
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// get the vulkan surface from globox
+	data->surf = globox_get_surface_vulkan(data->globox, &globox_error);
+
+	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(data->globox, &globox_error);
+		return;
+	}
+
+	// get surface formats
+	error =
+		vkGetPhysicalDeviceSurfaceFormatsKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_formats_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count surface formats\n");
+		return;
+	}
+
+	data->surf_formats =
+		malloc(data->surf_formats_len * (sizeof (VkSurfaceFormatKHR)));
+
+	if (data->surf_formats == NULL)
+	{
+		fprintf(stderr, "could not allocate surface formats list\n");
+		return;
+	}
+
+	error =
+		vkGetPhysicalDeviceSurfaceFormatsKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_formats_len),
+			data->surf_formats);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list surface formats\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	// check vulkan surface formats
+	uint32_t i = 0;
+
+	while (i < data->surf_formats_len)
+	{
+		if ((data->surf_formats[i].format == VK_FORMAT_B8G8R8A8_UNORM)
+			&& (data->surf_formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
+		{
+			printf("found compatible surface format\n");
+			data->surf_formats_index = i;
+			break;
+		}
+
+		++i;
+	}
+
+	if (i == data->surf_formats_len)
+	{
+		fprintf(stderr, "could not find compatible surface format");
+		free(data->surf_formats);
+		return;
+	}
+
+	// get surface capabilities
+	error =
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_caps));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not get surface capabilities\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	// get surface present modes
+	error =
+		vkGetPhysicalDeviceSurfacePresentModesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_modes_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count surface presentation modes\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	data->surf_modes =
+		malloc(data->surf_modes_len * (sizeof (VkPresentModeKHR)));
+
+	if (data->surf_modes == NULL)
+	{
+		fprintf(stderr, "could not allocate surface presentation modes list\n");
+		free(data->surf_formats);
+		return;
+	}
+
+	error =
+		vkGetPhysicalDeviceSurfacePresentModesKHR(
+			data->phys_devs[data->phys_devs_index],
+			*(data->surf),
+			&(data->surf_modes_len),
+			data->surf_modes);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list surface presentation modes\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	if (data->surf_modes_len == 0)
+	{
+		fprintf(stderr, "could not find any surface presentation mode\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	printf("vulkan surface presentation modes:\n");
+
+	size_t pres_modes_len =
+		(sizeof (vk_pres_modes)) / (sizeof (struct vk_pres_modes));
+
+	size_t surf_mode_order =
+		pres_modes_len;
+
+	for (uint32_t i = 0; i < data->surf_modes_len; ++i)
+	{
+		size_t k = 0;
+
+		while (k < pres_modes_len)
+		{
+			if (data->surf_modes[i] == vk_pres_modes[k].mode)
+			{
+				// print presentation mode name
+				printf("\t%s\n", vk_pres_modes[k].name);
+
+				// save as presentation mode if higher priority than current one
+				if (surf_mode_order > k)
+				{
+					data->surf_modes_index = i;
+					surf_mode_order = k;
+				}
+
+				break;
+			}
+
+			++k;
+		}
+	}
+
+	// print selected presentation mode
+	const char* mode_name;
+
+	if (surf_mode_order == pres_modes_len)
+	{
+		mode_name = "unknown";
+		// in case there is absolutely nothing we know of, use whatever we can
+		data->surf_modes_index = 0;
+	}
+	else
+	{
+		mode_name = vk_pres_modes[surf_mode_order].name;
+	}
+
+	printf("using vulkan surface presentation mode:\n\t%s\n", mode_name);
+
+	// create swapchain
+	uint32_t image_count = data->surf_caps.minImageCount + 1;
+
+	if ((data->surf_caps.maxImageCount > 0)
+		&& (image_count > data->surf_caps.maxImageCount))
+	{
+		image_count = data->surf_caps.maxImageCount;
+	}
+
+	data->extent = data->surf_caps.currentExtent;
+
+	if ((data->extent.width == UINT32_MAX) && (data->extent.height == UINT32_MAX))
+	{
+		data->extent.width = data->width;
+		data->extent.height = data->height;
+
+		if (data->extent.width < data->surf_caps.minImageExtent.width)
+		{
+			data->extent.width = data->surf_caps.minImageExtent.width;
+		}
+		else if (data->extent.width > data->surf_caps.maxImageExtent.width)
+		{
+			data->extent.width = data->surf_caps.maxImageExtent.width;
+		}
+
+		if (data->extent.height < data->surf_caps.minImageExtent.height)
+		{
+			data->extent.height = data->surf_caps.minImageExtent.height;
+		}
+		else if (data->extent.height > data->surf_caps.maxImageExtent.height)
+		{
+			data->extent.height = data->surf_caps.maxImageExtent.height;
+		}
+	}
+
+	data->format = data->surf_formats[data->surf_formats_index].format;
+	data->color_space = data->surf_formats[data->surf_formats_index].colorSpace;
+
+	VkSwapchainCreateInfoKHR swapchain_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		.pNext = NULL,
+		.flags = 0,
+		.surface = *(data->surf),
+		.minImageCount = image_count,
+		.imageFormat = data->format,
+		.imageColorSpace = data->color_space,
+		.imageExtent = data->extent,
+		.imageArrayLayers = 1,
+		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		// again we only support presentation from the graphics queue
+		// so we can just always use the exclusive image sharing mode
+		// (for which queue family index count & indices are ignored)
+		.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+		.queueFamilyIndexCount = 0,
+		.pQueueFamilyIndices = NULL,
+
+		.preTransform = data->surf_caps.currentTransform,
+		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		.presentMode = data->surf_modes[data->surf_modes_index],
+		.clipped = VK_TRUE,
+		.oldSwapchain = VK_NULL_HANDLE,
+	};
+
+	error =
+		vkCreateSwapchainKHR(
+			data->device,
+			&swapchain_create_info,
+			NULL,
+			&(data->swapchain));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not create a swapchain\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	// get swapchain images
+	error =
+		vkGetSwapchainImagesKHR(
+			data->device,
+			data->swapchain,
+			&(data->swapchain_images_len),
+			NULL);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not count swapchain images\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	data->swapchain_images =
+		malloc(data->swapchain_images_len * (sizeof (VkImage)));
+
+	if (data->swapchain_images == NULL)
+	{
+		fprintf(stderr, "could not allocate swapchain images list\n");
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	error =
+		vkGetSwapchainImagesKHR(
+			data->device,
+			data->swapchain,
+			&(data->swapchain_images_len),
+			data->swapchain_images);
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not list swapchain images\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	// create image views
+	data->swapchain_image_views =
+		malloc(data->swapchain_images_len * (sizeof (VkImageView)));
+
+	if (data->swapchain_image_views == NULL)
+	{
+		fprintf(stderr, "could not allocate swapchain image view list\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	VkImageViewCreateInfo image_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.image = VK_NULL_HANDLE,
+		.viewType = VK_IMAGE_VIEW_TYPE_2D,
+		.format = data->format,
+		.components =
+		{
+			.r = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.g = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.b = VK_COMPONENT_SWIZZLE_IDENTITY,
+			.a = VK_COMPONENT_SWIZZLE_IDENTITY,
+		},
+		.subresourceRange =
+		{
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1,
+		},
+	};
+
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		image_create_info.image = data->swapchain_images[i];
+
+		error =
+			vkCreateImageView(
+				data->device,
+				&image_create_info,
+				NULL,
+				&(data->swapchain_image_views[i]));
+
+		if (error != VK_SUCCESS)
+		{
+			fprintf(stderr, "could not list swapchain images\n");
+			free(data->swapchain_image_views);
+			free(data->swapchain_images);
+			free(data->surf_modes);
+			free(data->surf_formats);
+			return;
+		}
+	}
+
+	// create render pass
+	VkAttachmentDescription color_attach =
+	{
+		.flags = 0,
+		.format = data->format,
+		.samples = VK_SAMPLE_COUNT_1_BIT,
+		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+	};
+
+	VkAttachmentReference color_attach_ref =
+	{
+		.attachment = 0,
+		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+	};
+
+	VkSubpassDescription subpass =
+	{
+		.flags = 0,
+		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		.inputAttachmentCount = 0,
+		.pInputAttachments = NULL,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &color_attach_ref,
+		.pResolveAttachments = NULL,
+		.pDepthStencilAttachment = NULL,
+		.preserveAttachmentCount = 0,
+		.pPreserveAttachments = NULL,
+	};
+
+	VkSubpassDependency dependency =
+	{
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = 0,
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		.dependencyFlags = 0,
+	};
+
+	VkRenderPassCreateInfo render_pass_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.attachmentCount = 1,
+		.pAttachments = &color_attach,
+		.subpassCount = 1,
+		.pSubpasses = &subpass,
+		.dependencyCount = 1,
+		.pDependencies = &dependency,
+	};
+
+	error =
+		vkCreateRenderPass(
+			data->device,
+			&render_pass_info,
+			NULL,
+			&(data->render_pass));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not create render pass\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	// create framebuffers
+	data->framebuffers =
+		malloc(data->swapchain_images_len * (sizeof (VkFramebuffer)));
+
+	if (data->framebuffers == NULL)
+	{
+		fprintf(stderr, "could not allocate framebuffers list\n");
+		free(data->swapchain_images);
+		free(data->surf_modes);
+		free(data->surf_formats);
+		return;
+	}
+
+	VkFramebufferCreateInfo framebuffer_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.renderPass = data->render_pass,
+		.attachmentCount = 1,
+		.pAttachments = NULL,
+		.width = data->extent.width,
+		.height = data->extent.height,
+		.layers = 1,
+	};
+
+	for (size_t i = 0; i < data->swapchain_images_len; ++i)
+	{
+		framebuffer_create_info.pAttachments =
+			&(data->swapchain_image_views[i]);
+
+		error =
+			vkCreateFramebuffer(
+				data->device,
+				&framebuffer_create_info,
+				NULL,
+				&(data->framebuffers[i]));
+
+		if (error != VK_SUCCESS)
+		{
+			if (data->framebuffers == NULL)
+			{
+				fprintf(stderr, "could not allocate framebuffers list\n");
+				free(data->framebuffers);
+				free(data->swapchain_images);
+				free(data->surf_modes);
+				free(data->surf_formats);
+				return;
+			}
+		}
+	}
+}
+
+static void pipeline_free_vulkan(struct globox_render_data* data)
+{
+	vkFreeMemory(
+		data->device,
+		data->vertex_buf_mem,
+		NULL);
+
+	vkDestroyBuffer(
+		data->device,
+		data->vertex_buf,
+		NULL);
+
+	vkDestroyCommandPool(
+		data->device,
+		data->cmd_pool,
+		NULL);
+
+	vkDestroyPipeline(
+		data->device,
+		data->pipeline,
+		NULL);
+
+	vkDestroyPipelineLayout(
+		data->device,
+		data->pipeline_layout,
+		NULL);
+}
+
 static void pipeline_vulkan(struct globox_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
 
-	// create vertex shader module
-	VkShaderModuleCreateInfo info_vert =
-	{
-		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.codeSize = square_vert_vk1_size,
-		.pCode = (uint32_t*) square_vert_vk1,
-	};
-
-	error =
-		vkCreateShaderModule(
-			data->device,
-			&info_vert,
-			NULL,
-			&(data->module_vert));
-
-	if (error != VK_SUCCESS)
-	{
-		return;
-	}
-
-	// create fragment shader module
-	VkShaderModuleCreateInfo info_flag =
-	{
-		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.codeSize = square_frag_vk1_size,
-		.pCode = (uint32_t*) square_frag_vk1,
-	};
-
-	error =
-		vkCreateShaderModule(
-			data->device,
-			&info_flag,
-			NULL,
-			&(data->module_frag));
-
-	if (error != VK_SUCCESS)
-	{
-		return;
-	}
-
-	// create shader pipeline stages
-	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.stage = VK_SHADER_STAGE_VERTEX_BIT,
-		.module = data->module_vert,
-		.pName = "main",
-		.pSpecializationInfo = NULL,
-	};
-
-	data->shader_stages[0] = vert_shader_stage_create_info;
-
-	VkPipelineShaderStageCreateInfo frag_shader_stage_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-		.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
-		.module = data->module_frag,
-		.pName = "main",
-		.pSpecializationInfo = NULL,
-	};
-
 	// configure dynamic state
-	data->shader_stages[1] = frag_shader_stage_create_info;
-
 	VkDynamicState dynamic_states[] =
 	{
 		VK_DYNAMIC_STATE_VIEWPORT,
@@ -2059,6 +2014,82 @@ static void pipeline_vulkan(struct globox_render_data* data)
 	}
 }
 
+static void compile_shaders(struct globox_render_data* data)
+{
+	VkResult error = VK_ERROR_UNKNOWN;
+
+	// create vertex shader module
+	VkShaderModuleCreateInfo info_vert =
+	{
+		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.codeSize = square_vert_vk1_size,
+		.pCode = (uint32_t*) square_vert_vk1,
+	};
+
+	error =
+		vkCreateShaderModule(
+			data->device,
+			&info_vert,
+			NULL,
+			&(data->module_vert));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// create fragment shader module
+	VkShaderModuleCreateInfo info_flag =
+	{
+		.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.codeSize = square_frag_vk1_size,
+		.pCode = (uint32_t*) square_frag_vk1,
+	};
+
+	error =
+		vkCreateShaderModule(
+			data->device,
+			&info_flag,
+			NULL,
+			&(data->module_frag));
+
+	if (error != VK_SUCCESS)
+	{
+		return;
+	}
+
+	// create shader pipeline stages
+	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.stage = VK_SHADER_STAGE_VERTEX_BIT,
+		.module = data->module_vert,
+		.pName = "main",
+		.pSpecializationInfo = NULL,
+	};
+
+	data->shader_stages[0] = vert_shader_stage_create_info;
+
+	VkPipelineShaderStageCreateInfo frag_shader_stage_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+		.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+		.module = data->module_frag,
+		.pName = "main",
+		.pSpecializationInfo = NULL,
+	};
+
+	data->shader_stages[1] = frag_shader_stage_create_info;
+}
+
 static void render_vulkan(struct globox_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
@@ -2376,6 +2407,12 @@ static void render_callback(void* data)
 	struct globox* globox = render_data->globox;
 	struct globox_error_info error = {0};
 
+	if (render_data->shaders == true)
+	{
+		compile_shaders(render_data);
+		render_data->shaders = false;
+	}
+
 	int width = globox_get_width(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -2407,12 +2444,8 @@ static void render_callback(void* data)
 		vkDeviceWaitIdle(render_data->device);
 		swapchain_free_vulkan(render_data);
 		swapchain_vulkan(render_data);
-	}
-
-	if (render_data->shaders == true)
-	{
+		pipeline_free_vulkan(render_data);
 		pipeline_vulkan(render_data);
-		render_data->shaders = false;
 	}
 
 	// render with vulkan
@@ -2766,30 +2799,8 @@ int main(int argc, char** argv)
 	vkDeviceWaitIdle(
 		render_data.device);
 
-	vkFreeMemory(
-		render_data.device,
-		render_data.vertex_buf_mem,
-		NULL);
-
-	vkDestroyBuffer(
-		render_data.device,
-		render_data.vertex_buf,
-		NULL);
-
-	vkDestroyCommandPool(
-		render_data.device,
-		render_data.cmd_pool,
-		NULL);
-
-	vkDestroyPipeline(
-		render_data.device,
-		render_data.pipeline,
-		NULL);
-
-	vkDestroyPipelineLayout(
-		render_data.device,
-		render_data.pipeline_layout,
-		NULL);
+	pipeline_free_vulkan(
+		&render_data);
 
 	free_check(render_data.framebuffers);
 	free_check(render_data.phys_devs);
