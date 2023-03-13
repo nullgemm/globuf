@@ -1831,6 +1831,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vulkan pipeline layout\n");
 		return;
 	}
 
@@ -1868,6 +1869,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vulkan graphics pipeline\n");
 		return;
 	}
 
@@ -1889,6 +1891,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vulkan command pool\n");
 		return;
 	}
 
@@ -1910,6 +1913,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vulkan command buffer\n");
 		return;
 	}
 
@@ -1935,6 +1939,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vulkan buffer\n");
 		return;
 	}
 
@@ -1998,6 +2003,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not allocate vulkan memory\n");
 		return;
 	}
 
@@ -2010,6 +2016,7 @@ static void pipeline_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not bind vulkan memory to vulkan buffer\n");
 		return;
 	}
 }
@@ -2037,6 +2044,7 @@ static void compile_shaders(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create vertex shader module\n");
 		return;
 	}
 
@@ -2059,6 +2067,7 @@ static void compile_shaders(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not create fragment shader module\n");
 		return;
 	}
 
@@ -2130,6 +2139,7 @@ static void render_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not begin vulkan command buffer\n");
 		return;
 	}
 
@@ -2253,6 +2263,7 @@ static void render_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not end vulkan command buffer\n");
 		return;
 	}
 
@@ -2287,6 +2298,7 @@ static void render_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not submit vulkan queue\n");
 		return;
 	}
 
@@ -2310,6 +2322,7 @@ static void render_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
+		fprintf(stderr, "could not present vulkan queue\n");
 		return;
 	}
 }
