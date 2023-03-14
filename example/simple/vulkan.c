@@ -538,10 +538,29 @@ static void init_vulkan(struct globox_render_data* data)
 		.apiVersion = VK_MAKE_VERSION(1, 0, 0),
 	};
 
+	VkDebugUtilsMessengerCreateInfoEXT debug_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+		.pNext = NULL,
+		.flags = 0,
+		.messageSeverity =
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+		.messageType =
+			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
+		.pfnUserCallback = debug_callback_vulkan,
+		.pUserData = NULL,
+	};
+
 	VkInstanceCreateInfo instance_info =
 	{
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		.pNext = NULL,
+		.pNext = &debug_create_info,
 		.flags = 0,
 		.pApplicationInfo = &app_info,
 		.enabledLayerCount = inst_layers_found_count,
@@ -561,24 +580,6 @@ static void init_vulkan(struct globox_render_data* data)
 	}
 
 	// setup validation layers debug callback
-	VkDebugUtilsMessengerCreateInfoEXT debug_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-		.pNext = NULL,
-		.flags = 0,
-		.messageSeverity =
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-		.messageType =
-			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
-		.pfnUserCallback = debug_callback_vulkan,
-		.pUserData = NULL,
-	};
 
 	PFN_vkCreateDebugUtilsMessengerEXT debug_create =
 		(PFN_vkCreateDebugUtilsMessengerEXT)
