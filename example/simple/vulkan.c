@@ -249,6 +249,7 @@ struct globox_render_data
 
 
 	// vulkan general info
+	VkDebugUtilsMessengerEXT debug;
 	VkInstance instance;
 	VkDevice device;
 	VkQueue queue;
@@ -300,6 +301,16 @@ struct globox_render_data
 	VkBuffer vertex_buf;
 	VkDeviceMemory vertex_buf_mem;
 };
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback_vulkan(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData)
+{
+	fprintf(stderr, "validation layers: %s\n", pCallbackData->pMessage);
+	return VK_FALSE;
+}
 
 static inline void free_check(const void* ptr)
 {
@@ -545,7 +556,54 @@ static void init_vulkan(struct globox_render_data* data)
 
 	if (error != VK_SUCCESS)
 	{
-		fprintf(stderr, "could create the vulkan instance\n");
+		fprintf(stderr, "could not create the vulkan instance\n");
+		return;
+	}
+
+	// setup validation layers debug callback
+	VkDebugUtilsMessengerCreateInfoEXT debug_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+		.pNext = NULL,
+		.flags = 0,
+		.messageSeverity =
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+		.messageType =
+			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
+		.pfnUserCallback = debug_callback_vulkan,
+		.pUserData = NULL,
+	};
+
+	PFN_vkCreateDebugUtilsMessengerEXT debug_create =
+		(PFN_vkCreateDebugUtilsMessengerEXT)
+		vkGetInstanceProcAddr(
+			data->instance,
+			"vkCreateDebugUtilsMessengerEXT");
+
+	if (debug_create != NULL)
+	{
+		error =
+			debug_create(
+				data->instance,
+				&debug_create_info,
+				NULL,
+				&(data->debug));
+
+		if (error != VK_SUCCESS)
+		{
+			fprintf(stderr, "could not create the validation debug callback\n");
+			return;
+		}
+	}
+	else
+	{
+		fprintf(stderr, "could not get the debug callback creation function\n");
 		return;
 	}
 
@@ -2881,6 +2939,20 @@ int main(int argc, char** argv)
 	vkDestroyDevice(
 		render_data.device,
 		NULL);
+
+	PFN_vkDestroyDebugUtilsMessengerEXT debug_destroy =
+		(PFN_vkDestroyDebugUtilsMessengerEXT)
+		vkGetInstanceProcAddr(
+			render_data.instance,
+			"vkDestroyDebugUtilsMessengerEXT");
+
+	if (debug_destroy != NULL)
+	{
+		debug_destroy(
+			render_data.instance,
+			render_data.debug,
+			NULL);
+	}
 
 	vkDestroyInstance(
 		render_data.instance,
