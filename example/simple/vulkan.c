@@ -1196,9 +1196,6 @@ static void config_vulkan(struct globox_render_data* data)
 		return;
 	}
 
-	// setup validation layers debug callback
-	// TODO
-
 	// free resources
 	free(dev_ext_found);
 }
@@ -2210,13 +2207,38 @@ static void render_vulkan(struct globox_render_data* data)
 		VK_TRUE,
 		UINT64_MAX);
 
-	vkAcquireNextImageKHR(
-		data->device,
-		data->swapchain,
-		UINT64_MAX,
-		data->semaphore_render,
-		VK_NULL_HANDLE,
-		&image_index);
+	error =
+		vkAcquireNextImageKHR(
+			data->device,
+			data->swapchain,
+			UINT64_MAX,
+			data->semaphore_render,
+			VK_NULL_HANDLE,
+			&image_index);
+
+	if (error == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		vkDeviceWaitIdle(data->device);
+		swapchain_free_vulkan(data);
+		swapchain_vulkan(data);
+		pipeline_free_vulkan(data);
+		pipeline_vulkan(data);
+
+		error =
+			vkAcquireNextImageKHR(
+				data->device,
+				data->swapchain,
+				UINT64_MAX,
+				data->semaphore_render,
+				VK_NULL_HANDLE,
+				&image_index);
+	}
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "could not acquire next vulkan image\n");
+		return;
+	}
 
 	vkResetCommandBuffer(
 		data->cmd_buf,
@@ -2418,7 +2440,15 @@ static void render_vulkan(struct globox_render_data* data)
 			data->queue,
 			&present_info);
 
-	if (error != VK_SUCCESS)
+	if ((error == VK_ERROR_OUT_OF_DATE_KHR) || (error == VK_SUBOPTIMAL_KHR))
+	{
+		vkDeviceWaitIdle(data->device);
+		swapchain_free_vulkan(data);
+		swapchain_vulkan(data);
+		pipeline_free_vulkan(data);
+		pipeline_vulkan(data);
+	}
+	else if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "could not present vulkan queue\n");
 		return;
