@@ -143,6 +143,7 @@ void x11_helpers_vulkan_visual_transparent(
 	xcb_render_pictscreen_iterator_t iter_screens;
 	xcb_render_pictdepth_iterator_t iter_depths;
 	xcb_render_pictvisual_iterator_t iter_visuals;
+	xcb_colormap_t colormap;
 	bool found_visual;
 
 	iter_screens =
@@ -186,10 +187,9 @@ void x11_helpers_vulkan_visual_transparent(
 			&iter_screens);
 	}
 
-	free(reply_pict);
-
 	if (found_visual == false)
 	{
+		free(reply_pict);
 
 		globox_error_throw(
 			context,
@@ -199,8 +199,23 @@ void x11_helpers_vulkan_visual_transparent(
 		return;
 	}
 
-	globox_error_ok(error);
+	// generate a compatible colormap for the chosen visual id
+	colormap =
+		xcb_generate_id(
+			platform->conn);
 
+	xcb_create_colormap(
+		platform->conn,
+		XCB_COLORMAP_ALLOC_NONE,
+		colormap,
+		platform->screen_obj->root,
+		platform->visual_id);
+
+	platform->attr_val[2] = colormap;
+
+	free(reply_pict);
+
+	globox_error_ok(error);
 	return;
 }
 

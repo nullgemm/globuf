@@ -545,14 +545,12 @@ static void init_vulkan(struct globox_render_data* data)
 		.flags = 0,
 		.messageSeverity =
 			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
 		.messageType =
 			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
 		.pfnUserCallback = debug_callback_vulkan,
 		.pUserData = NULL,
 	};
@@ -1135,44 +1133,6 @@ static void config_vulkan(struct globox_render_data* data)
 		0,
 		&(data->queue));
 
-	// create semaphores
-	VkSemaphoreCreateInfo semaphore_create_info =
-	{
-		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-		.pNext = NULL,
-		.flags = 0,
-	};
-
-	error =
-		vkCreateSemaphore(
-			data->device,
-			&semaphore_create_info,
-			NULL,
-			&(data->semaphore_present));
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "couldn't create present semaphore\n");
-		globox_clean(data->globox, &globox_error);
-		free(data->phys_devs);
-		return;
-	}
-
-	error =
-		vkCreateSemaphore(
-			data->device,
-			&semaphore_create_info,
-			NULL,
-			&(data->semaphore_render));
-
-	if (error != VK_SUCCESS)
-	{
-		fprintf(stderr, "couldn't create render semaphore\n");
-		globox_clean(data->globox, &globox_error);
-		free(data->phys_devs);
-		return;
-	}
-
 	// create fence
 	VkFenceCreateInfo fence_create_info =
 	{
@@ -1229,6 +1189,16 @@ static void swapchain_free_vulkan(struct globox_render_data* data)
 		data->device,
 		data->swapchain,
 		NULL);
+
+	vkDestroySemaphore(
+		data->device,
+		data->semaphore_present,
+		NULL);
+
+	vkDestroySemaphore(
+		data->device,
+		data->semaphore_render,
+		NULL);
 }
 
 static void swapchain_vulkan(struct globox_render_data* data)
@@ -1236,6 +1206,44 @@ static void swapchain_vulkan(struct globox_render_data* data)
 	printf("creating vulkan swapchain\n");
 	struct globox_error_info globox_error = {0};
 	VkResult error = VK_ERROR_UNKNOWN;
+
+	// create semaphores
+	VkSemaphoreCreateInfo semaphore_create_info =
+	{
+		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		.pNext = NULL,
+		.flags = 0,
+	};
+
+	error =
+		vkCreateSemaphore(
+			data->device,
+			&semaphore_create_info,
+			NULL,
+			&(data->semaphore_present));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't create present semaphore\n");
+		globox_clean(data->globox, &globox_error);
+		free(data->phys_devs);
+		return;
+	}
+
+	error =
+		vkCreateSemaphore(
+			data->device,
+			&semaphore_create_info,
+			NULL,
+			&(data->semaphore_render));
+
+	if (error != VK_SUCCESS)
+	{
+		fprintf(stderr, "couldn't create render semaphore\n");
+		globox_clean(data->globox, &globox_error);
+		free(data->phys_devs);
+		return;
+	}
 
 	// get the vulkan surface from globox
 	data->surf = globox_get_surface_vulkan(data->globox, &globox_error);
@@ -1476,7 +1484,7 @@ static void swapchain_vulkan(struct globox_render_data* data)
 		.pQueueFamilyIndices = NULL,
 
 		.preTransform = data->surf_caps.currentTransform,
-		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
 		.presentMode = data->surf_modes[data->surf_modes_index],
 		.clipped = VK_TRUE,
 		.oldSwapchain = VK_NULL_HANDLE,
@@ -1875,13 +1883,12 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.alphaToOneEnable = VK_FALSE,
 	};
 
-	// TODO alpha
 	// color blend attachment state
 	VkPipelineColorBlendAttachmentState color_blend_attach_state =
 	{
-		.blendEnable = VK_FALSE, // VK_TRUE
-		.srcColorBlendFactor = VK_BLEND_FACTOR_ONE, // VK_BLEND_FACTOR_SRC_ALPHA
-		.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO, // VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA
+		.blendEnable = VK_TRUE,
+		.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+		.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
 		.colorBlendOp = VK_BLEND_OP_ADD,
 		.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
 		.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
@@ -2216,7 +2223,7 @@ static void render_vulkan(struct globox_render_data* data)
 			VK_NULL_HANDLE,
 			&image_index);
 
-	if (error == VK_ERROR_OUT_OF_DATE_KHR)
+	if ((error == VK_ERROR_OUT_OF_DATE_KHR) || (error == VK_SUBOPTIMAL_KHR))
 	{
 		vkDeviceWaitIdle(data->device);
 		swapchain_free_vulkan(data);
@@ -2271,7 +2278,7 @@ static void render_vulkan(struct globox_render_data* data)
 			164.0f / 255.0f,
 			30.0f / 255.0f,
 			34.0f / 255.0f,
-			0.0f,
+			0x22 / 255.0f,
 		},
 	};
 
@@ -2577,7 +2584,6 @@ static void render_callback(void* data)
 	}
 
 	// re-create the swapchain when the window size changes
-	// TODO also handle suboptimal swapchains
 	if ((width != render_data->width) || (height != render_data->height))
 	{
 		render_data->width = width;
@@ -2737,7 +2743,7 @@ int main(int argc, char** argv)
 
 	struct globox_feature_background background =
 	{
-		.background = GLOBOX_BACKGROUND_OPAQUE,
+		.background = GLOBOX_BACKGROUND_BLURRED,
 	};
 
 	struct globox_feature_vsync vsync =
@@ -2955,16 +2961,6 @@ int main(int argc, char** argv)
 	vkDestroyFence(
 		render_data.device,
 		render_data.fence_frame,
-		NULL);
-
-	vkDestroySemaphore(
-		render_data.device,
-		render_data.semaphore_present,
-		NULL);
-
-	vkDestroySemaphore(
-		render_data.device,
-		render_data.semaphore_render,
 		NULL);
 
 	vkDestroyDevice(
