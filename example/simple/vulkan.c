@@ -1868,7 +1868,6 @@ static void pipeline_vulkan(struct globox_render_data* data)
 		.lineWidth = 1.0f,
 	};
 
-	// TODO alpha
 	// multisampling state
 	VkPipelineMultisampleStateCreateInfo multisampling_state_create_info =
 	{
