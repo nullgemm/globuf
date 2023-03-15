@@ -1190,6 +1190,7 @@ static void swapchain_free_vulkan(struct globox_render_data* data)
 			NULL);
 	}
 
+	free_check(data->framebuffers);
 	free_check(data->swapchain_image_views);
 	free_check(data->swapchain_images);
 	free_check(data->surf_modes);
@@ -2951,7 +2952,6 @@ int main(int argc, char** argv)
 	pipeline_free_vulkan(
 		&render_data);
 
-	free_check(render_data.framebuffers);
 	free_check(render_data.phys_devs);
 
 	vkDestroyShaderModule(
