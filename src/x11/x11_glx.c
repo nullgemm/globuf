@@ -127,14 +127,6 @@ void globox_x11_glx_window_create(
 		return;
 	}
 
-	// run common X11 helper
-	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
 	// get framebuffer configurations list
 	int fb_config_count;
 
@@ -277,6 +269,14 @@ void globox_x11_glx_window_create(
 	if (error_posix != 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// run common X11 helper
+	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
 		return;
 	}
 
