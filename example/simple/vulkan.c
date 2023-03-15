@@ -69,6 +69,12 @@ struct vk_inst_ext vk_inst_ext[] =
 		.name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 		.found = false,
 	},
+#ifdef GLOBOX_EXAMPLE_MACOS
+	{
+		.name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+		.found = false,
+	},
+#endif
 };
 
 // device extensions to enable
@@ -566,6 +572,10 @@ static void init_vulkan(struct globox_render_data* data)
 		.enabledExtensionCount = inst_ext_len + ext_globox_len,
 		.ppEnabledExtensionNames = inst_ext_found,
 	};
+
+#ifdef GLOBOX_EXAMPLE_MACOS
+	instance_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
 	error = vkCreateInstance(&instance_info, NULL, &(data->instance));
 	free(inst_layers_found);
