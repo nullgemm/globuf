@@ -36,6 +36,7 @@ flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
+flags+=("-Iexample/helpers")
 flags+=("-Ires/cursoryx/include")
 flags+=("-Ires/dpishit/include")
 flags+=("-Ires/willis/include")
@@ -133,6 +134,8 @@ case $backend in
 ninja_file=example_complex_x11_software.ninja
 src+=("example/complex/software.c")
 link+=("xcb-shm")
+link+=("xcb-randr")
+link+=("xcb-render")
 	;;
 
 	glx)
@@ -159,7 +162,9 @@ defines+=("-DGLOBOX_EXAMPLE_EGL")
 	vulkan)
 ninja_file=example_complex_x11_vulkan.ninja
 src+=("example/complex/vulkan.c")
+src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
+link+=("xcb-render")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globox_vulkan.a")
 	;;
