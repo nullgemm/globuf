@@ -21,3 +21,5 @@ sudo ./artifact.sh software
 sudo ./artifact.sh vulkan
 sudo ./artifact.sh egl
 sudo ./artifact.sh glx
+
+sudo chown -R $(id -un):$(id -gn) globox_bin_v*
