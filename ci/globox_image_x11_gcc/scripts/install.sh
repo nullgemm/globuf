@@ -17,6 +17,15 @@ apk add --no-cache \
 	gcc \
 	musl-dev \
 	libxcb-dev \
+	libxrender-dev \
 	xcb-util-wm-dev \
 	xcb-util-image-dev \
-	xcb-util-errors-dev
+	mesa-dev \
+	mesa-egl \
+	vulkan-tools \
+	vulkan-headers
+
+apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
+	vulkan-validation-layers-dbg \
+	vulkan-validation-layers-dev \
+	vulkan-validation-layers-static
