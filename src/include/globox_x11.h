@@ -1,6 +1,7 @@
 #ifndef H_GLOBOX_X11
 #define H_GLOBOX_X11
 
+#include "globox.h"
 #include <xcb/xcb.h>
 
 xcb_connection_t* globox_get_x11_conn(struct globox* context);
