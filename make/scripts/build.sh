@@ -17,15 +17,15 @@ if [ -z "$build_type" ]; then
 fi
 
 if [ -z "$build_platform" ]; then
-	build_platform=x11
+	build_platform=appkit
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=vulkan
+	build_backend=software
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=complex
+	build_example=simple
 fi
 
 # generate ninja files
@@ -42,6 +42,21 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/x11.sh $build_type $build_backend
+		fi
+	;;
+
+	appkit)
+		rm -rf build make/output
+		./make/lib/elf.sh $build_type common
+		./make/lib/appkit.sh $build_type common
+		./make/lib/appkit.sh $build_type $build_backend
+
+		if [ "$build_backend" == "vulkan" ]; then
+			./make/lib/elf.sh $build_type $build_backend
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			./make/example/$build_example/appkit.sh $build_type $build_backend
 		fi
 	;;
 
@@ -67,6 +82,23 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja
+		fi
+	;;
+
+	appkit)
+		samu -f ./make/output/lib_elf.ninja
+		samu -f ./make/output/lib_appkit_common.ninja
+		samu -f ./make/output/lib_appkit_"$build_backend".ninja
+
+		samu -f ./make/output/lib_elf.ninja headers
+		samu -f ./make/output/lib_appkit_"$build_backend".ninja headers
+
+		if [ "$build_backend" == "vulkan" ]; then
+			samu -f ./make/output/lib_elf_"$build_backend".ninja
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			samu -f ./make/output/example_"$build_example"_appkit_"$build_backend".ninja
 		fi
 	;;
 
