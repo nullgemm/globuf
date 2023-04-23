@@ -7,10 +7,12 @@ cd ../..
 # params
 build=$1
 backend=$2
+toolchain=$3
 
-echo "syntax reminder: $0 <build type> <backend type>"
+echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
 echo "backend types: common, vulkan"
+echo "target toolchain types: osxcross, native"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -22,9 +24,7 @@ folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
 folder_library="\$folder_globox/lib/globox"
 folder_include="\$folder_globox/include"
-name="globox"
-cc="gcc"
-ar="ar"
+name="globox_macho"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -119,19 +119,43 @@ fi
 
 case $backend in
 	common)
-ninja_file=lib_elf.ninja
+ninja_file=lib_macho.ninja
 src+=("src/common/globox.c")
 src+=("src/common/globox_error.c")
 	;;
 
 	vulkan)
-ninja_file=lib_elf_vulkan.ninja
+ninja_file=lib_macho_vulkan.ninja
 name+="_vulkan"
 src+=("src/common/globox_vulkan.c")
 	;;
 
 	*)
 echo "invalid backend"
+exit 1
+	;;
+esac
+
+# target toolchain type
+if [ -z "$toolchain" ]; then
+	toolchain=osxcross
+fi
+
+case $toolchain in
+	osxcross)
+name+="_osxcross"
+cc="o64-clang"
+ar="x86_64-apple-darwin21.4-ar"
+	;;
+
+	native)
+name+="_native"
+cc="clang"
+ar="ar"
+	;;
+
+	*)
+echo "invalid target toolchain type"
 exit 1
 	;;
 esac
@@ -203,7 +227,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/elf.sh $build"; \
+echo "    command = make/lib/macho.sh $build"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"

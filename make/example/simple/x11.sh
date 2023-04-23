@@ -163,7 +163,7 @@ src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
 link+=("xcb-render")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globox_vulkan.a")
+libs+=("\$folder_library/globox_elf_vulkan.a")
 	;;
 
 	*)
@@ -181,7 +181,7 @@ ldlibs+=("-lpthread")
 obj+=("\$folder_objects/res/icon/iconpix.o")
 libs+=("\$folder_library/x11/$name_lib""_$backend.a")
 libs+=("\$folder_library/x11/$name_lib""_common.a")
-libs+=("\$folder_library/globox.a")
+libs+=("\$folder_library/globox_elf.a")
 
 # default target
 default+=("\$builddir/\$name")
