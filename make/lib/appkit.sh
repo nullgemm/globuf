@@ -7,10 +7,12 @@ cd ../..
 # params
 build=$1
 backend=$2
+toolchain=$3
 
-echo "syntax reminder: $0 <build type> <backend type>"
+echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, glx, egl, vulkan"
+echo "backend types: common, software, mgl, moltenvk"
+echo "target toolchain types: osxcross, native"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -20,11 +22,9 @@ output="make/output"
 folder_ninja="build"
 folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox/x11"
+folder_library="\$folder_globox/lib/globox/appkit"
 folder_include="\$folder_globox/include"
-name="globox_x11"
-cc="gcc"
-ar="ar"
+name="globox_appkit"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -122,42 +122,59 @@ fi
 
 case $backend in
 	common)
-ninja_file=lib_x11_common.ninja
+ninja_file=lib_appkit_common.ninja
 name+="_common"
-src+=("src/x11/x11_common.c")
-src+=("src/x11/x11_common_helpers.c")
+src+=("src/appkit/appkit_common.m")
+src+=("src/appkit/appkit_common_helpers.m")
 	;;
 
 	software)
-ninja_file=lib_x11_software.ninja
+ninja_file=lib_appkit_software.ninja
 name+="_software"
-src+=("src/x11/x11_software.c")
-src+=("src/x11/x11_software_helpers.c")
+src+=("src/appkit/appkit_software.m")
+src+=("src/appkit/appkit_software_helpers.m")
 	;;
 
-	glx)
-ninja_file=lib_x11_glx.ninja
-name+="_glx"
-src+=("src/x11/x11_glx.c")
-src+=("src/x11/x11_glx_helpers.c")
+	mgl)
+ninja_file=lib_appkit_mgl.ninja
+name+="_mgl"
+src+=("src/appkit/appkit_mgl.m")
+src+=("src/appkit/appkit_mgl_helpers.m")
 	;;
 
-	egl)
-ninja_file=lib_x11_egl.ninja
-name+="_egl"
-src+=("src/x11/x11_egl.c")
-src+=("src/x11/x11_egl_helpers.c")
-	;;
-
-	vulkan)
-ninja_file=lib_x11_vulkan.ninja
+	moltenvk)
+ninja_file=lib_appkit_moltenvk.ninja
 name+="_vulkan"
-src+=("src/x11/x11_vulkan.c")
-src+=("src/x11/x11_vulkan_helpers.c")
+src+=("src/appkit/appkit_vulkan.m")
+src+=("src/appkit/appkit_vulkan_helpers.m")
 	;;
 
 	*)
 echo "invalid backend"
+exit 1
+	;;
+esac
+
+# target toolchain type
+if [ -z "$toolchain" ]; then
+	toolchain=osxcross
+fi
+
+case $toolchain in
+	osxcross)
+name+="_osxcross"
+cc="o64-clang"
+ar="x86_64-apple-darwin21.4-ar"
+	;;
+
+	native)
+name+="_native"
+cc="clang"
+ar="ar"
+	;;
+
+	*)
+echo "invalid target toolchain type"
 exit 1
 	;;
 esac
@@ -229,7 +246,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/x11.sh $build $backend"; \
+echo "    command = make/lib/appkit.sh $build $backend"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -239,18 +256,18 @@ echo ""; \
 if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox_x11_$backend.h: \$"; \
-echo "cp src/include/globox_x11_$backend.h"; \
+echo "build \$folder_include/globox_appkit_$backend.h: \$"; \
+echo "cp src/include/globox_appkit_$backend.h"; \
 echo ""; \
-echo "build \$folder_include/globox_x11.h: \$"; \
-echo "cp src/include/globox_x11.h"; \
+echo "build \$folder_include/globox_appkit.h: \$"; \
+echo "cp src/include/globox_appkit.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_x11_$backend.h \$"; \
-echo "\$folder_include/globox_x11.h"; \
+echo "\$folder_include/globox_appkit_$backend.h \$"; \
+echo "\$folder_include/globox_appkit.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi
@@ -259,7 +276,7 @@ fi
 echo "# compile sources" >> "$output/$ninja_file"
 for file in "${src[@]}"; do
 	folder=$(dirname "$file")
-	filename=$(basename "$file" .c)
+	filename=$(basename "$file" .m)
 	obj+=("\$folder_objects/$folder/$filename.o")
 	{ \
 	echo "build \$folder_objects/$folder/$filename.o: \$"; \

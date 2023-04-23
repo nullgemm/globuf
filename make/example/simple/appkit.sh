@@ -7,15 +7,17 @@ cd ../../..
 # params
 build=$1
 backend=$2
+toolchain=$3
 
-echo "syntax reminder: $0 <build type> <backend type>"
+echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: software, glx, egl, vulkan"
+echo "backend types: software, mgl, moltenvk"
+echo "target toolchain types: osxcross, native"
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
 output="make/output"
-name_lib="globox_x11"
+name_lib="globox_appkit"
 
 # ninja file variables
 folder_ninja="build"
@@ -23,10 +25,7 @@ folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
 folder_library="\$folder_globox/lib/globox"
 folder_include="\$folder_globox/include"
-name="globox_example_complex_x11"
-cmd="./\$name"
-cc="gcc"
-ld="gcc"
+name="globox_example_simple_appkit"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -37,11 +36,8 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
-flags+=("-Ires/cursoryx/include")
-flags+=("-Ires/dpishit/include")
-flags+=("-Ires/willis/include")
 ldflags+=("-z noexecstack")
-defines+=("-DGLOBOX_EXAMPLE_X11")
+defines+=("-DGLOBOX_EXAMPLE_APPKIT")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -51,7 +47,6 @@ fi
 case $build in
 	development)
 flags+=("-g")
-link+=("xcb-errors")
 	;;
 
 	release)
@@ -131,42 +126,23 @@ fi
 
 case $backend in
 	software)
-ninja_file=example_complex_x11_software.ninja
-src+=("example/complex/software.c")
-link+=("xcb-shm")
-link+=("xcb-randr")
-link+=("xcb-render")
+ninja_file=example_simple_appkit_software.ninja
+src+=("example/simple/software.c")
 	;;
 
-	glx)
-ninja_file=example_complex_x11_glx.ninja
-src+=("example/complex/opengl.c")
-link+=("gl")
-link+=("glesv2")
-link+=("x11")
-link+=("x11-xcb")
-link+=("xrender")
+	mgl)
+ninja_file=example_simple_appkit_mgl.ninja
+src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-defines+=("-DGLOBOX_EXAMPLE_GLX")
+defines+=("-DGLOBOX_EXAMPLE_MGL")
 	;;
 
-	egl)
-ninja_file=example_complex_x11_egl.ninja
-src+=("example/complex/opengl.c")
-link+=("egl")
-link+=("glesv2")
-obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-defines+=("-DGLOBOX_EXAMPLE_EGL")
-	;;
-
-	vulkan)
-ninja_file=example_complex_x11_vulkan.ninja
-src+=("example/complex/vulkan.c")
+	moltenvk)
+ninja_file=example_simple_appkit_moltenvk.ninja
+src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
-link+=("vulkan")
-link+=("xcb-render")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globox_elf_vulkan.a")
+libs+=("\$folder_library/globox_macho_vulkan_$toolchain.a")
 	;;
 
 	*)
@@ -175,33 +151,39 @@ exit 1
 	;;
 esac
 
-link+=("xcb")
-link+=("xcb-cursor")
-link+=("xcb-image")
-link+=("xcb-randr")
-link+=("xcb-render")
-link+=("xcb-renderutil")
-link+=("xcb-sync")
-link+=("xcb-xfixes")
-link+=("xcb-xinput")
-link+=("xcb-xkb")
-link+=("xcb-xrm")
-link+=("xkbcommon")
-link+=("xkbcommon-x11")
+# target toolchain type
+if [ -z "$toolchain" ]; then
+	toolchain=osxcross
+fi
+
+case $toolchain in
+	osxcross)
+lib_suffix="osxcross"
+cc="o64-clang"
+ld="o64-clang"
+	;;
+
+	native)
+lib_suffix="native"
+cc="clang"
+ld="clang"
+	;;
+
+	*)
+echo "invalid target toolchain type"
+exit 1
+	;;
+esac
+
+name+="_$lib_suffix"
 ldlibs+=("-lpthread")
+cmd="./\$name"
 
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
-obj+=("\$folder_objects/res/cursor/cursorpix.o")
-libs+=("\$folder_library/x11/$name_lib""_$backend.a")
-libs+=("\$folder_library/x11/$name_lib""_common.a")
-libs+=("\$folder_library/globox_elf.a")
-libs+=("res/cursoryx/lib/cursoryx/cursoryx.a")
-libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
-libs+=("res/dpishit/lib/dpishit/dpishit.a")
-libs+=("res/dpishit/lib/dpishit/x11/dpishit_x11.a")
-libs+=("res/willis/lib/willis/willis.a")
-libs+=("res/willis/lib/willis/x11/willis_x11.a")
+libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
+libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
+libs+=("\$folder_library/globox_macho_$lib_suffix.a")
 
 # default target
 default+=("\$builddir/\$name")
@@ -250,17 +232,17 @@ for define in "${defines[@]}"; do
 done
 echo -e "\n" >> "$output/$ninja_file"
 
-echo -n "ldflags =" >> "$output/$ninja_file"
-for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
-	echo -ne " \$\n$flag" >> "$output/$ninja_file"
-done
-echo -e "\n" >> "$output/$ninja_file"
+#echo -n "ldflags =" >> "$output/$ninja_file"
+#for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
+	#echo -ne " \$\n$flag" >> "$output/$ninja_file"
+#done
+#echo -e "\n" >> "$output/$ninja_file"
 
-echo -n "ldlibs =" >> "$output/$ninja_file"
-for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
-	echo -ne " \$\n$flag" >> "$output/$ninja_file"
-done
-echo -e "\n" >> "$output/$ninja_file"
+#echo -n "ldlibs =" >> "$output/$ninja_file"
+#for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
+	#echo -ne " \$\n$flag" >> "$output/$ninja_file"
+#done
+#echo -e "\n" >> "$output/$ninja_file"
 
 echo -n "valgrind =" >> "$output/$ninja_file"
 for flag in "${valgrind[@]}"; do
@@ -293,7 +275,7 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule pixmap"; \
+echo "rule icon_pixmap"; \
 echo "    command = make/scripts/pixmap.sh"; \
 echo "    description = pixmap \$out"; \
 echo ""; \
@@ -301,28 +283,21 @@ echo ""; \
 
 { \
 echo "rule icon_object"; \
-echo "    command = \$cc -Ires/icon -c res/icon/iconpix_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
-echo ""; \
-} >> "$output/$ninja_file"
-
-{ \
-echo "rule cursor_object"; \
-echo "    command = \$cc -Ires/cursor -c res/cursor/cursorpix_elf.S -o \$out"; \
+echo "    command = \$cc -Ires/icon -c res/icon/iconpix_macho.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_gl1"; \
-echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
+echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_macho.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_vk1"; \
-echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
+echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders_macho.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -352,7 +327,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/x11_$backend.sh $build $backend"; \
+echo "    command = make/lib/appkit_$backend.sh $build $backend"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -374,12 +349,9 @@ done
 ## main targets
 { \
 echo "# main targets"; \
-echo "build res/icon/iconpix.bin: pixmap"; \
-echo "build res/cursor/cursorpix.bin: pixmap"; \
+echo "build res/icon/iconpix.bin: icon_pixmap"; \
 echo "build \$folder_objects/res/icon/iconpix.o: \$"; \
 echo "icon_object res/icon/iconpix.bin"; \
-echo "build \$folder_objects/res/cursor/cursorpix.o: \$"; \
-echo "cursor_object res/cursor/cursorpix.bin"; \
 echo ""; \
 echo "build \$folder_objects/res/shaders/gl1/shaders.o: \$"; \
 echo "shaders_object_gl1 res/shaders/gl1/square_vert_gl1.glsl res/shaders/gl1/square_frag_gl1.glsl"; \

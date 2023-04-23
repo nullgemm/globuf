@@ -258,7 +258,7 @@ echo -e "\n" >> "$output/$ninja_file"
 { \
 echo "# rules"; \
 echo "rule cc"; \
-echo "    deps = $cc"; \
+echo "    deps = gcc"; \
 echo "    depfile = \$out.d"; \
 echo "    command = \$cc \$flags \$defines -MMD -MF \$out.d -c \$in -o \$out"; \
 echo "    description = cc \$out"; \
@@ -281,21 +281,21 @@ echo ""; \
 
 { \
 echo "rule icon_object"; \
-echo "    command = \$cc -Ires/icon -c res/icon/iconpix.S -o \$out"; \
+echo "    command = \$cc -Ires/icon -c res/icon/iconpix_elf.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_gl1"; \
-echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders.S -o \$out"; \
+echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_vk1"; \
-echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders.S -o \$out"; \
+echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
