@@ -22,7 +22,7 @@ folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
 folder_library="\$folder_globox/lib/globox"
 folder_include="\$folder_globox/include"
-name="globox"
+name="globox_elf"
 cc="gcc"
 ar="ar"
 
