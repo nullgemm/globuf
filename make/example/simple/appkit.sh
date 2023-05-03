@@ -26,6 +26,7 @@ folder_globox="globox_bin_$tag"
 folder_library="\$folder_globox/lib/globox"
 folder_include="\$folder_globox/include"
 name="globox_example_simple_appkit"
+src+=("example/helpers/appkit.m")
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -36,7 +37,7 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
-ldflags+=("-z noexecstack")
+ldflags+=("-framework AppKit")
 defines+=("-DGLOBOX_EXAMPLE_APPKIT")
 
 # customize depending on the chosen build type
@@ -232,17 +233,17 @@ for define in "${defines[@]}"; do
 done
 echo -e "\n" >> "$output/$ninja_file"
 
-#echo -n "ldflags =" >> "$output/$ninja_file"
-#for flag in $(pkg-config "${link[@]}" --cflags) "${ldflags[@]}"; do
-	#echo -ne " \$\n$flag" >> "$output/$ninja_file"
-#done
-#echo -e "\n" >> "$output/$ninja_file"
+echo -n "ldflags =" >> "$output/$ninja_file"
+for flag in "${ldflags[@]}"; do
+	echo -ne " \$\n$flag" >> "$output/$ninja_file"
+done
+echo -e "\n" >> "$output/$ninja_file"
 
-#echo -n "ldlibs =" >> "$output/$ninja_file"
-#for flag in $(pkg-config "${link[@]}" --libs) "${ldlibs[@]}"; do
-	#echo -ne " \$\n$flag" >> "$output/$ninja_file"
-#done
-#echo -e "\n" >> "$output/$ninja_file"
+echo -n "ldlibs =" >> "$output/$ninja_file"
+for flag in "${ldlibs[@]}"; do
+	echo -ne " \$\n$flag" >> "$output/$ninja_file"
+done
+echo -e "\n" >> "$output/$ninja_file"
 
 echo -n "valgrind =" >> "$output/$ninja_file"
 for flag in "${valgrind[@]}"; do

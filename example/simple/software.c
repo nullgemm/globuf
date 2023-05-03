@@ -5,6 +5,10 @@
 #include "globox_x11_software.h"
 #endif
 
+#ifdef GLOBOX_EXAMPLE_APPKIT
+#define main real_main
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -27,6 +31,7 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
 };
 
+#if 0
 static void event_callback(void* data, void* event)
 {
 	struct globox* globox = data;
@@ -235,9 +240,12 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 		}
 	}
 }
+#endif
 
 int main(int argc, char** argv)
 {
+	printf("test\n");
+#if 0
 	struct globox_error_info error = {0};
 	struct globox_error_info error_early = {0};
 	printf("starting the simple globox example\n");
@@ -516,5 +524,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+#endif
 	return 0;
 }
