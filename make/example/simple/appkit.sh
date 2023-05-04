@@ -178,7 +178,7 @@ esac
 
 name+="_$lib_suffix"
 ldlibs+=("-lpthread")
-cmd="./\$name"
+cmd="open -n \$name.app"
 
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
@@ -311,15 +311,6 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule leak"; \
-echo "    command = cd \$builddir \$"; \
-echo "    && valgrind \$valgrind 2> valgrind.log \$cmd \$"; \
-echo "    && less valgrind.log"; \
-echo "    description = running valgrind \$in"; \
-echo ""; \
-} >> "$output/$ninja_file"
-
-{ \
 echo "rule run"; \
 echo "    command = cd \$builddir && \$cmd"; \
 echo "    description = running \$in"; \
@@ -381,7 +372,6 @@ echo -e "\n" >> "$output/$ninja_file"
 ## special targets
 { \
 echo "# run special targets"; \
-echo "build leak: leak \$builddir/\$name"; \
 echo "build run: run \$builddir/\$name"; \
 echo "build regen: generator"; \
 echo "build clean: clean"; \

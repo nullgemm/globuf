@@ -1,8 +1,10 @@
 #include "globox.h"
 #include "globox_software.h"
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #include "globox_x11_software.h"
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+#include "globox_appkit_software.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -31,7 +33,6 @@ char* feature_names[GLOBOX_FEATURE_COUNT] =
 	[GLOBOX_FEATURE_VSYNC] = "vsync",
 };
 
-#if 0
 static void event_callback(void* data, void* event)
 {
 	struct globox* globox = data;
@@ -240,12 +241,10 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 		}
 	}
 }
-#endif
 
 int main(int argc, char** argv)
 {
 	printf("test\n");
-#if 0
 	struct globox_error_info error = {0};
 	struct globox_error_info error_early = {0};
 	printf("starting the simple globox example\n");
@@ -253,8 +252,10 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	globox_prepare_init_x11_software(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_prepare_init_appkit_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -290,8 +291,10 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+#if 0
 	// get available features
 	struct globox_config_features* feature_list =
+#endif
 		globox_init_features(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -301,6 +304,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+#if 0
 	// initialize features when creating the window
 	struct globox_feature_state state =
 	{
@@ -350,9 +354,11 @@ int main(int argc, char** argv)
 
 	// configure the feature and print a list
 	printf("received a list of available features:\n");
+#endif
 
 	struct globox_config_request configs[GLOBOX_FEATURE_COUNT] = {0};
 	size_t feature_added = 0;
+#if 0
 	size_t i = 0;
 
 	while (i < feature_list->count)
@@ -415,6 +421,7 @@ int main(int argc, char** argv)
 
 	free(feature_list->list);
 	free(feature_list);
+#endif
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =
@@ -524,6 +531,5 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-#endif
 	return 0;
 }
