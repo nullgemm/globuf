@@ -8,6 +8,7 @@ res/objconv
 res/egl_headers
 res/wayland_headers
 res/icon/iconpix.bin
+res/app/icon.icns
 res/cursor/cursorpix.bin
 res/infer
 res/*.tar.xz

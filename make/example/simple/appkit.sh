@@ -187,7 +187,7 @@ libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
 libs+=("\$folder_library/globox_macho_$lib_suffix.a")
 
 # default target
-default+=("\$builddir/\$name")
+default+=("\$builddir/\$name.app")
 
 # valgrind flags
 valgrind+=("--show-error-list=yes")
@@ -265,6 +265,13 @@ echo "    deps = gcc"; \
 echo "    depfile = \$out.d"; \
 echo "    command = \$cc \$flags \$defines -MMD -MF \$out.d -c \$in -o \$out"; \
 echo "    description = cc \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule app"; \
+echo "    command = make/scripts/package_app.sh \$in"; \
+echo "    description = packaging the executable as an app"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
@@ -367,6 +374,8 @@ echo -n "build \$builddir/\$name: ld" >> "$output/$ninja_file"
 for file in "${obj[@]}" "${libs[@]}"; do
 	echo -ne " \$\n$file" >> "$output/$ninja_file"
 done
+echo -e "\n" >> "$output/$ninja_file"
+echo -n "build \$builddir/\$name.app: app \$builddir/\$name" >> "$output/$ninja_file"
 echo -e "\n" >> "$output/$ninja_file"
 
 ## special targets
