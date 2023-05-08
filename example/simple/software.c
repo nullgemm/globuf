@@ -290,10 +290,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-#if 0
 	// get available features
 	struct globox_config_features* feature_list =
-#endif
 		globox_init_features(globox, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -303,7 +301,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-#if 0
 	// initialize features when creating the window
 	struct globox_feature_state state =
 	{
@@ -353,11 +350,9 @@ int main(int argc, char** argv)
 
 	// configure the feature and print a list
 	printf("received a list of available features:\n");
-#endif
 
 	struct globox_config_request configs[GLOBOX_FEATURE_COUNT] = {0};
 	size_t feature_added = 0;
-#if 0
 	size_t i = 0;
 
 	while (i < feature_list->count)
@@ -420,7 +415,6 @@ int main(int argc, char** argv)
 
 	free(feature_list->list);
 	free(feature_list);
-#endif
 
 	// register an event handler to track the window's state
 	struct globox_config_events events =

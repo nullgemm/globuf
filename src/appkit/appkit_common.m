@@ -149,16 +149,81 @@ void globox_appkit_common_window_create(
 	void* data,
 	struct globox_error_info* error)
 {
-	NSString* appName = [[NSProcessInfo processInfo] processName];
-	NSWindowStyleMask mask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
+	NSString* title = [[NSString alloc] initWithUTF8String:context->feature_title->title];
+
+	NSWindowStyleMask mask =
+		NSWindowStyleMaskResizable
+		| NSWindowStyleMaskClosable
+		| NSWindowStyleMaskMiniaturizable;
+
+	if (context->feature_frame->frame == true)
+	{
+		mask |= NSWindowStyleMaskTitled;
+	}
+
+	NSRect rect =
+		NSMakeRect(
+			context->feature_pos->x,
+			context->feature_pos->y,
+			context->feature_size->width,
+			context->feature_size->height);
 
 	// create the window (must execute on the main thread)
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200) styleMask:mask backing:NSBackingStoreBuffered defer:NO] autorelease];
+		platform->win = [[[NSWindow alloc] initWithContentRect:rect styleMask:mask backing:NSBackingStoreBuffered defer:NO] autorelease];
+
+		id window = platform->win;
 		[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-		[window setTitle:appName];
+		[window setTitle:title];
+
+		switch (context->feature_state->state)
+		{
+			case GLOBOX_STATE_MINIMIZED:
+			{
+				[window miniaturize:nil];
+				break;
+			}
+			case GLOBOX_STATE_MAXIMIZED:
+			{
+				[window zoom:nil];
+				break;
+			}
+			case GLOBOX_STATE_FULLSCREEN:
+			{
+				[window toggleFullScreen:nil];
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
 		[window makeKeyAndOrderFront:nil];
 	});
+
+	// configure features
+	struct globox_config_reply* reply = malloc(count * (sizeof (struct globox_config_reply)));
+
+	if (reply == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	for (size_t i = 0; i < count; ++i)
+	{
+		enum globox_feature feature = configs[i].feature;
+		reply[i].feature = feature;
+		reply[i].error.code = GLOBOX_ERROR_OK;
+		reply[i].error.file = NULL;
+		reply[i].error.line = 0;
+	}
+
+	callback(reply, count, data);
+	free(reply);
+
+	// error always set
 }
 
 void globox_appkit_common_window_destroy(
@@ -267,8 +332,113 @@ struct globox_config_features*
 		struct appkit_platform* platform,
 		struct globox_error_info* error)
 {
+	struct globox_config_features* features =
+		malloc(sizeof (struct globox_config_features));
+
+	if (features == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	features->count = 0;
+	features->list =
+		malloc(GLOBOX_FEATURE_COUNT * (sizeof (enum globox_feature)));
+
+	if (features->list == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	context->feature_interaction =
+		malloc(sizeof (struct globox_feature_interaction));
+	features->count += 1;
+
+	if (context->feature_interaction == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_STATE;
+	context->feature_state =
+		malloc(sizeof (struct globox_feature_state));
+	features->count += 1;
+
+	if (context->feature_state == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	context->feature_title =
+		malloc(sizeof (struct globox_feature_title));
+	features->count += 1;
+
+	if (context->feature_title == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	context->feature_size =
+		malloc(sizeof (struct globox_feature_size));
+	features->count += 1;
+
+	if (context->feature_size == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_POS;
+	context->feature_pos =
+		malloc(sizeof (struct globox_feature_pos));
+	features->count += 1;
+
+	if (context->feature_pos == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_FRAME;
+	context->feature_frame =
+		malloc(sizeof (struct globox_feature_frame));
+	features->count += 1;
+
+	if (context->feature_frame == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	context->feature_background =
+		malloc(sizeof (struct globox_feature_background));
+	features->count += 1;
+
+	if (context->feature_background == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	globox_error_ok(error);
-	return NULL;
+	return features;
 }
 
 void globox_appkit_common_feature_set_interaction(

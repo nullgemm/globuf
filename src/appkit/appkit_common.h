@@ -14,6 +14,7 @@ struct appkit_platform
 	pthread_cond_t cond_main;
 
 	bool closed;
+	id win;
 };
 
 void globox_appkit_common_init(

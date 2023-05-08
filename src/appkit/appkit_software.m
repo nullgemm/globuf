@@ -65,6 +65,14 @@ void globox_appkit_software_window_create(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// configure features here
+	globox_appkit_helpers_features_init(context, platform, configs, count, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
 	globox_appkit_common_window_create(
 		context,
 		platform,
