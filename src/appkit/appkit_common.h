@@ -10,7 +10,10 @@
 // # private helpers
 struct appkit_platform
 {
-	int test;
+	pthread_mutex_t mutex_block;
+	pthread_cond_t cond_main;
+
+	bool closed;
 };
 
 void globox_appkit_common_init(

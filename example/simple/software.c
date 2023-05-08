@@ -244,7 +244,6 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 
 int main(int argc, char** argv)
 {
-	printf("test\n");
 	struct globox_error_info error = {0};
 	struct globox_error_info error_early = {0};
 	printf("starting the simple globox example\n");

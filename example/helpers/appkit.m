@@ -30,7 +30,7 @@ extern int real_main(int argc, char** argv);
 int main(int argc, char** argv)
 {
 	// create a pool to track Apple resources
-    NSAutoreleasePool* pool = [NSAutoreleasePool new];
+	NSAutoreleasePool* pool = [NSAutoreleasePool new];
 
 
 	// create the app's bar menu
@@ -76,17 +76,6 @@ int main(int argc, char** argv)
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
 
-	// create window info
-	NSString* appName = [[NSProcessInfo processInfo] processName];
-	NSWindowStyleMask mask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
-
-	// create the window
-    id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200) styleMask:mask backing:NSBackingStoreBuffered defer:NO] autorelease];
-    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-    [window setTitle:appName];
-    [window makeKeyAndOrderFront:nil];
-
-
 	// start the app
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[NSApp activateIgnoringOtherApps:YES];
@@ -110,8 +99,7 @@ int main(int argc, char** argv)
 
 
 	// release Apple resources
-	// TODO put in method
-    [pool release];
+	[pool release];
 
 	return 0;
 }

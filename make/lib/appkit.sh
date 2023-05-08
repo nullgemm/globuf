@@ -38,6 +38,7 @@ flags+=("-Isrc")
 flags+=("-Isrc/include")
 flags+=("-fPIC")
 flags+=("-fdiagnostics-color=always")
+ldflags+=("-framework AppKit")
 
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
