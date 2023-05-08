@@ -198,8 +198,6 @@ void globox_appkit_common_window_create(
 				break;
 			}
 		}
-
-		[window makeKeyAndOrderFront:nil];
 	});
 
 	// configure features
@@ -239,6 +237,8 @@ void globox_appkit_common_window_start(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	[platform->win makeKeyAndOrderFront:nil];
+
 	globox_error_ok(error);
 }
 
