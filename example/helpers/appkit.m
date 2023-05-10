@@ -85,6 +85,8 @@ int main(int argc, char** argv)
 
 
 	// start globox
+	// we *have* to use a NSThread for this, posix threads are not guaranteed to
+	// play well with AppKit (here we use GloboxThread which inherits NSThread)
 	GloboxThread* thread = [GloboxThread new];
 	[thread start];
 
