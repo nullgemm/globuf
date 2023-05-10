@@ -154,12 +154,8 @@ void globox_appkit_common_window_create(
 	NSWindowStyleMask mask =
 		NSWindowStyleMaskResizable
 		| NSWindowStyleMaskClosable
-		| NSWindowStyleMaskMiniaturizable;
-
-	if (context->feature_frame->frame == true)
-	{
-		mask |= NSWindowStyleMaskTitled;
-	}
+		| NSWindowStyleMaskMiniaturizable
+		| NSWindowStyleMaskTitled;
 
 	NSRect rect =
 		NSMakeRect(
@@ -197,6 +193,11 @@ void globox_appkit_common_window_create(
 			{
 				break;
 			}
+		}
+
+		if (context->feature_frame->frame == false)
+		{
+			[window setTitlebarAppearsTransparent:YES];
 		}
 	});
 
