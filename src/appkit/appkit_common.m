@@ -167,7 +167,8 @@ void globox_appkit_common_window_create(
 	void* data,
 	struct globox_error_info* error)
 {
-	NSString* title = [[NSString alloc] initWithUTF8String:context->feature_title->title];
+	NSString* title =
+		[[NSString alloc] initWithUTF8String:context->feature_title->title];
 
 	NSWindowStyleMask mask =
 		NSWindowStyleMaskResizable
@@ -184,10 +185,21 @@ void globox_appkit_common_window_create(
 
 	// create the window (must execute on the main thread)
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		platform->win = [[[NSWindow alloc] initWithContentRect:rect styleMask:mask backing:NSBackingStoreBuffered defer:NO] autorelease];
+		platform->win =
+			[[[NSWindow alloc]
+				initWithContentRect:rect
+				styleMask:mask
+				backing:NSBackingStoreBuffered
+				defer:NO]
+				autorelease];
 
 		id window = platform->win;
-		[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
+
+		[window
+			cascadeTopLeftFromPoint:NSMakePoint(
+				context->feature_pos->x,
+				context->feature_pos->y)];
+
 		[window setTitle:title];
 
 		switch (context->feature_state->state)
@@ -220,7 +232,8 @@ void globox_appkit_common_window_create(
 	});
 
 	// configure features
-	struct globox_config_reply* reply = malloc(count * (sizeof (struct globox_config_reply)));
+	struct globox_config_reply* reply =
+		malloc(count * (sizeof (struct globox_config_reply)));
 
 	if (reply == NULL)
 	{
@@ -239,7 +252,10 @@ void globox_appkit_common_window_create(
 			case GLOBOX_FEATURE_ICON:
 			case GLOBOX_FEATURE_VSYNC:
 			{
-				globox_error_throw(context, &reply[i].error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+				globox_error_throw(
+					context,
+					&reply[i].error,
+					GLOBOX_ERROR_FEATURE_UNAVAILABLE);
 				break;
 			}
 			default:
@@ -293,7 +309,8 @@ void globox_appkit_common_window_block(
 		return;
 	}
 
-	error_cond = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+	error_cond =
+		pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
 
 	// unlock block mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_block));
