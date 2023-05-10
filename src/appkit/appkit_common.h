@@ -10,6 +10,7 @@
 // # private helpers
 struct appkit_platform
 {
+	pthread_mutex_t mutex_main;
 	pthread_mutex_t mutex_block;
 	pthread_cond_t cond_main;
 

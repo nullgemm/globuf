@@ -42,6 +42,15 @@ void globox_appkit_common_init(
 		return;
 	}
 
+	// init pthread mutex (main)
+	error_posix = pthread_mutex_init(&(platform->mutex_main), &mutex_attr);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		return;
+	}
+
 	// init pthread mutex (block)
 	error_posix = pthread_mutex_init(&(platform->mutex_block), &mutex_attr);
 
@@ -130,6 +139,15 @@ void globox_appkit_common_clean(
 
 	// destroy pthread mutex (block)
 	error_posix = pthread_mutex_destroy(&(platform->mutex_block));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		return;
+	}
+
+	// destroy pthread mutex (main)
+	error_posix = pthread_mutex_destroy(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
@@ -296,9 +314,7 @@ void globox_appkit_common_init_render(
 	struct globox_error_info* error)
 {
 	// set the event callback
-#if 0
 	context->render_callback = *config;
-#endif
 	globox_error_ok(error);
 }
 
@@ -309,9 +325,7 @@ void globox_appkit_common_init_events(
 	struct globox_error_info* error)
 {
 	// set the event callback
-#if 0
 	context->event_callbacks = *config;
-#endif
 	globox_error_ok(error);
 }
 

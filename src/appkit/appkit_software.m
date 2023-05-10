@@ -32,11 +32,6 @@ void globox_appkit_software_init(
 	// reference the backend in the main context
 	context->backend_data = backend;
 
-	// initialize values that can be initialized explicitly
-#if 0
-	backend->shared_pixmaps = false;
-#endif
-
 	// initialize the platform
 	struct appkit_platform* platform = &(backend->platform);
 	globox_appkit_common_init(context, platform, error);
@@ -51,7 +46,10 @@ void globox_appkit_software_clean(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_clean(context, platform, error);
+
+	// error always set
 }
 
 void globox_appkit_software_window_create(
@@ -65,6 +63,15 @@ void globox_appkit_software_window_create(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	// configure features here
 	globox_appkit_helpers_features_init(context, platform, configs, count, error);
 
@@ -73,6 +80,7 @@ void globox_appkit_software_window_create(
 		return;
 	}
 
+	// run common AppKit helper
 	globox_appkit_common_window_create(
 		context,
 		platform,
@@ -81,6 +89,17 @@ void globox_appkit_software_window_create(
 		callback,
 		data,
 		error);
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// error always set
 }
 
 void globox_appkit_software_window_destroy(
@@ -90,7 +109,10 @@ void globox_appkit_software_window_destroy(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_window_destroy(context, platform, error);
+
+	// error always set
 }
 
 void globox_appkit_software_window_start(
@@ -100,7 +122,10 @@ void globox_appkit_software_window_start(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
+
+	// error always set
 }
 
 void globox_appkit_software_window_block(
@@ -110,7 +135,10 @@ void globox_appkit_software_window_block(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_window_block(context, platform, error);
+
+	// error always set
 }
 
 void globox_appkit_software_window_stop(
@@ -120,7 +148,10 @@ void globox_appkit_software_window_stop(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_window_stop(context, platform, error);
+
+	// error always set
 }
 
 
@@ -132,7 +163,10 @@ void globox_appkit_software_init_render(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_init_render(context, platform, config, error);
+
+	// error always set
 }
 
 void globox_appkit_software_init_events(
@@ -143,7 +177,10 @@ void globox_appkit_software_init_events(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_init_events(context, platform, config, error);
+
+	// error always set
 }
 
 enum globox_event globox_appkit_software_handle_events(
@@ -154,6 +191,7 @@ enum globox_event globox_appkit_software_handle_events(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	return globox_appkit_common_handle_events(context, platform, event, error);
 }
 
@@ -165,6 +203,7 @@ struct globox_config_features* globox_appkit_software_init_features(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// error always set
 	return globox_appkit_common_init_features(context, platform, error);
 }
 
@@ -176,7 +215,10 @@ void globox_appkit_software_feature_set_interaction(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_feature_set_interaction(context, platform, config, error);
+
+	// error always set
 }
 
 void globox_appkit_software_feature_set_state(
@@ -187,7 +229,10 @@ void globox_appkit_software_feature_set_state(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_feature_set_state(context, platform, config, error);
+
+	// error always set
 }
 
 void globox_appkit_software_feature_set_title(
@@ -198,7 +243,10 @@ void globox_appkit_software_feature_set_title(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_feature_set_title(context, platform, config, error);
+
+	// error always set
 }
 
 void globox_appkit_software_feature_set_icon(
@@ -209,7 +257,10 @@ void globox_appkit_software_feature_set_icon(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// run common AppKit helper
 	globox_appkit_common_feature_set_icon(context, platform, config, error);
+
+	// error always set
 }
 
 
