@@ -185,7 +185,7 @@ static void config_callback(struct globox_config_reply* replies, size_t count, v
 	{
 		feature = replies[i].feature;
 
-		if (feature < count)
+		if (feature < GLOBOX_FEATURE_COUNT)
 		{
 			if (replies[i].error.code == GLOBOX_ERROR_OK)
 			{

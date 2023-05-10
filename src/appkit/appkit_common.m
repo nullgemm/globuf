@@ -232,9 +232,24 @@ void globox_appkit_common_window_create(
 	{
 		enum globox_feature feature = configs[i].feature;
 		reply[i].feature = feature;
-		reply[i].error.code = GLOBOX_ERROR_OK;
-		reply[i].error.file = NULL;
-		reply[i].error.line = 0;
+
+		switch (feature)
+		{
+			case GLOBOX_FEATURE_INTERACTION:
+			case GLOBOX_FEATURE_ICON:
+			case GLOBOX_FEATURE_VSYNC:
+			{
+				globox_error_throw(context, &reply[i].error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+				break;
+			}
+			default:
+			{
+				reply[i].error.code = GLOBOX_ERROR_OK;
+				reply[i].error.file = NULL;
+				reply[i].error.line = 0;
+				break;
+			}
+		}
 	}
 
 	callback(reply, count, data);
@@ -367,20 +382,6 @@ struct globox_config_features*
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
-	context->feature_interaction =
-		malloc(sizeof (struct globox_feature_interaction));
-	features->count += 1;
-
-	if (context->feature_interaction == NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
-		return NULL;
-	}
-
-	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
-
-	// always available
 	features->list[features->count] = GLOBOX_FEATURE_STATE;
 	context->feature_state =
 		malloc(sizeof (struct globox_feature_state));
@@ -462,7 +463,7 @@ void globox_appkit_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
-	globox_error_ok(error);
+	globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
 }
 
 void globox_appkit_common_feature_set_state(
@@ -489,7 +490,7 @@ void globox_appkit_common_feature_set_icon(
 	struct globox_feature_icon* config,
 	struct globox_error_info* error)
 {
-	globox_error_ok(error);
+	globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
 }
 
 unsigned globox_appkit_common_get_width(
