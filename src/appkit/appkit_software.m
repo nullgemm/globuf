@@ -12,6 +12,9 @@
 #include <sys/shm.h>
 #include <stdlib.h>
 
+#import <AppKit/AppKit.h>
+#import <QuartzCore/QuartzCore.h>
+
 void globox_appkit_software_init(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -90,6 +93,13 @@ void globox_appkit_software_window_create(
 		data,
 		error);
 
+	// create a layer-hosting view
+	platform->view = [NSView new];
+	id view = platform->view;
+
+	[view setLayer:[CALayer new]];
+	[view setWantsLayer:YES];
+
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -124,6 +134,11 @@ void globox_appkit_software_window_start(
 
 	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
+
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		[platform->win setContentView: platform->view];
+		[[platform->view layer] setBackgroundColor: [[NSColor yellowColor] CGColor]];
+	});
 
 	// error always set
 }

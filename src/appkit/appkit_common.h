@@ -16,6 +16,7 @@ struct appkit_platform
 
 	bool closed;
 	id win;
+	id view;
 };
 
 void globox_appkit_common_init(

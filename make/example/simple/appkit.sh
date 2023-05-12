@@ -38,6 +38,7 @@ flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
 ldflags+=("-framework AppKit")
+ldflags+=("-framework QuartzCore")
 defines+=("-DGLOBOX_EXAMPLE_APPKIT")
 
 # customize depending on the chosen build type
