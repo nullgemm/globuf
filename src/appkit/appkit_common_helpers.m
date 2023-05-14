@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#import <AppKit/AppKit.h>
+
 void* appkit_helpers_render_loop(void* data)
 {
 	struct appkit_thread_render_loop_data* thread_render_loop_data = data;
@@ -59,7 +61,9 @@ void* appkit_helpers_render_loop(void* data)
 		}
 
 		// save accessible size values
-		// TODO?
+		NSRect frame = [platform->view frame];
+		context->feature_size->width = frame.size.width;
+		context->feature_size->height = frame.size.height;
 
 		// unlock main mutex
 		error_posix = pthread_mutex_unlock(&(platform->mutex_main));

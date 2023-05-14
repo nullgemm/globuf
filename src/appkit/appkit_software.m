@@ -390,7 +390,9 @@ void globox_appkit_software_update_content(
 	}
 
 	// copy image to layer
-	[platform->layer setContents:(__bridge id)image];
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		[platform->layer setContents:(__bridge id)image];
+	});
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
