@@ -289,6 +289,60 @@ void globox_appkit_common_window_start(
 {
 	[platform->win makeKeyAndOrderFront:nil];
 
+	// init thread attributes
+	int error_posix;
+	pthread_attr_t attr;
+
+	error_posix = pthread_attr_init(&attr);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
+		return;
+	}
+
+	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
+		return;
+	}
+
+	// start the render loop in a new thread
+	// init thread function data
+	struct appkit_thread_render_loop_data render_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->thread_render_loop_data = render_data;
+
+	// start function in a new thread
+	error_posix =
+		pthread_create(
+			&(platform->thread_render_loop),
+			&attr,
+			appkit_helpers_render_loop,
+			&(platform->thread_render_loop_data));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		return;
+	}
+
+	// destroy the attributes
+	error_posix = pthread_attr_destroy(&attr);
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -515,8 +569,30 @@ unsigned globox_appkit_common_get_width(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return 0;
+	}
+
+	// save value
+	unsigned value = context->feature_size->width;
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return 0;
+	}
+
+	// return value
 	globox_error_ok(error);
-	return 0;
+	return value;
 }
 
 unsigned globox_appkit_common_get_height(
@@ -524,8 +600,30 @@ unsigned globox_appkit_common_get_height(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return 0;
+	}
+
+	// save value
+	unsigned value = context->feature_size->height;
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return 0;
+	}
+
+	// return value
 	globox_error_ok(error);
-	return 0;
+	return value;
 }
 
 struct globox_rect globox_appkit_common_get_expose(

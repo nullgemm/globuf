@@ -147,10 +147,12 @@ static void render_callback(void* data)
 		return;
 	}
 
-#if 0
 	uint32_t* argb =
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 		globox_buffer_alloc_x11_software(
+			globox, width, height, &error);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+		globox_buffer_alloc_appkit_software(
 			globox, width, height, &error);
 #endif
 
@@ -201,10 +203,12 @@ static void render_callback(void* data)
 		return;
 	}
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	globox_buffer_free_x11_software(
 		globox, argb, &error);
-#endif
+#elif defined(GLOBOX_EXAMPLE_X11)
+	globox_buffer_free_appkit_software(
+		globox, argb, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)

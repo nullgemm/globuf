@@ -167,6 +167,7 @@ enum globox_error
 	GLOBOX_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE,
 	// windows
 	// macos
+	GLOBOX_ERROR_MACOS_OBJ_NIL,
 	// special
 	GLOBOX_ERROR_COUNT,
 };

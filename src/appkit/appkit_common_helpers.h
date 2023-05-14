@@ -8,7 +8,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-void globox_appkit_helpers_features_init(
+void* appkit_helpers_render_loop(
+	void* data);
+
+void appkit_helpers_features_init(
 	struct globox* context,
 	struct appkit_platform* platform,
 	struct globox_config_request* configs,

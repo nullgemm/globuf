@@ -196,6 +196,8 @@ void globox_error_init(
 		"failed to list Vulkan extensions";
 	log[GLOBOX_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE] =
 		"could not find the XCB Vulkan extension";
+	log[GLOBOX_ERROR_MACOS_OBJ_NIL] =
+		"could not get a valid objective-c object";
 #endif
 }
 

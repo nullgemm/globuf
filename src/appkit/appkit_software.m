@@ -76,7 +76,7 @@ void globox_appkit_software_window_create(
 	}
 
 	// configure features here
-	globox_appkit_helpers_features_init(context, platform, configs, count, error);
+	appkit_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -97,7 +97,12 @@ void globox_appkit_software_window_create(
 	platform->view = [NSView new];
 	id view = platform->view;
 
-	[view setLayer:[CALayer new]];
+	// create a new layer
+	platform->layer = [CALayer new];
+	id layer = platform->layer;
+
+	// make the view layer-hosting
+	[view setLayer:layer];
 	[view setWantsLayer:YES];
 
 	// unlock mutex
@@ -132,13 +137,31 @@ void globox_appkit_software_window_start(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
 	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
 
+	// set window content view
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		[platform->win setContentView: platform->view];
-		[[platform->view layer] setBackgroundColor: [[NSColor yellowColor] CGColor]];
 	});
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
 
 	// error always set
 }
@@ -322,6 +345,67 @@ void globox_appkit_software_update_content(
 	struct appkit_platform* platform = &(backend->platform);
 	struct globox_update_software* update = data;
 
+	// create colorspace to convert buffer automatically
+	CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+
+	if (colorspace == Nil)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_OBJ_NIL);
+		return;
+	}
+
+	// create bitmap from buffer
+	CGContextRef bitmap =
+		CGBitmapContextCreate(
+			update->buf,
+			update->width,
+			update->height,
+			8,
+			update->width * 4,
+			colorspace,
+			kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
+
+	if (bitmap == Nil)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_OBJ_NIL);
+		return;
+	}
+
+	// create image from bitmap
+	CGImageRef image = CGBitmapContextCreateImage(bitmap);
+
+	if (image == Nil)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_OBJ_NIL);
+		return;
+	}
+
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// copy image to layer
+	[platform->layer setContents:(__bridge id)image];
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// free memory
+	CGColorSpaceRelease(colorspace);
+	CGContextRelease(bitmap);
+	CGImageRelease(image);
+
 	globox_error_ok(error);
 }
 
@@ -351,5 +435,41 @@ void globox_prepare_init_appkit_software(
 	config->get_expose = globox_appkit_software_get_expose;
 	config->update_content = globox_appkit_software_update_content;
 
+	globox_error_ok(error);
+}
+
+// simple allocator we provide so developers don't try to recycle buffers
+// (it would not be thread-safe and break this multi-threaded version of globox)
+uint32_t* globox_buffer_alloc_appkit_software(
+	struct globox* context,
+	unsigned width,
+	unsigned height,
+	struct globox_error_info* error)
+{
+	struct appkit_software_backend* backend = context->backend_data;
+	uint32_t* argb = NULL;
+	size_t len = 4 * width * height;
+
+	argb = malloc(len);
+
+	if (argb == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
+	globox_error_ok(error);
+	return argb;
+}
+
+void globox_buffer_free_appkit_software(
+	struct globox* context,
+	uint32_t* buffer,
+	struct globox_error_info* error)
+{
+	struct appkit_software_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+
+	free(buffer);
 	globox_error_ok(error);
 }
