@@ -436,8 +436,19 @@ enum globox_event globox_appkit_common_handle_events(
 	void* event,
 	struct globox_error_info* error)
 {
-	// process system events
-	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
+	enum globox_event globox_event;
+	NSEvent* nsevent = (NSEvent*) event;
+	NSEventType type = [nsevent type];
+
+	switch (type)
+	{
+		default:
+		{
+			globox_event = GLOBOX_EVENT_UNKNOWN;
+			break;
+		}
+	}
+
 	globox_error_ok(error);
 	return globox_event;
 }
