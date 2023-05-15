@@ -10,6 +10,25 @@
 
 #import <AppKit/AppKit.h>
 
+@implementation GloboxWindow
+
+@synthesize globoxEventData;
+
+- (void) sendEvent: (NSEvent*) event
+{
+	struct globox* context = globoxEventData->globox;
+	struct appkit_platform* platform = globoxEventData->platform;
+	struct globox_error_info* error = globoxEventData->error;
+
+	// run developer callback
+	context->event_callbacks.handler(context->event_callbacks.data, event);
+
+	// run actual NSWindow sendEvent
+	[super sendEvent: event];
+}
+
+@end
+
 void* appkit_helpers_render_loop(void* data)
 {
 	struct appkit_thread_render_loop_data* thread_render_loop_data = data;

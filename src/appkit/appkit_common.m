@@ -183,10 +183,21 @@ void globox_appkit_common_window_create(
 			context->feature_size->width,
 			context->feature_size->height);
 
+	struct appkit_thread_event_loop_data event_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->thread_event_loop_data = event_data;
+
+	// start function in a new thread
+
 	// create the window (must execute on the main thread)
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		platform->win =
-			[[[NSWindow alloc]
+			[[[GloboxWindow alloc]
 				initWithContentRect:rect
 				styleMask:mask
 				backing:NSBackingStoreBuffered
@@ -194,6 +205,10 @@ void globox_appkit_common_window_create(
 				autorelease];
 
 		id window = platform->win;
+
+		[window
+			setGloboxEventData:
+				&(platform->thread_event_loop_data)];
 
 		[window
 			cascadeTopLeftFromPoint:NSMakePoint(

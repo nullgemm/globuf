@@ -15,6 +15,13 @@ struct appkit_thread_render_loop_data
 	struct globox_error_info* error;
 };
 
+struct appkit_thread_event_loop_data
+{
+	struct globox* globox;
+	struct appkit_platform* platform;
+	struct globox_error_info* error;
+};
+
 struct appkit_platform
 {
 	pthread_mutex_t mutex_main;
@@ -29,6 +36,7 @@ struct appkit_platform
 	// render handling
 	pthread_t thread_render_loop;
 	struct appkit_thread_render_loop_data thread_render_loop_data;
+	struct appkit_thread_event_loop_data thread_event_loop_data;
 	void (*render_init_callback)(struct globox*, struct globox_error_info*);
 };
 

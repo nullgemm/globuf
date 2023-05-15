@@ -8,6 +8,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#import <AppKit/AppKit.h>
+
+@interface GloboxWindow: NSWindow
+	@property struct appkit_thread_event_loop_data* globoxEventData;
+	- (void) sendEvent: (NSEvent*) event;
+@end
+
 void* appkit_helpers_render_loop(
 	void* data);
 
