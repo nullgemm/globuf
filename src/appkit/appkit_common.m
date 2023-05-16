@@ -192,10 +192,28 @@ void globox_appkit_common_window_create(
 
 	platform->thread_event_loop_data = event_data;
 
+	struct appkit_window_delegate_data delegate_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->window_delegate_data = delegate_data;
+
 	// start function in a new thread
 
 	// create the window (must execute on the main thread)
 	dispatch_sync(dispatch_get_main_queue(), ^{
+		platform->win_delegate =
+			[GloboxWindowDelegate new];
+
+		id delegate = platform->win_delegate;
+
+		[delegate
+			setGloboxDelegateData:
+				&(platform->window_delegate_data)];
+
 		platform->win =
 			[[[GloboxWindow alloc]
 				initWithContentRect:rect
@@ -214,6 +232,10 @@ void globox_appkit_common_window_create(
 			cascadeTopLeftFromPoint:NSMakePoint(
 				context->feature_pos->x,
 				context->feature_pos->y)];
+
+		[window setDelegate:delegate];
+
+		[window setAcceptsMouseMovedEvents:YES];
 
 		[window setTitle:title];
 
@@ -436,15 +458,48 @@ enum globox_event globox_appkit_common_handle_events(
 	void* event,
 	struct globox_error_info* error)
 {
-	enum globox_event globox_event;
+	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
 	NSEvent* nsevent = (NSEvent*) event;
 	NSEventType type = [nsevent type];
 
 	switch (type)
 	{
+		case NSEventTypeApplicationDefined:
+		{
+			if ([nsevent subtype] == 0)
+			{
+				enum globox_event data = [nsevent data1];
+
+				switch (data)
+				{
+					case GLOBOX_EVENT_RESTORED:
+					case GLOBOX_EVENT_MINIMIZED:
+					case GLOBOX_EVENT_MAXIMIZED:
+					case GLOBOX_EVENT_FULLSCREEN:
+					case GLOBOX_EVENT_MOVED_RESIZED:
+					case GLOBOX_EVENT_DAMAGED:
+					{
+						globox_event = data;
+						break;
+					}
+					case GLOBOX_EVENT_CLOSED:
+					{
+						[platform->win close];
+						platform->closed = true;
+						globox_event = data;
+						break;
+					}
+					default:
+					{
+						break;
+					}
+				}
+			}
+
+			break;
+		}
 		default:
 		{
-			globox_event = GLOBOX_EVENT_UNKNOWN;
 			break;
 		}
 	}
