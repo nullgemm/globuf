@@ -235,8 +235,6 @@ void globox_appkit_common_window_create(
 
 		[window setDelegate:delegate];
 
-		[window setAcceptsMouseMovedEvents:YES];
-
 		[window setTitle:title];
 
 		switch (context->feature_state->state)
@@ -477,8 +475,17 @@ enum globox_event globox_appkit_common_handle_events(
 					case GLOBOX_EVENT_MAXIMIZED:
 					case GLOBOX_EVENT_FULLSCREEN:
 					case GLOBOX_EVENT_MOVED_RESIZED:
+					{
+						globox_event = data;
+						break;
+					}
 					case GLOBOX_EVENT_DAMAGED:
 					{
+						NSRect frame = [platform->view frame];
+						context->expose.x = frame.origin.x;
+						context->expose.y = frame.origin.y;
+						context->expose.width = frame.size.width;
+						context->expose.height = frame.size.height;
 						globox_event = data;
 						break;
 					}
@@ -712,14 +719,6 @@ struct globox_rect globox_appkit_common_get_expose(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
-	struct globox_rect dummy =
-	{
-		.x = 0,
-		.y = 0,
-		.width = 0,
-		.height = 0,
-	};
-
 	globox_error_ok(error);
-	return dummy;
+	return context->expose;
 }

@@ -139,11 +139,17 @@
 	return NO;
 }
 
-- (void) windowDidExpose: (NSNotification*) notification
+@end
+
+@implementation GloboxLayerDelegate
+
+@synthesize globoxLayerDelegateData;
+
+- (void) displayLayer: (CALayer*) layer
 {
 	appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
+		globoxLayerDelegateData->globox,
+		globoxLayerDelegateData->platform,
 		GLOBOX_EVENT_DAMAGED);
 }
 

@@ -20,6 +20,11 @@
 	@property struct appkit_window_delegate_data* globoxDelegateData;
 @end
 
+@interface GloboxLayerDelegate: NSObject <CALayerDelegate>
+	@property struct appkit_layer_delegate_data* globoxLayerDelegateData;
+	- (void) displayLayer: (CALayer*) layer;
+@end
+
 void* appkit_helpers_render_loop(
 	void* data);
 

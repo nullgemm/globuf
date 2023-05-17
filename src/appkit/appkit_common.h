@@ -29,6 +29,13 @@ struct appkit_window_delegate_data
 	struct globox_error_info* error;
 };
 
+struct appkit_layer_delegate_data
+{
+	struct globox* globox;
+	struct appkit_platform* platform;
+	struct globox_error_info* error;
+};
+
 struct appkit_platform
 {
 	pthread_mutex_t mutex_main;
@@ -39,6 +46,7 @@ struct appkit_platform
 	id win_delegate;
 	id win;
 	id view;
+	id layer_delegate;
 	id layer;
 
 	// render handling
@@ -46,6 +54,7 @@ struct appkit_platform
 	struct appkit_thread_render_loop_data thread_render_loop_data;
 	struct appkit_thread_event_loop_data thread_event_loop_data;
 	struct appkit_window_delegate_data window_delegate_data;
+	struct appkit_layer_delegate_data layer_delegate_data;
 	void (*render_init_callback)(struct globox*, struct globox_error_info*);
 };
 

@@ -97,9 +97,27 @@ void globox_appkit_software_window_create(
 	platform->view = [NSView new];
 	id view = platform->view;
 
+	// create the custom layer delegate data
+	struct appkit_layer_delegate_data layer_delegate_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->layer_delegate_data = layer_delegate_data;
+
+	// create a custom layer delegate
+	platform->layer_delegate = [GloboxLayerDelegate new];
+	id layer_delegate = platform->layer_delegate;
+
+	[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+
 	// create a new layer
 	platform->layer = [CALayer new];
 	id layer = platform->layer;
+
+	[layer setDelegate: layer_delegate];
 
 	// make the view layer-hosting
 	[view setLayer:layer];
