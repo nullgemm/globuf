@@ -95,7 +95,7 @@ void globox_appkit_software_window_create(
 
 	// create a layer-hosting view
 	platform->view = [NSView new];
-	id view = platform->view;
+	NSView* view = platform->view;
 
 	// create the custom layer delegate data
 	struct appkit_layer_delegate_data layer_delegate_data =
@@ -120,8 +120,35 @@ void globox_appkit_software_window_create(
 	[layer setDelegate: layer_delegate];
 
 	// make the view layer-hosting
-	[view setLayer:layer];
-	[view setWantsLayer:YES];
+	[view setLayer: layer];
+	[view setWantsLayer: YES];
+
+	// create an effects view if we are using background blur
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		// create the blur view
+		platform->view_blur = [NSVisualEffectView new];
+		NSVisualEffectView* view_blur = platform->view_blur;
+
+		[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
+
+		// create a dedicated master view
+		platform->view_master = [NSView new];
+		id view_master = platform->view_master;
+
+		// configure views to be automatically resized by the content view
+		[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+		[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+
+		// build view hierarchy
+		[view_master setWantsLayer: YES];
+		[view_master addSubview: view];
+		[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
+	}
+	else
+	{
+		platform->view_master = view;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -169,7 +196,7 @@ void globox_appkit_software_window_start(
 
 	// set window content view
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		[platform->win setContentView: platform->view];
+		[platform->win setContentView: platform->view_master];
 	});
 
 	// unlock mutex

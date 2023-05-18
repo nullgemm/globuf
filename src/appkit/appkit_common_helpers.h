@@ -40,4 +40,10 @@ void appkit_helpers_send_app_event(
 	struct appkit_platform* platform,
 	enum globox_event event);
 
+void appkit_helpers_set_state(
+	struct globox* context,
+	id window,
+	struct globox_feature_state* config,
+	struct globox_error_info* error);
+
 #endif

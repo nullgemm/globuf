@@ -332,9 +332,10 @@ void appkit_helpers_features_init(
 			{
 				if (configs[i].config != NULL)
 				{
-					*(context->feature_vsync) =
-						*((struct globox_feature_vsync*)
-							configs[i].config);
+					// VSync is always on and there's nothing we can do about it
+					struct globox_feature_vsync* vsync = configs[i].config;
+					vsync->vsync = true;
+					*(context->feature_vsync) = *vsync;
 				}
 
 				break;
@@ -368,4 +369,91 @@ void appkit_helpers_send_app_event(
 	[NSApp
 		postEvent:nsevent
 		atStart:NO];
+}
+
+void appkit_helpers_set_state(
+	struct globox* context,
+	id window,
+	struct globox_feature_state* config,
+	struct globox_error_info* error)
+{
+	switch (config->state)
+	{
+		case GLOBOX_STATE_REGULAR:
+		{
+			if ([window isMiniaturized] == YES)
+			{
+				[window deminiaturize:nil];
+			}
+
+			if (([window styleMask] & NSWindowStyleMaskFullScreen) != 0)
+			{
+				[window toggleFullScreen:nil];
+			}
+
+			if ([window isZoomed] == YES)
+			{
+				[window zoom:nil];
+			}
+
+			break;
+		}
+		case GLOBOX_STATE_MINIMIZED:
+		{
+			// On macOS minimizing a fullscreen window is impossible. We can't
+			// work around this properly since it stems from an actual technical
+			// limit and the only acceptable solution would be to wait for the
+			// window to exit fullscreen mode. Instead, we just error out.
+			if (([window styleMask] & NSWindowStyleMaskFullScreen) != 0)
+			{
+				globox_error_throw(
+					context,
+					error,
+					GLOBOX_ERROR_FEATURE_STATE_INVALID);
+			}
+			else
+			{
+				[window miniaturize:nil];
+			}
+
+			break;
+		}
+		case GLOBOX_STATE_MAXIMIZED:
+		{
+			if ([window isMiniaturized] == YES)
+			{
+				[window deminiaturize:nil];
+			}
+			else if (([window styleMask] & NSWindowStyleMaskFullScreen) != 0)
+			{
+				[window toggleFullScreen:nil];
+			}
+
+			if ([window isZoomed] == NO)
+			{
+				[window zoom:nil];
+			}
+
+			break;
+		}
+		case GLOBOX_STATE_FULLSCREEN:
+		{
+			if ([window isMiniaturized] == YES)
+			{
+				[window deminiaturize:nil];
+			}
+
+			[window toggleFullScreen:nil];
+			break;
+		}
+		default:
+		{
+			globox_error_throw(
+				context,
+				error,
+				GLOBOX_ERROR_FEATURE_STATE_INVALID);
+		}
+	}
+
+	globox_error_ok(error);
 }

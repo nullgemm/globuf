@@ -235,6 +235,23 @@ void globox_appkit_common_window_create(
 
 		[window setDelegate:delegate];
 
+		// set background mode
+		switch (context->feature_background->background)
+		{
+			case GLOBOX_BACKGROUND_BLURRED:
+			case GLOBOX_BACKGROUND_TRANSPARENT:
+			{
+				[window setOpaque: NO];
+				[window setBackgroundColor: [NSColor clearColor]];
+				break;
+			}
+			case GLOBOX_BACKGROUND_OPAQUE:
+			{
+				break;
+			}
+		}
+
+		// set title
 		[window setTitle:title];
 
 		switch (context->feature_state->state)
@@ -260,6 +277,7 @@ void globox_appkit_common_window_create(
 			}
 		}
 
+		// set frame type
 		if (context->feature_frame->frame == false)
 		{
 			[window setTitlebarAppearsTransparent:YES];
@@ -285,7 +303,6 @@ void globox_appkit_common_window_create(
 		{
 			case GLOBOX_FEATURE_INTERACTION:
 			case GLOBOX_FEATURE_ICON:
-			case GLOBOX_FEATURE_VSYNC:
 			{
 				globox_error_throw(
 					context,
@@ -314,6 +331,7 @@ void globox_appkit_common_window_destroy(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	// TODO
 	globox_error_ok(error);
 }
 
@@ -424,6 +442,7 @@ void globox_appkit_common_window_stop(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	// TODO
 	globox_error_ok(error);
 }
 
@@ -471,9 +490,29 @@ enum globox_event globox_appkit_common_handle_events(
 				switch (data)
 				{
 					case GLOBOX_EVENT_RESTORED:
+					{
+						context->feature_state->state = GLOBOX_STATE_REGULAR;
+						globox_event = data;
+						break;
+					}
 					case GLOBOX_EVENT_MINIMIZED:
+					{
+						context->feature_state->state = GLOBOX_STATE_MINIMIZED;
+						globox_event = data;
+						break;
+					}
 					case GLOBOX_EVENT_MAXIMIZED:
+					{
+						context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
+						globox_event = data;
+						break;
+					}
 					case GLOBOX_EVENT_FULLSCREEN:
+					{
+						context->feature_state->state = GLOBOX_STATE_FULLSCREEN;
+						globox_event = data;
+						break;
+					}
 					case GLOBOX_EVENT_MOVED_RESIZED:
 					{
 						globox_event = data;
@@ -539,6 +578,20 @@ struct globox_config_features*
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
+
+	// TODO maybe possible?
+#if 0
+	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	context->feature_interaction =
+		malloc(sizeof (struct globox_feature_interaction));
+	features->count += 1;
+
+	if (context->feature_interaction == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+#endif
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_STATE;
@@ -612,6 +665,18 @@ struct globox_config_features*
 		return NULL;
 	}
 
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	context->feature_vsync =
+		malloc(sizeof (struct globox_feature_vsync));
+	features->count += 1;
+
+	if (context->feature_vsync == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	globox_error_ok(error);
 	return features;
 }
@@ -622,6 +687,7 @@ void globox_appkit_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
+	// TODO maybe possible?
 	globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
 }
 
@@ -631,6 +697,42 @@ void globox_appkit_common_feature_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// configure
+	if (config->state != context->feature_state->state)
+	{
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			appkit_helpers_set_state(
+				context,
+				platform->win,
+				config,
+				error);
+		});
+	}
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// return on configuration error
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -640,6 +742,7 @@ void globox_appkit_common_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
+	// TODO
 	globox_error_ok(error);
 }
 
