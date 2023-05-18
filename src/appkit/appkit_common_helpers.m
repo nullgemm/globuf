@@ -207,8 +207,8 @@ void* appkit_helpers_render_loop(void* data)
 
 		// save accessible size values
 		NSRect frame = [platform->view frame];
-		context->feature_size->width = frame.size.width;
-		context->feature_size->height = frame.size.height;
+		context->feature_size->width = NSWidth(frame);
+		context->feature_size->height = NSHeight(frame);
 
 		// unlock main mutex
 		error_posix = pthread_mutex_unlock(&(platform->mutex_main));

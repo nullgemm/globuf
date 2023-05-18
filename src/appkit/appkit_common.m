@@ -570,10 +570,10 @@ enum globox_event globox_appkit_common_handle_events(
 					case GLOBOX_EVENT_DAMAGED:
 					{
 						NSRect frame = [platform->view frame];
-						context->expose.x = frame.origin.x;
-						context->expose.y = frame.origin.y;
-						context->expose.width = frame.size.width;
-						context->expose.height = frame.size.height;
+						context->expose.x = NSMinX(frame);
+						context->expose.y = NSMinY(frame);
+						context->expose.width = NSWidth(frame);
+						context->expose.height = NSHeight(frame);
 						globox_event = data;
 						break;
 					}
