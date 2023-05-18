@@ -12,6 +12,14 @@
 
 #import <AppKit/AppKit.h>
 
+static inline void free_check(const void* ptr)
+{
+	if (ptr != NULL)
+	{
+		free((void*) ptr);
+	}
+}
+
 void globox_appkit_common_init(
 	struct globox* context,
 	struct appkit_platform* platform,
@@ -742,7 +750,36 @@ void globox_appkit_common_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
-	// TODO
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// configure
+	free_check(context->feature_title->title);
+
+	context->feature_title->title = strdup(config->title);
+
+	NSString* title =
+		[[NSString alloc] initWithUTF8String:context->feature_title->title];
+
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		[platform->win setTitle: title];
+	});
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
