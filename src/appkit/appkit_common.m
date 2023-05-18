@@ -184,6 +184,11 @@ void globox_appkit_common_window_create(
 		| NSWindowStyleMaskMiniaturizable
 		| NSWindowStyleMaskTitled;
 
+	if (context->feature_frame->frame == false)
+	{
+		mask |= NSWindowStyleMaskFullSizeContentView;
+	}
+
 	NSRect rect =
 		NSMakeRect(
 			context->feature_pos->x,
@@ -288,7 +293,11 @@ void globox_appkit_common_window_create(
 		// set frame type
 		if (context->feature_frame->frame == false)
 		{
-			[window setTitlebarAppearsTransparent:YES];
+			[window setTitlebarAppearsTransparent: YES];
+			[window setTitleVisibility: NSWindowTitleHidden];
+			[[window standardWindowButton: NSWindowCloseButton] setHidden: YES];
+			[[window standardWindowButton: NSWindowMiniaturizeButton] setHidden: YES];
+			[[window standardWindowButton: NSWindowZoomButton] setHidden: YES];
 		}
 	});
 
