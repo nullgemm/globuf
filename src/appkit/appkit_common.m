@@ -104,6 +104,14 @@ void globox_appkit_common_init(
 		return;
 	}
 
+	// initialize saved action
+	platform->old_mouse_pos_x = 0;
+	platform->old_mouse_pos_y = 0;
+	platform->saved_mouse_pos_x = 0;
+	platform->saved_mouse_pos_y = 0;
+	platform->saved_window = true;
+	platform->saved_window_geometry = NSZeroRect;
+
 	// initialize the "closed" boolean
 	platform->closed = false;
 
@@ -264,6 +272,9 @@ void globox_appkit_common_window_create(
 			}
 		}
 
+		// accept mouse move events
+		[window setAcceptsMouseMovedEvents: YES];
+
 		// set title
 		[window setTitle:title];
 
@@ -318,7 +329,6 @@ void globox_appkit_common_window_create(
 
 		switch (feature)
 		{
-			case GLOBOX_FEATURE_INTERACTION:
 			case GLOBOX_FEATURE_ICON:
 			{
 				globox_error_throw(
@@ -583,6 +593,76 @@ enum globox_event globox_appkit_common_handle_events(
 
 			break;
 		}
+		case NSEventTypeMouseMoved:
+		case NSEventTypeLeftMouseDragged:
+		case NSEventTypeRightMouseDragged:
+		case NSEventTypeOtherMouseDragged:
+		{
+			// handle interactive move & resize
+			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			{
+				if (platform->saved_window == false)
+				{
+					platform->saved_window_geometry = [platform->win frame];
+					platform->saved_window = true;
+				}
+
+				NSScreen* screen = [[NSScreen screens] firstObject];
+				NSPoint point = [NSEvent mouseLocation];
+				point.y = NSMaxY([screen frame]) - point.y;
+
+				platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
+				platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
+				platform->saved_mouse_pos_x = point.x;
+				platform->saved_mouse_pos_y = point.y;
+
+				appkit_helpers_handle_interaction(context, platform, error);
+			}
+
+			break;
+		}
+		case NSEventTypeLeftMouseDown:
+		case NSEventTypeRightMouseDown:
+		case NSEventTypeOtherMouseDown:
+		{
+			NSScreen* screen = [[NSScreen screens] firstObject];
+			NSPoint point = [NSEvent mouseLocation];
+			point.y = NSMaxY([screen frame]) - point.y;
+			platform->saved_mouse_pos_x = point.x;
+			platform->saved_mouse_pos_y = point.y;
+			platform->saved_window = false;
+			break;
+		}
+		case NSEventTypeLeftMouseUp:
+		case NSEventTypeRightMouseUp:
+		case NSEventTypeOtherMouseUp:
+		{
+			platform->old_mouse_pos_x = 0;
+			platform->old_mouse_pos_y = 0;
+			platform->saved_mouse_pos_x = 0;
+			platform->saved_mouse_pos_y = 0;
+
+			// get current interaction type
+			enum globox_interaction action = context->feature_interaction->action;
+
+			// reset interaction type
+			if (action != GLOBOX_INTERACTION_STOP)
+			{
+				struct globox_feature_interaction action =
+				{
+					.action = GLOBOX_INTERACTION_STOP,
+				};
+
+				globox_feature_set_interaction(context, &action, error);
+
+				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				{
+					break;
+				}
+			}
+
+			break;
+		}
 		default:
 		{
 			break;
@@ -618,8 +698,7 @@ struct globox_config_features*
 		return NULL;
 	}
 
-	// TODO maybe possible?
-#if 0
+	// always available
 	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
 	context->feature_interaction =
 		malloc(sizeof (struct globox_feature_interaction));
@@ -630,7 +709,6 @@ struct globox_config_features*
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
-#endif
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_STATE;
@@ -726,8 +804,34 @@ void globox_appkit_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
-	// TODO maybe possible?
-	globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// configure
+	*(context->feature_interaction) = *config;
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// return on configuration error
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
+	globox_error_ok(error);
 }
 
 void globox_appkit_common_feature_set_state(

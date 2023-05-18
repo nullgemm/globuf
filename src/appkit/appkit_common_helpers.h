@@ -46,4 +46,9 @@ void appkit_helpers_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error);
 
+void appkit_helpers_handle_interaction(
+	struct globox* context,
+	struct appkit_platform* platform,
+	struct globox_error_info* error);
+
 #endif

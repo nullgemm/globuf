@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <AppKit/AppKit.h>
+
 // # private helpers
 struct appkit_thread_render_loop_data
 {
@@ -50,6 +52,14 @@ struct appkit_platform
 	id view;
 	id layer_delegate;
 	id layer;
+
+	// saved action for globox mouse action
+	int32_t old_mouse_pos_x;
+	int32_t old_mouse_pos_y;
+	int32_t saved_mouse_pos_x;
+	int32_t saved_mouse_pos_y;
+	bool saved_window;
+	NSRect saved_window_geometry;
 
 	// render handling
 	pthread_t thread_render_loop;

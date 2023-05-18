@@ -457,3 +457,115 @@ void appkit_helpers_set_state(
 
 	globox_error_ok(error);
 }
+
+void appkit_helpers_handle_interaction(
+	struct globox* context,
+	struct appkit_platform* platform,
+	struct globox_error_info* error)
+{
+	NSRect frame = platform->saved_window_geometry;
+
+	// compute window changes
+	switch (context->feature_interaction->action)
+	{
+		case GLOBOX_INTERACTION_MOVE:
+		{
+			frame =
+				NSOffsetRect(
+					frame,
+					platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_N:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame),
+					NSMinY(frame),
+					NSWidth(frame),
+					NSHeight(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_NW:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSMinY(frame),
+					NSWidth(frame) + platform->old_mouse_pos_x - platform->saved_mouse_pos_x,
+					NSHeight(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_W:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSMinY(frame),
+					NSWidth(frame) + platform->old_mouse_pos_x - platform->saved_mouse_pos_x,
+					NSHeight(frame));
+			break;
+		}
+		case GLOBOX_INTERACTION_SW:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSMinY(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y,
+					NSWidth(frame) + platform->old_mouse_pos_x - platform->saved_mouse_pos_x,
+					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_S:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame),
+					NSMinY(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y,
+					NSWidth(frame),
+					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_SE:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame),
+					NSMinY(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y,
+					NSWidth(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
+			break;
+		}
+		case GLOBOX_INTERACTION_E:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame),
+					NSMinY(frame),
+					NSWidth(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSHeight(frame));
+			break;
+		}
+		case GLOBOX_INTERACTION_NE:
+		{
+			frame =
+				NSMakeRect(
+					NSMinX(frame),
+					NSMinY(frame),
+					NSWidth(frame) + platform->saved_mouse_pos_x - platform->old_mouse_pos_x,
+					NSHeight(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	// set window position
+	[platform->win setFrame: frame display: YES];
+	platform->saved_window_geometry = frame;
+
+	globox_error_ok(error);
+}
