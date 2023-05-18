@@ -450,7 +450,29 @@ void globox_appkit_common_window_stop(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// close window
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		[platform->win close];
+	});
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
