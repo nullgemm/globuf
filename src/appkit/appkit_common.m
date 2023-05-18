@@ -653,12 +653,7 @@ enum globox_event globox_appkit_common_handle_events(
 					.action = GLOBOX_INTERACTION_STOP,
 				};
 
-				globox_feature_set_interaction(context, &action, error);
-
-				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-				{
-					break;
-				}
+				*(context->feature_interaction) = action;
 			}
 
 			break;
