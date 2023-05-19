@@ -1,8 +1,14 @@
 #include "globox.h"
 #include "vulkan_helpers.h"
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #include "globox_x11_vulkan.h"
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+#include "globox_appkit_vulkan.h"
+#endif
+
+#ifdef GLOBOX_EXAMPLE_APPKIT
+#define main real_main
 #endif
 
 #include <stdbool.h>
@@ -210,8 +216,10 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	globox_prepare_init_x11_vulkan(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_prepare_init_appkit_vulkan(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init

@@ -28,14 +28,20 @@ struct vk_inst_layers
 struct vk_inst_layers vk_inst_layers[] =
 {
 	{
-		.name = "VK_LAYER_KHRONOS_validation",
+		.name = "MoltenVK",
 		.found = false,
 	},
 #if 0
 	{
+		.name = "VK_LAYER_KHRONOS_validation",
+		.found = false,
+	},
+#if 1
+	{
 		.name = "VK_LAYER_LUNARG_api_dump",
 		.found = false,
 	},
+#endif
 #endif
 };
 
@@ -52,11 +58,21 @@ struct vk_inst_ext vk_inst_ext[] =
 		.name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 		.found = false,
 	},
-#ifdef GLOBOX_EXAMPLE_MACOS
 	{
-		.name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+		.name = "VK_MVK_macos_surface",
 		.found = false,
 	},
+	{
+		.name = "VK_MVK_moltenvk",
+		.found = false,
+	},
+#if 0
+#ifdef GLOBOX_EXAMPLE_APPKIT
+	{
+		.name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+		.found = true,
+	},
+#endif
 #endif
 };
 
@@ -304,6 +320,11 @@ void init_vulkan(struct globox_render_data* data)
 
 	// print instance extensions
 	printf("available vulkan instance extensions:\n");
+#if 0
+#ifdef GLOBOX_EXAMPLE_APPKIT
+	VkInstanceCreateFlagBits appkit_flags = 0;
+#endif
+#endif
 
 	for (uint32_t i = 0; i < inst_ext_count; ++i)
 	{
@@ -311,6 +332,21 @@ void init_vulkan(struct globox_render_data* data)
 			"\t%s version %u\n",
 			inst_ext_props[i].extensionName,
 			inst_ext_props[i].specVersion);
+
+#if 0
+#ifdef GLOBOX_EXAMPLE_APPKIT
+		int cmp =
+			strcmp(
+				inst_ext_props[i].extensionName,
+				VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+		if (cmp == 0)
+		{
+			vk_inst_ext[1].found = false;
+			appkit_flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+		}
+#endif
+#endif
 	}
 
 	// check needed instance extensions
@@ -364,7 +400,7 @@ void init_vulkan(struct globox_render_data* data)
 	if (inst_ext_found_count < inst_ext_len)
 	{
 		fprintf(stderr, "couldn't get all the required vulkan instance extensions\n");
-		return;
+		//return;
 	}
 
 	// get layers list
@@ -491,8 +527,10 @@ void init_vulkan(struct globox_render_data* data)
 		.ppEnabledExtensionNames = inst_ext_found,
 	};
 
-#ifdef GLOBOX_EXAMPLE_MACOS
-	instance_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#if 0
+#ifdef GLOBOX_EXAMPLE_APPKIT
+	instance_info.flags = appkit_flags;
+#endif
 #endif
 
 	error = vkCreateInstance(&instance_info, NULL, &(data->instance));
@@ -1747,7 +1785,7 @@ void pipeline_vulkan(struct globox_render_data* data)
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+		.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
 		.primitiveRestartEnable = VK_FALSE,
 	};
 
@@ -2241,8 +2279,8 @@ void render_vulkan(struct globox_render_data* data)
 	{
 		-100.0f / data->width, +100.0f / data->height,
 		-100.0f / data->width, -100.0f / data->height,
-		+100.0f / data->width, -100.0f / data->height,
 		+100.0f / data->width, +100.0f / data->height,
+		+100.0f / data->width, -100.0f / data->height,
 	};
 
 	void* vertex_data;

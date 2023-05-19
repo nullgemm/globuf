@@ -11,7 +11,7 @@ toolchain=$3
 
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, mgl, moltenvk"
+echo "backend types: common, software, mgl, vulkan"
 echo "target toolchain types: osxcross, native"
 
 # utilitary variables
@@ -144,11 +144,18 @@ src+=("src/appkit/appkit_mgl.m")
 src+=("src/appkit/appkit_mgl_helpers.m")
 	;;
 
-	moltenvk)
-ninja_file=lib_appkit_moltenvk.ninja
+	vulkan)
+ninja_file=lib_appkit_vulkan.ninja
 name+="_vulkan"
 src+=("src/appkit/appkit_vulkan.m")
 src+=("src/appkit/appkit_vulkan_helpers.m")
+ldflags+=("-lc++")
+ldflags+=("-framework Metal")
+ldflags+=("-framework Foundation")
+ldflags+=("-framework QuartzCore")
+ldflags+=("-framework IOKit")
+ldflags+=("-framework IOSurface")
+ldflags+=("-lMoltenVK")
 	;;
 
 	*)

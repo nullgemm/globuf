@@ -11,7 +11,7 @@ toolchain=$3
 
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: software, mgl, moltenvk"
+echo "backend types: software, mgl, vulkan"
 echo "target toolchain types: osxcross, native"
 
 # utilitary variables
@@ -139,12 +139,20 @@ obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBOX_EXAMPLE_MGL")
 	;;
 
-	moltenvk)
-ninja_file=example_simple_appkit_moltenvk.ninja
+	vulkan)
+ninja_file=example_simple_appkit_vulkan.ninja
 src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globox_macho_vulkan_$toolchain.a")
+ldflags+=("-lc++")
+ldflags+=("-framework Metal")
+ldflags+=("-framework MetalKit")
+ldflags+=("-framework Foundation")
+ldflags+=("-framework QuartzCore")
+ldflags+=("-framework IOKit")
+ldflags+=("-framework IOSurface")
+ldflags+=("-lMoltenVK")
 	;;
 
 	*)

@@ -198,6 +198,12 @@ void globox_error_init(
 		"could not find the XCB Vulkan extension";
 	log[GLOBOX_ERROR_MACOS_OBJ_NIL] =
 		"could not get a valid objective-c object";
+	log[GLOBOX_ERROR_MACOS_VULKAN_SURFACE_CREATE] =
+		"failed to create Metal Vulkan surface";
+	log[GLOBOX_ERROR_MACOS_VULKAN_EXTENSIONS_LIST] =
+		"failed to list Vulkan extensions";
+	log[GLOBOX_ERROR_MACOS_VULKAN_EXTENSION_UNAVAILABLE] =
+		"could not find the Metal Vulkan extension";
 #endif
 }
 

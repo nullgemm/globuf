@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #import <AppKit/AppKit.h>
 
@@ -236,12 +237,11 @@ void globox_appkit_common_window_create(
 				&(platform->window_delegate_data)];
 
 		platform->win =
-			[[[GloboxWindow alloc]
+			[[GloboxWindow alloc]
 				initWithContentRect:rect
 				styleMask:mask
 				backing:NSBackingStoreBuffered
-				defer:NO]
-				autorelease];
+				defer:NO];
 
 		id window = platform->win;
 
