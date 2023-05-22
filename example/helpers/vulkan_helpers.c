@@ -72,12 +72,10 @@ struct vk_inst_ext_optional
 
 struct vk_inst_ext_optional vk_inst_ext_optional[] =
 {
-#if defined(GLOBOX_EXAMPLE_APPKIT)
 	{
 		.name = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
 		.found = false,
 	},
-#endif
 };
 
 // device extensions to enable
@@ -351,8 +349,9 @@ void init_vulkan(struct globox_render_data* data)
 
 	for (uint32_t i = 0; i < ext_globox_len; ++i)
 	{
-		inst_ext_found[inst_ext_len + i] = ext_globox[i];
+		inst_ext_found[i] = ext_globox[i];
 		printf("\t%s\n", ext_globox[i]);
+		++inst_ext_total_found_count;
 	}
 
 	printf("using additional vulkan instance extensions:\n");
@@ -369,14 +368,13 @@ void init_vulkan(struct globox_render_data* data)
 				&& (strcmp(inst_ext_props[i].extensionName, vk_inst_ext[k].name) == 0))
 			{
 				// save as an extension to request
-				inst_ext_found[inst_ext_found_count] = vk_inst_ext[k].name;
-				printf("\t%s\n", inst_ext_found[inst_ext_found_count]);
+				inst_ext_found[inst_ext_total_found_count] = vk_inst_ext[k].name;
+				printf("\t%s\n", inst_ext_found[inst_ext_total_found_count]);
 				++inst_ext_total_found_count;
 				++inst_ext_found_count;
 
 				// skip saved extensions
 				vk_inst_ext[k].found = true;
-				++k;
 
 				break;
 			}
@@ -398,13 +396,12 @@ void init_vulkan(struct globox_render_data* data)
 				&& (strcmp(inst_ext_props[i].extensionName, vk_inst_ext_optional[k].name) == 0))
 			{
 				// save as an extension to request
-				inst_ext_found[inst_ext_found_count] = vk_inst_ext_optional[k].name;
-				printf("\t%s\n", inst_ext_found[inst_ext_found_count]);
+				inst_ext_found[inst_ext_total_found_count] = vk_inst_ext_optional[k].name;
+				printf("\t%s\n", inst_ext_found[inst_ext_total_found_count]);
 				++inst_ext_total_found_count;
 
 				// skip saved extensions
 				vk_inst_ext[k].found = true;
-				++k;
 
 				// if the portability extension is available, set the flags
 				if (strcmp(vk_inst_ext_optional[k].name, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
