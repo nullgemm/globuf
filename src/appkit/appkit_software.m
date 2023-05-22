@@ -141,7 +141,6 @@ void globox_appkit_software_window_create(
 		[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
 		// build view hierarchy
-		[view_master setWantsLayer: YES];
 		[view_master addSubview: view];
 		[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
 	}

@@ -13,55 +13,6 @@
 #include <vulkan/vulkan_metal.h>
 
 #import <AppKit/AppKit.h>
-#import <MetalKit/MTKView.h>
-
-@implementation GloboxMetalView
-
-+ (Class) layerClass
-{
-	return NSClassFromString(@"CAMetalLayer");
-}
-
-- (BOOL) wantsUpdateLayer
-{
-	return YES;
-}
-
-- (CALayer*) makeBackingLayer
-{
-	return [self.class.layerClass layer];
-}
-
-- (instancetype) initWithFrame: (NSRect) frame
-{
-	if ((self = [super initWithFrame:frame]))
-	{
-		self.wantsLayer = YES;
-		self.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-
-		[self updateDrawableSize];
-	}
-
-	return self;
-}
-
-- (void) updateDrawableSize
-{
-	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
-	CGSize size = self.bounds.size;
-	CGSize backingSize = [self convertSizeToBacking:size];
-
-	metalLayer.contentsScale = backingSize.height / size.height;
-	metalLayer.drawableSize = backingSize;
-}
-
-- (void) resizeWithOldSuperviewSize: (NSSize) oldSize
-{
-	[super resizeWithOldSuperviewSize:oldSize];
-	[self updateDrawableSize];
-}
-
-@end
 
 size_t appkit_helpers_vulkan_add_extensions(
 	struct globox* context,

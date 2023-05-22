@@ -233,8 +233,8 @@ void globox_appkit_vulkan_window_create(
 
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		// create a layer-hosting view
-		platform->view = [GloboxMetalView new];
-		GloboxMetalView* view = platform->view;
+		platform->view = [NSView new];
+		NSView* view = platform->view;
 
 		// create the custom layer delegate data
 		struct appkit_layer_delegate_data layer_delegate_data =
@@ -252,8 +252,8 @@ void globox_appkit_vulkan_window_create(
 
 		[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
 
-		// get the view's layer and set its delegate
-		platform->layer = [view layer];
+		// create a new layer
+		platform->layer = [CAMetalLayer new];
 		id layer = platform->layer;
 
 		[layer setDelegate: layer_delegate];
@@ -264,6 +264,10 @@ void globox_appkit_vulkan_window_create(
 			[layer setOpaque: NO];
 		}
 
+		// make the view layer-hosting
+		[view setLayer: layer];
+		[view setWantsLayer: YES];
+
 		// create an effects view if we are using background blur
 		if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
 		{
@@ -271,13 +275,15 @@ void globox_appkit_vulkan_window_create(
 			platform->view_blur = [NSVisualEffectView new];
 			NSVisualEffectView* view_blur = platform->view_blur;
 
-			// configure to blur background and resize with master view
 			[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
-			[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
 			// create a dedicated master view
 			platform->view_master = [NSView new];
 			id view_master = platform->view_master;
+
+			// configure views to be automatically resized by the content view
+			[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+			[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
 			// build view hierarchy
 			[view_master addSubview: view];

@@ -10,11 +10,6 @@
 #include <vulkan/vulkan_metal.h>
 
 #import <AppKit/AppKit.h>
-#import <MetalKit/MTKView.h>
-
-@interface GloboxMetalView : MTKView
-	- (instancetype) initWithFrame: (NSRect) frame;
-@end
 
 struct appkit_vulkan_backend
 {
