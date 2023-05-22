@@ -12,7 +12,7 @@
 #include <sys/shm.h>
 #include <stdlib.h>
 #include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan_macos.h>
+#include <vulkan/vulkan_metal.h>
 
 #import <AppKit/AppKit.h>
 #import <QuartzCore/QuartzCore.h>
@@ -231,6 +231,7 @@ void globox_appkit_vulkan_window_create(
 		data,
 		error);
 
+#if 0
 	// create the custom layer delegate data
 	struct appkit_layer_delegate_data layer_delegate_data =
 	{
@@ -252,6 +253,7 @@ void globox_appkit_vulkan_window_create(
 	id layer = platform->layer;
 
 	[layer setDelegate: layer_delegate];
+#endif
 
 	// create an effects view if we are using background blur
 	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
@@ -363,14 +365,14 @@ void globox_appkit_vulkan_window_start(
 		[[view layer] setOpaque: NO];
 
 		// create vulkan surface
-		VkMacOSSurfaceCreateInfoMVK* info = &(backend->vulkan_info);
+		VkMetalSurfaceCreateInfoEXT* info = &(backend->vulkan_info);
 		info->sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
 		info->pNext = NULL;
 		info->flags = 0;
-		info->pView = view;
+		info->pLayer = (const CAMetalLayer*) [view layer];
 
 		VkResult error_vk =
-			vkCreateMacOSSurfaceMVK(
+			vkCreateMetalSurfaceEXT(
 				backend->config->instance,
 				&(backend->vulkan_info),
 				backend->config->allocator,

@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan_macos.h>
+#include <vulkan/vulkan_metal.h>
 
 #import <AppKit/AppKit.h>
 #import <MetalKit/MTKView.h>
@@ -27,7 +27,7 @@ struct appkit_vulkan_backend
 	bool* ext_found;
 
 	VkSurfaceKHR surface;
-	VkMacOSSurfaceCreateInfoMVK vulkan_info;
+	VkMetalSurfaceCreateInfoEXT vulkan_info;
 };
 
 size_t appkit_helpers_vulkan_add_extensions(

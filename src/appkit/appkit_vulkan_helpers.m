@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan_macos.h>
+#include <vulkan/vulkan_metal.h>
 
 #import <AppKit/AppKit.h>
 #import <MetalKit/MTKView.h>
@@ -74,7 +74,7 @@ size_t appkit_helpers_vulkan_add_extensions(
 	{
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 		VK_KHR_SURFACE_EXTENSION_NAME,
-		VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
+		VK_EXT_METAL_SURFACE_EXTENSION_NAME,
 	};
 
 	size_t extensions_count =
