@@ -231,43 +231,63 @@ void globox_appkit_vulkan_window_create(
 		data,
 		error);
 
-#if 0
-	// create the custom layer delegate data
-	struct appkit_layer_delegate_data layer_delegate_data =
-	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		// create a layer-hosting view
+		platform->view = [GloboxMetalView new];
+		GloboxMetalView* view = platform->view;
 
-	platform->layer_delegate_data = layer_delegate_data;
+		// create the custom layer delegate data
+		struct appkit_layer_delegate_data layer_delegate_data =
+		{
+			.globox = context,
+			.platform = platform,
+			.error = error,
+		};
 
-	// create a custom layer delegate
-	platform->layer_delegate = [GloboxLayerDelegate new];
-	id layer_delegate = platform->layer_delegate;
+		platform->layer_delegate_data = layer_delegate_data;
 
-	[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+		// create a custom layer delegate
+		platform->layer_delegate = [GloboxLayerDelegate new];
+		id layer_delegate = platform->layer_delegate;
 
-	// create a new layer
-	platform->layer = [CAMetalLayer new];
-	id layer = platform->layer;
+		[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
 
-	[layer setDelegate: layer_delegate];
-#endif
+		// get the view's layer and set its delegate
+		platform->layer = [view layer];
+		id layer = platform->layer;
 
-	// create an effects view if we are using background blur
-	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
-	{
-		// create a dedicated master view
-		platform->view_master = [NSView new];
-	}
-	else
-	{
-		//ptdr
-#if 0
-		platform->view_master = view;
-#endif
-	}
+		[layer setDelegate: layer_delegate];
+
+		// configure the view to be transparent
+		if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+		{
+			[layer setOpaque: NO];
+		}
+
+		// create an effects view if we are using background blur
+		if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+		{
+			// create the blur view
+			platform->view_blur = [NSVisualEffectView new];
+			NSVisualEffectView* view_blur = platform->view_blur;
+
+			// configure to blur background and resize with master view
+			[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
+			[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+
+			// create a dedicated master view
+			platform->view_master = [NSView new];
+			id view_master = platform->view_master;
+
+			// build view hierarchy
+			[view_master addSubview: view];
+			[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
+		}
+		else
+		{
+			platform->view_master = view;
+		}
+	});
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -345,31 +365,12 @@ void globox_appkit_vulkan_window_start(
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		[platform->win setContentView: platform->view_master];
 
-		// build view hierarchy
-		id view_master = platform->view_master;
-		platform->view = [[GloboxMetalView alloc] initWithFrame:[[platform->win contentView] frame]];
-		GloboxMetalView* view = platform->view;
-
-		// create the blur view
-		platform->view_blur = [[NSVisualEffectView alloc] initWithFrame:[[platform->win contentView] frame]];
-		NSVisualEffectView* view_blur = platform->view_blur;
-
-		[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
-		[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-
-		[view_master addSubview: view];
-		[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
-
-		[platform->win setOpaque: NO];
-		[platform->win setBackgroundColor: [NSColor clearColor]];
-		[[view layer] setOpaque: NO];
-
 		// create vulkan surface
 		VkMetalSurfaceCreateInfoEXT* info = &(backend->vulkan_info);
 		info->sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
 		info->pNext = NULL;
 		info->flags = 0;
-		info->pLayer = (const CAMetalLayer*) [view layer];
+		info->pLayer = (const CAMetalLayer*) [platform->view layer];
 
 		VkResult error_vk =
 			vkCreateMetalSurfaceEXT(
