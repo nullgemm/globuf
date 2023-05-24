@@ -11,7 +11,7 @@ toolchain=$3
 
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, mgl, vulkan"
+echo "backend types: common, software, egl, vulkan"
 echo "target toolchain types: osxcross, native"
 
 # utilitary variables
@@ -137,11 +137,15 @@ src+=("src/appkit/appkit_software.m")
 src+=("src/appkit/appkit_software_helpers.m")
 	;;
 
-	mgl)
-ninja_file=lib_appkit_mgl.ninja
-name+="_mgl"
-src+=("src/appkit/appkit_mgl.m")
-src+=("src/appkit/appkit_mgl_helpers.m")
+	egl)
+ninja_file=lib_appkit_egl.ninja
+name+="_egl"
+src+=("src/appkit/appkit_egl.m")
+src+=("src/appkit/appkit_egl_helpers.m")
+flags+=("-Ires/angle/include")
+ldflags+=("-Lres/angle/libs")
+ldlibs+=("-lEGL")
+ldlibs+=("-lGLESv2")
 	;;
 
 	vulkan)

@@ -11,7 +11,7 @@ toolchain=$3
 
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: software, mgl, vulkan"
+echo "backend types: software, egl, vulkan"
 echo "target toolchain types: osxcross, native"
 
 # utilitary variables
@@ -132,11 +132,15 @@ ninja_file=example_simple_appkit_software.ninja
 src+=("example/simple/software.c")
 	;;
 
-	mgl)
-ninja_file=example_simple_appkit_mgl.ninja
+	egl)
+ninja_file=example_simple_appkit_egl.ninja
 src+=("example/simple/opengl.c")
-obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-defines+=("-DGLOBOX_EXAMPLE_MGL")
+obj+=("\$folder_objects/res/shaders/gles2/shaders.o")
+defines+=("-DGLOBOX_EXAMPLE_EGL")
+flags+=("-Ires/angle/include")
+ldflags+=("-Lres/angle/libs")
+ldlibs+=("-lEGL")
+ldlibs+=("-lGLESv2")
 	;;
 
 	vulkan)
@@ -306,8 +310,8 @@ echo ""; \
 } >> "$output/$ninja_file"
 
 { \
-echo "rule shaders_object_gl1"; \
-echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_macho.S -o \$out"; \
+echo "rule shaders_object_gles2"; \
+echo "    command = \$cc -Ires/shaders/gles2 -c res/shaders/gles2/shaders_macho.S -o \$out"; \
 echo "    description = \$cc \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -361,8 +365,8 @@ echo "build res/icon/iconpix.bin: icon_pixmap"; \
 echo "build \$folder_objects/res/icon/iconpix.o: \$"; \
 echo "icon_object res/icon/iconpix.bin"; \
 echo ""; \
-echo "build \$folder_objects/res/shaders/gl1/shaders.o: \$"; \
-echo "shaders_object_gl1 res/shaders/gl1/square_vert_gl1.glsl res/shaders/gl1/square_frag_gl1.glsl"; \
+echo "build \$folder_objects/res/shaders/gles2/shaders.o: \$"; \
+echo "shaders_object_gles2 res/shaders/gles2/square_vert_gles2.glsl res/shaders/gles2/square_frag_gles2.glsl"; \
 echo ""; \
 echo "build \$folder_objects/res/shaders/vk1/shaders.o: \$"; \
 echo "shaders_object_vk1 res/shaders/vk1/square_vert_vk1.spv res/shaders/vk1/square_frag_vk1.spv"; \

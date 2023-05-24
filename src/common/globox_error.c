@@ -204,6 +204,32 @@ void globox_error_init(
 		"failed to list Vulkan extensions";
 	log[GLOBOX_ERROR_MACOS_VULKAN_EXTENSION_UNAVAILABLE] =
 		"could not find the Metal Vulkan extension";
+	log[GLOBOX_ERROR_MACOS_EGL_SWAP] =
+		"failed to swap AppKit EGL buffers";
+	log[GLOBOX_ERROR_MACOS_EGL_DESTROY_SURFACE] =
+		"failed to destroy AppKit EGL surface";
+	log[GLOBOX_ERROR_MACOS_EGL_DESTROY_CONTEXT] =
+		"failed to destroy AppKit EGL context";
+	log[GLOBOX_ERROR_MACOS_EGL_TERMINATE] =
+		"failed to terminate AppKit EGL";
+	log[GLOBOX_ERROR_MACOS_EGL_DISPLAY_GET] =
+		"failed to get AppKit EGL display";
+	log[GLOBOX_ERROR_MACOS_EGL_INIT] =
+		"failed to init AppKit EGL";
+	log[GLOBOX_ERROR_MACOS_EGL_BIND_API] =
+		"failed to bind AppKit EGL API";
+	log[GLOBOX_ERROR_MACOS_EGL_CONFIG] =
+		"failed to get AppKit EGL configuration";
+	log[GLOBOX_ERROR_MACOS_EGL_CONTEXT_CREATE] =
+		"failed to create AppKit EGL context";
+	log[GLOBOX_ERROR_MACOS_EGL_CONFIG_ATTR] =
+		"failed to create get AppKit EGL configuration attributes";
+	log[GLOBOX_ERROR_MACOS_EGL_WINDOW_SURFACE] =
+		"failed to create AppKit EGL window surface";
+	log[GLOBOX_ERROR_MACOS_EGL_MAKE_CURRENT] =
+		"failed to make AppKit EGL context current";
+	log[GLOBOX_ERROR_MACOS_EGL_SWAP_INTERVAL] =
+		"failed to set AppKit EGL swap interval";
 #endif
 }
 
