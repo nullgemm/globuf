@@ -22,11 +22,11 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=egl
+	build_backend=software
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=simple
+	build_example=complex
 fi
 
 if [ -z "$build_toolchain" ]; then

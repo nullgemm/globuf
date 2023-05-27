@@ -4,11 +4,20 @@
 #include "dpishit.h"
 #include "willis.h"
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #include "globox_x11_software.h"
 #include "cursoryx_x11.h"
 #include "dpishit_x11.h"
 #include "willis_x11.h"
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+#include "globox_appkit_software.h"
+#include "cursoryx_appkit.h"
+#include "dpishit_appkit.h"
+#include "willis_appkit.h"
+#endif
+
+#ifdef GLOBOX_EXAMPLE_APPKIT
+#define main real_main
 #endif
 
 #include <stdbool.h>
@@ -455,8 +464,11 @@ static void render_callback(void* data)
 	}
 
 	uint32_t* argb =
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 		globox_buffer_alloc_x11_software(
+			globox, width, height, &error);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+		globox_buffer_alloc_appkit_software(
 			globox, width, height, &error);
 #endif
 
@@ -507,8 +519,11 @@ static void render_callback(void* data)
 		return;
 	}
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	globox_buffer_free_x11_software(
+		globox, argb, &error);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_buffer_free_appkit_software(
 		globox, argb, &error);
 #endif
 
@@ -556,8 +571,10 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	globox_prepare_init_x11_software(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_prepare_init_appkit_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -779,7 +796,7 @@ int main(int argc, char** argv)
 	struct cursoryx_error_info error_cursor = {0};
 	struct cursoryx_config_backend config_cursor = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	cursoryx_prepare_init_x11(&config_cursor);
 
 	struct cursoryx_x11_data cursoryx_data =
@@ -787,6 +804,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.screen = globox_get_x11_screen(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	cursoryx_prepare_init_appkit(&config_cursor);
+
+	struct cursoryx_appkit_data cursoryx_data =
+	{
+		.data = NULL,
 	};
 #endif
 
@@ -886,7 +910,7 @@ int main(int argc, char** argv)
 	struct willis_error_info error_input = {0};
 	struct willis_config_backend config_input = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	willis_prepare_init_x11(&config_input);
 
 	struct willis_x11_data willis_data =
@@ -894,6 +918,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.root = globox_get_x11_root(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	willis_prepare_init_appkit(&config_input);
+
+	struct willis_appkit_data willis_data =
+	{
+		.data = NULL,
 	};
 #endif
 
@@ -934,7 +965,7 @@ int main(int argc, char** argv)
 	struct dpishit_error_info error_display = {0};
 	struct dpishit_config_backend config_display = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	dpishit_prepare_init_x11(&config_display);
 
 	struct dpishit_x11_data dpishit_data =
@@ -942,6 +973,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.root = globox_get_x11_root(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	dpishit_prepare_init_appkit(&config_display);
+
+	struct dpishit_appkit_data dpishit_data =
+	{
+		.data = NULL,
 	};
 #endif
 
