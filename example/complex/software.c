@@ -281,6 +281,19 @@ static void event_callback(void* data, void* event)
 
 				break;
 			}
+			case WILLIS_KEY_N:
+			{
+				// set a default regular cursor for our window (wait/busy cursor)
+				cursoryx_set(cursoryx, CURSORYX_BUSY, &error_cursoryx);
+
+				if (cursoryx_error_get_code(&error_cursoryx) != CURSORYX_ERROR_OK)
+				{
+					cursoryx_error_log(cursoryx, &error_cursoryx);
+					return;
+				}
+
+				break;
+			}
 			case WILLIS_KEY_W:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_N;
@@ -892,18 +905,6 @@ int main(int argc, char** argv)
 			globox_clean(globox, &error);
 			return 1;
 		}
-	}
-
-	// set a default regular cursor for our window (wait/busy cursor)
-	cursoryx_set(cursoryx, CURSORYX_BUSY, &error_cursor);
-
-	if (cursoryx_error_get_code(&error_cursor) != CURSORYX_ERROR_OK)
-	{
-		cursoryx_error_log(cursoryx, &error_cursor);
-		cursoryx_clean(cursoryx, &error_cursor);
-		globox_window_destroy(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
 	}
 
 	// init willis
