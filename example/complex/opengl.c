@@ -3,7 +3,7 @@
 #include "dpishit.h"
 #include "willis.h"
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
 	#include "globox_x11_glx.h"
 #elif defined(GLOBOX_EXAMPLE_EGL)
@@ -12,6 +12,15 @@
 	#include "cursoryx_x11.h"
 	#include "dpishit_x11.h"
 	#include "willis_x11.h"
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	#include "globox_appkit_egl.h"
+	#include "cursoryx_appkit.h"
+	#include "dpishit_appkit.h"
+	#include "willis_appkit.h"
+#endif
+
+#ifdef GLOBOX_EXAMPLE_APPKIT
+#define main real_main
 #endif
 
 #include <stdbool.h>
@@ -33,11 +42,19 @@ extern int iconpix_size;
 extern uint8_t cursorpix[];
 extern int cursorpix_size;
 
+#if defined(GLOBOX_EXAMPLE_APPKIT)
+extern uint8_t square_frag_gles2[];
+extern int square_frag_gles2_size;
+
+extern uint8_t square_vert_gles2[];
+extern int square_vert_gles2_size;
+#else
 extern uint8_t square_frag_gl1[];
 extern int square_frag_gl1_size;
 
 extern uint8_t square_vert_gl1[];
 extern int square_vert_gl1_size;
+#endif
 
 #define VERTEX_ATTR_POSITION 0
 
@@ -76,7 +93,11 @@ EGLint egl_config_attrib[] =
 	EGL_GREEN_SIZE, 8,
 	EGL_BLUE_SIZE, 8,
 	EGL_ALPHA_SIZE, 8,
+#if defined (GLOBOX_EXAMPLE_APPKIT)
+	EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+#else
 	EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+#endif
 	EGL_NONE,
 };
 #endif
@@ -108,15 +129,25 @@ static void compile_shaders()
 
 	// compile OpenGL or glES shaders
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+#if defined(GLOBOX_EXAMPLE_APPKIT)
+	const char * const square_vert_gl = (char*) &square_vert_gles2;
+	GLint square_vert_size_gl = square_vert_gles2_size;
+#else
 	const char * const square_vert_gl = (char*) &square_vert_gl1;
 	GLint square_vert_size_gl = square_vert_gl1_size;
+#endif
 	glShaderSource(vertex_shader, 1, &square_vert_gl, &square_vert_size_gl);
 	fprintf(stderr, "compiling vertex shader:\n%.*s\n", square_vert_size_gl, square_vert_gl);
 	glCompileShader(vertex_shader);
 
 	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+#if defined(GLOBOX_EXAMPLE_APPKIT)
+	const char * const square_frag_gl = (char*) &square_frag_gles2;
+	GLint square_frag_size_gl = square_frag_gles2_size;
+#else
 	const char * const square_frag_gl = (char*) &square_frag_gl1;
 	GLint square_frag_size_gl = square_frag_gl1_size;
+#endif
 	glShaderSource(fragment_shader, 1, &square_frag_gl, &square_frag_size_gl);
 	fprintf(stderr, "compiling fragment shader:\n%.*s\n", square_frag_size_gl, square_frag_gl);
 	glCompileShader(fragment_shader);
@@ -662,12 +693,14 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
 	globox_prepare_init_x11_glx(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	globox_prepare_init_x11_egl(&config, &error_early);
 #endif
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_prepare_init_appkit_egl(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -721,12 +754,14 @@ int main(int argc, char** argv)
 	};
 #endif
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
 	globox_init_x11_glx(globox, &config_opengl, &error);
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	globox_init_x11_egl(globox, &config_opengl, &error);
 #endif
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	globox_init_appkit_egl(globox, &config_opengl, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -928,7 +963,7 @@ int main(int argc, char** argv)
 	struct cursoryx_error_info error_cursor = {0};
 	struct cursoryx_config_backend config_cursor = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	cursoryx_prepare_init_x11(&config_cursor);
 
 	struct cursoryx_x11_data cursoryx_data =
@@ -936,6 +971,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.screen = globox_get_x11_screen(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	cursoryx_prepare_init_appkit(&config_cursor);
+
+	struct cursoryx_appkit_data cursoryx_data =
+	{
+		.data = NULL,
 	};
 #endif
 
@@ -1035,7 +1077,7 @@ int main(int argc, char** argv)
 	struct willis_error_info error_input = {0};
 	struct willis_config_backend config_input = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	willis_prepare_init_x11(&config_input);
 
 	struct willis_x11_data willis_data =
@@ -1043,6 +1085,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.root = globox_get_x11_root(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	willis_prepare_init_appkit(&config_input);
+
+	struct willis_appkit_data willis_data =
+	{
+		.data = NULL,
 	};
 #endif
 
@@ -1083,7 +1132,7 @@ int main(int argc, char** argv)
 	struct dpishit_error_info error_display = {0};
 	struct dpishit_config_backend config_display = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 	dpishit_prepare_init_x11(&config_display);
 
 	struct dpishit_x11_data dpishit_data =
@@ -1091,6 +1140,13 @@ int main(int argc, char** argv)
 		.conn = globox_get_x11_conn(globox),
 		.window = globox_get_x11_window(globox),
 		.root = globox_get_x11_root(globox),
+	};
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
+	dpishit_prepare_init_appkit(&config_display);
+
+	struct dpishit_appkit_data dpishit_data =
+	{
+		.data = NULL,
 	};
 #endif
 

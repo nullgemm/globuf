@@ -135,7 +135,7 @@ src+=("example/complex/software.c")
 	;;
 
 	egl)
-ninja_file=example_simple_appkit_egl.ninja
+ninja_file=example_complex_appkit_egl.ninja
 src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gles2/shaders.o")
 defines+=("-DGLOBOX_EXAMPLE_EGL")
@@ -146,7 +146,7 @@ ldlibs+=("-lGLESv2")
 	;;
 
 	vulkan)
-ninja_file=example_simple_appkit_vulkan.ninja
+ninja_file=example_complex_appkit_vulkan.ninja
 src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
