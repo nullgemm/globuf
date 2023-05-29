@@ -231,69 +231,70 @@ void globox_appkit_vulkan_window_create(
 		data,
 		error);
 
+	// create a layer-hosting view
+	platform->view = [NSView new];
+	NSView* view = platform->view;
+
+	// create the custom layer delegate data
+	struct appkit_layer_delegate_data layer_delegate_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->layer_delegate_data = layer_delegate_data;
+
+	// create a custom layer delegate
+	platform->layer_delegate = [GloboxLayerDelegate new];
+	id layer_delegate = platform->layer_delegate;
+
+	[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+
+	// create a new layer
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		// create a layer-hosting view
-		platform->view = [NSView new];
-		NSView* view = platform->view;
-
-		// create the custom layer delegate data
-		struct appkit_layer_delegate_data layer_delegate_data =
-		{
-			.globox = context,
-			.platform = platform,
-			.error = error,
-		};
-
-		platform->layer_delegate_data = layer_delegate_data;
-
-		// create a custom layer delegate
-		platform->layer_delegate = [GloboxLayerDelegate new];
-		id layer_delegate = platform->layer_delegate;
-
-		[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
-
-		// create a new layer
 		platform->layer = [CAMetalLayer new];
-		id layer = platform->layer;
-
-		[layer setDelegate: layer_delegate];
-
-		// configure the view to be transparent
-		if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
-		{
-			[layer setOpaque: NO];
-		}
-
-		// make the view layer-hosting
-		[view setLayer: layer];
-		[view setWantsLayer: YES];
-
-		// create an effects view if we are using background blur
-		if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
-		{
-			// create the blur view
-			platform->view_blur = [NSVisualEffectView new];
-			NSVisualEffectView* view_blur = platform->view_blur;
-
-			[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
-
-			// create a dedicated master view
-			platform->view_master = [NSView new];
-			id view_master = platform->view_master;
-
-			// configure views to be automatically resized by the content view
-			[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-			[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-
-			// build view hierarchy
-			[view_master addSubview: view];
-			[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
-		}
-		else
-		{
-			platform->view_master = view;
-		}
 	});
+
+	id layer = platform->layer;
+
+	[layer setDelegate: layer_delegate];
+
+	// configure the view to be transparent
+	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+	{
+		[layer setOpaque: NO];
+	}
+
+	// make the view layer-hosting
+	[view setLayer: layer];
+	[view setWantsLayer: YES];
+
+	// create an effects view if we are using background blur
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		// create the blur view
+		platform->view_blur = [NSVisualEffectView new];
+		NSVisualEffectView* view_blur = platform->view_blur;
+
+		[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
+
+		// create a dedicated master view
+		platform->view_master = [NSView new];
+		id view_master = platform->view_master;
+
+		// configure views to be automatically resized by the content view
+		[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+		[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+
+		// build view hierarchy
+		[view_master addSubview: view];
+		[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
+	}
+	else
+	{
+		platform->view_master = view;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -370,27 +371,27 @@ void globox_appkit_vulkan_window_start(
 	// set window content view
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		[platform->win setContentView: platform->view_master];
-
-		// create vulkan surface
-		VkMetalSurfaceCreateInfoEXT* info = &(backend->vulkan_info);
-		info->sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
-		info->pNext = NULL;
-		info->flags = 0;
-		info->pLayer = (const CAMetalLayer*) [platform->view layer];
-
-		VkResult error_vk =
-			vkCreateMetalSurfaceEXT(
-				backend->config->instance,
-				&(backend->vulkan_info),
-				backend->config->allocator,
-				&(backend->surface));
-
-		if (error_vk != VK_SUCCESS)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_MACOS_VULKAN_SURFACE_CREATE);
-			return;
-		}
 	});
+
+	// create vulkan surface
+	VkMetalSurfaceCreateInfoEXT* info = &(backend->vulkan_info);
+	info->sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+	info->pNext = NULL;
+	info->flags = 0;
+	info->pLayer = (const CAMetalLayer*) [platform->view layer];
+
+	VkResult error_vk =
+		vkCreateMetalSurfaceEXT(
+			backend->config->instance,
+			&(backend->vulkan_info),
+			backend->config->allocator,
+			&(backend->surface));
+
+	if (error_vk != VK_SUCCESS)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_VULKAN_SURFACE_CREATE);
+		return;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
