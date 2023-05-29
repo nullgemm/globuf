@@ -222,94 +222,109 @@ void globox_appkit_common_window_create(
 
 	platform->window_delegate_data = delegate_data;
 
-	// start function in a new thread
-
 	// create the window (must execute on the main thread)
+	platform->win_delegate =
+		[GloboxWindowDelegate new];
+
+	id delegate = platform->win_delegate;
+
+	[delegate
+		setGloboxDelegateData:
+			&(platform->window_delegate_data)];
+
+	// TODO keep only the minimal (ifdef'd) dispatch_sync sections
+	__block id window;
 	dispatch_sync(dispatch_get_main_queue(), ^{
-		platform->win_delegate =
-			[GloboxWindowDelegate new];
 
-		id delegate = platform->win_delegate;
-
-		[delegate
-			setGloboxDelegateData:
-				&(platform->window_delegate_data)];
-
+#if 0
+	dispatch_sync(dispatch_get_main_queue(), ^{
+#endif
 		platform->win =
 			[[GloboxWindow alloc]
 				initWithContentRect:rect
 				styleMask:mask
 				backing:NSBackingStoreBuffered
 				defer:NO];
-
-		id window = platform->win;
-
-		[window
-			setGloboxEventData:
-				&(platform->thread_event_loop_data)];
-
-		[window
-			cascadeTopLeftFromPoint:NSMakePoint(
-				context->feature_pos->x,
-				context->feature_pos->y)];
-
-		[window setDelegate:delegate];
-
-		// set background mode
-		switch (context->feature_background->background)
-		{
-			case GLOBOX_BACKGROUND_BLURRED:
-			case GLOBOX_BACKGROUND_TRANSPARENT:
-			{
-				[window setOpaque: NO];
-				[window setBackgroundColor: [NSColor clearColor]];
-				break;
-			}
-			case GLOBOX_BACKGROUND_OPAQUE:
-			{
-				break;
-			}
-		}
-
-		// accept mouse move events
-		[window setAcceptsMouseMovedEvents: YES];
-
-		// set title
-		[window setTitle:title];
-
-		switch (context->feature_state->state)
-		{
-			case GLOBOX_STATE_MINIMIZED:
-			{
-				[window miniaturize:nil];
-				break;
-			}
-			case GLOBOX_STATE_MAXIMIZED:
-			{
-				[window zoom:nil];
-				break;
-			}
-			case GLOBOX_STATE_FULLSCREEN:
-			{
-				[window toggleFullScreen:nil];
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
-
-		// set frame type
-		if (context->feature_frame->frame == false)
-		{
-			[window setTitlebarAppearsTransparent: YES];
-			[window setTitleVisibility: NSWindowTitleHidden];
-			[[window standardWindowButton: NSWindowCloseButton] setHidden: YES];
-			[[window standardWindowButton: NSWindowMiniaturizeButton] setHidden: YES];
-			[[window standardWindowButton: NSWindowZoomButton] setHidden: YES];
-		}
+#if 0
 	});
+#endif
+
+	window = platform->win;
+
+	[window
+		setGloboxEventData:
+			&(platform->thread_event_loop_data)];
+
+	[window
+		cascadeTopLeftFromPoint:NSMakePoint(
+			context->feature_pos->x,
+			context->feature_pos->y)];
+
+	[window setDelegate:delegate];
+
+	// set background mode
+	switch (context->feature_background->background)
+	{
+		case GLOBOX_BACKGROUND_BLURRED:
+		case GLOBOX_BACKGROUND_TRANSPARENT:
+		{
+			[window setOpaque: NO];
+			[window setBackgroundColor: [NSColor clearColor]];
+			break;
+		}
+		case GLOBOX_BACKGROUND_OPAQUE:
+		{
+			break;
+		}
+	}
+
+	// accept mouse move events
+	[window setAcceptsMouseMovedEvents: YES];
+
+	// set title
+#if 0
+	dispatch_sync(dispatch_get_main_queue(), ^{
+#endif
+		[window setTitle:title];
+#if 0
+	});
+#endif
+
+	// TODO keep only the minimal (ifdef'd) dispatch_sync sections
+	});
+
+	switch (context->feature_state->state)
+	{
+		case GLOBOX_STATE_MINIMIZED:
+		{
+			[window miniaturize:nil];
+			break;
+		}
+		case GLOBOX_STATE_MAXIMIZED:
+		{
+			[window zoom:nil];
+			break;
+		}
+		case GLOBOX_STATE_FULLSCREEN:
+		{
+			[window toggleFullScreen:nil];
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	// set frame type
+	if (context->feature_frame->frame == false)
+	{
+		[window setTitlebarAppearsTransparent: YES];
+		[window setTitleVisibility: NSWindowTitleHidden];
+		[[window standardWindowButton: NSWindowCloseButton] setHidden: YES];
+		[[window standardWindowButton: NSWindowMiniaturizeButton] setHidden: YES];
+		[[window standardWindowButton: NSWindowZoomButton] setHidden: YES];
+	}
 
 	// configure features
 	struct globox_config_reply* reply =
@@ -910,13 +925,9 @@ void globox_appkit_common_feature_set_title(
 	NSString* title =
 		[[NSString alloc] initWithUTF8String:context->feature_title->title];
 
-#if 0
 	dispatch_sync(dispatch_get_main_queue(), ^{
-#endif
 		[platform->win setTitle: title];
-#if 0
 	});
-#endif
 
 #if 0
 	// unlock mutex
