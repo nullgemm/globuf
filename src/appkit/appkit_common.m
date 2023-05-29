@@ -798,6 +798,7 @@ void globox_appkit_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
+#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -806,10 +807,12 @@ void globox_appkit_common_feature_set_interaction(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
+#endif
 
 	// configure
 	*(context->feature_interaction) = *config;
 
+#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -818,6 +821,7 @@ void globox_appkit_common_feature_set_interaction(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
+#endif
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
@@ -834,6 +838,7 @@ void globox_appkit_common_feature_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
+#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -842,19 +847,25 @@ void globox_appkit_common_feature_set_state(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
+#endif
 
 	// configure
 	if (config->state != context->feature_state->state)
 	{
+#if 0
 		dispatch_sync(dispatch_get_main_queue(), ^{
+#endif
 			appkit_helpers_set_state(
 				context,
 				platform->win,
 				config,
 				error);
+#if 0
 		});
+#endif
 	}
 
+#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -863,6 +874,7 @@ void globox_appkit_common_feature_set_state(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
+#endif
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
@@ -879,6 +891,7 @@ void globox_appkit_common_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
+#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -887,6 +900,7 @@ void globox_appkit_common_feature_set_title(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
+#endif
 
 	// configure
 	free_check(context->feature_title->title);
@@ -896,10 +910,15 @@ void globox_appkit_common_feature_set_title(
 	NSString* title =
 		[[NSString alloc] initWithUTF8String:context->feature_title->title];
 
+#if 0
 	dispatch_sync(dispatch_get_main_queue(), ^{
+#endif
 		[platform->win setTitle: title];
+#if 0
 	});
+#endif
 
+#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -908,6 +927,7 @@ void globox_appkit_common_feature_set_title(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
+#endif
 
 	globox_error_ok(error);
 }
@@ -926,6 +946,7 @@ unsigned globox_appkit_common_get_width(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -934,10 +955,12 @@ unsigned globox_appkit_common_get_width(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
 	}
+#endif
 
 	// save value
 	unsigned value = context->feature_size->width;
 
+#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -946,6 +969,7 @@ unsigned globox_appkit_common_get_width(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
 	}
+#endif
 
 	// return value
 	globox_error_ok(error);
@@ -957,6 +981,7 @@ unsigned globox_appkit_common_get_height(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -965,10 +990,12 @@ unsigned globox_appkit_common_get_height(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
 	}
+#endif
 
 	// save value
 	unsigned value = context->feature_size->height;
 
+#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -977,6 +1004,7 @@ unsigned globox_appkit_common_get_height(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
 	}
+#endif
 
 	// return value
 	globox_error_ok(error);
