@@ -66,7 +66,6 @@ void globox_appkit_software_window_create(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
-#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -75,7 +74,6 @@ void globox_appkit_software_window_create(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
-#endif
 
 	// configure features here
 	appkit_helpers_features_init(context, platform, configs, count, error);
@@ -151,7 +149,6 @@ void globox_appkit_software_window_create(
 		platform->view_master = view;
 	}
 
-#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -160,7 +157,6 @@ void globox_appkit_software_window_create(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
-#endif
 
 	// error always set
 }
@@ -185,7 +181,6 @@ void globox_appkit_software_window_start(
 	struct appkit_software_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
-#if 0
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -194,7 +189,6 @@ void globox_appkit_software_window_start(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
-#endif
 
 	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
@@ -204,7 +198,6 @@ void globox_appkit_software_window_start(
 		[platform->win setContentView: platform->view_master];
 	});
 
-#if 0
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -213,7 +206,6 @@ void globox_appkit_software_window_start(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
-#endif
 
 	// error always set
 }
@@ -432,32 +424,10 @@ void globox_appkit_software_update_content(
 		return;
 	}
 
-#if 0
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-#endif
-
 	// copy image to layer
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		[platform->layer setContents:(__bridge id)image];
 	});
-
-#if 0
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-#endif
 
 	// free memory
 	CGColorSpaceRelease(colorspace);
