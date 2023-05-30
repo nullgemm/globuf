@@ -326,6 +326,48 @@ void globox_appkit_common_window_create(
 		[[window standardWindowButton: NSWindowZoomButton] setHidden: YES];
 	}
 
+	// create a layer-hosting view
+	platform->view = [NSView new];
+
+	// create the custom layer delegate data
+	struct appkit_layer_delegate_data layer_delegate_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	platform->layer_delegate_data = layer_delegate_data;
+
+	// create a custom layer delegate
+	platform->layer_delegate = [GloboxLayerDelegate new];
+	[platform->layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+
+	// make the view layer-hosting
+	[platform->view setLayer: platform->layer];
+	[platform->view setWantsLayer: YES];
+
+	// create an effects view if we are using background blur
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		// create the blur view
+		platform->view_blur = [NSVisualEffectView new];
+		[platform->view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
+
+		// configure views to be automatically resized by the content view
+		[platform->view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+		[platform->view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+
+		// build view hierarchy
+		platform->view_master = [NSView new];
+		[platform->view_master addSubview: platform->view];
+		[platform->view_master addSubview: platform->view_blur positioned: NSWindowBelow relativeTo: platform->view];
+	}
+	else
+	{
+		platform->view_master = platform->view;
+	}
+
 	// configure features
 	struct globox_config_reply* reply =
 		malloc(count * (sizeof (struct globox_config_reply)));
@@ -363,23 +405,6 @@ void globox_appkit_common_window_create(
 
 	callback(reply, count, data);
 	free(reply);
-
-	// create a layer-hosting view
-	platform->view = [NSView new];
-
-	// create the custom layer delegate data
-	struct appkit_layer_delegate_data layer_delegate_data =
-	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
-
-	platform->layer_delegate_data = layer_delegate_data;
-
-	// create a custom layer delegate
-	platform->layer_delegate = [GloboxLayerDelegate new];
-	[platform->layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
 
 	// error always set
 }

@@ -221,16 +221,6 @@ void globox_appkit_vulkan_window_create(
 		return;
 	}
 
-	// run common AppKit helper
-	globox_appkit_common_window_create(
-		context,
-		platform,
-		configs,
-		count,
-		callback,
-		data,
-		error);
-
 	// create a new layer
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		platform->layer = [CAMetalLayer new];
@@ -244,30 +234,15 @@ void globox_appkit_vulkan_window_create(
 		[platform->layer setOpaque: NO];
 	}
 
-	// make the view layer-hosting
-	[platform->view setLayer: platform->layer];
-	[platform->view setWantsLayer: YES];
-
-	// create an effects view if we are using background blur
-	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
-	{
-		// create the blur view
-		platform->view_blur = [NSVisualEffectView new];
-		[platform->view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
-
-		// configure views to be automatically resized by the content view
-		[platform->view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-		[platform->view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-
-		// build view hierarchy
-		platform->view_master = [NSView new];
-		[platform->view_master addSubview: platform->view];
-		[platform->view_master addSubview: platform->view_blur positioned: NSWindowBelow relativeTo: platform->view];
-	}
-	else
-	{
-		platform->view_master = platform->view;
-	}
+	// run common AppKit helper
+	globox_appkit_common_window_create(
+		context,
+		platform,
+		configs,
+		count,
+		callback,
+		data,
+		error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
