@@ -47,9 +47,9 @@ struct appkit_platform
 	bool closed;
 	id win_delegate;
 	id win;
-	id view_master;
-	id view_blur;
-	id view;
+	NSView* view_master;
+	NSVisualEffectView* view_blur;
+	NSView* view;
 	id layer_delegate;
 	id layer;
 
