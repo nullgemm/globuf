@@ -141,11 +141,6 @@ void globox_appkit_software_window_start(
 	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
 
-	// set window content view
-	dispatch_sync(dispatch_get_main_queue(), ^{
-		[platform->win setContentView: platform->view_master];
-	});
-
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 

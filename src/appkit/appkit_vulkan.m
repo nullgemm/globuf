@@ -316,11 +316,6 @@ void globox_appkit_vulkan_window_start(
 	// run common AppKit helper
 	globox_appkit_common_window_start(context, platform, error);
 
-	// set window content view
-	dispatch_sync(dispatch_get_main_queue(), ^{
-		[platform->win setContentView: platform->view_master];
-	});
-
 	// create vulkan surface
 	VkMetalSurfaceCreateInfoEXT* info = &(backend->vulkan_info);
 	info->sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;

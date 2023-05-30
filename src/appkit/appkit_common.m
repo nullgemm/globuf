@@ -425,6 +425,11 @@ void globox_appkit_common_window_start(
 {
 	[platform->win makeKeyAndOrderFront:nil];
 
+	// set window content view
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		[platform->win setContentView: platform->view_master];
+	});
+
 	// init thread attributes
 	int error_posix;
 	pthread_attr_t attr;
