@@ -813,7 +813,7 @@ void globox_appkit_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
-#if 0
+#if 1
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -827,7 +827,7 @@ void globox_appkit_common_feature_set_interaction(
 	// configure
 	*(context->feature_interaction) = *config;
 
-#if 0
+#if 1
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -853,7 +853,7 @@ void globox_appkit_common_feature_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
-#if 0
+#if 1
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -880,7 +880,7 @@ void globox_appkit_common_feature_set_state(
 #endif
 	}
 
-#if 0
+#if 1
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -906,7 +906,7 @@ void globox_appkit_common_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
-#if 0
+#if 1
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -929,7 +929,7 @@ void globox_appkit_common_feature_set_title(
 		[platform->win setTitle: title];
 	});
 
-#if 0
+#if 1
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -957,7 +957,7 @@ unsigned globox_appkit_common_get_width(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
-#if 0
+#if 1
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -971,7 +971,7 @@ unsigned globox_appkit_common_get_width(
 	// save value
 	unsigned value = context->feature_size->width;
 
-#if 0
+#if 1
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -992,7 +992,7 @@ unsigned globox_appkit_common_get_height(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
-#if 0
+#if 1
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -1006,7 +1006,7 @@ unsigned globox_appkit_common_get_height(
 	// save value
 	unsigned value = context->feature_size->height;
 
-#if 0
+#if 1
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 

@@ -101,62 +101,61 @@ void globox_appkit_egl_window_create(
 		error);
 
 	// create a layer-hosting view
-	dispatch_sync(dispatch_get_main_queue(), ^{
-		platform->view = [NSView new];
-		NSView* view = platform->view;
+	platform->view = [NSView new];
 
-		// create the custom layer delegate data
-		struct appkit_layer_delegate_data layer_delegate_data =
-		{
-			.globox = context,
-			.platform = platform,
-			.error = error,
-		};
+	NSView* view = platform->view;
 
-		platform->layer_delegate_data = layer_delegate_data;
+	// create the custom layer delegate data
+	struct appkit_layer_delegate_data layer_delegate_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
 
-		// create a custom layer delegate
-		platform->layer_delegate = [GloboxLayerDelegate new];
-		id layer_delegate = platform->layer_delegate;
+	platform->layer_delegate_data = layer_delegate_data;
 
-		[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+	// create a custom layer delegate
+	platform->layer_delegate = [GloboxLayerDelegate new];
+	id layer_delegate = platform->layer_delegate;
 
-		// create a new layer
-		platform->layer = [CALayer new];
-		id layer = platform->layer;
+	[layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
 
-		[layer setDelegate: layer_delegate];
+	// create a new layer
+	platform->layer = [CALayer new];
+	id layer = platform->layer;
 
-		// make the view layer-hosting
-		[view setLayer: layer];
-		[view setWantsLayer: YES];
+	[layer setDelegate: layer_delegate];
 
-		// create an effects view if we are using background blur
-		if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
-		{
-			// create the blur view
-			platform->view_blur = [NSVisualEffectView new];
-			NSVisualEffectView* view_blur = platform->view_blur;
+	// make the view layer-hosting
+	[view setLayer: layer];
+	[view setWantsLayer: YES];
 
-			[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
+	// create an effects view if we are using background blur
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		// create the blur view
+		platform->view_blur = [NSVisualEffectView new];
+		NSVisualEffectView* view_blur = platform->view_blur;
 
-			// create a dedicated master view
-			platform->view_master = [NSView new];
-			id view_master = platform->view_master;
+		[view_blur setBlendingMode: NSVisualEffectBlendingModeBehindWindow];
 
-			// configure views to be automatically resized by the content view
-			[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-			[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+		// create a dedicated master view
+		platform->view_master = [NSView new];
+		id view_master = platform->view_master;
 
-			// build view hierarchy
-			[view_master addSubview: view];
-			[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
-		}
-		else
-		{
-			platform->view_master = view;
-		}
-	});
+		// configure views to be automatically resized by the content view
+		[view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+		[view_blur setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+
+		// build view hierarchy
+		[view_master addSubview: view];
+		[view_master addSubview: view_blur positioned: NSWindowBelow relativeTo: view];
+	}
+	else
+	{
+		platform->view_master = view;
+	}
 
 	// get EGL display
 	backend->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -324,21 +323,21 @@ void globox_appkit_egl_window_start(
 	// set window content view
 	dispatch_sync(dispatch_get_main_queue(), ^{
 		[platform->win setContentView: platform->view_master];
-
-		// create EGL surface
-		backend->surface =
-			eglCreateWindowSurface(
-				backend->display,
-				backend->attr_config,
-				(EGLNativeWindowType) platform->layer,
-				NULL);
-
-		if (backend->surface == EGL_NO_SURFACE)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_WINDOW_SURFACE);
-			return;
-		}
 	});
+
+	// create EGL surface
+	backend->surface =
+		eglCreateWindowSurface(
+			backend->display,
+			backend->attr_config,
+			(EGLNativeWindowType) platform->layer,
+			NULL);
+
+	if (backend->surface == EGL_NO_SURFACE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_WINDOW_SURFACE);
+		return;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
