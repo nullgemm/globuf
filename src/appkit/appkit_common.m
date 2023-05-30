@@ -1001,6 +1001,36 @@ struct globox_rect globox_appkit_common_get_expose(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
+	struct globox_rect dummy =
+	{
+		.x = 0,
+		.y = 0,
+		.width = 0,
+		.height = 0,
+	};
+
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return dummy;
+	}
+
+	// save value
+	struct globox_rect value = context->expose;
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return dummy;
+	}
+
+	// return value
 	globox_error_ok(error);
-	return context->expose;
+	return value;
 }
