@@ -163,7 +163,6 @@ void* appkit_helpers_render_loop(void* data)
 	struct appkit_platform* platform = thread_render_loop_data->platform;
 	struct globox_error_info* error = thread_render_loop_data->error;
 
-#if 1
 	// lock main mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -172,11 +171,9 @@ void* appkit_helpers_render_loop(void* data)
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 		return NULL;
 	}
-#endif
 
 	bool closed = platform->closed;
 
-#if 1
 	// unlock main mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -185,7 +182,6 @@ void* appkit_helpers_render_loop(void* data)
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return NULL;
 	}
-#endif
 
 	// thread init callback
 	if (platform->render_init_callback != NULL)
@@ -200,7 +196,6 @@ void* appkit_helpers_render_loop(void* data)
 
 	while (closed == false)
 	{
-#if 1
 		// lock main mutex
 		error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -209,14 +204,12 @@ void* appkit_helpers_render_loop(void* data)
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 			break;
 		}
-#endif
 
 		// save accessible size values
 		NSRect frame = [platform->view frame];
 		context->feature_size->width = NSWidth(frame);
 		context->feature_size->height = NSHeight(frame);
 
-#if 1
 		// unlock main mutex
 		error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -225,12 +218,10 @@ void* appkit_helpers_render_loop(void* data)
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
-#endif
 
 		// run developer callback
 		context->render_callback.callback(context->render_callback.data);
 
-#if 1
 		// lock main mutex
 		error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -239,11 +230,9 @@ void* appkit_helpers_render_loop(void* data)
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
 			break;
 		}
-#endif
 
 		closed = platform->closed;
 
-#if 1
 		// unlock main mutex
 		error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -252,7 +241,6 @@ void* appkit_helpers_render_loop(void* data)
 			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
-#endif
 	}
 
 	pthread_exit(NULL);
