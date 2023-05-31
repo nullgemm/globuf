@@ -10,8 +10,8 @@
 // we also have to let it steal the thread so it can spin its internal loops,
 // leaving us with having to use a second one for actual work.
 // Another side-effect of that is the rendering and event handling are probably
-// never truly parallel on macOS apps, while they can be on other platforms',
-// which is something to keep in mind when writing your program.
+// never truly parallel on macOS apps, while they can be on other platforms
+// (something to keep in mind when writing your program).
 
 // run the example main() on a secondary thread (symbol renamed)
 extern int real_main(int argc, char** argv);
@@ -92,12 +92,7 @@ int main(int argc, char** argv)
 
 
 	// handle window events
-	while (1)
-	{
-		NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
-		[NSApp sendEvent:event];
-		[NSApp updateWindows];
-	}
+	[NSApp run];
 
 
 	// release Apple resources
