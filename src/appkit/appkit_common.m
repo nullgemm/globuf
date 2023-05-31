@@ -659,6 +659,13 @@ enum globox_event globox_appkit_common_handle_events(
 		case NSEventTypeRightMouseDragged:
 		case NSEventTypeOtherMouseDragged:
 		{
+			// stop interactive move & resize when in fullscreen
+			if (([platform->win styleMask] & NSWindowStyleMaskFullScreen) != 0)
+			{
+				context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+				break;
+			}
+
 			// handle interactive move & resize
 			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
 			{
@@ -869,8 +876,11 @@ void globox_appkit_common_feature_set_interaction(
 		return;
 	}
 
-	// configure
-	*(context->feature_interaction) = *config;
+	// configure if not in fullscreen mode
+	if (([platform->win styleMask] & NSWindowStyleMaskFullScreen) == 0)
+	{
+		*(context->feature_interaction) = *config;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
