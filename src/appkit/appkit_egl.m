@@ -34,7 +34,6 @@ void globox_appkit_egl_init(
 	*backend = zero;
 
 	// initialize what can be
-	backend->scale = 1.0;
 	backend->egl = EGL_NO_CONTEXT;
 	backend->display = EGL_NO_DISPLAY;
 	backend->surface = EGL_NO_SURFACE;
@@ -492,8 +491,6 @@ void globox_appkit_egl_update_content(
 		return;
 	}
 
-	backend->scale = [platform->win backingScaleFactor];
-
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -507,11 +504,33 @@ void globox_appkit_egl_update_content(
 }
 
 double globox_appkit_egl_get_scale(
-	struct globox* context)
+	struct globox* context,
+	struct globox_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
 
-	return backend->scale;
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return 1.0;
+	}
+
+	double scale = [platform->win backingScaleFactor];
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return 1.0;
+	}
+
+	return scale;
 }
 
 

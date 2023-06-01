@@ -14,4 +14,8 @@ void globox_init_appkit_egl(
 	struct globox_config_egl* config,
 	struct globox_error_info* error);
 
+double globox_appkit_egl_get_scale(
+	struct globox* context,
+	struct globox_error_info* error);
+
 #endif

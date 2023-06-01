@@ -10,7 +10,6 @@ struct appkit_egl_backend
 {
 	struct appkit_platform platform;
 	struct globox_config_egl* config;
-	double scale;
 
 	EGLContext egl;
 	EGLDisplay display;

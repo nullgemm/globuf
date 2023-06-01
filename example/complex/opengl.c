@@ -622,6 +622,20 @@ static void render_callback(void* data)
 		render_data->shaders = false;
 	}
 
+	// fix retina scaling on macOS
+#ifdef GLOBOX_EXAMPLE_APPKIT
+		double macos_scale = globox_appkit_egl_get_scale(globox, &error);
+
+		if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+		{
+			globox_error_log(globox, &error);
+			return;
+		}
+
+		width *= macos_scale;
+		height *= macos_scale;
+#endif
+
 	GLint viewport_rect[4];
 
 	glGetIntegerv(GL_VIEWPORT, viewport_rect);
