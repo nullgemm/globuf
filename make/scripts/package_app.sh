@@ -17,8 +17,10 @@ mkdir "$1.app/Contents/Resources"
 iconutil -c icns res/app/icon.iconset
 cp res/app/icon.icns "$1.app/Contents/Resources/globox.icns"
 
-# install the dylibs in the app
+# install the dylibs in the app (and copy in the build folder)
 if [ "$2" == "egl" ]; then
+build=$(dirname "$1")
+cp res/angle/libs/* "$build"
 cp res/angle/libs/* "$1.app/Contents/MacOS/"
 install_name_tool -change ./libEGL.dylib @executable_path/libEGL.dylib "$1.app/Contents/MacOS/globox"
 install_name_tool -change ./libGLESv2.dylib @executable_path/libGLESv2.dylib "$1.app/Contents/MacOS/globox"
