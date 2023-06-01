@@ -283,7 +283,7 @@ echo ""; \
 
 { \
 echo "rule app"; \
-echo "    command = make/scripts/package_app.sh \$in"; \
+echo "    command = make/scripts/package_app.sh \$in $backend"; \
 echo "    description = packaging the executable as an app"; \
 echo ""; \
 } >> "$output/$ninja_file"
