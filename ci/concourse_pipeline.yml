@@ -1,7 +1,7 @@
 jobs:
   - name: globox_build_x11
     plan:
-      - task: globox_build_x11_task
+      - task: globox_build_x11_software
         config:
           platform: linux
           image_resource:
@@ -14,9 +14,38 @@ jobs:
             GIT_REPO_URL: globox_image_x11_gcc
           run:
             path: /scripts/build_x11.sh
-  - name: globox_build_appkit
+            args: ["release", "x11", "software", "none", "native"]
+      - task: globox_build_x11_vulkan
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_x11_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_x11_gcc
+          run:
+            path: /scripts/build_x11.sh
+            args: ["release", "x11", "vulkan", "none", "native"]
+      - task: globox_build_x11_egl
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_x11_gcc
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_x11_gcc
+          run:
+            path: /scripts/build_x11.sh
+            args: ["release", "x11", "egl", "none", "native"]
+  - name: globox_build_appkit_osxcross
     plan:
-      - task: globox_build_appkit_task
+      - task: globox_build_appkit_software
         config:
           platform: linux
           image_resource:
@@ -29,7 +58,36 @@ jobs:
             GIT_REPO_URL: globox_image_appkit_osxcross
           run:
             path: /scripts/build_appkit.sh
-  - name: globox_build_appkit_software
+            args: ["release", "appkit", "software", "none", "osxcross"]
+      - task: globox_build_appkit_vulkan
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_appkit_osxcross
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_appkit_osxcross
+          run:
+            path: /scripts/build_appkit.sh
+            args: ["release", "appkit", "vulkan", "none", "osxcross"]
+      - task: globox_build_appkit_egl
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_appkit_osxcross
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_appkit_osxcross
+          run:
+            path: /scripts/build_appkit.sh
+            args: ["release", "appkit", "egl", "none", "osxcross"]
+  - name: globox_build_appkit_native
     plan:
       - task: globox_build_appkit_software_task
         config:
@@ -37,16 +95,12 @@ jobs:
           run:
             path: /bin/bash
             args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_software.sh"]
-  - name: globox_build_appkit_egl
-    plan:
       - task: globox_build_appkit_egl_task
         config:
           platform: darwin
           run:
             path: /bin/bash
             args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_egl.sh"]
-  - name: globox_build_appkit_vulkan
-    plan:
       - task: globox_build_appkit_vulkan_task
         config:
           platform: darwin
