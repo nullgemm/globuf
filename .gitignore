@@ -13,9 +13,7 @@ res/infer
 res/*.tar.xz
 res/*.zip
 ci/*/log
-ci/osxcross_build_image/volumes
-ci/osxcross_build_image/scripts/pkg
-ci/globox_image_osxcross/scripts/sdk
+ci/globox_image_appkit_osxcross/scripts/sdk
 valgrind.log
 drmemory.log
 log
