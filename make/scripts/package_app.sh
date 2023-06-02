@@ -14,7 +14,6 @@ cp "$1" "$1.app/Contents/MacOS/globox"
 
 # copy the icons bundle in the app
 mkdir "$1.app/Contents/Resources"
-iconutil -c icns res/app/icon.iconset
 cp res/app/icon.icns "$1.app/Contents/Resources/globox.icns"
 
 # install the dylibs in the app (and copy in the build folder)
