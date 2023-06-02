@@ -160,7 +160,7 @@ jobs:
             GIT_REPO_URL: globox_image_appkit_osxcross
           run:
             path: /scripts/build_appkit.sh
-            args: ["release", "appkit", "software", "complex", "osxcross"]
+            args: ["release", "appkit", "software", "simple", "osxcross"]
       - task: globox_build_appkit_software_complex_example
         config:
           platform: linux
@@ -204,7 +204,7 @@ jobs:
             GIT_REPO_URL: globox_image_appkit_osxcross
           run:
             path: /scripts/build_appkit.sh
-            args: ["release", "appkit", "vulkan", "complex", "osxcross"]
+            args: ["release", "appkit", "vulkan", "simple", "osxcross"]
       - task: globox_build_appkit_vulkan_complex_example
         config:
           platform: linux
@@ -248,7 +248,7 @@ jobs:
             GIT_REPO_URL: globox_image_appkit_osxcross
           run:
             path: /scripts/build_appkit.sh
-            args: ["release", "appkit", "egl", "complex", "osxcross"]
+            args: ["release", "appkit", "egl", "simple", "osxcross"]
       - task: globox_build_appkit_egl_complex_example
         config:
           platform: linux
