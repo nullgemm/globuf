@@ -14,3 +14,34 @@ jobs:
             GIT_REPO_URL: globox_image_x11_gcc
           run:
             path: /scripts/build_x11.sh
+  - name: globox_build_appkit
+    plan:
+      - task: globox_build_appkit_task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_appkit_osxcross
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_appkit_osxcross
+          run:
+            path: /scripts/build_appkit.sh
+  - name: globox_build_appkit_software
+    plan:
+      - task: globox_build_appkit_software_task
+        config:
+          platform: darwin
+          run:
+            path: /bin/bash
+            args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_software.sh"]
+  - name: globox_build_appkit_egl
+    plan:
+      - task: globox_build_appkit_egl_task
+        config:
+          platform: darwin
+          run:
+            path: /bin/bash
+            args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_egl.sh"]
