@@ -23,7 +23,8 @@ apk add --no-cache \
 	mesa-dev \
 	mesa-egl \
 	vulkan-tools \
-	vulkan-headers
+	vulkan-headers \
+	vulkan-loader-dev
 
 apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
 	vulkan-validation-layers-dbg \
