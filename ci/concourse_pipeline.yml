@@ -45,3 +45,11 @@ jobs:
           run:
             path: /bin/bash
             args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_egl.sh"]
+  - name: globox_build_appkit_vulkan
+    plan:
+      - task: globox_build_appkit_vulkan_task
+        config:
+          platform: darwin
+          run:
+            path: /bin/bash
+            args: ["--login", "/Users/nullgemm/Documents/concourse/bin/globox_scripts_appkit_native/build_vulkan.sh"]
