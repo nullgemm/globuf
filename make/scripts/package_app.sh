@@ -21,6 +21,13 @@ if [ "$2" == "egl" ]; then
 build=$(dirname "$1")
 cp res/angle/libs/* "$build"
 cp res/angle/libs/* "$1.app/Contents/MacOS/"
+
+if [ "$3" == "native" ]; then
 install_name_tool -change ./libEGL.dylib @executable_path/libEGL.dylib "$1.app/Contents/MacOS/globox"
 install_name_tool -change ./libGLESv2.dylib @executable_path/libGLESv2.dylib "$1.app/Contents/MacOS/globox"
+else
+x86_64-apple-darwin21.4-install_name_tool -change ./libEGL.dylib @executable_path/libEGL.dylib "$1.app/Contents/MacOS/globox"
+x86_64-apple-darwin21.4-install_name_tool -change ./libGLESv2.dylib @executable_path/libGLESv2.dylib "$1.app/Contents/MacOS/globox"
+fi
+
 fi

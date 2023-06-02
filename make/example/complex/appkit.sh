@@ -33,6 +33,7 @@ flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
+flags+=("-Wno-strict-prototypes")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
@@ -292,7 +293,7 @@ echo ""; \
 
 { \
 echo "rule app"; \
-echo "    command = make/scripts/package_app.sh \$in $backend"; \
+echo "    command = make/scripts/package_app.sh \$in $backend $toolchain"; \
 echo "    description = packaging the executable as an app"; \
 echo ""; \
 } >> "$output/$ninja_file"
