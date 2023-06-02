@@ -10,8 +10,8 @@ sudo docker rmi alpine:edge
 
 sudo ./build.sh
 
-sudo ./run.sh /scripts/build_appkit.sh release appkit software osxcross
-sudo ./run.sh /scripts/build_appkit.sh release appkit egl osxcross
+sudo ./run.sh /scripts/build_appkit.sh release appkit software none osxcross
+sudo ./run.sh /scripts/build_appkit.sh release appkit egl none osxcross
 
 sudo ./artifact.sh software
 sudo ./artifact.sh egl

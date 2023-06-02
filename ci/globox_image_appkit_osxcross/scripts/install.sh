@@ -4,6 +4,9 @@
 # bash						running the build scripts
 # samurai					building the binaries
 # musl-dev					standard C library
+# clang                     OSXCross dependency
+# libgcc                    OSXCross dependency
+# libstdc++                 OSXCross dependency
 # unzip                     extracting ANGLE
 # curl                      downloading ANGLE
 # libbsd                    using Apple's Xcode clang
@@ -14,6 +17,9 @@ apk add --no-cache \
 	bash \
 	samurai \
 	musl-dev \
+	clang \
+	libgcc \
+	libstdc++ \
 	unzip \
 	curl \
 	libbsd \

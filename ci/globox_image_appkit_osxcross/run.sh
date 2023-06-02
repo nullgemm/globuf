@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # example for a release build
-# $ ./run.sh /scripts/build_appkit.sh release appkit software osxcross
+# $ ./run.sh /scripts/build_appkit.sh release appkit software none osxcross
 docker run \
 	--privileged \
 	--name globox_container_appkit_osxcross_"$4" \
