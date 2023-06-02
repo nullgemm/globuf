@@ -60,8 +60,6 @@ flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
 	;;
 
 	sanitized_memory)
