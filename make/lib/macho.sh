@@ -127,6 +127,7 @@ src+=("src/common/globox_error.c")
 	vulkan)
 ninja_file=lib_macho_vulkan.ninja
 name+="_vulkan"
+flags+=("-Ires/moltenvk/include")
 src+=("src/common/globox_vulkan.c")
 	;;
 
