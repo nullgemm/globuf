@@ -12,10 +12,10 @@ sudo docker rmi alpine:edge
 
 sudo ./build.sh
 
-sudo ./run.sh /scripts/build_x11.sh release x11 software none
-sudo ./run.sh /scripts/build_x11.sh release x11 vulkan none
-sudo ./run.sh /scripts/build_x11.sh release x11 egl none
-sudo ./run.sh /scripts/build_x11.sh release x11 glx none
+sudo ./run.sh /scripts/build_x11.sh release x11 software none native
+sudo ./run.sh /scripts/build_x11.sh release x11 vulkan none native
+sudo ./run.sh /scripts/build_x11.sh release x11 egl none native
+sudo ./run.sh /scripts/build_x11.sh release x11 glx none native
 
 sudo ./artifact.sh software
 sudo ./artifact.sh vulkan
