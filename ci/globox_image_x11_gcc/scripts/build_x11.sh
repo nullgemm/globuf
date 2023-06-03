@@ -4,7 +4,7 @@ git clone https://github.com/nullgemm/globox.git
 cd ./globox || exit
 
 # TODO remove
-git checkout next
+git checkout appkit_angle
 
 if [ "$4" == "complex" ]; then
 ./make/scripts/cursoryx_get.sh
