@@ -30,7 +30,7 @@ if [ -z "$build_example" ]; then
 fi
 
 if [ -z "$build_toolchain" ]; then
-	build_toolchain=native
+	build_toolchain=osxcross
 fi
 
 # generate ninja files

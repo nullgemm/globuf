@@ -23,6 +23,6 @@ cp \
 	../libs/
 
 # get headers
-git clone https://chromium.googlesource.com/angle/angle
+git clone --depth 1 https://chromium.googlesource.com/angle/angle
 
 mv angle/include/* ../include/
