@@ -423,7 +423,13 @@ void globox_appkit_common_window_start(
 	struct appkit_platform* platform,
 	struct globox_error_info* error)
 {
-	[platform->win makeKeyAndOrderFront:nil];
+	GloboxWindow* win = platform->win;
+
+	[win setAppearance:
+		[NSAppearance appearanceNamed:
+			NSAppearanceNameVibrantDark]];
+
+	[win makeKeyAndOrderFront: nil];
 
 	// set window content view
 	dispatch_sync(dispatch_get_main_queue(), ^{
