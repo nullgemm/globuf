@@ -8,9 +8,11 @@ cd ../..
 build=$1
 backend=$2
 
+function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
 echo "backend types: common, vulkan"
+}
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -108,13 +110,14 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 	*)
 echo "invalid build type"
+syntax
 exit 1
 	;;
 esac
 
 # customize depending on the chosen backend type
 if [ -z "$backend" ]; then
-	backend=software
+	backend=common
 fi
 
 case $backend in
@@ -132,6 +135,7 @@ src+=("src/common/globox_vulkan.c")
 
 	*)
 echo "invalid backend"
+syntax
 exit 1
 	;;
 esac

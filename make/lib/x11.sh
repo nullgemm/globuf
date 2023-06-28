@@ -8,9 +8,11 @@ cd ../..
 build=$1
 backend=$2
 
+function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
 echo "backend types: common, software, glx, egl, vulkan"
+}
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -111,6 +113,7 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 	*)
 echo "invalid build type"
+syntax
 exit 1
 	;;
 esac
@@ -158,6 +161,7 @@ src+=("src/x11/x11_vulkan_helpers.c")
 
 	*)
 echo "invalid backend"
+syntax
 exit 1
 	;;
 esac

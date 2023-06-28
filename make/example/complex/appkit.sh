@@ -9,9 +9,11 @@ build=$1
 backend=$2
 toolchain=$3
 
+function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
 echo "backend types: software, egl, vulkan"
+}
 
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
@@ -118,6 +120,7 @@ ldflags+=("-fsanitize-recover=all")
 
 	*)
 echo "invalid build type"
+syntax
 exit 1
 	;;
 esac
@@ -164,6 +167,7 @@ ldflags+=("-lMoltenVK")
 
 	*)
 echo "invalid backend"
+syntax
 exit 1
 	;;
 esac
@@ -188,6 +192,7 @@ ld="clang"
 
 	*)
 echo "invalid target toolchain type"
+syntax
 exit 1
 	;;
 esac
