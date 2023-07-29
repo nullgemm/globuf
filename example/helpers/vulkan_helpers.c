@@ -852,8 +852,8 @@ void config_vulkan(struct globox_render_data* data)
 				phys_devs_mem_props.memoryHeaps[k].flags;
 
 			printf(
-				"\t\theap #%u:\n\t\t\tsize: %lu\n",
-				k, (size_t) size);
+				"\t\theap #%u:\n\t\t\tsize: %llu\n",
+				k, (long long unsigned) size);
 
 			if (flags != 0)
 			{

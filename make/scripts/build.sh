@@ -18,19 +18,19 @@ if [ -z "$build_type" ]; then
 fi
 
 if [ -z "$build_platform" ]; then
-	build_platform=appkit
+	build_platform=x11
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=software
+	build_backend=vulkan
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=complex
+	build_example=simple
 fi
 
 if [ -z "$build_toolchain" ]; then
-	build_toolchain=osxcross
+	build_toolchain=native
 fi
 
 # generate ninja files
@@ -62,6 +62,21 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/appkit.sh $build_type $build_backend $build_toolchain
+		fi
+	;;
+
+	win)
+		rm -rf build make/output
+		./make/lib/pe.sh $build_type common
+		./make/lib/win.sh $build_type common
+		./make/lib/win.sh $build_type $build_backend
+
+		if [ "$build_backend" == "vulkan" ]; then
+			./make/lib/pe.sh $build_type $build_backend
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			./make/example/$build_example/win.sh $build_type $build_backend
 		fi
 	;;
 
@@ -104,6 +119,23 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_appkit_"$build_backend".ninja
+		fi
+	;;
+
+	win)
+		ninja -f ./make/output/lib_pe.ninja
+		ninja -f ./make/output/lib_win_common.ninja
+		ninja -f ./make/output/lib_win_"$build_backend".ninja
+
+		ninja -f ./make/output/lib_pe.ninja headers
+		ninja -f ./make/output/lib_win_"$build_backend".ninja headers
+
+		if [ "$build_backend" == "vulkan" ]; then
+			ninja -f ./make/output/lib_pe_"$build_backend".ninja
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			ninja -f ./make/output/example_"$build_example"_win_"$build_backend".ninja
 		fi
 	;;
 

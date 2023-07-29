@@ -245,7 +245,7 @@ void globox_x11_common_init(
 	platform->thread_render_loop_data = thread_render_loop_data;
 	platform->render_init_callback = NULL;
 
-	// initialize render thread
+	// initialize event thread
 	struct x11_thread_event_loop_data thread_event_loop_data =
 	{
 		.globox = NULL,
