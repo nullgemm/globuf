@@ -24,9 +24,9 @@ folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
 folder_library="\$folder_globox/lib/globox"
 folder_include="\$folder_globox/include"
-name="globox_elf"
-cc="gcc"
-ar="ar"
+name="globox_pe"
+cc="x86_64-w64-mingw32-gcc"
+ar="x86_64-w64-mingw32-gcc-ar"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -38,6 +38,10 @@ flags+=("-Wno-unused-parameter")
 flags+=("-Isrc")
 flags+=("-Isrc/include")
 flags+=("-fPIC")
+defines+=("-DUNICODE")
+defines+=("-D_UNICODE")
+defines+=("-DWINVER=0x0A00")
+defines+=("-D_WIN32_WINNT=0x0A00")
 
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
@@ -122,13 +126,13 @@ fi
 
 case $backend in
 	common)
-ninja_file=lib_elf.ninja
+ninja_file=lib_pe.ninja
 src+=("src/common/globox.c")
 src+=("src/common/globox_error.c")
 	;;
 
 	vulkan)
-ninja_file=lib_elf_vulkan.ninja
+ninja_file=lib_pe_vulkan.ninja
 name+="_vulkan"
 src+=("src/common/globox_vulkan.c")
 	;;
@@ -207,7 +211,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/elf.sh $build"; \
+echo "    command = make/lib/pe.sh $build"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -220,10 +224,8 @@ echo "build \$folder_include/globox.h: \$"; \
 echo "cp src/include/globox.h"; \
 echo "build \$folder_include/globox_software.h: \$"; \
 echo "cp src/include/globox_software.h"; \
-echo "build \$folder_include/globox_glx.h: \$"; \
-echo "cp src/include/globox_glx.h"; \
-echo "build \$folder_include/globox_egl.h: \$"; \
-echo "cp src/include/globox_egl.h"; \
+echo "build \$folder_include/globox_wgl.h: \$"; \
+echo "cp src/include/globox_wgl.h"; \
 echo "build \$folder_include/globox_vulkan.h: \$"; \
 echo "cp src/include/globox_vulkan.h"; \
 echo ""; \
@@ -233,8 +235,7 @@ echo ""; \
 echo "build headers: phony \$"; \
 echo "\$folder_include/globox.h \$"; \
 echo "\$folder_include/globox_software.h \$"; \
-echo "\$folder_include/globox_glx.h \$"; \
-echo "\$folder_include/globox_egl.h \$"; \
+echo "\$folder_include/globox_wgl.h \$"; \
 echo "\$folder_include/globox_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"

@@ -11,7 +11,7 @@ backend=$2
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, glx, egl, vulkan"
+echo "backend types: common, software, wgl, vulkan"
 }
 
 # utilitary variables
@@ -22,11 +22,11 @@ output="make/output"
 folder_ninja="build"
 folder_objects="\$builddir/obj"
 folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox/x11"
+folder_library="\$folder_globox/lib/globox/win"
 folder_include="\$folder_globox/include"
-name="globox_x11"
-cc="gcc"
-ar="ar"
+name="globox_win"
+cc="x86_64-w64-mingw32-gcc"
+ar="x86_64-w64-mingw32-gcc-ar"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -40,10 +40,15 @@ flags+=("-Isrc")
 flags+=("-Isrc/include")
 flags+=("-fPIC")
 flags+=("-fdiagnostics-color=always")
+defines+=("-DUNICODE")
+defines+=("-D_UNICODE")
+defines+=("-DWINVER=0x0A00")
+defines+=("-D_WIN32_WINNT=0x0A00")
 
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+defines+=("-DGLOBOX_COMPAT_WINE")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -54,7 +59,6 @@ case $build in
 	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
-defines+=("-DGLOBOX_ERROR_HELPER_XCB")
 	;;
 
 	release)
@@ -125,38 +129,32 @@ fi
 
 case $backend in
 	common)
-ninja_file=lib_x11_common.ninja
+ninja_file=lib_win_common.ninja
 name+="_common"
-src+=("src/x11/x11_common.c")
-src+=("src/x11/x11_common_helpers.c")
+src+=("src/win/win_common.c")
+src+=("src/win/win_common_helpers.c")
 	;;
 
 	software)
-ninja_file=lib_x11_software.ninja
+ninja_file=lib_win_software.ninja
 name+="_software"
-src+=("src/x11/x11_software.c")
-src+=("src/x11/x11_software_helpers.c")
+src+=("src/win/win_software.c")
+src+=("src/win/win_software_helpers.c")
 	;;
 
-	glx)
-ninja_file=lib_x11_glx.ninja
-name+="_glx"
-src+=("src/x11/x11_glx.c")
-src+=("src/x11/x11_glx_helpers.c")
-	;;
-
-	egl)
-ninja_file=lib_x11_egl.ninja
-name+="_egl"
-src+=("src/x11/x11_egl.c")
-src+=("src/x11/x11_egl_helpers.c")
+	wgl)
+ninja_file=lib_win_wgl.ninja
+name+="_wgl"
+src+=("src/win/win_wgl.c")
+src+=("src/win/win_wgl_helpers.c")
 	;;
 
 	vulkan)
-ninja_file=lib_x11_vulkan.ninja
+ninja_file=lib_win_vulkan.ninja
 name+="_vulkan"
-src+=("src/x11/x11_vulkan.c")
-src+=("src/x11/x11_vulkan_helpers.c")
+flags+=("-DVK_USE_PLATFORM_WIN32_KHR")
+src+=("src/win/win_vulkan.c")
+src+=("src/win/win_vulkan_helpers.c")
 	;;
 
 	*)
@@ -233,7 +231,7 @@ echo ""; \
 
 { \
 echo "rule generator"; \
-echo "    command = make/lib/x11.sh $build $backend"; \
+echo "    command = make/lib/win.sh $build $backend"; \
 echo "    description = re-generating the ninja build file"; \
 echo ""; \
 } >> "$output/$ninja_file"
@@ -243,18 +241,18 @@ echo ""; \
 if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox_x11_$backend.h: \$"; \
-echo "cp src/include/globox_x11_$backend.h"; \
+echo "build \$folder_include/globox_win_$backend.h: \$"; \
+echo "cp src/include/globox_win_$backend.h"; \
 echo ""; \
-echo "build \$folder_include/globox_x11.h: \$"; \
-echo "cp src/include/globox_x11.h"; \
+echo "build \$folder_include/globox_win.h: \$"; \
+echo "cp src/include/globox_win.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_x11_$backend.h \$"; \
-echo "\$folder_include/globox_x11.h"; \
+echo "\$folder_include/globox_win_$backend.h \$"; \
+echo "\$folder_include/globox_win.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi
