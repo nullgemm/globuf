@@ -5,6 +5,8 @@
 #include "globox_x11_vulkan.h"
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 #include "globox_appkit_vulkan.h"
+#elif defined(GLOBOX_EXAMPLE_WIN)
+#include "globox_win_vulkan.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -220,6 +222,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_x11_vulkan(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_prepare_init_appkit_vulkan(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_prepare_init_win_vulkan(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
