@@ -5,6 +5,8 @@
 #include "globox_x11_software.h"
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 #include "globox_appkit_software.h"
+#elif defined(GLOBOX_EXAMPLE_WIN)
+#include "globox_win_software.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -154,6 +156,9 @@ static void render_callback(void* data)
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 		globox_buffer_alloc_appkit_software(
 			globox, width, height, &error);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+		globox_buffer_alloc_win_software(
+			globox, width, height, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -206,8 +211,11 @@ static void render_callback(void* data)
 #if defined(GLOBOX_EXAMPLE_X11)
 	globox_buffer_free_x11_software(
 		globox, argb, &error);
-#elif defined(GLOBOX_EXAMPLE_X11)
+#elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_buffer_free_appkit_software(
+		globox, argb, &error);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_buffer_free_win_software(
 		globox, argb, &error);
 #endif
 
@@ -259,6 +267,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_x11_software(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_prepare_init_appkit_software(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_prepare_init_win_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
