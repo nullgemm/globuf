@@ -22,7 +22,7 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=wgl
+	build_backend=vulkan
 fi
 
 if [ -z "$build_example" ]; then

@@ -149,6 +149,7 @@ src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globox_pe_vulkan.a")
+ldlibs+=("-lvulkan-1")
 	;;
 
 	*)

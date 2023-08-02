@@ -281,6 +281,12 @@ void globox_error_init(
 		"";
 	log[GLOBOX_ERROR_WIN_WGL_SWAP] =
 		"";
+	log[GLOBOX_ERROR_WIN_VULKAN_EXTENSIONS_LIST] =
+		"";
+	log[GLOBOX_ERROR_WIN_VULKAN_EXTENSION_UNAVAILABLE] =
+		"";
+	log[GLOBOX_ERROR_WIN_VULKAN_SURFACE_CREATE] =
+		"";
 
 	log[GLOBOX_ERROR_MACOS_OBJ_NIL] =
 		"could not get a valid objective-c object";
