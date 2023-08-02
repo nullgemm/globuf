@@ -1,7 +1,7 @@
 # Femtoframe
 Femtoframe is a portable windowing library for X11, Wayland, Windows and macOS.
 It is entirely modular, with support for X11, Wayland, Windows and macOS
-available in optional library binaries to be used with the femtoframe core.
+available in optional library binaries to be used with the Femtoframe core.
 
 Femtoframe was built as a lightweight alternative to similar projects and only
 provides windows, as demonstrated in the simple example, with the relevant
@@ -9,7 +9,7 @@ system libraries for only dependencies.
 
 Input handling, cursor management and density detection must be taken care of 
 using other libraries, such as Willis, Cursoryx and DPIshit, independant
-projects usable with femtoframe as shown in the complex example.
+projects usable with Femtoframe as shown in the complex example.
 
 This modular architecture makes it easy to add support for new platforms,
 and also means it's possible to select the target window system at run time.
@@ -39,19 +39,19 @@ macOS
 
 
 ## Building
-The build system for femtoframe consists in bash scripts generating ninja scripts.
+The build system for Femtoframe consists in bash scripts generating ninja scripts.
 The first step is to generate the ninja scripts for all the components needed.
 Then, these ninja scripts must be ran to build the actual binaries.
 
 ### General steps for the library
-You will usually need 3 modules to be able to use one of femtoframe's backend:
- - The femtoframe core, providing code common across platforms.
+You will usually need 3 modules to be able to use one of Femtoframe's backend:
+ - The Femtoframe core, providing code common across platforms.
    This is what implements the main interface of the library,
    to which you will bind the backend of your choice at run time.
- - The femtoframe backend module, holding all code specific to a context type.
+ - The Femtoframe backend module, holding all code specific to a context type.
    This is what is actually executed when the interface is used,
    after you bind all the backend's functions to the main library.
- - The femtoframe platform module, containing code common across backends.
+ - The Femtoframe platform module, containing code common across backends.
    This is here to avoid compiling common code into every backend module,
    so you can link multiple ones without having to worry about binary size.
 
@@ -59,13 +59,13 @@ All these components are generated using the scripts found in `make/lib`.
 They take arguments: execute them alone to get some help about that.
 
 The scripts named after executable file formats generate ninja scripts
-to compile the femtoframe core module. An example use for Linux would be:
+to compile the Femtoframe core module. An example use for Linux would be:
 ```
 ./make/lib/elf.sh development common
 ```
 
 The scripts named after platforms will generate ninja scripts to compile
-femtoframe backends when supplied the `common` argument, but using backend
+Femtoframe backends when supplied the `common` argument, but using backend
 names instead will generate ninja scripts to compile backends:
 ```
 ./make/lib/x11.sh development common
@@ -105,11 +105,11 @@ ninja -f ./make/output/example_simple_x11_vulkan.ninja
 ```
 
 You may have noticed there are two variants of the examples: simple and complex.
-Because femtoframe only implements windowing, the simple examples don't do much.
+Because Femtoframe only implements windowing, the simple examples don't do much.
 
 Since my other libraries implementing desktop-app features also needed examples,
 I decided although they are completely independant to create a complex variant
-integrating them together with femtoframe.
+integrating them together with Femtoframe.
 
 To compile these complex examples, you will therefore need these libraries.
 For convenience, a script downloading their latest releases can be found in
@@ -230,7 +230,7 @@ since it runs on a home server (mostly for economic reasons).
 
 
 ### Complex example
-The complex example can help us test advanced features of femtoframe 
+The complex example can help us test advanced features of Femtoframe 
 that require specific capabilities not provided by the library itself.
 
 Press (but don't hold) the following keyboard keys to trigger various actions:
