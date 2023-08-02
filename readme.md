@@ -28,8 +28,8 @@ X11
  - `glx` provides OpenGL contexts using XCB, GLX and libX11 when required.
 
 Windows (background blur is not supported since it requires using private APIs)
- - `software` provides CPU buffers using DirectComposition.
- - `vulkan` provides Vulkan contexts using Vulkan's WSI and DirectComposition. (TODO)
+ - `software` provides CPU buffers using GDI.
+ - `vulkan` provides Vulkan contexts using Vulkan's WSI.
  - `wgl` provides OpenGL contexts using WGL and GDI.
 
 macOS
