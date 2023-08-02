@@ -1,17 +1,14 @@
-#define _XOPEN_SOURCE 700
-
 #include "include/globox.h"
-#include "include/globox_x11.h"
+#include "include/globox_win.h"
 #include "common/globox_private.h"
-#include "x11/x11_common.h"
-#include "x11/x11_common_helpers.h"
+#include "win/win_common.h"
+#include "win/win_common_helpers.h"
 
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xcb/sync.h>
-#include <xcb/xcb.h>
-#include <xcb/present.h>
+#include <process.h>
+#include <synchapi.h>
+#include <windows.h>
 
 static inline void free_check(const void* ptr)
 {
@@ -21,222 +18,48 @@ static inline void free_check(const void* ptr)
 	}
 }
 
-void globox_x11_common_init(
+void globox_win_common_init(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	int error_posix;
-	pthread_mutexattr_t mutex_attr;
-	pthread_condattr_t cond_attr;
+	// create win32 mutexes
+	// main mutex
+	platform->mutex_main = CreateMutexW(NULL, FALSE, NULL);
 
-	// init pthread mutex attributes
-	error_posix = pthread_mutexattr_init(&mutex_attr);
-
-	if (error_posix != 0)
+	if (platform->mutex_main == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_INIT);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_CREATE);
 		return;
 	}
 
-	// set pthread mutex type (error checking for now)
-	error_posix =
-		pthread_mutexattr_settype(
-			&mutex_attr,
-			PTHREAD_MUTEX_ERRORCHECK);
+	// TODO more
 
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_SETTYPE);
-		return;
-	}
 
-	// init pthread mutex (main)
-	error_posix = pthread_mutex_init(&(platform->mutex_main), &mutex_attr);
+	// create win32 cond variables
+	// window init cond
+	InitializeConditionVariable(&(platform->cond_window));
+	InitializeSRWLock(&(platform->lock_window));
 
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
-		return;
-	}
+	// render init cond
+	InitializeConditionVariable(&(platform->cond_render));
+	InitializeSRWLock(&(platform->lock_render));
 
-	// init pthread mutex (block)
-	error_posix = pthread_mutex_init(&(platform->mutex_block), &mutex_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
-		return;
-	}
-
-	// init pthread mutex (xsync)
-	error_posix = pthread_mutex_init(&(platform->mutex_xsync), &mutex_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
-		return;
-	}
-
-	// destroy pthread mutex attributes
-	error_posix = pthread_mutexattr_destroy(&mutex_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
-		return;
-	}
-
-	// init pthread cond attributes
-	error_posix = pthread_condattr_init(&cond_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_INIT);
-		return;
-	}
-
-	// set pthread cond clock
-	error_posix =
-		pthread_condattr_setclock(
-			&cond_attr,
-			CLOCK_MONOTONIC);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_SETCLOCK);
-		return;
-	}
-
-	// init pthread cond
-	error_posix = pthread_cond_init(&(platform->cond_main), &cond_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_INIT);
-		return;
-	}
-
-	// destroy pthread cond attributes
-	error_posix = pthread_condattr_destroy(&cond_attr);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
-		return;
-	}
+	// block cond
+	InitializeConditionVariable(&(platform->cond_block));
+	InitializeSRWLock(&(platform->lock_block));
 
 	// initialize the "closed" boolean
 	platform->closed = false;
 
-	// get the screen obj from the id the dirty way (there is no other option)
-	const struct xcb_setup_t* setup = xcb_get_setup(platform->conn);
-	xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
 
-	for (int i = 0; i < platform->screen_id; ++i)
-	{
-		xcb_screen_next(&iter);
-	}
+	// advertise dpi awareness
+	platform->dpi = win_helpers_set_dpi_awareness();
 
-	platform->screen_obj = iter.data;
 
-	// get the root window from the screen object
-	platform->root_win = platform->screen_obj->root;
-
-	// get available atoms
-	xcb_intern_atom_cookie_t cookie;
-	xcb_intern_atom_reply_t* reply;
-	xcb_generic_error_t* error_xcb;
-	uint8_t replace;
-
-	char* atom_names[X11_ATOM_COUNT] =
-	{
-		[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL] =
-			"_NET_WM_STATE_MAXIMIZED_HORZ",
-		[X11_ATOM_STATE_MAXIMIZED_VERTICAL] =
-			"_NET_WM_STATE_MAXIMIZED_VERT",
-		[X11_ATOM_STATE_FULLSCREEN] =
-			"_NET_WM_STATE_FULLSCREEN",
-		[X11_ATOM_STATE_HIDDEN] =
-			"_NET_WM_STATE_HIDDEN",
-		[X11_ATOM_STATE] =
-			"_NET_WM_STATE",
-		[X11_ATOM_ICON] =
-			"_NET_WM_ICON",
-		[X11_ATOM_HINTS_MOTIF] =
-			"_MOTIF_WM_HINTS",
-		[X11_ATOM_BLUR_KDE] =
-			"_KDE_NET_WM_BLUR_BEHIND_REGION",
-		[X11_ATOM_BLUR_DEEPIN] =
-			"_NET_WM_DEEPIN_BLUR_REGION_ROUNDED",
-		[X11_ATOM_PROTOCOLS] =
-			"WM_PROTOCOLS",
-		[X11_ATOM_DELETE_WINDOW] =
-			"WM_DELETE_WINDOW",
-		[X11_ATOM_SYNC_REQUEST] =
-			"_NET_WM_SYNC_REQUEST",
-		[X11_ATOM_SYNC_REQUEST_COUNTER] =
-			"_NET_WM_SYNC_REQUEST_COUNTER",
-		[X11_ATOM_FRAME_DRAWN] =
-			"_NET_WM_FRAME_DRAWN",
-		[X11_ATOM_CHANGE_STATE] =
-			"WM_CHANGE_STATE",
-		[X11_ATOM_NET_SUPPORTED] =
-			"_NET_SUPPORTED",
-		[X11_ATOM_NET_FRAME_EXTENTS] =
-			"_NET_FRAME_EXTENTS",
-	};
-
-	for (int i = 0; i < X11_ATOM_COUNT; ++i)
-	{
-		replace = (i == X11_ATOM_PROTOCOLS);
-
-		cookie = xcb_intern_atom(
-			platform->conn,
-			replace,
-			strlen(atom_names[i]),
-			atom_names[i]);
-
-		reply = xcb_intern_atom_reply(
-			platform->conn,
-			cookie,
-			&error_xcb);
-
-		if (error_xcb != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_ATOM_GET);
-			return;
-		}
-
-		platform->atoms[i] = reply->atom;
-		free(reply);
-	}
-
-	// initialize window
-	platform->attr_mask = 0;
-	platform->attr_val[0] = 0;
-	platform->attr_val[1] = 0;
-	platform->attr_val[2] = 0;
-	platform->visual_depth = 0;
-
-	// initialize xsync
-	platform->xsync_status = GLOBOX_XSYNC_FINISHED;
-	platform->xsync_width = 0;
-	platform->xsync_height = 0;
-
-	// initialize saved action
-	platform->old_mouse_pos_x = 0;
-	platform->old_mouse_pos_y = 0;
-	platform->saved_mouse_pos_x = 0;
-	platform->saved_mouse_pos_y = 0;
-	platform->saved_window = true;
-	platform->saved_window_geometry[0] = 0;
-	platform->saved_window_geometry[1] = 0;
-	platform->saved_window_geometry[2] = 0;
-	platform->saved_window_geometry[3] = 0;
-
+	// initialize threads
 	// initialize render thread
-	struct x11_thread_render_loop_data thread_render_loop_data =
+	struct win_thread_render_loop_data thread_render_loop_data =
 	{
 		.globox = NULL,
 		.platform = NULL,
@@ -246,7 +69,7 @@ void globox_x11_common_init(
 	platform->render_init_callback = NULL;
 
 	// initialize event thread
-	struct x11_thread_event_loop_data thread_event_loop_data =
+	struct win_thread_event_loop_data thread_event_loop_data =
 	{
 		.globox = NULL,
 		.platform = NULL,
@@ -255,70 +78,29 @@ void globox_x11_common_init(
 	platform->thread_event_loop_data = thread_event_loop_data;
 	platform->event_init_callback = NULL;
 
+
+	// initialize window class objects
+	// TODO
+
 	globox_error_ok(error);
 }
 
-void globox_x11_common_clean(
+void globox_win_common_clean(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	int error_posix;
-	int error_cond;
+	BOOL ok;
 
-	// lock block mutex to be able to destroy the cond
-	error_posix = pthread_mutex_lock(&(platform->mutex_block));
+	ok = CloseHandle(platform->mutex_main);
 
-	if (error_posix != 0)
+	if (ok != TRUE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_DESTROY);
 		return;
 	}
 
-	// destroy pthread cond
-	error_cond = pthread_cond_destroy(&(platform->cond_main));
-
-	// unlock block mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_block));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	if (error_cond != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_DESTROY);
-		return;
-	}
-
-	// destroy pthread mutex (xsync)
-	error_posix = pthread_mutex_destroy(&(platform->mutex_xsync));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
-		return;
-	}
-
-	// destroy pthread mutex (block)
-	error_posix = pthread_mutex_destroy(&(platform->mutex_block));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
-		return;
-	}
-
-	// destroy pthread mutex (main)
-	error_posix = pthread_mutex_destroy(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
-		return;
-	}
+	// TODO more
 
 	if (context->feature_title != NULL)
 	{
@@ -343,180 +125,18 @@ void globox_x11_common_clean(
 	globox_error_ok(error);
 }
 
-void globox_x11_common_window_create(
+void globox_win_common_window_create(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_config_request* configs,
 	size_t count,
 	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
 	void* data,
 	struct globox_error_info* error)
 {
-	// prepare window attributes
-	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
-	{
-		platform->attr_mask =
-			XCB_CW_BORDER_PIXEL
-			| XCB_CW_EVENT_MASK
-			| XCB_CW_COLORMAP;
-
-		platform->attr_val[0] =
-			0;
-	}
-	else
-	{
-		platform->attr_mask =
-			XCB_CW_BACK_PIXMAP
-			| XCB_CW_EVENT_MASK
-			| XCB_CW_COLORMAP;
-
-		platform->attr_val[0] =
-			XCB_BACK_PIXMAP_NONE;
-	}
-
-	platform->attr_val[1] =
-		XCB_EVENT_MASK_EXPOSURE
-		| XCB_EVENT_MASK_STRUCTURE_NOTIFY
-		| XCB_EVENT_MASK_PROPERTY_CHANGE;
-
-	// create the window
-	platform->win = xcb_generate_id(platform->conn);
-
-	xcb_void_cookie_t cookie =
-		xcb_create_window(
-			platform->conn,
-			platform->visual_depth,
-			platform->win,
-			platform->root_win,
-			context->feature_pos->x,
-			context->feature_pos->y,
-			context->feature_size->width,
-			context->feature_size->height,
-			0,
-			XCB_WINDOW_CLASS_INPUT_OUTPUT,
-			platform->visual_id,
-			platform->attr_mask,
-			platform->attr_val);
-
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_CREATE);
-		return;
-	}
-
-	// support the window deletion protocol
-	xcb_atom_t supported[2] =
-	{
-		platform->atoms[X11_ATOM_DELETE_WINDOW],
-		platform->atoms[X11_ATOM_SYNC_REQUEST],
-	};
-
-	cookie =
-		xcb_change_property_checked(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_PROTOCOLS],
-			XCB_ATOM_ATOM,
-			32,
-			2,
-			supported);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
-	}
-
-	// select the supported input event categories
-	platform->attr_val[1] |=
-		XCB_EVENT_MASK_KEY_PRESS
-		| XCB_EVENT_MASK_KEY_RELEASE
-		| XCB_EVENT_MASK_BUTTON_PRESS
-		| XCB_EVENT_MASK_BUTTON_RELEASE
-		| XCB_EVENT_MASK_POINTER_MOTION;
-
-	cookie =
-		xcb_change_window_attributes_checked(
-			platform->conn,
-			platform->win,
-			platform->attr_mask,
-			platform->attr_val);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_ATTR_CHANGE);
-		return;
-	}
-
-	// create the xsync counter
-	xcb_sync_int64_t value =
-	{
-		.hi = 0,
-		.lo = 0,
-	};
-
-	platform->xsync_counter =
-		xcb_generate_id(
-			platform->conn);
-
-	cookie =
-		xcb_sync_create_counter(
-			platform->conn,
-			platform->xsync_counter,
-			value);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_CREATE);
-		return;
-	}
-
-	// set the xsync counters
-	cookie =
-		xcb_change_property_checked(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_SYNC_REQUEST_COUNTER],
-			XCB_ATOM_CARDINAL,
-			32,
-			1,
-			&(platform->xsync_counter));
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
-	}
-
 	// configure features
-	struct globox_config_reply* reply = malloc(count * (sizeof (struct globox_config_reply)));
+	struct globox_config_reply* reply =
+		malloc(count * (sizeof (struct globox_config_reply)));
 
 	if (reply == NULL)
 	{
@@ -531,34 +151,19 @@ void globox_x11_common_window_create(
 
 		switch (feature)
 		{
-			case GLOBOX_FEATURE_STATE:
-			{
-				x11_helpers_set_state(context, platform, &reply[i].error);
-				break;
-			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				x11_helpers_set_title(context, platform, &reply[i].error);
+				win_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				x11_helpers_set_icon(context, platform, &reply[i].error);
-				break;
-			}
-			case GLOBOX_FEATURE_FRAME:
-			{
-				x11_helpers_set_frame(context, platform, &reply[i].error);
+				win_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				x11_helpers_set_background(context, platform, &reply[i].error);
-				break;
-			}
-			case GLOBOX_FEATURE_VSYNC:
-			{
-				x11_helpers_set_vsync(context, platform, &reply[i].error);
+				win_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			default:
@@ -574,118 +179,81 @@ void globox_x11_common_window_create(
 	callback(reply, count, data);
 	free(reply);
 
-	// error always set
-}
+	// get window class module
+	platform->window_class_module = GetModuleHandleW(NULL);
 
-void globox_x11_common_window_destroy(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	// destroy the xsync counter
-	// lock xsync mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
-
-	if (error_posix != 0)
+	if (platform->window_class_module == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_MODULE_GET);
 		return;
 	}
 
-	xcb_generic_error_t* error_xcb;
-	xcb_void_cookie_t cookie;
+	// load default mouse cursor
+	platform->default_cursor = LoadCursorW(NULL, IDC_ARROW);
 
-	cookie =
-		xcb_sync_destroy_counter(
-			platform->conn,
-			platform->xsync_counter);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
+	if (platform->default_cursor == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_DESTROY);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CURSOR_LOAD);
 		return;
 	}
 
-	// unlock xsync mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-	if (error_posix != 0)
+	// register window class
+	WNDCLASSEX window_class =
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
+		.cbSize = sizeof (platform->window_class),
+		.style = CS_HREDRAW | CS_VREDRAW,
+		.lpfnWndProc = win_helpers_window_procedure,
+		.cbClsExtra = 0,
+		.cbWndExtra = 0,
+		.hInstance = platform->window_class_module,
+		.hIcon = platform->icon_64,
+		.hCursor = platform->default_cursor,
+		.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1),
+		.lpszMenuName = NULL,
+		.lpszClassName = platform->window_class_name,
+		.hIconSm = platform->icon_64,
+	};
 
-	// lock main mutex
-	error_posix = pthread_mutex_lock(&(platform->mutex_main));
+	platform->window_class = window_class;
 
-	if (error_posix != 0)
+	ATOM atom = RegisterClassExW(&(platform->window_class));
+
+	if (atom == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
-	// destroy the window
-	cookie =
-		xcb_destroy_window(
-			platform->conn,
-			platform->win);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_DESTROY);
-		return;
-	}
-
-	// unlock main mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_CREATE);
 	}
 
 	globox_error_ok(error);
 }
 
-void globox_x11_common_window_start(
+void globox_win_common_window_destroy(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	// init thread attributes
-	int error_posix;
-	pthread_attr_t attr;
+	free_check(platform->window_class_name);
 
-	error_posix = pthread_attr_init(&attr);
+	// TODO more
 
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
-		return;
-	}
+	globox_error_ok(error);
+}
 
-	error_posix = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
-		return;
-	}
-
+void globox_win_common_window_start(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
 	// start the event loop in a new thread
 	// init thread function data
-	struct x11_thread_event_loop_data event_data =
+	struct win_thread_event_loop_data event_data =
+	{
+		.globox = context,
+		.platform = platform,
+		.error = error,
+	};
+
+	// init render function data
+	struct win_thread_render_loop_data render_data =
 	{
 		.globox = context,
 		.platform = platform,
@@ -693,190 +261,94 @@ void globox_x11_common_window_start(
 	};
 
 	platform->thread_event_loop_data = event_data;
-
-	// start function in a new thread
-	error_posix =
-		pthread_create(
-			&(platform->thread_event_loop),
-			&attr,
-			x11_helpers_event_loop,
-			&(platform->thread_event_loop_data));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
-		return;
-	}
-
-	// start the render loop in a new thread
-	// init thread function data
-	struct x11_thread_render_loop_data render_data =
-	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
-
 	platform->thread_render_loop_data = render_data;
 
-	// start function in a new thread
-	error_posix =
-		pthread_create(
-			&(platform->thread_render_loop),
-			&attr,
-			x11_helpers_render_loop,
-			&(platform->thread_render_loop_data));
+	platform->thread_event =
+		(HANDLE) _beginthreadex(
+			NULL,
+			0,
+			win_helpers_event_loop,
+			&(platform->thread_event_loop_data),
+			0,
+			NULL);
 
-	if (error_posix != 0)
+	if (platform->thread_event == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_START);
 		return;
 	}
 
-	// destroy the attributes
-	error_posix = pthread_attr_destroy(&attr);
+	// wait for the window cond
+	AcquireSRWLockExclusive(&(platform->lock_window));
 
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
-		return;
-	}
+	SleepConditionVariableSRW(
+		&(platform->cond_window),
+		&(platform->lock_window),
+		INFINITE,
+		0);
 
-	// map window
-	xcb_void_cookie_t cookie =
-		xcb_map_window_checked(
-			platform->conn,
-			platform->win);
+	ReleaseSRWLockExclusive(&(platform->lock_window));
 
-	xcb_generic_error_t* error_map =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_map != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-		return;
-	}
-
-	// flush connection
-	int error_flush = xcb_flush(platform->conn);
-
-	if (error_flush <= 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
-		return;
-	}
-
+	// success
 	globox_error_ok(error);
 }
 
-void globox_x11_common_window_block(
+void globox_win_common_window_block(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	int error_posix;
-	int error_cond;
+	// wait for the block cond
+	AcquireSRWLockExclusive(&(platform->lock_block));
 
-	// lock block mutex
-	error_posix = pthread_mutex_lock(&(platform->mutex_block));
+	SleepConditionVariableSRW(
+		&(platform->cond_block),
+		&(platform->lock_block),
+		INFINITE,
+		0);
 
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
+	ReleaseSRWLockExclusive(&(platform->lock_block));
 
-	error_cond = pthread_cond_wait(&(platform->cond_main), &(platform->mutex_block));
+	// wait for threads to finish
+	WaitForSingleObject(platform->thread_render, INFINITE);
+	WaitForSingleObject(platform->thread_event, INFINITE);
 
-	// unlock block mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_block));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	if (error_cond != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_WAIT);
-		return;
-	}
-
-	error_posix = pthread_join(platform->thread_event_loop, NULL);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
-		return;
-	}
-
-	error_posix = pthread_join(platform->thread_render_loop, NULL);
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
-		return;
-	}
-
+	// success
 	globox_error_ok(error);
 }
 
-void globox_x11_common_window_stop(
+void globox_win_common_window_stop(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	// create the close event
-	xcb_client_message_event_t event =
+	BOOL ok;
+
+	ok = CloseHandle(platform->thread_render);
+
+	if (ok != TRUE)
 	{
-		.response_type = XCB_CLIENT_MESSAGE,
-		.format = 32,
-		.sequence = 0,
-		.window = platform->win,
-		.type = platform->atoms[X11_ATOM_PROTOCOLS],
-		.data.data32[0] = platform->atoms[X11_ATOM_DELETE_WINDOW],
-		.data.data32[1] = XCB_CURRENT_TIME,
-	};
-
-	// send the event
-	xcb_void_cookie_t cookie =
-		xcb_send_event(
-			platform->conn,
-			false,
-			platform->win,
-			XCB_EVENT_MASK_NO_EVENT,
-			(const char*) &event);
-
-	xcb_generic_error_t* error_event =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_event != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_RENDER_CLOSE);
 		return;
 	}
 
-	// flush
-	int error_flush = xcb_flush(platform->conn);
+	ok = CloseHandle(platform->thread_event);
 
-	if (error_flush <= 0)
+	if (ok != TRUE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_CLOSE);
 		return;
 	}
+
+	// TODO more
 
 	globox_error_ok(error);
 }
 
 
-void globox_x11_common_init_render(
+void globox_win_common_init_render(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_config_render* config,
 	struct globox_error_info* error)
 {
@@ -885,9 +357,9 @@ void globox_x11_common_init_render(
 	globox_error_ok(error);
 }
 
-void globox_x11_common_init_events(
+void globox_win_common_init_events(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_config_events* config,
 	struct globox_error_info* error)
 {
@@ -896,414 +368,292 @@ void globox_x11_common_init_events(
 	globox_error_ok(error);
 }
 
-enum globox_event globox_x11_common_handle_events(
+enum globox_event globox_win_common_handle_events(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	void* event,
 	struct globox_error_info* error)
 {
 	// process system events
 	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
-	xcb_generic_event_t* xcb_event = event;
+	MSG* msg = event;
 
 	// only lock the main mutex when making changes to the context
-	switch (xcb_event->response_type & ~0x80)
+	switch (msg->message)
 	{
-		case XCB_NONE:
+		case WM_DESTROY:
 		{
-			#ifdef GLOBOX_ERROR_HELPER_XCB
-				xcb_generic_error_t* error_xcb =
-					(xcb_generic_error_t*) xcb_event;
-
-				x11_helpers_xcb_error_log(
-					context,
-					platform,
-					error_xcb);
-			#endif
-
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_INVALID);
-			return GLOBOX_EVENT_INVALID;
+			platform->closed = true;
+			context->feature_state->state = GLOBOX_STATE_CLOSED;
+			PostQuitMessage(0);
+			WakeConditionVariable(&(platform->cond_block));
+			globox_event = GLOBOX_EVENT_CLOSED;
+			break;
 		}
-		case XCB_EXPOSE:
+		case WM_PAINT:
 		{
-			xcb_expose_event_t* expose =
-				(xcb_expose_event_t*) xcb_event;
+            PAINTSTRUCT info;
+			HDC device_context = BeginPaint(platform->event_handle, &info);
 
-			// lock mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
+			if (device_context == NULL)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				globox_error_throw(context, error, GLOBOX_ERROR_WIN_PAINT_BEGIN);
 				break;
 			}
 
-			context->expose.x = expose->x;
-			context->expose.y = expose->y;
-			context->expose.width = expose->width;
-			context->expose.height = expose->height;
+			RECT region = info.rcPaint;
+			EndPaint(platform->event_handle, &info);
 
-			// unlock mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
+			context->expose.x = region.left;
+			context->expose.y = region.top;
+			context->expose.width = (region.right - region.left);
+			context->expose.height = (region.bottom - region.top);
 
 			globox_event = GLOBOX_EVENT_DAMAGED;
 			break;
 		}
-		case XCB_CONFIGURE_NOTIFY:
+		case WIN_USER_MSG_FULLSCREEN:
 		{
-			xcb_configure_notify_event_t* configure =
-				(xcb_configure_notify_event_t*) xcb_event;
+			DWORD style = WS_POPUP | WS_VISIBLE;
+			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
 
-			// lock xsync mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
-
-			if (error_posix != 0)
+			if (ok == FALSE)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
-			// safe value updates
-			platform->xsync_width = configure->width;
-			platform->xsync_height = configure->height;
+			globox_event = GLOBOX_EVENT_FULLSCREEN;
+			break;
+		}
+		case WIN_USER_MSG_MAXIMIZE:
+		{
+			BOOL ok;
+			DWORD style = 0;
 
-			if (platform->xsync_status == GLOBOX_XSYNC_WAITING)
+			if (context->feature_frame->frame == true)
 			{
-				platform->xsync_status = GLOBOX_XSYNC_CONFIGURED;
+				style |= WS_OVERLAPPEDWINDOW;
+			}
+			else
+			{
+				style |= WS_POPUP;
+				style |= WS_BORDER;
 			}
 
-			// unlock xsync mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
+			ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
 
-			if (error_posix != 0)
+			if (ok == FALSE)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
+			if (context->feature_frame->frame == true)
+			{
+				ShowWindow(platform->event_handle, SW_SHOWMAXIMIZED);
+			}
+			else
+			{
+				HMONITOR monitor =
+					MonitorFromWindow(
+						platform->event_handle,
+						MONITOR_DEFAULTTONEAREST);
+
+				MONITORINFO info =
+				{
+					.cbSize = sizeof (MONITORINFO),
+				};
+
+				ok = GetMonitorInfoW(monitor, &info);
+
+				if (ok == FALSE)
+				{
+					globox_error_throw(
+						context,
+						error,
+						GLOBOX_ERROR_WIN_MONITOR_INFO_GET);
+					break;
+				}
+
+				RECT rect = info.rcWork;
+				LONG width = rect.right - rect.left;
+				LONG height = rect.bottom - rect.top;
+
+				ok =
+					SetWindowPos(
+						platform->event_handle,
+						NULL,
+						0,
+						0,
+						width,
+						height,
+						SWP_SHOWWINDOW);
+
+				if (ok == FALSE)
+				{
+					globox_error_throw(
+						context,
+						error,
+						GLOBOX_ERROR_WIN_WINDOW_POSITION_SET);
+					break;
+				}
+			}
+
+			break;
+		}
+		case WIN_USER_MSG_MINIMIZE:
+		{
+			DWORD style = 0;
+
+			if (context->feature_frame->frame == true)
+			{
+				style |= WS_OVERLAPPEDWINDOW;
+			}
+			else
+			{
+				style |= WS_POPUP;
+				style |= WS_BORDER;
+			}
+
+			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+
+			if (ok == FALSE)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
+				break;
+			}
+
+			ShowWindow(platform->event_handle, SW_SHOWMINIMIZED);
+
+			break;
+		}
+		case WIN_USER_MSG_REGULAR:
+		{
+			BOOL ok;
+			DWORD style = 0;
+
+			if (context->feature_frame->frame == true)
+			{
+				style |= WS_OVERLAPPEDWINDOW;
+			}
+			else
+			{
+				style |= WS_POPUP;
+				style |= WS_BORDER;
+			}
+
+			ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+
+			if (ok == FALSE)
+			{
+				globox_error_throw(
+					context,
+					error,
+					GLOBOX_ERROR_WIN_STYLE_SET);
+				break;
+			}
+
+			ok =
+				SetWindowPlacement(
+					platform->event_handle,
+					&(platform->placement));
+
+			if (ok == FALSE)
+			{
+				globox_error_throw(
+					context,
+					error,
+					GLOBOX_ERROR_WIN_PLACEMENT_SET);
+				break;
+			}
+
+			break;
+		}
+		case WM_SYSCOMMAND:
+		{
+			switch (msg->wParam)
+			{
+				case SC_RESTORE:
+				{
+					context->feature_state->state = GLOBOX_STATE_REGULAR;
+					globox_event = GLOBOX_EVENT_RESTORED;
+					break;
+				}
+				case SC_MAXIMIZE:
+				{
+					win_helpers_save_window_state(context, platform, error);
+
+					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+					{
+						break;
+					}
+
+					context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
+					globox_event = GLOBOX_EVENT_MAXIMIZED;
+					break;
+				}
+				case SC_MINIMIZE:
+				{
+					win_helpers_save_window_state(context, platform, error);
+
+					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+					{
+						break;
+					}
+
+					context->feature_state->state = GLOBOX_STATE_MINIMIZED;
+					globox_event = GLOBOX_EVENT_MINIMIZED;
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+
+			break;
+		}
+		case WM_ENTERSIZEMOVE:
+		{
+			platform->sizemove = true;
+			break;
+		}
+		case WM_EXITSIZEMOVE:
+		{
+			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			{
+				context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+			}
+
+			platform->sizemove = false;
+			break;
+		}
+		case WM_MOVING:
+		case WM_SIZING:
+		{
+			if (context->feature_state->state != GLOBOX_STATE_REGULAR)
+			{
+				context->feature_state->state = GLOBOX_STATE_REGULAR;
+				globox_event = GLOBOX_EVENT_RESTORED;
+			}
+			else
+			{
+				globox_event = GLOBOX_EVENT_MOVED_RESIZED;
+			}
+
+			break;
+		}
+		case WM_MOVE:
+		{
 			globox_event = GLOBOX_EVENT_MOVED_RESIZED;
 			break;
 		}
-		case XCB_PROPERTY_NOTIFY:
+		case WM_SIZE:
 		{
-			xcb_property_notify_event_t* state =
-				(xcb_property_notify_event_t*) xcb_event;
-
-			// lock mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				break;
-			}
-
-			if (state->atom == platform->atoms[X11_ATOM_STATE])
-			{
-				if (context->feature_state != NULL)
-				{
-					globox_event = x11_helpers_get_state(context, platform, error);
-				}
-			}
-			else if (state->atom == XCB_ATOM_WM_NAME)
-			{
-				x11_helpers_get_title(context, platform, error);
-			}
-
-			// unlock mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
-
-			break;
-		}
-		case XCB_CLIENT_MESSAGE:
-		{
-			xcb_client_message_event_t* message =
-				(xcb_client_message_event_t*) xcb_event;
-
-			if (message->type
-				== platform->atoms[X11_ATOM_PROTOCOLS])
-			{
-				if (message->data.data32[0]
-					== platform->atoms[X11_ATOM_DELETE_WINDOW])
-				{
-					// make the globox blocking function exit gracefully
-					pthread_cond_broadcast(&(platform->cond_main));
-
-					// make the event loop thread exit gracefully
-					int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-					if (error_posix != 0)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-						break;
-					}
-
-					platform->closed = true;
-
-					error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-					if (error_posix != 0)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-						break;
-					}
-
-					// tell the developer it's the end
-					globox_event = GLOBOX_EVENT_CLOSED;
-					break;
-				}
-
-				if (message->data.data32[0]
-					== platform->atoms[X11_ATOM_SYNC_REQUEST])
-				{
-					// lock xsync mutex
-					int error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
-
-					if (error_posix != 0)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-						break;
-					}
-
-					// save the last xsync value
-					platform->xsync_value.hi = message->data.data32[3];
-					platform->xsync_value.lo = message->data.data32[2];
-					platform->xsync_status = GLOBOX_XSYNC_WAITING;
-
-					// unlock xsync mutex
-					error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-					if (error_posix != 0)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-						break;
-					}
-
-
-					break;
-				}
-			}
-
-			break;
-		}
-		case XCB_BUTTON_PRESS:
-		{
-			xcb_button_press_event_t* press =
-				(xcb_button_press_event_t*) xcb_event;
-
-			// lock mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				break;
-			}
-
-			// save current mouse position
-			platform->saved_window = false;
-			platform->saved_mouse_pos_x = press->root_x;
-			platform->saved_mouse_pos_y = press->root_y;
-
-			// unlock mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
-
-			break;
-		}
-		case XCB_BUTTON_RELEASE:
-		{
-			// lock mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				break;
-			}
-
-			// get current interaction type
-			enum globox_interaction action = context->feature_interaction->action;
-
-			// reset mouse position values
-			platform->old_mouse_pos_x = 0;
-			platform->old_mouse_pos_y = 0;
-			platform->saved_mouse_pos_x = 0;
-			platform->saved_mouse_pos_y = 0;
-
-			// unlock mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
-
-			// reset interaction type
-			if (action != GLOBOX_INTERACTION_STOP)
-			{
-				struct globox_feature_interaction action =
-				{
-					.action = GLOBOX_INTERACTION_STOP,
-				};
-
-				globox_feature_set_interaction(context, &action, error);
-
-				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-				{
-					break;
-				}
-			}
-
-			break;
-		}
-		case XCB_MOTION_NOTIFY:
-		{
-			xcb_motion_notify_event_t* motion =
-				(xcb_motion_notify_event_t*) xcb_event;
-
-			// lock mutex
-			int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				break;
-			}
-
-			// handle interactive move & resize
-			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
-			{
-				// on the first update after click, update the position of the window
-				if (platform->saved_window == false)
-				{
-					xcb_generic_error_t* error_xcb;
-
-					// get window size
-					xcb_get_geometry_cookie_t cookie_geom =
-						xcb_get_geometry(
-							platform->conn,
-							platform->win);
-
-					xcb_get_geometry_reply_t* reply_geom =
-						xcb_get_geometry_reply(
-							platform->conn,
-							cookie_geom,
-							&error_xcb);
-
-					if (error_xcb != NULL)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_X11_GEOMETRY_GET);
-						break;
-					}
-
-					// get window position
-					xcb_translate_coordinates_cookie_t cookie_translate =
-						xcb_translate_coordinates(
-							platform->conn,
-							platform->win,
-							reply_geom->root,
-							0,
-							0);
-
-					xcb_translate_coordinates_reply_t* reply_translate =
-						xcb_translate_coordinates_reply(
-							platform->conn,
-							cookie_translate,
-							&error_xcb);
-
-					if (error_xcb != NULL)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_X11_TRANSLATE_COORDS);
-						break;
-					}
-
-					// save window info
-					platform->saved_window_geometry[0] = reply_translate->dst_x;
-					platform->saved_window_geometry[1] = reply_translate->dst_y;
-					platform->saved_window_geometry[2] = reply_geom->width;
-					platform->saved_window_geometry[3] = reply_geom->height;
-					platform->saved_window = true;
-
-					free(reply_translate);
-					free(reply_geom);
-
-					// get window frame size
-					xcb_get_property_cookie_t cookie_frame =
-						xcb_get_property(
-							platform->conn,
-							0,
-							platform->win,
-							platform->atoms[X11_ATOM_NET_FRAME_EXTENTS],
-							XCB_ATOM_CARDINAL,
-							0,
-							32);
-
-					xcb_get_property_reply_t* reply_frame =
-						xcb_get_property_reply(
-							platform->conn,
-							cookie_frame,
-							&error_xcb);
-
-					if (error_xcb != NULL)
-					{
-						globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
-						break;
-					}
-
-					// update window info to account for the size of the frame
-					uint32_t* value = xcb_get_property_value(reply_frame);
-					int value_len = xcb_get_property_value_length(reply_frame);
-
-					if (value_len >= 3)
-					{
-						platform->saved_window_geometry[0] -= value[0];
-						platform->saved_window_geometry[1] -= value[2];
-					}
-
-					free(reply_frame);
-				}
-
-				platform->old_mouse_pos_x = platform->saved_mouse_pos_x;
-				platform->old_mouse_pos_y = platform->saved_mouse_pos_y;
-				platform->saved_mouse_pos_x = motion->root_x;
-				platform->saved_mouse_pos_y = motion->root_y;
-
-				x11_helpers_handle_interaction(context, platform, error);
-
-				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-				{
-					break;
-				}
-			}
-
-			// unlock mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
-
+			context->feature_size->width = LOWORD(msg->lParam);
+			context->feature_size->height = HIWORD(msg->lParam);
+			globox_event = GLOBOX_EVENT_MOVED_RESIZED;
 			break;
 		}
 		default:
@@ -1312,18 +662,21 @@ enum globox_event globox_x11_common_handle_events(
 		}
 	}
 
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return GLOBOX_EVENT_INVALID;
+	}
+
 	globox_error_ok(error);
 	return globox_event;
 }
 
 struct globox_config_features*
-	globox_x11_common_init_features(
+	globox_win_common_init_features(
 		struct globox* context,
-		struct x11_platform* platform,
+		struct win_platform* platform,
 		struct globox_error_info* error)
 {
-	xcb_atom_t* atoms = platform->atoms;
-
 	struct globox_config_features* features =
 		malloc(sizeof (struct globox_config_features));
 
@@ -1357,23 +710,16 @@ struct globox_config_features*
 
 	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
 
-	// available if atoms valid
-	if ((atoms[X11_ATOM_STATE] != XCB_NONE)
-		&& (atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL] != XCB_NONE)
-		&& (atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL] != XCB_NONE)
-		&& (atoms[X11_ATOM_STATE_FULLSCREEN] != XCB_NONE)
-		&& (atoms[X11_ATOM_STATE_HIDDEN] != XCB_NONE))
-	{
-		features->list[features->count] = GLOBOX_FEATURE_STATE;
-		context->feature_state =
-			malloc(sizeof (struct globox_feature_state));
-		features->count += 1;
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_STATE;
+	context->feature_state =
+		malloc(sizeof (struct globox_feature_state));
+	features->count += 1;
 
-		if (context->feature_state == NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
-			return NULL;
-		}
+	if (context->feature_state == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
 	}
 
 	// always available
@@ -1388,19 +734,16 @@ struct globox_config_features*
 		return NULL;
 	}
 
-	// available if atom valid
-	if (atoms[X11_ATOM_ICON] != XCB_NONE)
-	{
-		features->list[features->count] = GLOBOX_FEATURE_ICON;
-		context->feature_icon =
-			malloc(sizeof (struct globox_feature_icon));
-		features->count += 1;
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_ICON;
+	context->feature_icon =
+		malloc(sizeof (struct globox_feature_icon));
+	features->count += 1;
 
-		if (context->feature_icon == NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
-			return NULL;
-		}
+	if (context->feature_icon == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
 	}
 
 	// always available
@@ -1427,22 +770,19 @@ struct globox_config_features*
 		return NULL;
 	}
 
-	// available if atom valid
-	if (atoms[X11_ATOM_HINTS_MOTIF] != XCB_NONE)
-	{
-		features->list[features->count] = GLOBOX_FEATURE_FRAME;
-		context->feature_frame =
-			malloc(sizeof (struct globox_feature_frame));
-		features->count += 1;
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_FRAME;
+	context->feature_frame =
+		malloc(sizeof (struct globox_feature_frame));
+	features->count += 1;
 
-		if (context->feature_frame == NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
-			return NULL;
-		}
+	if (context->feature_frame == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
 	}
 
-	// transparency is always available since globox requires 32-bit visuals
+	// always available
 	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
 	context->feature_background =
 		malloc(sizeof (struct globox_feature_background));
@@ -1454,73 +794,64 @@ struct globox_config_features*
 		return NULL;
 	}
 
+	// always available
+	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	context->feature_vsync =
+		malloc(sizeof (struct globox_feature_vsync));
+	features->count += 1;
+
+	if (context->feature_vsync == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return NULL;
+	}
+
 	globox_error_ok(error);
 	return features;
 }
 
-void globox_x11_common_feature_set_interaction(
+void globox_win_common_feature_set_interaction(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
+	// not supported while resizing
+	if (platform->sizemove == true)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_INTERACTION_SET);
 		return;
 	}
 
 	// configure
 	*(context->feature_interaction) = *config;
 
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
 	globox_error_ok(error);
 }
 
-void globox_x11_common_feature_set_state(
+void globox_win_common_feature_set_state(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
+	// not supported while resizing
+	if (platform->sizemove == true)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_STATE_SET);
+		return;
+	}
+
+	win_helpers_save_window_state(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
 		return;
 	}
 
 	// configure
 	*(context->feature_state) = *config;
-	x11_helpers_set_state(context, platform, error);
-
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
+	win_helpers_set_state(context, platform, error);
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
@@ -1531,60 +862,40 @@ void globox_x11_common_feature_set_state(
 	globox_error_ok(error);
 }
 
-void globox_x11_common_feature_set_title(
+void globox_win_common_feature_set_title(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
 	// configure
 	free_check(context->feature_title->title);
 
-	context->feature_title->title = strdup(config->title);
-	x11_helpers_set_title(context, platform, error);
+	context->feature_title->title =
+		strdup(config->title);
 
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+	free_check(platform->window_class_name);
 
-	if (error_posix != 0)
+	platform->window_class_name =
+		win_helpers_utf8_to_wchar(context->feature_title->title);
+
+	BOOL ok = SetWindowText(platform->event_handle, platform->window_class_name);
+
+	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_TITLE_SET);
 		return;
 	}
 
 	globox_error_ok(error);
 }
 
-void globox_x11_common_feature_set_icon(
+void globox_win_common_feature_set_icon(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
 	// configure
 	free_check(context->feature_icon->pixmap);
 
@@ -1600,16 +911,7 @@ void globox_x11_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	x11_helpers_set_icon(context, platform, error);
-
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
+	win_helpers_set_icon(context, platform, error);
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
@@ -1617,76 +919,53 @@ void globox_x11_common_feature_set_icon(
 		return;
 	}
 
+	SendMessage(
+		platform->event_handle,
+		WM_SETICON,
+		ICON_SMALL,
+		(LPARAM) platform->icon_32);
+
+	SendMessage(
+		platform->event_handle,
+		WM_SETICON,
+		ICON_BIG,
+		(LPARAM) platform->icon_64);
+
 	globox_error_ok(error);
 }
 
-unsigned globox_x11_common_get_width(
+unsigned globox_win_common_get_width(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return 0;
-	}
-
 	// save value
 	unsigned value = context->feature_size->width;
 
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return 0;
-	}
-
 	// return value
 	globox_error_ok(error);
 	return value;
 }
 
-unsigned globox_x11_common_get_height(
+unsigned globox_win_common_get_height(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return 0;
-	}
-
 	// save value
 	unsigned value = context->feature_size->height;
 
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return 0;
-	}
-
 	// return value
 	globox_error_ok(error);
 	return value;
 }
 
-struct globox_rect globox_x11_common_get_expose(
+struct globox_rect globox_win_common_get_expose(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
+#if 0
 	struct globox_rect dummy =
 	{
 		.x = 0,
@@ -1694,27 +973,10 @@ struct globox_rect globox_x11_common_get_expose(
 		.width = 0,
 		.height = 0,
 	};
-
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return dummy;
-	}
+#endif
 
 	// save value
 	struct globox_rect value = context->expose;
-
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return dummy;
-	}
 
 	// return value
 	globox_error_ok(error);

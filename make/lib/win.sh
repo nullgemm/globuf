@@ -47,6 +47,7 @@ defines+=("-D_WIN32_WINNT=0x0A00")
 
 #defines+=("-DGLOBOX_ERROR_ABORT")
 #defines+=("-DGLOBOX_ERROR_SKIP")
+#defines+=("-DGLOBOX_ERROR_HELPER_WIN")
 defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
 defines+=("-DGLOBOX_COMPAT_WINE")
 

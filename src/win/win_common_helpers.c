@@ -1,48 +1,45 @@
-#define _XOPEN_SOURCE 700
-
 #include "include/globox.h"
 #include "common/globox_private.h"
-#include "x11/x11_common.h"
-#include "x11/x11_common_helpers.h"
+#include "win/win_common.h"
+#include "win/win_common_helpers.h"
 
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xcb/xcb.h>
-#include <xcb/xcb_icccm.h>
 
-#ifdef GLOBOX_ERROR_HELPER_XCB
-#include <xcb/xcb_errors.h>
+#include <dwmapi.h>
+#include <process.h>
+#include <shellscalingapi.h>
+#include <windows.h>
+#include <winuser.h>
+
+#ifdef GLOBOX_ERROR_HELPER_WIN
+#include <errhandlingapi.h>
 #endif
 
-void* x11_helpers_render_loop(void* data)
+unsigned __stdcall win_helpers_render_loop(void* data)
 {
-	struct x11_thread_render_loop_data* thread_render_loop_data = data;
+	struct win_thread_render_loop_data* thread_render_loop_data = data;
 
 	struct globox* context = thread_render_loop_data->globox;
-	struct x11_platform* platform = thread_render_loop_data->platform;
+	struct win_platform* platform = thread_render_loop_data->platform;
 	struct globox_error_info* error = thread_render_loop_data->error;
-
-	// lock main mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return NULL;
-	}
 
 	bool closed = platform->closed;
 
-	// unlock main mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+	// wait for the window cond
+	AcquireSRWLockExclusive(&(platform->lock_render));
 
-	if (error_posix != 0)
+	while (platform->render == false)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return NULL;
+		SleepConditionVariableSRW(
+			&(platform->cond_render),
+			&(platform->lock_render),
+			INFINITE,
+			0);
 	}
+
+	ReleaseSRWLockExclusive(&(platform->lock_render));
 
 	// thread init callback
 	if (platform->render_init_callback != NULL)
@@ -51,176 +48,299 @@ void* x11_helpers_render_loop(void* data)
 
 		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 		{
-			return NULL;
+			_endthreadex(0);
+			return 1;
 		}
 	}
 
 	while (closed == false)
 	{
-		// handle xsync
-		// lock xsync mutex
-		error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
-
-		if (error_posix != 0)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			break;
-		}
-
-		if (platform->xsync_status >= GLOBOX_XSYNC_ACKNOWLEDGED)
-		{
-			// lock main mutex
-			error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-				break;
-			}
-
-			// save accessible size values
-			context->feature_size->width = platform->xsync_width;
-			context->feature_size->height = platform->xsync_height;
-
-			// unlock main mutex
-			error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-			if (error_posix != 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-				break;
-			}
-		}
-
-		// unlock xsync mutex
-		error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-		if (error_posix != 0)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			break;
-		}
-
 		// run developer callback
 		context->render_callback.callback(context->render_callback.data);
 
-		// lock xsync mutex
-		error_posix = pthread_mutex_lock(&(platform->mutex_xsync));
+		// update boolean
+		closed = platform->closed;
+	}
 
-		if (error_posix != 0)
+	_endthreadex(0);
+	return 0;
+}
+
+unsigned __stdcall win_helpers_event_loop(void* data)
+{
+	struct win_thread_event_loop_data* thread_event_loop_data = data;
+
+	struct globox* context = thread_event_loop_data->globox;
+	struct win_platform* platform = thread_event_loop_data->platform;
+	struct globox_error_info* error = thread_event_loop_data->error;
+
+	DWORD style = 0;
+	DWORD exstyle = 0;
+
+	if (context->feature_frame->frame == true)
+	{
+		style |= WS_OVERLAPPEDWINDOW;
+	}
+	else
+	{
+		style |= WS_POPUP;
+		style |= WS_BORDER;
+	}
+
+	platform->event_handle =
+		CreateWindowExW(
+			exstyle,
+			platform->window_class_name,
+			platform->window_class_name,
+			style,
+			context->feature_pos->x,
+			context->feature_pos->y,
+			context->feature_size->width,
+			context->feature_size->height,
+			NULL,
+			NULL,
+			platform->window_class_module,
+			data);
+
+	if (platform->event_handle == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WINDOW_CREATE);
+		_endthreadex(0);
+		return 1;
+	}
+
+	ShowWindow(platform->event_handle, SW_SHOWNORMAL);
+
+	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+	{
+		DWM_BLURBEHIND blur_behind =
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			.dwFlags = DWM_BB_ENABLE,
+			.fEnable = TRUE,
+			.hRgnBlur = NULL,
+			.fTransitionOnMaximized = FALSE,
+		};
+
+		HRESULT ok_blur =
+			DwmEnableBlurBehindWindow(
+				platform->event_handle,
+				&blur_behind);
+
+		if (ok_blur != S_OK)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_DWM_ENABLE);
+
+			#if defined(GLOBOX_COMPAT_WINE)
+				globox_error_ok(error);
+			#else
+				_endthreadex(0);
+				return 1;
+			#endif
+		}
+	}
+
+	BOOL ok_placement =
+		GetWindowPlacement(platform->event_handle, &(platform->placement));
+
+	if (ok_placement == FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PLACEMENT_GET);
+		_endthreadex(0);
+		return 1;
+	}
+
+	switch (context->feature_state->state)
+	{
+		case GLOBOX_STATE_FULLSCREEN:
+		{
+			globox_feature_set_state(context, context->feature_state, error);
 			break;
 		}
-
-		// tell the window manager the resize operation
-		// associated with the current xsync counter completed
-		if (platform->xsync_status == GLOBOX_XSYNC_ACKNOWLEDGED)
+		case GLOBOX_STATE_MAXIMIZED:
 		{
-			// wait for the next request
-			platform->xsync_status = GLOBOX_XSYNC_FINISHED;
+			ShowWindow(platform->event_handle, SW_SHOWMAXIMIZED);
+			break;
+		}
+		case GLOBOX_STATE_MINIMIZED:
+		{
+			ShowWindow(platform->event_handle, SW_SHOWMINIMIZED);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 
-			// save the current xsync value in the xsync counter
-			xcb_void_cookie_t cookie =
-				xcb_sync_set_counter(
-					platform->conn,
-					platform->xsync_counter,
-					platform->xsync_value);
+	// trigger the window creation cond
+	WakeConditionVariable(&(platform->cond_window));
 
-			xcb_generic_error_t* error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
+	// start the render thread
+	platform->thread_render =
+		(HANDLE) _beginthreadex(
+			NULL,
+			0,
+			win_helpers_render_loop,
+			(void*) &(platform->thread_render_loop_data),
+			0,
+			NULL);
 
-			if (error_xcb != NULL)
+	if (platform->thread_render == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_RENDER_START);
+		_endthreadex(0);
+		return 1;
+	}
+
+	// start the event loop
+	MSG msg;
+	BOOL ok_msg = GetMessageW(&msg, NULL, 0, 0);
+
+	while (ok_msg != 0)
+	{
+		// According to the documentation, the BOOL returned by GetMessage has
+		// three states, because it's obviously what bools are made for...
+		// -1 means failure
+		// 0 means we just received a WM_QUIT message
+		// any other value means we received another message
+		if (ok_msg == -1)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MSG_GET);
+			_endthreadex(0);
+			return 1;
+		}
+
+		// dispatch messsage
+		TranslateMessage(&msg);
+		DispatchMessageW(&msg);
+
+		// get next message
+		ok_msg = GetMessageW(&msg, NULL, 0, 0);
+	}
+
+	_endthreadex(0);
+	return 0;
+}
+
+LRESULT CALLBACK win_helpers_window_procedure(
+	HWND hwnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	// process message first
+	switch (msg)
+	{
+		case WM_ERASEBKGND:
+		{
+			// ignore clearing requests
+			return S_OK;
+		}
+		case WM_CREATE:
+		{
+			// save a context pointer in the window
+			SetWindowLongPtrW(
+				hwnd,
+				GWLP_USERDATA,
+				(LONG_PTR) ((CREATESTRUCT*) lParam)->lpCreateParams);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	LRESULT result = DefWindowProc(hwnd, msg, wParam, lParam);
+
+	// get context pointer from window
+	struct win_thread_event_loop_data* thread_event_loop_data =
+		(struct win_thread_event_loop_data*)
+			GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+
+	if (thread_event_loop_data == NULL)
+	{
+		return result;
+	}
+
+	struct globox* context = thread_event_loop_data->globox;
+	struct win_platform* platform = thread_event_loop_data->platform;
+	struct globox_error_info* error = thread_event_loop_data->error;
+
+	// run developer callback
+	MSG event =
+	{
+		.message = msg,
+		.wParam = wParam,
+		.lParam = lParam,
+	};
+
+	context->event_callbacks.handler(context->event_callbacks.data, &event);
+
+	// handle interactive move and resize
+	if (msg == WM_NCHITTEST)
+	{
+		switch (context->feature_interaction->action)
+		{
+			case GLOBOX_INTERACTION_MOVE:
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_SYNC_COUNTER_SET);
+				result = HTCAPTION;
+				break;
+			}
+			case GLOBOX_INTERACTION_N:
+			{
+				result = HTTOP;
+				break;
+			}
+			case GLOBOX_INTERACTION_NW:
+			{
+				result = HTTOPLEFT;
+				break;
+			}
+			case GLOBOX_INTERACTION_W:
+			{
+				result = HTLEFT;
+				break;
+			}
+			case GLOBOX_INTERACTION_SW:
+			{
+				result = HTBOTTOMLEFT;
+				break;
+			}
+			case GLOBOX_INTERACTION_S:
+			{
+				result = HTBOTTOM;
+				break;
+			}
+			case GLOBOX_INTERACTION_SE:
+			{
+				result = HTBOTTOMRIGHT;
+				break;
+			}
+			case GLOBOX_INTERACTION_E:
+			{
+				result = HTRIGHT;
+				break;
+			}
+			case GLOBOX_INTERACTION_NE:
+			{
+				result = HTTOPRIGHT;
+				break;
+			}
+			default:
+			{
 				break;
 			}
 		}
-
-		// unlock xsync mutex
-		error_posix = pthread_mutex_unlock(&(platform->mutex_xsync));
-
-		if (error_posix != 0)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			break;
-		}
-
-		// lock main mutex
-		error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-		if (error_posix != 0)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-			break;
-		}
-
-		closed = platform->closed;
-
-		// unlock main mutex
-		error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-		if (error_posix != 0)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-			break;
-		}
 	}
 
-	pthread_exit(NULL);
-	return NULL;
+	// pass over the message processor return value
+	return result;
 }
 
-void* x11_helpers_event_loop(void* data)
-{
-	struct x11_thread_event_loop_data* thread_event_loop_data = data;
-
-	struct globox* context = thread_event_loop_data->globox;
-	struct x11_platform* platform = thread_event_loop_data->platform;
-	struct globox_error_info* error = thread_event_loop_data->error;
-
-	xcb_generic_event_t* event;
-
-	// thread init callback
-	if (platform->event_init_callback != NULL)
-	{
-		platform->event_init_callback(context, error);
-
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-		{
-			return NULL;
-		}
-	}
-
-	while (platform->closed == false)
-	{
-		// block until we get an event
-		event = xcb_wait_for_event(platform->conn);
-
-		// IO error
-		if (event == NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_WAIT);
-			break;
-		}
-
-		// run developer callback
-		context->event_callbacks.handler(
-			context->event_callbacks.data,
-			event);
-
-		free(event);
-	}
-
-	pthread_exit(NULL);
-	return NULL;
-}
-
-void x11_helpers_features_init(
+void win_helpers_features_init(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_config_request* configs,
 	size_t count,
 	struct globox_error_info* error)
@@ -259,7 +379,11 @@ void x11_helpers_features_init(
 
 					if (context->feature_icon->pixmap != NULL)
 					{
-						memcpy(context->feature_icon->pixmap, tmp->pixmap, tmp->len * 4);
+						memcpy(
+							context->feature_icon->pixmap,
+							tmp->pixmap,
+							tmp->len * 4);
+
 						context->feature_icon->len = tmp->len;
 					}
 					else
@@ -307,8 +431,6 @@ void x11_helpers_features_init(
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				// handled directly in xcb's window creation code for transparency,
-				// but some more configuration has to take place afterwards for blur
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_background) =
@@ -325,6 +447,7 @@ void x11_helpers_features_init(
 					*(context->feature_vsync) =
 						*((struct globox_feature_vsync*)
 							configs[i].config);
+					context->feature_vsync->vsync = true;
 				}
 
 				break;
@@ -338,749 +461,375 @@ void x11_helpers_features_init(
 	}
 }
 
-// there is also a bug in ewmh that prevents interactive move & resize from
-// working properly under certain desktop environments, so we implement
-// everything for this feature as well
-void x11_helpers_handle_interaction(
+void win_helpers_set_state(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	xcb_generic_error_t* error_xcb;
-
-	// compute window changes
-	switch (context->feature_interaction->action)
-	{
-		case GLOBOX_INTERACTION_MOVE:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_N:
-		{
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_NW:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_W:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			break;
-		}
-		case GLOBOX_INTERACTION_SW:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_S:
-		{
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_SE:
-		{
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_E:
-		{
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			break;
-		}
-		case GLOBOX_INTERACTION_NE:
-		{
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-
-	// set window position
-	xcb_void_cookie_t cookie_configure =
-		xcb_configure_window_checked(
-			platform->conn,
-			platform->win,
-			XCB_CONFIG_WINDOW_X
-			| XCB_CONFIG_WINDOW_Y
-			| XCB_CONFIG_WINDOW_WIDTH
-			| XCB_CONFIG_WINDOW_HEIGHT,
-			platform->saved_window_geometry);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie_configure);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONFIGURE);
-		return;
-	}
-
-	xcb_flush(platform->conn);
-	globox_error_ok(error);
-}
-
-void set_state_event(
-	struct globox* context,
-	struct x11_platform* platform,
-	xcb_atom_t atom,
-	uint32_t action,
-	struct globox_error_info* error)
-{
-	xcb_client_message_event_t event =
-	{
-		.response_type = XCB_CLIENT_MESSAGE,
-		.type = platform->atoms[X11_ATOM_STATE],
-		.format = 32,
-		.window = platform->win,
-		.data =
-		{
-			.data32 =
-			{
-				action,
-				atom,
-				XCB_ATOM_NONE,
-				0,
-				0,
-			},
-		},
-	};
-
-	uint32_t mask =
-		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-		| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
-
-	xcb_void_cookie_t cookie =
-		xcb_send_event_checked(
-			platform->conn,
-			1,
-			platform->win,
-			mask,
-			(const char*)(&event));
-
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-void set_state_atoms(
-	struct globox* context,
-	struct x11_platform* platform,
-	uint32_t action_maximized_horizontal,
-	uint32_t action_maximized_vertical,
-	uint32_t action_fullscreen,
-	struct globox_error_info* error)
-{
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL],
-		action_maximized_horizontal,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL],
-		action_maximized_vertical,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_FULLSCREEN],
-		action_fullscreen,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-}
-
-void set_state_hidden(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_generic_error_t* error_xcb;
-
-	if (platform->atoms[X11_ATOM_CHANGE_STATE] != XCB_NONE)
-	{
-		// iconify with the ICCCM method
-		xcb_client_message_event_t event =
-		{
-			.response_type = XCB_CLIENT_MESSAGE,
-			.type = platform->atoms[X11_ATOM_CHANGE_STATE],
-			.format = 32,
-			.window = platform->win,
-			.data =
-			{
-				.data32 =
-				{
-					XCB_ICCCM_WM_STATE_ICONIC,
-				},
-			},
-		};
-
-		uint32_t mask =
-			XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-			| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
-
-		xcb_void_cookie_t cookie =
-			xcb_send_event_checked(
-				platform->conn,
-				0,
-				platform->root_win,
-				mask,
-				(const char*)(&event));
-
-		error_xcb =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error_xcb != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
-			return;
-		}
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_HIDDEN],
-		1,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-// there is a bug in ewmh that prevents fullscreen from working properly
-// since keeping xcb-ewmh around only for initialization would be kind
-// of silly we removed the dependency and used raw xcb all the way
-void x11_helpers_set_state(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_void_cookie_t cookie;
-	xcb_generic_error_t* error_xcb;
-
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_REGULAR:
-		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
-
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
-			}
-
-			set_state_atoms(context, platform, 0, 0, 0, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
-			break;
-		}
 		case GLOBOX_STATE_MINIMIZED:
 		{
-			set_state_hidden(context, platform, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
+			SendMessage(
+				platform->event_handle,
+				WIN_USER_MSG_MINIMIZE,
+				0,
+				0);
 			break;
 		}
 		case GLOBOX_STATE_MAXIMIZED:
 		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
-
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
-			}
-
-			set_state_atoms(context, platform, 1, 1, 0, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
+			SendMessage(
+				platform->event_handle,
+				WIN_USER_MSG_MAXIMIZE,
+				0,
+				0);
 			break;
 		}
 		case GLOBOX_STATE_FULLSCREEN:
 		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
-
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
-			}
-
-			set_state_atoms(context, platform, 0, 0, 1, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
+			SendMessage(
+				platform->event_handle,
+				WIN_USER_MSG_FULLSCREEN,
+				0,
+				0);
 			break;
 		}
 		default:
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_STATE_INVALID);
-			return;
+			SendMessage(
+				platform->event_handle,
+				WIN_USER_MSG_REGULAR,
+				0,
+				0);
+			break;
 		}
 	}
 
-	// error is always set in the switch so we don't need to set it to "ok" here
-}
-
-void x11_helpers_set_title(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_void_cookie_t cookie =
-		xcb_change_property_checked(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			XCB_ATOM_WM_NAME,
-			XCB_ATOM_STRING,
-			8,
-			strlen(context->feature_title->title) + 1,
-			context->feature_title->title);
-
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
-	}
-
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_icon(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
+LPWSTR win_helpers_utf8_to_wchar(const char* string)
 {
-	xcb_void_cookie_t cookie =
-		xcb_change_property_checked(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_ICON],
-			XCB_ATOM_CARDINAL,
-			32,
-			context->feature_icon->len,
-			context->feature_icon->pixmap);
+	size_t codepoints =
+		MultiByteToWideChar(
+			CP_UTF8,
+			MB_PRECOMPOSED,
+			string,
+			-1,
+			NULL,
+			0);
 
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
+	if (codepoints == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
+		return NULL;
 	}
 
-	// flush
-	int error_flush = xcb_flush(platform->conn);
+	wchar_t* buf = malloc(codepoints * (sizeof (wchar_t)));
 
-	if (error_flush <= 0)
+	if (buf == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
-		return;
+		return NULL;
 	}
 
-	globox_error_ok(error);
+	buf[0] = '\0';
+
+	int ok =
+		MultiByteToWideChar(
+			CP_UTF8,
+			MB_PRECOMPOSED,
+			string,
+			-1,
+			buf,
+			codepoints);
+
+	if (ok == 0)
+	{
+		free(buf);
+		return NULL;
+	}
+
+	return buf;
 }
 
-void x11_helpers_set_frame(
+HICON win_helpers_bitmap_to_icon(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
+	BITMAP* bmp,
 	struct globox_error_info* error)
 {
-	uint32_t flags;
+	HDC hdc = GetDC(platform->event_handle);
 
-	if (context->feature_frame->frame == false)
+	if (hdc == NULL)
 	{
-		flags = 2;
-	}
-	else
-	{
-		flags = 0;
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		return NULL;
 	}
 
-	uint32_t motif_hints[5] =
+	HBITMAP mask =
+		CreateCompatibleBitmap(
+			hdc,
+			bmp->bmWidth,
+			bmp->bmHeight);
+
+	if (mask == NULL)
 	{
-		flags, // flags
-		0, // functions
-		0, // decorations
-		0, // input_mode
-		0, // status
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_MASK_CREATE);
+		return NULL;
+	}
+
+	HBITMAP color = CreateBitmapIndirect(bmp);
+
+	if (color == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_COLOR_CREATE);
+		return NULL;
+	}
+
+	ICONINFO info =
+	{
+		.fIcon = TRUE,
+		.xHotspot = 0,
+		.yHotspot = 0,
+		.hbmMask = mask,
+		.hbmColor = color,
 	};
 
-	xcb_void_cookie_t cookie =
-		xcb_change_property(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_HINTS_MOTIF],
-			platform->atoms[X11_ATOM_HINTS_MOTIF],
-			32,
-			5,
-			motif_hints);
+	HICON icon = CreateIconIndirect(&info);
 
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
+	if (icon == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_CREATE);
+		return NULL;
+	}
+
+	int ok;
+
+	ok = DeleteObject(mask);
+
+	if (ok == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
+		return NULL;
+	}
+
+	ok = DeleteObject(color);
+
+	if (ok == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
+		return NULL;
+	}
+
+	ReleaseDC(platform->event_handle, hdc);
+	return icon;
+}
+
+void win_helpers_save_window_state(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
+	// save window state if relevant
+	if (context->feature_state->state == GLOBOX_STATE_REGULAR)
+	{
+		BOOL ok =
+			GetWindowPlacement(platform->event_handle, &(platform->placement));
+
+		if (ok == FALSE)
+		{
+			globox_error_throw(
+				context,
+				error,
+				GLOBOX_ERROR_WIN_PLACEMENT_GET);
+		}
+	}
+}
+
+enum win_dpi_api win_helpers_set_dpi_awareness()
+{
+	// try the Windows 10 API, v2 (available since the "creators update")
+	BOOL ok;
+
+	ok =
+		SetProcessDpiAwarenessContext(
+			DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+	if (ok == TRUE)
+	{
+		return WIN_DPI_API_10_V2;
+	}
+
+	// try the Windows 10 API, v1
+	ok =
+		SetProcessDpiAwarenessContext(
+			DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+
+	if (ok == TRUE)
+	{
+		return WIN_DPI_API_10_V1;
+	}
+
+	// try the Windows 8 API
+	HRESULT result =
+		SetProcessDpiAwareness(
+			PROCESS_PER_MONITOR_DPI_AWARE);
+
+	if (result == S_OK)
+	{
+		return WIN_DPI_API_8;
+	}
+
+	// try the Windows Vista API
+	ok = SetProcessDPIAware();
+
+	if (ok == TRUE)
+	{
+		return WIN_DPI_API_VISTA;
+	}
+
+	return WIN_DPI_API_NONE;
+}
+
+void win_helpers_set_title(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
+	platform->window_class_name =
+		win_helpers_utf8_to_wchar(context->feature_title->title);
+
+	if (platform->window_class_name == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_NAME_SET);
 		return;
 	}
 
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_background(
+void win_helpers_set_icon(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	if ((platform->atoms[X11_ATOM_BLUR_KDE] == XCB_ATOM_NONE)
-		&& (platform->atoms[X11_ATOM_BLUR_DEEPIN] == XCB_ATOM_NONE))
+	BITMAP pixmap_32 =
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+		.bmType = 0,
+		.bmWidth = 32,
+		.bmHeight = 32,
+		.bmWidthBytes = 32 * 4,
+		.bmPlanes = 1,
+		.bmBitsPixel = 32,
+		.bmBits = context->feature_icon->pixmap + 4 + (16 * 16),
+	};
+
+	platform->icon_32 =
+		win_helpers_bitmap_to_icon(context, platform, &pixmap_32, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
 		return;
 	}
 
-	// kde blur
-	xcb_void_cookie_t cookie =
-		xcb_change_property(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_BLUR_KDE],
-			XCB_ATOM_CARDINAL,
-			32,
+	if (platform->icon_32 != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_SMALL);
+		return;
+	}
+
+	BITMAP pixmap_64 =
+	{
+		.bmType = 0,
+		.bmWidth = 64,
+		.bmHeight = 64,
+		.bmWidthBytes = 64 * 4,
+		.bmPlanes = 1,
+		.bmBitsPixel = 32,
+		.bmBits = context->feature_icon->pixmap + 4 + (16 * 16) + (32 * 32),
+	};
+
+	platform->icon_64 =
+		win_helpers_bitmap_to_icon(context, platform, &pixmap_64, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
+	if (platform->icon_64 != NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_BIG);
+		return;
+	}
+
+	globox_error_ok(error);
+}
+
+void win_helpers_set_frame(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
+	globox_error_ok(error);
+}
+
+void win_helpers_set_background(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BACKGROUND_BLUR);
+		return;
+	}
+
+	globox_error_ok(error);
+}
+
+void win_helpers_set_vsync(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error)
+{
+	globox_error_ok(error);
+}
+
+#ifdef GLOBOX_ERROR_HELPER_WIN
+void win_helpers_win32_error_log(
+	struct globox* context,
+	struct win_platform* platform)
+{
+	DWORD error;
+	LPVOID message;
+
+	error = GetLastError(); 
+
+	DWORD error_format =
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER
+			| FORMAT_MESSAGE_FROM_SYSTEM
+			| FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			error,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &message,
 			0,
 			NULL);
 
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
+	if (error_format == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
+		fprintf(stderr, "could not get win32 error message\n");
 		return;
-	}
-
-	// deepin blur
-	cookie =
-		xcb_change_property(
-			platform->conn,
-			XCB_PROP_MODE_REPLACE,
-			platform->win,
-			platform->atoms[X11_ATOM_BLUR_DEEPIN],
-			XCB_ATOM_CARDINAL,
-			32,
-			0,
-			NULL);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_CHANGE);
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-void x11_helpers_set_vsync(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	// TODO setter
-
-	globox_error_ok(error);
-}
-
-enum globox_event x11_helpers_get_state(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_get_property_cookie_t cookie =
-		xcb_get_property(
-			platform->conn,
-			0,
-			platform->win,
-			platform->atoms[X11_ATOM_STATE],
-			XCB_ATOM_ATOM,
-			0,
-			32);
-
-	xcb_generic_error_t* error_xcb;
-	enum globox_event event = GLOBOX_EVENT_INVALID;
-
-	xcb_get_property_reply_t* reply =
-		xcb_get_property_reply(
-			platform->conn,
-			cookie,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
-		free(reply);
-		return event;
-	}
-
-	xcb_atom_t* value = (xcb_atom_t*) xcb_get_property_value(reply);
-	int len = xcb_get_property_value_length(reply);
-
-	if ((len == 0) || (value == NULL))
-	{
-		free(reply);
-		return GLOBOX_EVENT_UNKNOWN;
-	}
-
-	if (*value == platform->atoms[X11_ATOM_STATE_FULLSCREEN])
-	{
-		context->feature_state->state = GLOBOX_STATE_FULLSCREEN;
-		event = GLOBOX_EVENT_FULLSCREEN;
-	}
-	else if ((*value == platform->atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL])
-		|| (*value == platform->atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL]))
-	{
-		context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
-		event = GLOBOX_EVENT_MAXIMIZED;
-	}
-	else if (*value == platform->atoms[X11_ATOM_STATE_HIDDEN])
-	{
-		context->feature_state->state = GLOBOX_STATE_MINIMIZED;
-		event = GLOBOX_EVENT_MINIMIZED;
-	}
-	else
-	{
-		context->feature_state->state = GLOBOX_STATE_REGULAR;
-		event = GLOBOX_EVENT_RESTORED;
-	}
-
-	free(reply);
-	return event;
-}
-
-void x11_helpers_get_title(
-	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_get_property_cookie_t cookie =
-		xcb_get_property(
-			platform->conn,
-			0,
-			platform->win,
-			XCB_ATOM_WM_NAME,
-			XCB_ATOM_STRING,
-			0,
-			32);
-
-	xcb_generic_error_t* error_xcb;
-
-	xcb_get_property_reply_t* reply =
-		xcb_get_property_reply(
-			platform->conn,
-			cookie,
-			&error_xcb);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
-		return;
-	}
-
-	char* value = (char*) xcb_get_property_value(reply);
-
-	if (value == NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_VALUE_GET);
-		free(reply);
-		return;
-	}
-
-	if (context->feature_title->title != NULL)
-	{
-		free((void*) context->feature_title->title);
-	}
-
-	context->feature_title->title = strdup(value);
-	free(reply);
-}
-
-#ifdef GLOBOX_ERROR_HELPER_XCB
-void x11_helpers_xcb_error_log(
-	struct globox* context,
-	struct x11_platform* platform,
-	xcb_generic_error_t* error)
-{
-	xcb_errors_context_t* errors_context;
-	int error_posix = xcb_errors_context_new(platform->conn, &errors_context);
-
-	if (error_posix != 0)
-	{
-		fprintf(stderr, "could not allocate the xcb errors context\n");
-		return;
-	}
-
-	const char* error_name;
-	const char* extension_name;
-	const char* minor_code_name;
-	const char* major_code_name;
-
-	error_name =
-		xcb_errors_get_name_for_error(
-			errors_context,
-			error->error_code,
-			&extension_name);
-
-	minor_code_name =
-		xcb_errors_get_name_for_minor_code(
-			errors_context,
-			error->major_code,
-			error->minor_code);
-
-	major_code_name =
-		xcb_errors_get_name_for_major_code(
-			errors_context,
-			error->major_code);
-
-	if (extension_name == NULL)
-	{
-		extension_name = "none (no extension or couldn't find a name for it)";
-	}
-
-	if (minor_code_name == NULL)
-	{
-		minor_code_name = "none (couldn't find a name for this minor code)";
 	}
 
 	fprintf(
 		stderr,
-		"# XCB Error Report\n"
-		"Error Name: %s\n"
-		"Extension Name: %s\n"
-		"Minor Code Name: %s\n"
-		"Major Code Name: %s\n"
-		"Sequence: %u\n"
-		"Resource ID: %u\n",
-		error_name,
-		extension_name,
-		minor_code_name,
-		major_code_name,
-		error->sequence,
-		error->resource_id);
-
-	xcb_errors_context_free(errors_context);
+		"# Win32 Error Report\n"
+		"Error ID: %d\n"
+		"Error Message: %s\n",
+		error,
+		(char*) message);
 }
 #endif

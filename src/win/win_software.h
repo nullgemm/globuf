@@ -1,19 +1,19 @@
-#ifndef H_GLOBOX_INTERNAL_X11_SOFTWARE
-#define H_GLOBOX_INTERNAL_X11_SOFTWARE
+#ifndef H_GLOBOX_INTERNAL_WIN_SOFTWARE
+#define H_GLOBOX_INTERNAL_WIN_SOFTWARE
 
 #include "include/globox.h"
 #include <stddef.h>
 
 // # main API (globox.h)
-void globox_x11_software_init(
+void globox_win_software_init(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_clean(
+void globox_win_software_clean(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_window_create(
+void globox_win_software_window_create(
 	struct globox* context,
 	struct globox_config_request* configs,
 	size_t count,
@@ -21,79 +21,79 @@ void globox_x11_software_window_create(
 	void* data,
 	struct globox_error_info* error);
 
-void globox_x11_software_window_destroy(
+void globox_win_software_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_window_start(
+void globox_win_software_window_start(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_window_block(
+void globox_win_software_window_block(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_window_stop(
+void globox_win_software_window_stop(
 	struct globox* context,
 	struct globox_error_info* error);
 
 
-void globox_x11_software_init_render(
+void globox_win_software_init_render(
 	struct globox* context,
 	struct globox_config_render* config,
 	struct globox_error_info* error);
 
-void globox_x11_software_init_events(
+void globox_win_software_init_events(
 	struct globox* context,
 	struct globox_config_events* config,
 	struct globox_error_info* error);
 
-enum globox_event globox_x11_software_handle_events(
+enum globox_event globox_win_software_handle_events(
 	struct globox* context,
 	void* event,
 	struct globox_error_info* error);
 
 
-struct globox_config_features* globox_x11_software_init_features(
+struct globox_config_features* globox_win_software_init_features(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_x11_software_feature_set_interaction(
+void globox_win_software_feature_set_interaction(
 	struct globox* context,
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error);
 
-void globox_x11_software_feature_set_state(
+void globox_win_software_feature_set_state(
 	struct globox* context,
 	struct globox_feature_state* config,
 	struct globox_error_info* error);
 
-void globox_x11_software_feature_set_title(
+void globox_win_software_feature_set_title(
 	struct globox* context,
 	struct globox_feature_title* config,
 	struct globox_error_info* error);
 
-void globox_x11_software_feature_set_icon(
+void globox_win_software_feature_set_icon(
 	struct globox* context,
 	struct globox_feature_icon* config,
 	struct globox_error_info* error);
 
 
-unsigned globox_x11_software_get_width(
+unsigned globox_win_software_get_width(
 	struct globox* context,
 	struct globox_error_info* error);
 
-unsigned globox_x11_software_get_height(
+unsigned globox_win_software_get_height(
 	struct globox* context,
 	struct globox_error_info* error);
 
-struct globox_rect globox_x11_software_get_expose(
+struct globox_rect globox_win_software_get_expose(
 	struct globox* context,
 	struct globox_error_info* error);
 
 
 // for this backend, `data` is of type `struct globox_update_software*`
-void globox_x11_software_update_content(
+void globox_win_software_update_content(
 	struct globox* context,
 	void* data,
 	struct globox_error_info* error);

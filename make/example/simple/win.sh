@@ -39,7 +39,6 @@ flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
 flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
-ldflags+=("-z noexecstack")
 defines+=("-DGLOBOX_EXAMPLE_WIN")
 
 # customize depending on the chosen build type
@@ -161,6 +160,9 @@ obj+=("\$folder_objects/res/icon/iconpix.o")
 libs+=("\$folder_library/win/$name_lib""_$backend.a")
 libs+=("\$folder_library/win/$name_lib""_common.a")
 libs+=("\$folder_library/globox_pe.a")
+ldlibs+=("-lshcore")
+ldlibs+=("-lgdi32")
+ldlibs+=("-ldwmapi")
 
 # default target
 default+=("\$builddir/\$name")

@@ -1,77 +1,79 @@
-#ifndef H_GLOBOX_INTERNAL_X11_COMMON_HELPERS
-#define H_GLOBOX_INTERNAL_X11_COMMON_HELPERS
+#ifndef H_GLOBOX_INTERNAL_WIN_COMMON_HELPERS
+#define H_GLOBOX_INTERNAL_WIN_COMMON_HELPERS
 
 #include "include/globox.h"
-#include "x11/x11_common.h"
+#include "win/win_common.h"
 
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <xcb/xcb.h>
+#include <windows.h>
 
-void* x11_helpers_render_loop(
-	void* data);
+unsigned __stdcall win_helpers_render_loop(void* data);
 
-void* x11_helpers_event_loop(
-	void* data);
+unsigned __stdcall win_helpers_event_loop(void* data);
 
-void x11_helpers_features_init(
+LRESULT CALLBACK win_helpers_window_procedure(
+	HWND hwnd,
+	UINT msg,
+	WPARAM wParam,
+	LPARAM lParam);
+
+void win_helpers_features_init(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_config_request* configs,
 	size_t count,
 	struct globox_error_info* error);
 
-void x11_helpers_handle_interaction(
+void win_helpers_set_state(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_state(
+LPWSTR win_helpers_utf8_to_wchar(const char* string);
+
+HICON win_helpers_bitmap_to_icon(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
+	BITMAP* bmp,
 	struct globox_error_info* error);
 
-void x11_helpers_set_title(
+void win_helpers_save_window_state(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_icon(
+enum win_dpi_api win_helpers_set_dpi_awareness();
+
+void win_helpers_set_title(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_frame(
+void win_helpers_set_icon(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_background(
+void win_helpers_set_frame(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_set_vsync(
+void win_helpers_set_background(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-enum globox_event x11_helpers_get_state(
+void win_helpers_set_vsync(
 	struct globox* context,
-	struct x11_platform* platform,
+	struct win_platform* platform,
 	struct globox_error_info* error);
 
-void x11_helpers_get_title(
+#ifdef GLOBOX_ERROR_HELPER_WIN
+void win_helpers_win32_error_log(
 	struct globox* context,
-	struct x11_platform* platform,
-	struct globox_error_info* error);
-
-#ifdef GLOBOX_ERROR_HELPER_XCB
-void x11_helpers_xcb_error_log(
-	struct globox* context,
-	struct x11_platform* platform,
-	xcb_generic_error_t* error);
+	struct win_platform* platform);
 #endif
 
 #endif
