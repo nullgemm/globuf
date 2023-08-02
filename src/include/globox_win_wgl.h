@@ -11,7 +11,7 @@ void globox_prepare_init_win_wgl(
 
 void globox_init_win_wgl(
 	struct globox* context,
-	struct globox_config_glx* config,
+	struct globox_config_wgl* config,
 	struct globox_error_info* error);
 
 #endif

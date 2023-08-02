@@ -112,8 +112,73 @@ int wgl_config_attrib[] =
 
 // opengl32.dll only supports OpenGL 1
 // so we have to load these functions
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLCOMPILESHADERPROC glCompileShader;
+
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLDELETESHADERPROC glDeleteShader;
+
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+
 static void load_wgl_functions()
 {
+	glCreateShader =
+		(PFNGLCREATESHADERPROC)
+			wglGetProcAddress("glCreateShader");
+	glShaderSource =
+		(PFNGLSHADERSOURCEPROC)
+			wglGetProcAddress("glShaderSource");
+	glCompileShader =
+		(PFNGLCOMPILESHADERPROC)
+			wglGetProcAddress("glCompileShader");
+
+	glGetShaderiv =
+		(PFNGLGETSHADERIVPROC)
+			wglGetProcAddress("glGetShaderiv");
+	glGetShaderInfoLog =
+		(PFNGLGETSHADERINFOLOGPROC)
+			wglGetProcAddress("glGetShaderInfoLog");
+
+	glAttachShader =
+		(PFNGLATTACHSHADERPROC)
+			wglGetProcAddress("glAttachShader");
+	glCreateProgram =
+		(PFNGLCREATEPROGRAMPROC)
+			wglGetProcAddress("glCreateProgram");
+	glLinkProgram =
+		(PFNGLLINKPROGRAMPROC)
+			wglGetProcAddress("glLinkProgram");
+	glDeleteShader =
+		(PFNGLDELETESHADERPROC)
+			wglGetProcAddress("glDeleteShader");
+
+	glGetProgramiv =
+		(PFNGLGETPROGRAMIVPROC)
+			wglGetProcAddress("glGetProgramiv");
+	glGetProgramInfoLog =
+		(PFNGLGETPROGRAMINFOLOGPROC)
+			wglGetProcAddress("glGetProgramInfoLog");
+
+	glUseProgram =
+		(PFNGLUSEPROGRAMPROC)
+			wglGetProcAddress("glUseProgram");
+	glEnableVertexAttribArray =
+		(PFNGLENABLEVERTEXATTRIBARRAYPROC)
+			wglGetProcAddress("glEnableVertexAttribArray");
+	glVertexAttribPointer =
+		(PFNGLVERTEXATTRIBPOINTERPROC)
+			wglGetProcAddress("glVertexAttribPointer");
 }
 #endif
 

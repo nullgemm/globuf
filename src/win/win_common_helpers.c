@@ -44,7 +44,7 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 	// thread init callback
 	if (platform->render_init_callback != NULL)
 	{
-		platform->render_init_callback(context, error);
+		platform->render_init_callback(thread_render_loop_data);
 
 		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 		{

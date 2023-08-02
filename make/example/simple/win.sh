@@ -37,7 +37,9 @@ flags+=("-Wformat")
 flags+=("-Wformat-security")
 flags+=("-Wno-address-of-packed-member")
 flags+=("-Wno-unused-parameter")
+flags+=("-Wno-cast-function-type")
 flags+=("-I\$folder_include")
+flags+=("-Ires/egl")
 flags+=("-Iexample/helpers")
 defines+=("-DGLOBOX_EXAMPLE_WIN")
 
@@ -138,6 +140,7 @@ ninja_file=example_simple_win_wgl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBOX_EXAMPLE_WGL")
+ldlibs+=("-lopengl32")
 	;;
 
 	vulkan)

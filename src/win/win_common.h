@@ -72,12 +72,12 @@ struct win_platform
 	// render handling
 	HANDLE thread_render;
 	struct win_thread_render_loop_data thread_render_loop_data;
-	void (*render_init_callback)(struct globox*, struct globox_error_info*);
+	void (*render_init_callback)(struct win_thread_render_loop_data* data);
 
 	// event handling
 	HANDLE thread_event;
 	struct win_thread_event_loop_data thread_event_loop_data;
-	void (*event_init_callback)(struct globox*, struct globox_error_info*);
+	void (*event_init_callback)(struct win_thread_render_loop_data* data);
 };
 
 void globox_win_common_init(

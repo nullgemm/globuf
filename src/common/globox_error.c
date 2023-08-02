@@ -269,6 +269,18 @@ void globox_error_init(
 		"";
 	log[GLOBOX_ERROR_WIN_GDI_BITBLT] =
 		"";
+	log[GLOBOX_ERROR_WIN_PIXEL_FORMAT_SET] =
+		"";
+	log[GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE] =
+		"";
+	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_SET] =
+		"";
+	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE] =
+		"";
+	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY] =
+		"";
+	log[GLOBOX_ERROR_WIN_WGL_SWAP] =
+		"";
 
 	log[GLOBOX_ERROR_MACOS_OBJ_NIL] =
 		"could not get a valid objective-c object";
