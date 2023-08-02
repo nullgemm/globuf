@@ -230,7 +230,7 @@ since it runs on a home server (mostly for economic reasons).
 
 
 ### Complex example
-The complex example can help us test advanced features of Femtoframe 
+The complex example can help us test advanced features of Femtoframe
 that require specific capabilities not provided by the library itself.
 
 Press (but don't hold) the following keyboard keys to trigger various actions:
