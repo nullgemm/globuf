@@ -558,9 +558,9 @@ HICON win_helpers_bitmap_to_icon(
 	BITMAP* bmp,
 	struct globox_error_info* error)
 {
-	HDC hdc = GetDC(platform->event_handle);
+	HDC device_context = GetDC(platform->event_handle);
 
-	if (hdc == NULL)
+	if (device_context == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
 		return NULL;
@@ -568,7 +568,7 @@ HICON win_helpers_bitmap_to_icon(
 
 	HBITMAP mask =
 		CreateCompatibleBitmap(
-			hdc,
+			device_context,
 			bmp->bmWidth,
 			bmp->bmHeight);
 
@@ -621,7 +621,7 @@ HICON win_helpers_bitmap_to_icon(
 		return NULL;
 	}
 
-	ReleaseDC(platform->event_handle, hdc);
+	ReleaseDC(platform->event_handle, device_context);
 	return icon;
 }
 
