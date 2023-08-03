@@ -206,12 +206,12 @@ void globox_win_common_window_create(
 		.cbClsExtra = 0,
 		.cbWndExtra = 0,
 		.hInstance = platform->window_class_module,
-		.hIcon = platform->icon_64,
+		.hIcon = platform->icon_32,
 		.hCursor = platform->default_cursor,
 		.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1),
 		.lpszMenuName = NULL,
 		.lpszClassName = platform->window_class_name,
-		.hIconSm = platform->icon_64,
+		.hIconSm = platform->icon_32,
 	};
 
 	platform->window_class = window_class;
