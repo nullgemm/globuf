@@ -90,8 +90,8 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	platform->event_handle =
 		CreateWindowExW(
 			exstyle,
-			platform->window_class_name,
-			platform->window_class_name,
+			platform->win_name,
+			platform->win_name,
 			style,
 			context->feature_pos->x,
 			context->feature_pos->y,
@@ -99,7 +99,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 			context->feature_size->height,
 			NULL,
 			NULL,
-			platform->window_class_module,
+			platform->win_module,
 			data);
 
 	if (platform->event_handle == NULL)
@@ -140,7 +140,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	}
 
 	BOOL ok_placement =
-		GetWindowPlacement(platform->event_handle, &(platform->placement));
+		GetWindowPlacement(platform->event_handle, &(platform->win_placement));
 
 	if (ok_placement == FALSE)
 	{
@@ -634,7 +634,7 @@ void win_helpers_save_window_state(
 	if (context->feature_state->state == GLOBOX_STATE_REGULAR)
 	{
 		BOOL ok =
-			GetWindowPlacement(platform->event_handle, &(platform->placement));
+			GetWindowPlacement(platform->event_handle, &(platform->win_placement));
 
 		if (ok == FALSE)
 		{
@@ -696,12 +696,12 @@ void win_helpers_set_title(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	platform->window_class_name =
+	platform->win_name =
 		win_helpers_utf8_to_wchar(context->feature_title->title);
 
-	if (platform->window_class_name == NULL)
+	if (platform->win_name == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_NAME_SET);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_NAME_SET);
 		return;
 	}
 

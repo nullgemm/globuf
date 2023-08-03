@@ -180,11 +180,11 @@ void globox_win_common_window_create(
 	free(reply);
 
 	// get window class module
-	platform->window_class_module = GetModuleHandleW(NULL);
+	platform->win_module = GetModuleHandleW(NULL);
 
-	if (platform->window_class_module == NULL)
+	if (platform->win_module == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_MODULE_GET);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MODULE_GET);
 		return;
 	}
 
@@ -198,25 +198,25 @@ void globox_win_common_window_create(
 	}
 
 	// register window class
-	WNDCLASSEX window_class =
+	WNDCLASSEX win_class =
 	{
-		.cbSize = sizeof (platform->window_class),
+		.cbSize = sizeof (platform->win_class),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = win_helpers_window_procedure,
 		.cbClsExtra = 0,
 		.cbWndExtra = 0,
-		.hInstance = platform->window_class_module,
+		.hInstance = platform->win_module,
 		.hIcon = platform->icon_32,
 		.hCursor = platform->default_cursor,
 		.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1),
 		.lpszMenuName = NULL,
-		.lpszClassName = platform->window_class_name,
+		.lpszClassName = platform->win_name,
 		.hIconSm = platform->icon_32,
 	};
 
-	platform->window_class = window_class;
+	platform->win_class = win_class;
 
-	ATOM atom = RegisterClassExW(&(platform->window_class));
+	ATOM atom = RegisterClassExW(&(platform->win_class));
 
 	if (atom == 0)
 	{
@@ -231,7 +231,7 @@ void globox_win_common_window_destroy(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-	free_check(platform->window_class_name);
+	free_check(platform->win_name);
 
 	// TODO more
 
@@ -557,7 +557,7 @@ enum globox_event globox_win_common_handle_events(
 			ok =
 				SetWindowPlacement(
 					platform->event_handle,
-					&(platform->placement));
+					&(platform->win_placement));
 
 			if (ok == FALSE)
 			{
@@ -874,12 +874,12 @@ void globox_win_common_feature_set_title(
 	context->feature_title->title =
 		strdup(config->title);
 
-	free_check(platform->window_class_name);
+	free_check(platform->win_name);
 
-	platform->window_class_name =
+	platform->win_name =
 		win_helpers_utf8_to_wchar(context->feature_title->title);
 
-	BOOL ok = SetWindowText(platform->event_handle, platform->window_class_name);
+	BOOL ok = SetWindowText(platform->event_handle, platform->win_name);
 
 	if (ok == 0)
 	{

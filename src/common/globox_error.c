@@ -201,9 +201,11 @@ void globox_error_init(
 		"";
 	log[GLOBOX_ERROR_WIN_MUTEX_DESTROY] =
 		"";
-	log[GLOBOX_ERROR_WIN_CLASS_MODULE_GET] =
+	log[GLOBOX_ERROR_WIN_MODULE_GET] =
 		"";
 	log[GLOBOX_ERROR_WIN_CLASS_CREATE] =
+		"";
+	log[GLOBOX_ERROR_WIN_NAME_SET] =
 		"";
 	log[GLOBOX_ERROR_WIN_THREAD_EVENT_START] =
 		"";

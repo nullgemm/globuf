@@ -62,11 +62,11 @@ struct win_platform
 	enum win_dpi_api dpi;
 
 	// window
-	WNDCLASSEX window_class;
-	LPWSTR window_class_name;
-	HMODULE window_class_module;
+	HMODULE win_module;
+	WNDCLASSEX win_class;
+	LPWSTR win_name;
 	HCURSOR default_cursor;
-	WINDOWPLACEMENT placement;
+	WINDOWPLACEMENT win_placement;
 	bool sizemove;
 
 	// render handling
