@@ -521,7 +521,7 @@ enum globox_event globox_win_common_handle_events(
 		}
 		case WM_PAINT:
 		{
-            PAINTSTRUCT info;
+			PAINTSTRUCT info;
 			HDC device_context = BeginPaint(platform->event_handle, &info);
 
 			if (device_context == NULL)
