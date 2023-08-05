@@ -32,7 +32,16 @@ void globox_win_vulkan_init(
 	// reference the backend in the main context
 	context->backend_data = backend;
 
-	// initialize values that can be initialized explicitly
+	// initialize the platform
+	struct win_platform* platform = &(backend->platform);
+	globox_win_common_init(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
+	// initialize backend
 	backend->config = NULL;
 	backend->ext_needed = NULL;
 	backend->ext_found = NULL;
@@ -42,15 +51,6 @@ void globox_win_vulkan_init(
 			&(backend->ext_needed),
 			&(backend->ext_found),
 			error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	// initialize the platform
-	struct win_platform* platform = &(backend->platform);
-	globox_win_common_init(context, platform, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

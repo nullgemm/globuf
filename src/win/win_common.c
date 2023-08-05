@@ -41,22 +41,38 @@ void globox_win_common_init(
 	// window init cond
 	InitializeConditionVariable(&(platform->cond_window));
 	InitializeSRWLock(&(platform->lock_window));
+	platform->window = false;
 
 	// render init cond
 	InitializeConditionVariable(&(platform->cond_render));
 	InitializeSRWLock(&(platform->lock_render));
+	platform->render = false;
 
 	// block cond
 	InitializeConditionVariable(&(platform->cond_block));
 	InitializeSRWLock(&(platform->lock_block));
+	platform->block = false;
 
-	// initialize the "closed" boolean
+	// initialize the rest
 	platform->closed = false;
+	platform->event_handle = NULL;
 
-
-	// advertise dpi awareness
+	platform->icon_32 = NULL;
+	platform->icon_64 = NULL;
 	platform->dpi = win_helpers_set_dpi_awareness();
 
+	platform->win_module = NULL;
+
+	WNDCLASSEXW win_class = {0};
+	platform->win_class = win_class;
+
+	platform->win_name = NULL;
+	platform->default_cursor = NULL;
+
+	WINDOWPLACEMENT win_placement = {0};
+	platform->win_placement = win_placement;
+
+	platform->sizemove = false;
 
 	// initialize threads
 	// initialize render thread
@@ -66,6 +82,7 @@ void globox_win_common_init(
 		.platform = NULL,
 		.error = NULL,
 	};
+	platform->thread_render = NULL;
 	platform->thread_render_loop_data = thread_render_loop_data;
 	platform->render_init_callback = NULL;
 
@@ -76,12 +93,9 @@ void globox_win_common_init(
 		.platform = NULL,
 		.error = NULL,
 	};
+	platform->thread_event = NULL;
 	platform->thread_event_loop_data = thread_event_loop_data;
 	platform->event_init_callback = NULL;
-
-
-	// initialize window class objects
-	// TODO
 
 	globox_error_ok(error);
 }

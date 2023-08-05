@@ -38,12 +38,23 @@ void globox_win_wgl_init(
 	// reference the backend in the main context
 	context->backend_data = backend;
 
-	// initialize values that can be initialized explicitly
-	backend->config = NULL;
-
 	// initialize the platform
 	struct win_platform* platform = &(backend->platform);
 	globox_win_common_init(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
+	// initialize backend
+	backend->config = NULL;
+
+	backend->wgl = NULL;
+	backend->device_context = NULL;
+
+	PIXELFORMATDESCRIPTOR format_descriptor = {0};
+	backend->format_descriptor = format_descriptor;
 
 	// error always set
 }

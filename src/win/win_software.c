@@ -36,7 +36,14 @@ void globox_win_software_init(
 	struct win_platform* platform = &(backend->platform);
 	globox_win_common_init(context, platform, error);
 
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
 	// initialize backend
+	BITMAPINFO bmp_info = {0};
+	backend->bmp_info = bmp_info;
 	backend->bmp_handle = NULL;
 
 	// error always set
