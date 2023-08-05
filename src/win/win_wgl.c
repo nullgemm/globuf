@@ -85,12 +85,24 @@ void globox_win_wgl_window_create(
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// configure features here
 	win_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -106,6 +118,16 @@ void globox_win_wgl_window_create(
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -118,12 +140,33 @@ void globox_win_wgl_window_destroy(
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// run common win32 helper
 	globox_win_common_window_destroy(context, platform, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -136,6 +179,8 @@ void globox_win_wgl_window_start(
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
 	BOOL ok;
 
 	// set win32 render helper
@@ -144,12 +189,22 @@ void globox_win_wgl_window_start(
 	// run common win32 helper
 	globox_win_common_window_start(context, platform, error);
 
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// get wgl context
 	HDC device_context = GetDC(platform->event_handle);
 
 	if (device_context == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -195,6 +250,7 @@ void globox_win_wgl_window_start(
 	if (pixel_format == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -204,6 +260,7 @@ void globox_win_wgl_window_start(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_SET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -213,6 +270,7 @@ void globox_win_wgl_window_start(
 	if (backend->wgl == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -222,6 +280,7 @@ void globox_win_wgl_window_start(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_SET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -233,6 +292,7 @@ void globox_win_wgl_window_start(
 	if (wglCreateContextAttribsARB == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -243,6 +303,7 @@ void globox_win_wgl_window_start(
 	if (wglChoosePixelFormatARB == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -252,6 +313,7 @@ void globox_win_wgl_window_start(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_SET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -260,6 +322,7 @@ void globox_win_wgl_window_start(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -291,6 +354,7 @@ void globox_win_wgl_window_start(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -303,6 +367,7 @@ void globox_win_wgl_window_start(
 #if defined(GLOBOX_COMPAT_WINE)
 		globox_error_ok(error);
 #else
+		ReleaseMutex(platform->mutex_main);
 		return;
 #endif
 	}
@@ -324,6 +389,7 @@ void globox_win_wgl_window_start(
 	if (backend->wgl == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -331,6 +397,15 @@ void globox_win_wgl_window_start(
 
 	platform->render = true;
 	WakeConditionVariable(&(platform->cond_render));
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	// error always set
 }
@@ -356,6 +431,17 @@ void globox_win_wgl_window_stop(
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// destroy WGL context
 	BOOL ok = wglDeleteContext(backend->wgl);
@@ -363,6 +449,7 @@ void globox_win_wgl_window_stop(
 	if (ok == FALSE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -370,6 +457,15 @@ void globox_win_wgl_window_stop(
 	globox_win_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	// error always set
 }

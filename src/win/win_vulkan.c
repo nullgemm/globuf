@@ -198,12 +198,24 @@ void globox_win_vulkan_window_create(
 {
 	struct win_vulkan_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// configure features here
 	win_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -219,6 +231,16 @@ void globox_win_vulkan_window_create(
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -231,6 +253,17 @@ void globox_win_vulkan_window_destroy(
 {
 	struct win_vulkan_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	vkDestroySurfaceKHR(
 		backend->config->instance,
@@ -242,6 +275,16 @@ void globox_win_vulkan_window_destroy(
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -254,9 +297,20 @@ void globox_win_vulkan_window_start(
 {
 	struct win_vulkan_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
 
 	// run common win32 helper
 	globox_win_common_window_start(context, platform, error);
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// create vulkan surface
 	VkWin32SurfaceCreateInfoKHR info =
@@ -280,6 +334,7 @@ void globox_win_vulkan_window_start(
 	if (error_vk != VK_SUCCESS)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_VULKAN_SURFACE_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -287,6 +342,15 @@ void globox_win_vulkan_window_start(
 	WakeConditionVariable(&(platform->cond_render));
 
 	// no extra failure check at the moment
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	// error always set
 }
@@ -312,11 +376,31 @@ void globox_win_vulkan_window_stop(
 {
 	struct win_vulkan_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
 
 	// run common win32 helper
 	globox_win_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	// error always set
 }

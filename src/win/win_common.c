@@ -258,6 +258,18 @@ void globox_win_common_window_start(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// start the event loop in a new thread
 	// init thread function data
 	struct win_thread_event_loop_data event_data =
@@ -290,6 +302,16 @@ void globox_win_common_window_start(
 	if (platform->thread_event == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_START);
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -402,8 +424,30 @@ void globox_win_common_init_render(
 	struct globox_config_render* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// set the event callback
 	context->render_callback = *config;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -413,8 +457,30 @@ void globox_win_common_init_events(
 	struct globox_config_events* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// set the event callback
 	context->event_callbacks = *config;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -424,6 +490,18 @@ enum globox_event globox_win_common_handle_events(
 	void* event,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return GLOBOX_EVENT_INVALID;
+	}
+
 	// process system events
 	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
 	MSG* msg = event;
@@ -724,7 +802,17 @@ enum globox_event globox_win_common_handle_events(
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
 		return GLOBOX_EVENT_INVALID;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return globox_event;
 	}
 
 	globox_error_ok(error);
@@ -737,12 +825,25 @@ struct globox_config_features*
 		struct win_platform* platform,
 		struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return NULL;
+	}
+
 	struct globox_config_features* features =
 		malloc(sizeof (struct globox_config_features));
 
 	if (features == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -753,6 +854,7 @@ struct globox_config_features*
 	if (features->list == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -765,6 +867,7 @@ struct globox_config_features*
 	if (context->feature_interaction == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -779,6 +882,7 @@ struct globox_config_features*
 	if (context->feature_state == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -791,6 +895,7 @@ struct globox_config_features*
 	if (context->feature_title == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -803,6 +908,7 @@ struct globox_config_features*
 	if (context->feature_icon == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -815,6 +921,7 @@ struct globox_config_features*
 	if (context->feature_size == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -827,6 +934,7 @@ struct globox_config_features*
 	if (context->feature_pos == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -839,6 +947,7 @@ struct globox_config_features*
 	if (context->feature_frame == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -851,6 +960,7 @@ struct globox_config_features*
 	if (context->feature_background == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -863,6 +973,16 @@ struct globox_config_features*
 	if (context->feature_vsync == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		ReleaseMutex(platform->mutex_main);
+		return NULL;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return NULL;
 	}
 
@@ -876,15 +996,37 @@ void globox_win_common_feature_set_interaction(
 	struct globox_feature_interaction* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// not supported while resizing
 	if (platform->sizemove == true)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_INTERACTION_SET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
 	// configure
 	*(context->feature_interaction) = *config;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	globox_error_ok(error);
 }
@@ -895,10 +1037,23 @@ void globox_win_common_feature_set_state(
 	struct globox_feature_state* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// not supported while resizing
 	if (platform->sizemove == true)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_STATE_SET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -906,6 +1061,7 @@ void globox_win_common_feature_set_state(
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -916,6 +1072,16 @@ void globox_win_common_feature_set_state(
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -928,6 +1094,18 @@ void globox_win_common_feature_set_title(
 	struct globox_feature_title* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// configure
 	free_check(context->feature_title->title);
 
@@ -944,6 +1122,16 @@ void globox_win_common_feature_set_title(
 	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_TITLE_SET);
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -956,6 +1144,18 @@ void globox_win_common_feature_set_icon(
 	struct globox_feature_icon* config,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
 	// configure
 	free_check(context->feature_icon->pixmap);
 
@@ -976,6 +1176,7 @@ void globox_win_common_feature_set_icon(
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -991,6 +1192,15 @@ void globox_win_common_feature_set_icon(
 		ICON_BIG,
 		(LPARAM) platform->icon_64);
 
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
+
 	globox_error_ok(error);
 }
 
@@ -999,8 +1209,29 @@ unsigned globox_win_common_get_width(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return 0;
+	}
+
 	// save value
 	unsigned value = context->feature_size->width;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return value;
+	}
 
 	// return value
 	globox_error_ok(error);
@@ -1012,8 +1243,29 @@ unsigned globox_win_common_get_height(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return 0;
+	}
+
 	// save value
 	unsigned value = context->feature_size->height;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return value;
+	}
 
 	// return value
 	globox_error_ok(error);
@@ -1025,7 +1277,6 @@ struct globox_rect globox_win_common_get_expose(
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
-#if 0
 	struct globox_rect dummy =
 	{
 		.x = 0,
@@ -1033,10 +1284,30 @@ struct globox_rect globox_win_common_get_expose(
 		.width = 0,
 		.height = 0,
 	};
-#endif
+
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return dummy;
+	}
 
 	// save value
 	struct globox_rect value = context->expose;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return value;
+	}
 
 	// return value
 	globox_error_ok(error);
