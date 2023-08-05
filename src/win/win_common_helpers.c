@@ -328,75 +328,74 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	struct win_platform* platform;
 	struct globox_error_info* error;
 
-	// process message first
-	switch (msg)
+	if (msg == WM_CREATE)
 	{
-		case WM_ERASEBKGND:
+		// save a context pointer in the window
+		SetLastError(0);
+
+		BOOL ok =
+			SetWindowLongPtrW(
+				hwnd,
+				GWLP_USERDATA,
+				(LONG_PTR) ((CREATESTRUCT*) lParam)->lpCreateParams);
+
+		DWORD code = GetLastError();
+
+		// if we can't save the user data in the window,
+		// we can still try to use it to report the error
+		if ((ok == 0) && (code != 0))
 		{
-			// ignore clearing requests
-			return S_OK;
-		}
-		case WM_CREATE:
-		{
-			// save a context pointer in the window
-			SetLastError(0);
-
-			BOOL ok =
-				SetWindowLongPtrW(
-					hwnd,
-					GWLP_USERDATA,
-					(LONG_PTR) ((CREATESTRUCT*) lParam)->lpCreateParams);
-
-			DWORD code = GetLastError();
-
-			// if we can't save the user data in the window,
-			// we can still try to use it to report the error
-			if ((ok == 0) && (code != 0))
-			{
-				thread_event_loop_data =
-					(struct win_thread_event_loop_data*)
-						((CREATESTRUCT*) lParam)->lpCreateParams;
-
-				if (thread_event_loop_data != NULL)
-				{
-					context = thread_event_loop_data->globox;
-					platform = thread_event_loop_data->platform;
-					error = thread_event_loop_data->error;
-
-					globox_error_throw(
-						context,
-						error,
-						GLOBOX_ERROR_WIN_USERDATA_SET);
-				}
-			}
-
-			break;
-		}
-		default:
-		{
-			// if we can't get the user data from the window then
-			// we don't have any way to report the error so we just
-			// fail silently after running the default message processor
 			thread_event_loop_data =
 				(struct win_thread_event_loop_data*)
-					GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+					((CREATESTRUCT*) lParam)->lpCreateParams;
 
 			if (thread_event_loop_data != NULL)
 			{
 				context = thread_event_loop_data->globox;
 				platform = thread_event_loop_data->platform;
 				error = thread_event_loop_data->error;
-			}
 
-			break;
+				globox_error_throw(
+					context,
+					error,
+					GLOBOX_ERROR_WIN_USERDATA_SET);
+			}
+		}
+	}
+	else
+	{
+		// if we can't get the user data from the window then
+		// we don't have any way to report the error so we just
+		// fail silently after running the default message processor
+		thread_event_loop_data =
+			(struct win_thread_event_loop_data*)
+				GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+
+		if (thread_event_loop_data != NULL)
+		{
+			context = thread_event_loop_data->globox;
+			platform = thread_event_loop_data->platform;
+			error = thread_event_loop_data->error;
 		}
 	}
 
+	// directly send events to DefWindowProc if possible
+	// otherwise return success and rely on our own code
 	LRESULT result = S_OK;
 
-	if (msg != WM_PAINT)
+	switch (msg)
 	{
-		result = DefWindowProc(hwnd, msg, wParam, lParam);
+		case WM_ERASEBKGND:
+		case WM_PAINT:
+		{
+			result = S_OK;
+			break;
+		}
+		default:
+		{
+			result = DefWindowProc(hwnd, msg, wParam, lParam);
+			break;
+		}
 	}
 
 	// stop here if we weren't able to get user data
