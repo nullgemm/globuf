@@ -718,23 +718,22 @@ HICON win_helpers_bitmap_to_icon(
 	BITMAP* bmp,
 	struct globox_error_info* error)
 {
-	HDC device_context = GetDC(platform->event_handle);
+	size_t buf_len = (sizeof (uint32_t)) * bmp->bmWidth * bmp->bmHeight;
+	uint32_t* buf = malloc(buf_len);
 
-	if (device_context == NULL)
+	if (buf == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
 
-	HBITMAP mask =
-		CreateCompatibleBitmap(
-			device_context,
-			bmp->bmWidth,
-			bmp->bmHeight);
+	memset(buf, 0xff000000, buf_len);
+	HBITMAP mask = CreateBitmap(bmp->bmWidth, bmp->bmHeight, 1, 32, buf);
 
 	if (mask == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_MASK_CREATE);
+		free(buf);
 		return NULL;
 	}
 
@@ -743,6 +742,7 @@ HICON win_helpers_bitmap_to_icon(
 	if (color == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_COLOR_CREATE);
+		free(buf);
 		return NULL;
 	}
 
@@ -756,6 +756,7 @@ HICON win_helpers_bitmap_to_icon(
 	};
 
 	HICON icon = CreateIconIndirect(&info);
+	free(buf);
 
 	if (icon == NULL)
 	{
@@ -781,7 +782,6 @@ HICON win_helpers_bitmap_to_icon(
 		return NULL;
 	}
 
-	ReleaseDC(platform->event_handle, device_context);
 	return icon;
 }
 
@@ -894,7 +894,7 @@ void win_helpers_set_icon(
 		return;
 	}
 
-	if (platform->icon_32 != NULL)
+	if (platform->icon_32 == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_SMALL);
 		return;
@@ -919,7 +919,7 @@ void win_helpers_set_icon(
 		return;
 	}
 
-	if (platform->icon_64 != NULL)
+	if (platform->icon_64 == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_BIG);
 		return;
