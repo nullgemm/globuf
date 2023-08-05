@@ -504,40 +504,9 @@ enum globox_event globox_win_common_handle_events(
 			// make it known this is the end
 			platform->closed = true;
 			context->feature_state->state = GLOBOX_STATE_CLOSED;
-			globox_event = GLOBOX_EVENT_CLOSED;
 
-			// unlock mutex
-			main_unlock = ReleaseMutex(platform->mutex_main);
-
-			// wait for the render thread to finish
-			DWORD code = WaitForSingleObject(platform->thread_render, INFINITE);
-
-			// lock mutex
-			main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
-
-			// stop the window
 			PostQuitMessage(0);
-			platform->block = true;
-			WakeConditionVariable(&(platform->cond_block));
-
-			// handle errors here to make sure the app does not freeze
-			if (main_unlock == 0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
-				break;
-			}
-
-			if (code == WAIT_FAILED)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
-				break;
-			}
-
-			if (main_lock != WAIT_OBJECT_0)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
-				break;
-			}
+			globox_event = GLOBOX_EVENT_CLOSED;
 
 			break;
 		}

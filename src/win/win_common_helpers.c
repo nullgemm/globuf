@@ -313,6 +313,65 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 		}
 	}
 
+	globox_error_ok(error);
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+	}
+
+	// make it known this is the end
+	if (platform->closed == false)
+	{
+		context->feature_state->state = GLOBOX_STATE_CLOSED;
+		platform->closed = true;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+	}
+
+	// wait for the render thread to finish
+	DWORD code = WaitForSingleObject(platform->thread_render, INFINITE);
+
+	if (code == WAIT_FAILED)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
+	}
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+	}
+
+	// stop the window
+	platform->block = true;
+	WakeConditionVariable(&(platform->cond_block));
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+	}
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		_endthreadex(0);
+		return 1;
+	}
+
 	_endthreadex(0);
 	return 0;
 }
