@@ -521,24 +521,18 @@ enum globox_event globox_win_common_handle_events(
 		}
 		case WM_PAINT:
 		{
-			PAINTSTRUCT info;
-			HDC device_context = BeginPaint(platform->event_handle, &info);
+			RECT region;
+			BOOL ok = GetUpdateRect(platform->event_handle, &region, FALSE);
 
-			if (device_context == NULL)
+			if (ok != 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_PAINT_BEGIN);
-				break;
+				context->expose.x = region.left;
+				context->expose.y = region.top;
+				context->expose.width = (region.right - region.left);
+				context->expose.height = (region.bottom - region.top);
+				globox_event = GLOBOX_EVENT_DAMAGED;
 			}
 
-			RECT region = info.rcPaint;
-			EndPaint(platform->event_handle, &info);
-
-			context->expose.x = region.left;
-			context->expose.y = region.top;
-			context->expose.width = (region.right - region.left);
-			context->expose.height = (region.bottom - region.top);
-
-			globox_event = GLOBOX_EVENT_DAMAGED;
 			break;
 		}
 		case WIN_USER_MSG_FULLSCREEN:
