@@ -198,105 +198,105 @@ void globox_error_init(
 		"could not find the XCB Vulkan extension";
 
 	log[GLOBOX_ERROR_WIN_MUTEX_CREATE] =
-		"";
+		"could not create win32 mutex";
 	log[GLOBOX_ERROR_WIN_MUTEX_DESTROY] =
-		"";
+		"could not destroy win32 mutex";
 	log[GLOBOX_ERROR_WIN_MODULE_GET] =
-		"";
+		"could not get win32 window class module";
 	log[GLOBOX_ERROR_WIN_CLASS_CREATE] =
-		"";
+		"could not create win32 window class";
 	log[GLOBOX_ERROR_WIN_NAME_SET] =
-		"";
+		"could not set win32 window name";
 	log[GLOBOX_ERROR_WIN_COND_WAIT] =
-		"";
+		"could not wait for win32 cond";
 	log[GLOBOX_ERROR_WIN_THREAD_WAIT] =
-		"";
+		"could not wait for win32 thread";
 	log[GLOBOX_ERROR_WIN_THREAD_EVENT_START] =
-		"";
+		"could not start win32 window event thread";
 	log[GLOBOX_ERROR_WIN_THREAD_EVENT_CLOSE] =
-		"";
+		"could not close win32 window event thread";
 	log[GLOBOX_ERROR_WIN_THREAD_RENDER_START] =
-		"";
+		"could not start win32 window render thread";
 	log[GLOBOX_ERROR_WIN_THREAD_RENDER_CLOSE] =
-		"";
+		"could not close win32 window render thread";
 	log[GLOBOX_ERROR_WIN_CURSOR_LOAD] =
-		"";
+		"could not load win32 window default cursor";
 	log[GLOBOX_ERROR_WIN_PAINT_BEGIN] =
-		"";
+		"could not start painting win32 window";
 	log[GLOBOX_ERROR_WIN_MONITOR_INFO_GET] =
-		"";
+		"could not get monitor info";
 	log[GLOBOX_ERROR_WIN_WINDOW_POSITION_SET] =
-		"";
+		"could not set win32 window position";
 	log[GLOBOX_ERROR_WIN_PLACEMENT_SET] =
-		"";
+		"could not set win32 window placement";
 	log[GLOBOX_ERROR_WIN_STYLE_SET] =
-		"";
+		"could not set win32 window style";
 	log[GLOBOX_ERROR_WIN_INTERACTION_SET] =
-		"";
+		"could not set win32 window interaction";
 	log[GLOBOX_ERROR_WIN_STATE_SET] =
-		"";
+		"could not set win32 window state";
 	log[GLOBOX_ERROR_WIN_TITLE_SET] =
-		"";
+		"could not set win32 window title";
 	log[GLOBOX_ERROR_WIN_WINDOW_CREATE] =
-		"";
+		"could not create win32 window";
 	log[GLOBOX_ERROR_WIN_USERDATA_SET] =
-		"";
+		"could not set win32 window user data";
 	log[GLOBOX_ERROR_WIN_BMP_MASK_CREATE] =
-		"";
+		"could not create win32 bitmap mask";
 	log[GLOBOX_ERROR_WIN_BMP_COLOR_CREATE] =
-		"";
+		"could not create win32 bitmap color map";
 	log[GLOBOX_ERROR_WIN_ICON_CREATE] =
-		"";
+		"could not create win32 icon";
 	log[GLOBOX_ERROR_WIN_ICON_SMALL] =
-		"";
+		"could not set win32 window small icon";
 	log[GLOBOX_ERROR_WIN_ICON_BIG] =
-		"";
+		"could not set win32 window big icon";
 	log[GLOBOX_ERROR_WIN_MSG_GET] =
-		"";
+		"could not get win32 window message";
 	log[GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET] =
-		"";
+		"could not get win32 device context";
 	log[GLOBOX_ERROR_WIN_DEVICE_CONTEXT_CREATE] =
-		"";
+		"could not create win32 device context";
 	log[GLOBOX_ERROR_WIN_DEVICE_CONTEXT_DELETE] =
-		"";
+		"could not delete win32 device context";
 	log[GLOBOX_ERROR_WIN_OBJECT_DELETE] =
-		"";
+		"could not delete win32 object";
 	log[GLOBOX_ERROR_WIN_DWM_ENABLE] =
-		"";
+		"could not enable win32 DWM compositing";
 	log[GLOBOX_ERROR_WIN_BMP_GET] =
-		"";
+		"could not get win32 bitmap";
 	log[GLOBOX_ERROR_WIN_BMP_CREATE] =
-		"";
+		"could not create win32 bitmap";
 	log[GLOBOX_ERROR_WIN_DIB_CREATE] =
-		"";
+		"could not create win32 device independent bitmap";
 	log[GLOBOX_ERROR_WIN_BACKGROUND_BLUR] =
-		"";
+		"background blur was requested but is not supported";
 	log[GLOBOX_ERROR_WIN_GDI_PAINT] =
-		"";
+		"could not create GDI paint struct";
 	log[GLOBOX_ERROR_WIN_GDI_DAMAGE] =
-		"";
+		"could not damage GDI surface";
 	log[GLOBOX_ERROR_WIN_GDI_BITBLT] =
-		"";
+		"could not blit GDI surface";
 	log[GLOBOX_ERROR_WIN_PIXEL_FORMAT_SET] =
-		"";
+		"could not set win32 pixel format";
 	log[GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE] =
-		"";
+		"could not choose win32 pixel format";
 	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_SET] =
-		"";
+		"could not set win32 WGL context";
 	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE] =
-		"";
+		"could not create win32 WGL context";
 	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY] =
-		"";
+		"could not destroy win32 WGL context";
 	log[GLOBOX_ERROR_WIN_WGL_SWAP] =
-		"";
+		"could not swap WGL buffers";
 	log[GLOBOX_ERROR_WIN_WGL_FUNC_LOAD] =
-		"";
+		"could not load WGL function pointers";
 	log[GLOBOX_ERROR_WIN_VULKAN_EXTENSIONS_LIST] =
-		"";
+		"could not list Vulkan extensions";
 	log[GLOBOX_ERROR_WIN_VULKAN_EXTENSION_UNAVAILABLE] =
-		"";
+		"could not find the Windows Vulkan extension";
 	log[GLOBOX_ERROR_WIN_VULKAN_SURFACE_CREATE] =
-		"";
+		"could not create win32 Vulkan surface";
 
 	log[GLOBOX_ERROR_MACOS_OBJ_NIL] =
 		"could not get a valid objective-c object";
