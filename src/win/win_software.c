@@ -435,7 +435,19 @@ void globox_win_software_update_content(
 	struct win_software_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 	struct globox_update_software* update = data;
+	DWORD main_lock;
+	BOOL main_unlock;
 
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
+	// proceed
 	BOOL ok;
 
 	// damage region
@@ -452,16 +464,17 @@ void globox_win_software_update_content(
 	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_GDI_DAMAGE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
-	// create paint struct
-	PAINTSTRUCT paint;
-	HDC device_context_win = BeginPaint(platform->event_handle, &paint);
+	// get device context
+	HDC device_context_win = GetDC(platform->event_handle);
 
 	if (device_context_win == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_GDI_PAINT);
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -471,6 +484,7 @@ void globox_win_software_update_content(
 	if (device_context_compat == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -484,6 +498,7 @@ void globox_win_software_update_content(
 	if (bmp_compat_old == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -502,6 +517,7 @@ void globox_win_software_update_content(
 	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_GDI_BITBLT);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -513,6 +529,7 @@ void globox_win_software_update_content(
 	if (bmp_old == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_GET);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
@@ -522,12 +539,31 @@ void globox_win_software_update_content(
 	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_DELETE);
+		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
-	// these ones can't fail
-	EndPaint(platform->event_handle, &paint);
+	ReleaseDC(platform->event_handle, device_context_win);
 	GdiFlush();
+
+	// tell windows we updated the damaged region
+	ok = ValidateRect(platform->event_handle, &region);
+
+	if (ok == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PAINT_VALIDATE);
+		ReleaseMutex(platform->mutex_main);
+		return;
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
+	}
 
 	globox_error_ok(error);
 }
@@ -572,10 +608,21 @@ uint32_t* globox_buffer_alloc_win_software(
 {
 	struct win_software_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return NULL;
+	}
 
 	// update bitmap info
-	backend->bmp_info.bmiHeader.biWidth = (LONG) context->feature_size->width;
-	backend->bmp_info.bmiHeader.biHeight = (LONG) context->feature_size->height;
+	backend->bmp_info.bmiHeader.biWidth = (LONG) width;
+	backend->bmp_info.bmiHeader.biHeight = (LONG) height;
 
 	// get device context
 	HDC device_context = GetDC(platform->event_handle);
@@ -583,6 +630,7 @@ uint32_t* globox_buffer_alloc_win_software(
 	if (device_context == NULL)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
@@ -601,11 +649,22 @@ uint32_t* globox_buffer_alloc_win_software(
 	if ((backend->bmp_handle == NULL) || (argb == NULL))
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DIB_CREATE);
+		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// release device context
 	ReleaseDC(platform->event_handle, device_context);
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return NULL;
+	}
+
 	globox_error_ok(error);
 	return argb;
 }
@@ -616,7 +675,20 @@ void globox_buffer_free_win_software(
 	struct globox_error_info* error)
 {
 	struct win_software_backend* backend = context->backend_data;
+	struct win_platform* platform = &(backend->platform);
+	DWORD main_lock;
+	BOOL main_unlock;
 
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return;
+	}
+
+	// proceed
 	if (backend->bmp_handle != NULL)
 	{
 		BOOL ok = DeleteObject(backend->bmp_handle);
@@ -624,8 +696,18 @@ void globox_buffer_free_win_software(
 		if (ok == 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
+			ReleaseMutex(platform->mutex_main);
 			return;
 		}
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return;
 	}
 
 	globox_error_ok(error);

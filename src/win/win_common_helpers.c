@@ -392,7 +392,12 @@ LRESULT CALLBACK win_helpers_window_procedure(
 		}
 	}
 
-	LRESULT result = DefWindowProc(hwnd, msg, wParam, lParam);
+	LRESULT result = S_OK;
+
+	if (msg != WM_PAINT)
+	{
+		result = DefWindowProc(hwnd, msg, wParam, lParam);
+	}
 
 	// stop here if we weren't able to get user data
 	if (thread_event_loop_data == NULL)

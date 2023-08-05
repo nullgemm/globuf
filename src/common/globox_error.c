@@ -225,8 +225,8 @@ void globox_error_init(
 		"could not close win32 window render thread";
 	log[GLOBOX_ERROR_WIN_CURSOR_LOAD] =
 		"could not load win32 window default cursor";
-	log[GLOBOX_ERROR_WIN_PAINT_BEGIN] =
-		"could not start painting win32 window";
+	log[GLOBOX_ERROR_WIN_PAINT_VALIDATE] =
+		"could not validate paint operation";
 	log[GLOBOX_ERROR_WIN_MONITOR_INFO_GET] =
 		"could not get monitor info";
 	log[GLOBOX_ERROR_WIN_WINDOW_POSITION_SET] =
