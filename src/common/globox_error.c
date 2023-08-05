@@ -201,6 +201,10 @@ void globox_error_init(
 		"could not create win32 mutex";
 	log[GLOBOX_ERROR_WIN_MUTEX_DESTROY] =
 		"could not destroy win32 mutex";
+	log[GLOBOX_ERROR_WIN_MUTEX_LOCK] =
+		"could not lock mutex";
+	log[GLOBOX_ERROR_WIN_MUTEX_UNLOCK] =
+		"could not unlock mutex";
 	log[GLOBOX_ERROR_WIN_MODULE_GET] =
 		"could not get win32 window class module";
 	log[GLOBOX_ERROR_WIN_CLASS_CREATE] =
