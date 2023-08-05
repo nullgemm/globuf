@@ -359,7 +359,7 @@ void globox_win_software_update_content(
 
 	ok = InvalidateRect(platform->event_handle, &region, TRUE);
 
-	if (ok == FALSE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_GDI_DAMAGE);
 		return;
@@ -409,7 +409,7 @@ void globox_win_software_update_content(
 		update->y,
 		SRCCOPY);
 
-	if (ok == FALSE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_GDI_BITBLT);
 		return;
@@ -429,7 +429,7 @@ void globox_win_software_update_content(
 	// delete compat device context
 	ok = DeleteDC(device_context_compat);
 
-	if (ok == FALSE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_DELETE);
 		return;
@@ -531,7 +531,7 @@ void globox_buffer_free_win_software(
 	{
 		BOOL ok = DeleteObject(backend->bmp_handle);
 
-		if (ok == FALSE)
+		if (ok == 0)
 		{
 			globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
 			return;

@@ -28,15 +28,24 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 	bool closed = platform->closed;
 
 	// wait for the window cond
+	BOOL ok;
 	AcquireSRWLockExclusive(&(platform->lock_render));
 
 	while (platform->render == false)
 	{
-		SleepConditionVariableSRW(
-			&(platform->cond_render),
-			&(platform->lock_render),
-			INFINITE,
-			0);
+		ok =
+			SleepConditionVariableSRW(
+				&(platform->cond_render),
+				&(platform->lock_render),
+				INFINITE,
+				0);
+
+		if (ok == 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			_endthreadex(0);
+			return 1;
+		}
 	}
 
 	ReleaseSRWLockExclusive(&(platform->lock_render));
@@ -142,7 +151,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	BOOL ok_placement =
 		GetWindowPlacement(platform->event_handle, &(platform->win_placement));
 
-	if (ok_placement == FALSE)
+	if (ok_placement == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PLACEMENT_GET);
 		_endthreadex(0);
@@ -228,6 +237,10 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	WPARAM wParam,
 	LPARAM lParam)
 {
+	struct win_thread_event_loop_data* thread_event_loop_data = NULL;
+	struct globox* context;
+	struct globox_error_info* error;
+
 	// process message first
 	switch (msg)
 	{
@@ -239,33 +252,64 @@ LRESULT CALLBACK win_helpers_window_procedure(
 		case WM_CREATE:
 		{
 			// save a context pointer in the window
-			SetWindowLongPtrW(
-				hwnd,
-				GWLP_USERDATA,
-				(LONG_PTR) ((CREATESTRUCT*) lParam)->lpCreateParams);
+			SetLastError(0);
+
+			BOOL ok =
+				SetWindowLongPtrW(
+					hwnd,
+					GWLP_USERDATA,
+					(LONG_PTR) ((CREATESTRUCT*) lParam)->lpCreateParams);
+
+			DWORD code = GetLastError();
+
+			// if we can't save the user data in the window,
+			// we can still try to use it to report the error
+			if ((ok == 0) && (code != 0))
+			{
+				thread_event_loop_data =
+					(struct win_thread_event_loop_data*)
+						((CREATESTRUCT*) lParam)->lpCreateParams;
+
+				if (thread_event_loop_data != NULL)
+				{
+					context = thread_event_loop_data->globox;
+					error = thread_event_loop_data->error;
+
+					globox_error_throw(
+						context,
+						error,
+						GLOBOX_ERROR_WIN_USERDATA_SET);
+				}
+			}
+
 			break;
 		}
 		default:
 		{
+			// if we can't get the user data from the window then
+			// we don't have any way to report the error so we just
+			// fail silently after running the default message processor
+			thread_event_loop_data =
+				(struct win_thread_event_loop_data*)
+					GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+
+			if (thread_event_loop_data != NULL)
+			{
+				context = thread_event_loop_data->globox;
+				error = thread_event_loop_data->error;
+			}
+
 			break;
 		}
 	}
 
 	LRESULT result = DefWindowProc(hwnd, msg, wParam, lParam);
 
-	// get context pointer from window
-	struct win_thread_event_loop_data* thread_event_loop_data =
-		(struct win_thread_event_loop_data*)
-			GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-
+	// stop here if we weren't able to get user data
 	if (thread_event_loop_data == NULL)
 	{
 		return result;
 	}
-
-	struct globox* context = thread_event_loop_data->globox;
-	struct win_platform* platform = thread_event_loop_data->platform;
-	struct globox_error_info* error = thread_event_loop_data->error;
 
 	// run developer callback
 	MSG event =
@@ -511,7 +555,7 @@ void win_helpers_set_state(
 
 LPWSTR win_helpers_utf8_to_wchar(const char* string)
 {
-	size_t codepoints =
+	int codepoints =
 		MultiByteToWideChar(
 			CP_UTF8,
 			MB_PRECOMPOSED,
@@ -634,9 +678,11 @@ void win_helpers_save_window_state(
 	if (context->feature_state->state == GLOBOX_STATE_REGULAR)
 	{
 		BOOL ok =
-			GetWindowPlacement(platform->event_handle, &(platform->win_placement));
+			GetWindowPlacement(
+				platform->event_handle,
+				&(platform->win_placement));
 
-		if (ok == FALSE)
+		if (ok == 0)
 		{
 			globox_error_throw(
 				context,
@@ -683,7 +729,7 @@ enum win_dpi_api win_helpers_set_dpi_awareness()
 	// try the Windows Vista API
 	ok = SetProcessDPIAware();
 
-	if (ok == TRUE)
+	if (ok != 0)
 	{
 		return WIN_DPI_API_VISTA;
 	}

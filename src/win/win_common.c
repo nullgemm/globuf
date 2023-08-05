@@ -9,6 +9,7 @@
 #include <process.h>
 #include <synchapi.h>
 #include <windows.h>
+#include <errhandlingapi.h>
 
 static inline void free_check(const void* ptr)
 {
@@ -94,7 +95,7 @@ void globox_win_common_clean(
 
 	ok = CloseHandle(platform->mutex_main);
 
-	if (ok != TRUE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_DESTROY);
 		return;
@@ -198,9 +199,9 @@ void globox_win_common_window_create(
 	}
 
 	// register window class
-	WNDCLASSEX win_class =
+	WNDCLASSEXW win_class =
 	{
-		.cbSize = sizeof (platform->win_class),
+		.cbSize = sizeof (WNDCLASSEXW),
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpfnWndProc = win_helpers_window_procedure,
 		.cbClsExtra = 0,
@@ -208,7 +209,7 @@ void globox_win_common_window_create(
 		.hInstance = platform->win_module,
 		.hIcon = platform->icon_32,
 		.hCursor = platform->default_cursor,
-		.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1),
+		.hbrBackground = NULL,
 		.lpszMenuName = NULL,
 		.lpszClassName = platform->win_name,
 		.hIconSm = platform->icon_32,
@@ -281,11 +282,18 @@ void globox_win_common_window_start(
 	// wait for the window cond
 	AcquireSRWLockExclusive(&(platform->lock_window));
 
-	SleepConditionVariableSRW(
-		&(platform->cond_window),
-		&(platform->lock_window),
-		INFINITE,
-		0);
+	BOOL ok =
+		SleepConditionVariableSRW(
+			&(platform->cond_window),
+			&(platform->lock_window),
+			INFINITE,
+			0);
+
+	if (ok == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+		return;
+	}
 
 	ReleaseSRWLockExclusive(&(platform->lock_window));
 
@@ -301,17 +309,39 @@ void globox_win_common_window_block(
 	// wait for the block cond
 	AcquireSRWLockExclusive(&(platform->lock_block));
 
-	SleepConditionVariableSRW(
-		&(platform->cond_block),
-		&(platform->lock_block),
-		INFINITE,
-		0);
+	BOOL ok =
+		SleepConditionVariableSRW(
+			&(platform->cond_block),
+			&(platform->lock_block),
+			INFINITE,
+			0);
+
+	if (ok == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+		return;
+	}
 
 	ReleaseSRWLockExclusive(&(platform->lock_block));
 
 	// wait for threads to finish
-	WaitForSingleObject(platform->thread_render, INFINITE);
-	WaitForSingleObject(platform->thread_event, INFINITE);
+	DWORD code;
+
+	code = WaitForSingleObject(platform->thread_render, INFINITE);
+
+	if (code == WAIT_FAILED)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
+		return;
+	}
+
+	code = WaitForSingleObject(platform->thread_event, INFINITE);
+
+	if (code == WAIT_FAILED)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
+		return;
+	}
 
 	// success
 	globox_error_ok(error);
@@ -326,7 +356,7 @@ void globox_win_common_window_stop(
 
 	ok = CloseHandle(platform->thread_render);
 
-	if (ok != TRUE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_RENDER_CLOSE);
 		return;
@@ -334,7 +364,7 @@ void globox_win_common_window_stop(
 
 	ok = CloseHandle(platform->thread_event);
 
-	if (ok != TRUE)
+	if (ok == 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_CLOSE);
 		return;
@@ -415,9 +445,12 @@ enum globox_event globox_win_common_handle_events(
 		case WIN_USER_MSG_FULLSCREEN:
 		{
 			DWORD style = WS_POPUP | WS_VISIBLE;
-			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
 
-			if (ok == FALSE)
+			SetLastError(0);
+			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+			DWORD code = GetLastError();
+
+			if ((ok == 0) && (code != 0))
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
 				break;
@@ -441,9 +474,11 @@ enum globox_event globox_win_common_handle_events(
 				style |= WS_BORDER;
 			}
 
+			SetLastError(0);
 			ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+			DWORD code = GetLastError();
 
-			if (ok == FALSE)
+			if ((ok == 0) && (code != 0))
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
 				break;
@@ -467,7 +502,7 @@ enum globox_event globox_win_common_handle_events(
 
 				ok = GetMonitorInfoW(monitor, &info);
 
-				if (ok == FALSE)
+				if (ok == 0)
 				{
 					globox_error_throw(
 						context,
@@ -490,7 +525,7 @@ enum globox_event globox_win_common_handle_events(
 						height,
 						SWP_SHOWWINDOW);
 
-				if (ok == FALSE)
+				if (ok == 0)
 				{
 					globox_error_throw(
 						context,
@@ -516,9 +551,11 @@ enum globox_event globox_win_common_handle_events(
 				style |= WS_BORDER;
 			}
 
+			SetLastError(0);
 			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+			DWORD code = GetLastError();
 
-			if (ok == FALSE)
+			if ((ok == 0) && (code != 0))
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
 				break;
@@ -543,9 +580,11 @@ enum globox_event globox_win_common_handle_events(
 				style |= WS_BORDER;
 			}
 
+			SetLastError(0);
 			ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
+			DWORD code = GetLastError();
 
-			if (ok == FALSE)
+			if ((ok == 0) && (code != 0))
 			{
 				globox_error_throw(
 					context,
@@ -559,7 +598,7 @@ enum globox_event globox_win_common_handle_events(
 					platform->event_handle,
 					&(platform->win_placement));
 
-			if (ok == FALSE)
+			if (ok == 0)
 			{
 				globox_error_throw(
 					context,
@@ -879,7 +918,7 @@ void globox_win_common_feature_set_title(
 	platform->win_name =
 		win_helpers_utf8_to_wchar(context->feature_title->title);
 
-	BOOL ok = SetWindowText(platform->event_handle, platform->win_name);
+	BOOL ok = SetWindowTextW(platform->event_handle, platform->win_name);
 
 	if (ok == 0)
 	{

@@ -207,6 +207,10 @@ void globox_error_init(
 		"";
 	log[GLOBOX_ERROR_WIN_NAME_SET] =
 		"";
+	log[GLOBOX_ERROR_WIN_COND_WAIT] =
+		"";
+	log[GLOBOX_ERROR_WIN_THREAD_WAIT] =
+		"";
 	log[GLOBOX_ERROR_WIN_THREAD_EVENT_START] =
 		"";
 	log[GLOBOX_ERROR_WIN_THREAD_EVENT_CLOSE] =
@@ -234,6 +238,8 @@ void globox_error_init(
 	log[GLOBOX_ERROR_WIN_TITLE_SET] =
 		"";
 	log[GLOBOX_ERROR_WIN_WINDOW_CREATE] =
+		"";
+	log[GLOBOX_ERROR_WIN_USERDATA_SET] =
 		"";
 	log[GLOBOX_ERROR_WIN_BMP_MASK_CREATE] =
 		"";
@@ -282,6 +288,8 @@ void globox_error_init(
 	log[GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY] =
 		"";
 	log[GLOBOX_ERROR_WIN_WGL_SWAP] =
+		"";
+	log[GLOBOX_ERROR_WIN_WGL_FUNC_LOAD] =
 		"";
 	log[GLOBOX_ERROR_WIN_VULKAN_EXTENSIONS_LIST] =
 		"";

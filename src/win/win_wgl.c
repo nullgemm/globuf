@@ -219,9 +219,21 @@ void globox_win_wgl_window_start(
 		(PFNWGLCREATECONTEXTATTRIBSARBPROC)
 			wglGetProcAddress("wglCreateContextAttribsARB");
 
+	if (wglCreateContextAttribsARB == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		return;
+	}
+
 	wglChoosePixelFormatARB =
 		(PFNWGLCHOOSEPIXELFORMATARBPROC)
 			wglGetProcAddress("wglChoosePixelFormatARB");
+
+	if (wglChoosePixelFormatARB == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		return;
+	}
 
 	// destroy WGL context
 	ok = wglMakeCurrent(device_context, NULL);
