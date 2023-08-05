@@ -727,7 +727,7 @@ HICON win_helpers_bitmap_to_icon(
 		return NULL;
 	}
 
-	memset(buf, 0xff000000, buf_len);
+	memset(buf, 0xffffffff, buf_len);
 	HBITMAP mask = CreateBitmap(bmp->bmWidth, bmp->bmHeight, 1, 32, buf);
 
 	if (mask == NULL)
