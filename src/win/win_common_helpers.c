@@ -24,8 +24,8 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 	struct globox* context = thread_render_loop_data->globox;
 	struct win_platform* platform = thread_render_loop_data->platform;
 	struct globox_error_info* error = thread_render_loop_data->error;
-
-	bool closed = platform->closed;
+	DWORD main_lock;
+	BOOL main_unlock;
 
 	// wait for the window cond
 	BOOL ok;
@@ -50,6 +50,16 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 
 	ReleaseSRWLockExclusive(&(platform->lock_render));
 
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		_endthreadex(0);
+		return 1;
+	}
+
 	// thread init callback
 	if (platform->render_init_callback != NULL)
 	{
@@ -62,13 +72,46 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 		}
 	}
 
+	bool closed = platform->closed;
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		_endthreadex(0);
+		return 1;
+	}
+
+	// spin the render loop
 	while (closed == false)
 	{
 		// run developer callback
 		context->render_callback.callback(context->render_callback.data);
 
+		// lock mutex
+		main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+		if (main_lock != WAIT_OBJECT_0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+			_endthreadex(0);
+			return 1;
+		}
+
 		// update boolean
 		closed = platform->closed;
+
+		// unlock mutex
+		main_unlock = ReleaseMutex(platform->mutex_main);
+
+		if (main_unlock == 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+			_endthreadex(0);
+			return 1;
+		}
 	}
 
 	_endthreadex(0);
@@ -82,6 +125,18 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	struct globox* context = thread_event_loop_data->globox;
 	struct win_platform* platform = thread_event_loop_data->platform;
 	struct globox_error_info* error = thread_event_loop_data->error;
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		_endthreadex(0);
+		return 1;
+	}
 
 	DWORD style = 0;
 	DWORD exstyle = 0;
@@ -206,6 +261,16 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	MSG msg;
 	BOOL ok_msg = GetMessageW(&msg, NULL, 0, 0);
 
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		_endthreadex(0);
+		return 1;
+	}
+
 	while (ok_msg != 0)
 	{
 		// According to the documentation, the BOOL returned by GetMessage has
@@ -224,8 +289,28 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
 
+		// lock mutex
+		main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+		if (main_lock != WAIT_OBJECT_0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+			_endthreadex(0);
+			return 1;
+		}
+
 		// get next message
 		ok_msg = GetMessageW(&msg, NULL, 0, 0);
+
+		// unlock mutex
+		main_unlock = ReleaseMutex(platform->mutex_main);
+
+		if (main_unlock == 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+			_endthreadex(0);
+			return 1;
+		}
 	}
 
 	_endthreadex(0);
@@ -240,6 +325,7 @@ LRESULT CALLBACK win_helpers_window_procedure(
 {
 	struct win_thread_event_loop_data* thread_event_loop_data = NULL;
 	struct globox* context;
+	struct win_platform* platform;
 	struct globox_error_info* error;
 
 	// process message first
@@ -274,6 +360,7 @@ LRESULT CALLBACK win_helpers_window_procedure(
 				if (thread_event_loop_data != NULL)
 				{
 					context = thread_event_loop_data->globox;
+					platform = thread_event_loop_data->platform;
 					error = thread_event_loop_data->error;
 
 					globox_error_throw(
@@ -297,6 +384,7 @@ LRESULT CALLBACK win_helpers_window_procedure(
 			if (thread_event_loop_data != NULL)
 			{
 				context = thread_event_loop_data->globox;
+				platform = thread_event_loop_data->platform;
 				error = thread_event_loop_data->error;
 			}
 
@@ -323,6 +411,18 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	context->event_callbacks.handler(context->event_callbacks.data, &event);
 
 	// handle interactive move and resize
+	DWORD main_lock;
+	BOOL main_unlock;
+
+	// lock mutex
+	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
+
+	if (main_lock != WAIT_OBJECT_0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		return result;
+	}
+
 	if (msg == WM_NCHITTEST)
 	{
 		switch (context->feature_interaction->action)
@@ -377,6 +477,15 @@ LRESULT CALLBACK win_helpers_window_procedure(
 				break;
 			}
 		}
+	}
+
+	// unlock mutex
+	main_unlock = ReleaseMutex(platform->mutex_main);
+
+	if (main_unlock == 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		return result;
 	}
 
 	// pass over the message processor return value
