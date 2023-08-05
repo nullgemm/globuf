@@ -908,7 +908,7 @@ void win_helpers_set_icon(
 		.bmWidthBytes = 64 * 4,
 		.bmPlanes = 1,
 		.bmBitsPixel = 32,
-		.bmBits = context->feature_icon->pixmap + 4 + (16 * 16) + (32 * 32),
+		.bmBits = context->feature_icon->pixmap + 6 + (16 * 16) + (32 * 32),
 	};
 
 	platform->icon_64 =
