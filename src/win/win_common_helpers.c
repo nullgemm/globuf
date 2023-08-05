@@ -328,6 +328,8 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	struct win_platform* platform;
 	struct globox_error_info* error;
 
+	// deal with user data, saving it in the window as soon as possible when the
+	// first message (WM_CREATE) arrives and getting it from there afterwards
 	if (msg == WM_CREATE)
 	{
 		// save a context pointer in the window
