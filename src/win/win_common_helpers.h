@@ -71,9 +71,7 @@ void win_helpers_set_vsync(
 	struct globox_error_info* error);
 
 #ifdef GLOBOX_ERROR_HELPER_WIN
-void win_helpers_win32_error_log(
-	struct globox* context,
-	struct win_platform* platform);
+void win_helpers_win32_error_log();
 #endif
 
 #endif

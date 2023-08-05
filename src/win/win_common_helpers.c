@@ -844,9 +844,7 @@ void win_helpers_set_vsync(
 }
 
 #ifdef GLOBOX_ERROR_HELPER_WIN
-void win_helpers_win32_error_log(
-	struct globox* context,
-	struct win_platform* platform)
+void win_helpers_win32_error_log()
 {
 	DWORD error;
 	LPVOID message;
