@@ -296,17 +296,20 @@ void globox_win_common_window_start(
 	// wait for the window cond
 	AcquireSRWLockExclusive(&(platform->lock_window));
 
-	BOOL ok =
-		SleepConditionVariableSRW(
-			&(platform->cond_window),
-			&(platform->lock_window),
-			INFINITE,
-			0);
-
-	if (ok == 0)
+	while (platform->window == false)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
-		return;
+		BOOL ok =
+			SleepConditionVariableSRW(
+				&(platform->cond_window),
+				&(platform->lock_window),
+				INFINITE,
+				0);
+
+		if (ok == 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			return;
+		}
 	}
 
 	ReleaseSRWLockExclusive(&(platform->lock_window));
@@ -323,17 +326,20 @@ void globox_win_common_window_block(
 	// wait for the block cond
 	AcquireSRWLockExclusive(&(platform->lock_block));
 
-	BOOL ok =
-		SleepConditionVariableSRW(
-			&(platform->cond_block),
-			&(platform->lock_block),
-			INFINITE,
-			0);
-
-	if (ok == 0)
+	while (platform->block == false)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
-		return;
+		BOOL ok =
+			SleepConditionVariableSRW(
+				&(platform->cond_block),
+				&(platform->lock_block),
+				INFINITE,
+				0);
+
+		if (ok == 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			return;
+		}
 	}
 
 	ReleaseSRWLockExclusive(&(platform->lock_block));
@@ -430,6 +436,7 @@ enum globox_event globox_win_common_handle_events(
 			platform->closed = true;
 			context->feature_state->state = GLOBOX_STATE_CLOSED;
 			PostQuitMessage(0);
+			platform->block = true;
 			WakeConditionVariable(&(platform->cond_block));
 			globox_event = GLOBOX_EVENT_CLOSED;
 			break;

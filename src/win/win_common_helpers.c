@@ -182,6 +182,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	}
 
 	// trigger the window creation cond
+	platform->window = true;
 	WakeConditionVariable(&(platform->cond_window));
 
 	// start the render thread
