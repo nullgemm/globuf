@@ -65,7 +65,7 @@ defines+=("-DGLOBOX_ERROR_LOG_THROW")
 
 	release)
 flags+=("-D_FORTIFY_SOURCE=2")
-flags+=("-fstack-protector-strong")
+flags+=("-fno-stack-protector")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")

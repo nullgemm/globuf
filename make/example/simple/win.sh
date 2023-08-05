@@ -55,12 +55,10 @@ flags+=("-g")
 
 	release)
 flags+=("-D_FORTIFY_SOURCE=2")
-flags+=("-fstack-protector-strong")
+flags+=("-fno-stack-protector")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
 	;;
 
 	sanitized_memory)
