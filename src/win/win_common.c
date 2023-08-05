@@ -34,9 +34,6 @@ void globox_win_common_init(
 		return;
 	}
 
-	// TODO more
-
-
 	// create win32 cond variables
 	// window init cond
 	InitializeConditionVariable(&(platform->cond_window));
@@ -114,8 +111,6 @@ void globox_win_common_clean(
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_DESTROY);
 		return;
 	}
-
-	// TODO more
 
 	if (context->feature_title != NULL)
 	{
@@ -247,8 +242,6 @@ void globox_win_common_window_destroy(
 	struct globox_error_info* error)
 {
 	free_check(platform->win_name);
-
-	// TODO more
 
 	globox_error_ok(error);
 }
@@ -1094,8 +1087,7 @@ void globox_win_common_feature_set_title(
 	// configure
 	free_check(context->feature_title->title);
 
-	context->feature_title->title =
-		strdup(config->title);
+	context->feature_title->title = strdup(config->title);
 
 	free_check(platform->win_name);
 
