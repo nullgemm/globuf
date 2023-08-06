@@ -234,6 +234,7 @@ void globox_x11_common_init(
 	platform->saved_window_geometry[1] = 0;
 	platform->saved_window_geometry[2] = 0;
 	platform->saved_window_geometry[3] = 0;
+	platform->sizemove = false;
 
 	// initialize render thread
 	struct x11_thread_render_loop_data thread_render_loop_data =
@@ -1112,6 +1113,9 @@ enum globox_event globox_x11_common_handle_events(
 				break;
 			}
 
+			// get current interaction type
+			enum globox_interaction action = context->feature_interaction->action;
+
 			// save current mouse position
 			platform->saved_window = false;
 			platform->saved_mouse_pos_x = press->root_x;
@@ -1124,6 +1128,11 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
+			}
+
+			if (action != GLOBOX_INTERACTION_STOP)
+			{
+				platform->sizemove = true;
 			}
 
 			break;
@@ -1166,6 +1175,7 @@ enum globox_event globox_x11_common_handle_events(
 				};
 
 				globox_feature_set_interaction(context, &action, error);
+				platform->sizemove = false;
 
 				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 				{
@@ -1190,7 +1200,7 @@ enum globox_event globox_x11_common_handle_events(
 			}
 
 			// handle interactive move & resize
-			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			if (platform->sizemove == true)
 			{
 				// on the first update after click, update the position of the window
 				if (platform->saved_window == false)

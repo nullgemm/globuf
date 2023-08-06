@@ -92,6 +92,7 @@ struct x11_platform
 	int32_t saved_mouse_pos_y;
 	bool saved_window;
 	int32_t saved_window_geometry[4];
+	bool sizemove;
 
 	// render handling
 	pthread_t thread_render_loop;
