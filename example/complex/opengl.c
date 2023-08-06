@@ -17,6 +17,11 @@
 	#include "cursoryx_appkit.h"
 	#include "dpishit_appkit.h"
 	#include "willis_appkit.h"
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	#include "globox_win_wgl.h"
+	#include "cursoryx_win.h"
+	#include "dpishit_win.h"
+	#include "willis_win.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -28,12 +33,19 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <GLES2/gl2.h>
 
 #if defined(GLOBOX_EXAMPLE_GLX)
 	#include <GL/glx.h>
+	#include <GLES2/gl2.h>
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	#include <EGL/egl.h>
+	#include <GLES2/gl2.h>
+#elif defined(GLOBOX_EXAMPLE_WGL)
+	#include <GL/gl.h>
+	#undef WGL_WGLEXT_PROTOTYPES
+	#include <GL/wglext.h>
+	#define GL_GLES_PROTOTYPES 0
+	#include <GLES2/gl2.h>
 #endif
 
 extern uint8_t iconpix[];
@@ -100,6 +112,89 @@ EGLint egl_config_attrib[] =
 #endif
 	EGL_NONE,
 };
+#elif defined(GLOBOX_EXAMPLE_WGL)
+int wgl_config_attrib[] =
+{
+	WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+	WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+	WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+	WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+	WGL_COLOR_BITS_ARB, 32,
+	WGL_DEPTH_BITS_ARB, 16,
+	WGL_STENCIL_BITS_ARB, 0,
+	0,
+};
+
+// opengl32.dll only supports OpenGL 1
+// so we have to load these functions
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLCOMPILESHADERPROC glCompileShader;
+
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLDELETESHADERPROC glDeleteShader;
+
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+
+static void load_wgl_functions()
+{
+	glCreateShader =
+		(PFNGLCREATESHADERPROC)
+			wglGetProcAddress("glCreateShader");
+	glShaderSource =
+		(PFNGLSHADERSOURCEPROC)
+			wglGetProcAddress("glShaderSource");
+	glCompileShader =
+		(PFNGLCOMPILESHADERPROC)
+			wglGetProcAddress("glCompileShader");
+
+	glGetShaderiv =
+		(PFNGLGETSHADERIVPROC)
+			wglGetProcAddress("glGetShaderiv");
+	glGetShaderInfoLog =
+		(PFNGLGETSHADERINFOLOGPROC)
+			wglGetProcAddress("glGetShaderInfoLog");
+
+	glAttachShader =
+		(PFNGLATTACHSHADERPROC)
+			wglGetProcAddress("glAttachShader");
+	glCreateProgram =
+		(PFNGLCREATEPROGRAMPROC)
+			wglGetProcAddress("glCreateProgram");
+	glLinkProgram =
+		(PFNGLLINKPROGRAMPROC)
+			wglGetProcAddress("glLinkProgram");
+	glDeleteShader =
+		(PFNGLDELETESHADERPROC)
+			wglGetProcAddress("glDeleteShader");
+
+	glGetProgramiv =
+		(PFNGLGETPROGRAMIVPROC)
+			wglGetProcAddress("glGetProgramiv");
+	glGetProgramInfoLog =
+		(PFNGLGETPROGRAMINFOLOGPROC)
+			wglGetProcAddress("glGetProgramInfoLog");
+
+	glUseProgram =
+		(PFNGLUSEPROGRAMPROC)
+			wglGetProcAddress("glUseProgram");
+	glEnableVertexAttribArray =
+		(PFNGLENABLEVERTEXATTRIBARRAYPROC)
+			wglGetProcAddress("glEnableVertexAttribArray");
+	glVertexAttribPointer =
+		(PFNGLVERTEXATTRIBPOINTERPROC)
+			wglGetProcAddress("glVertexAttribPointer");
+}
 #endif
 
 struct event_callback_data
@@ -618,6 +713,9 @@ static void render_callback(void* data)
 	// we can make OpenGL 1 calls without any loader
 	if (render_data->shaders == true)
 	{
+#ifdef GLOBOX_EXAMPLE_WGL
+		load_wgl_functions();
+#endif
 		compile_shaders();
 		render_data->shaders = false;
 	}
@@ -714,6 +812,8 @@ int main(int argc, char** argv)
 #endif
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_prepare_init_appkit_egl(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_prepare_init_win_wgl(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -757,13 +857,19 @@ int main(int argc, char** argv)
 		.minor_version = 0,
 		.attributes = glx_config_attrib,
 	};
-
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	struct globox_config_egl config_opengl =
 	{
 		.major_version = 2,
 		.minor_version = 0,
 		.attributes = egl_config_attrib,
+	};
+#elif defined(GLOBOX_EXAMPLE_WGL)
+	struct globox_config_wgl config_opengl =
+	{
+		.major_version = 2,
+		.minor_version = 0,
+		.attributes = wgl_config_attrib,
 	};
 #endif
 
@@ -775,6 +881,8 @@ int main(int argc, char** argv)
 #endif
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_init_appkit_egl(globox, &config_opengl, &error);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_init_win_wgl(globox, &config_opengl, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -992,6 +1100,13 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	cursoryx_prepare_init_win(&config_cursor);
+
+	struct cursoryx_win_data cursoryx_data =
+	{
+		.data = NULL,
+	};
 #endif
 
 	struct cursoryx* cursoryx = cursoryx_init(&config_cursor, &error_cursor);
@@ -1094,6 +1209,13 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	willis_prepare_init_win(&config_input);
+
+	struct willis_win_data willis_data =
+	{
+		.data = NULL,
+	};
 #endif
 
 	struct willis* willis = willis_init(&config_input, &error_input);
@@ -1146,6 +1268,13 @@ int main(int argc, char** argv)
 	dpishit_prepare_init_appkit(&config_display);
 
 	struct dpishit_appkit_data dpishit_data =
+	{
+		.data = NULL,
+	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	dpishit_prepare_init_win(&config_display);
+
+	struct dpishit_win_data dpishit_data =
 	{
 		.data = NULL,
 	};

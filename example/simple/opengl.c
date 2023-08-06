@@ -1,6 +1,9 @@
 #include "globox.h"
+#include "cursoryx.h"
+#include "dpishit.h"
+#include "willis.h"
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
 	#include "globox_x11_glx.h"
 #elif defined(GLOBOX_EXAMPLE_EGL)
@@ -380,7 +383,9 @@ static void render_callback(void* data)
 	// we can make OpenGL 1 calls without any loader
 	if (render_data->shaders == true)
 	{
+#ifdef GLOBOX_EXAMPLE_WGL
 		load_wgl_functions();
+#endif
 		compile_shaders();
 		render_data->shaders = false;
 	}
@@ -469,7 +474,7 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globox_config_backend config = {0};
 
-#ifdef GLOBOX_EXAMPLE_X11
+#if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
 	globox_prepare_init_x11_glx(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_EGL)
@@ -522,7 +527,6 @@ int main(int argc, char** argv)
 		.minor_version = 0,
 		.attributes = glx_config_attrib,
 	};
-
 #elif defined(GLOBOX_EXAMPLE_EGL)
 	struct globox_config_egl config_opengl =
 	{

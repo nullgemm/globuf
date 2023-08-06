@@ -14,6 +14,11 @@
 #include "cursoryx_appkit.h"
 #include "dpishit_appkit.h"
 #include "willis_appkit.h"
+#elif defined(GLOBOX_EXAMPLE_WIN)
+#include "globox_win_vulkan.h"
+#include "cursoryx_win.h"
+#include "dpishit_win.h"
+#include "willis_win.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -549,6 +554,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_x11_vulkan(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_prepare_init_appkit_vulkan(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_prepare_init_win_vulkan(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -798,6 +805,13 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	cursoryx_prepare_init_win(&config_cursor);
+
+	struct cursoryx_win_data cursoryx_data =
+	{
+		.data = NULL,
+	};
 #endif
 
 	struct cursoryx* cursoryx = cursoryx_init(&config_cursor, &error_cursor);
@@ -900,6 +914,13 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	willis_prepare_init_win(&config_input);
+
+	struct willis_win_data willis_data =
+	{
+		.data = NULL,
+	};
 #endif
 
 	struct willis* willis = willis_init(&config_input, &error_input);
@@ -952,6 +973,13 @@ int main(int argc, char** argv)
 	dpishit_prepare_init_appkit(&config_display);
 
 	struct dpishit_appkit_data dpishit_data =
+	{
+		.data = NULL,
+	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	dpishit_prepare_init_win(&config_display);
+
+	struct dpishit_win_data dpishit_data =
 	{
 		.data = NULL,
 	};
