@@ -173,6 +173,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 		return 1;
 	}
 
+	SetCursor(platform->default_cursor);
 	ShowWindow(platform->event_handle, SW_SHOWNORMAL);
 
 	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)

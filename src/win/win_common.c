@@ -217,7 +217,7 @@ void globox_win_common_window_create(
 		.cbWndExtra = 0,
 		.hInstance = platform->win_module,
 		.hIcon = platform->icon_32,
-		.hCursor = platform->default_cursor,
+		.hCursor = NULL,
 		.hbrBackground = NULL,
 		.lpszMenuName = NULL,
 		.lpszClassName = platform->win_name,
