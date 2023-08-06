@@ -569,23 +569,6 @@ void globox_win_software_update_content(
 }
 
 
-HWND globox_get_win_window(struct globox* context)
-{
-	struct win_software_backend* backend = context->backend_data;
-	struct win_platform* platform = &(backend->platform);
-
-	return platform->event_handle;
-}
-
-HDC globox_get_win_device_context(struct globox* context)
-{
-	struct win_software_backend* backend = context->backend_data;
-	struct win_platform* platform = &(backend->platform);
-
-	return GetDC(platform->event_handle);
-}
-
-
 void globox_prepare_init_win_software(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)
