@@ -843,8 +843,7 @@ int main(int argc, char** argv)
 
 	struct cursoryx_win_data cursoryx_data =
 	{
-		.win = globox_get_win_window(globox),
-		.device_context = globox_get_win_device_context(globox),
+		.data = NULL,
 	};
 #endif
 
@@ -953,8 +952,7 @@ int main(int argc, char** argv)
 
 	struct willis_win_data willis_data =
 	{
-		.win = globox_get_win_window(globox),
-		.device_context = globox_get_win_device_context(globox),
+		.data = NULL,
 	};
 #endif
 
@@ -1016,8 +1014,7 @@ int main(int argc, char** argv)
 
 	struct dpishit_win_data dpishit_data =
 	{
-		.win = globox_get_win_window(globox),
-		.device_context = globox_get_win_device_context(globox),
+		.data = NULL,
 	};
 #endif
 
