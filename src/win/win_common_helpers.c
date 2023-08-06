@@ -448,6 +448,7 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	{
 		case WM_ERASEBKGND:
 		case WM_PAINT:
+		case WM_CHAR:
 		{
 			result = S_OK;
 			break;
