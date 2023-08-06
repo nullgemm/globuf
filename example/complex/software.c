@@ -14,6 +14,11 @@
 #include "cursoryx_appkit.h"
 #include "dpishit_appkit.h"
 #include "willis_appkit.h"
+#elif defined(GLOBOX_EXAMPLE_WIN)
+#include "globox_win_software.h"
+#include "cursoryx_win.h"
+#include "dpishit_win.h"
+#include "willis_win.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -483,6 +488,9 @@ static void render_callback(void* data)
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 		globox_buffer_alloc_appkit_software(
 			globox, width, height, &error);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+		globox_buffer_alloc_win_software(
+			globox, width, height, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -538,6 +546,9 @@ static void render_callback(void* data)
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_buffer_free_appkit_software(
 		globox, argb, &error);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_buffer_free_win_software(
+		globox, argb, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -588,6 +599,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_x11_software(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_APPKIT)
 	globox_prepare_init_appkit_software(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	globox_prepare_init_win_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -825,6 +838,14 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	cursoryx_prepare_init_win(&config_cursor);
+
+	struct cursoryx_win_data cursoryx_data =
+	{
+		.win = globox_get_win_window(globox),
+		.device_context = globox_get_win_device_context(globox),
+	};
 #endif
 
 	struct cursoryx* cursoryx = cursoryx_init(&config_cursor, &error_cursor);
@@ -927,6 +948,14 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	willis_prepare_init_win(&config_input);
+
+	struct willis_win_data willis_data =
+	{
+		.win = globox_get_win_window(globox),
+		.device_context = globox_get_win_device_context(globox),
+	};
 #endif
 
 	struct willis* willis = willis_init(&config_input, &error_input);
@@ -981,6 +1010,14 @@ int main(int argc, char** argv)
 	struct dpishit_appkit_data dpishit_data =
 	{
 		.data = NULL,
+	};
+#elif defined(GLOBOX_EXAMPLE_WIN)
+	dpishit_prepare_init_win(&config_display);
+
+	struct dpishit_win_data dpishit_data =
+	{
+		.win = globox_get_win_window(globox),
+		.device_context = globox_get_win_device_context(globox),
 	};
 #endif
 

@@ -42,7 +42,6 @@ flags+=("-Iexample/helpers")
 flags+=("-Ires/cursoryx/include")
 flags+=("-Ires/dpishit/include")
 flags+=("-Ires/willis/include")
-ldflags+=("-z noexecstack")
 defines+=("-DGLOBOX_EXAMPLE_WIN")
 
 # customize depending on the chosen build type
@@ -57,12 +56,10 @@ flags+=("-g")
 
 	release)
 flags+=("-D_FORTIFY_SOURCE=2")
-flags+=("-fstack-protector-strong")
+flags+=("-fno-stack-protector")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-ldflags+=("-z relro")
-ldflags+=("-z now")
 	;;
 
 	sanitized_memory)
@@ -142,6 +139,7 @@ ninja_file=example_complex_win_wgl.ninja
 src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBOX_EXAMPLE_WGL")
+ldlibs+=("-lopengl32")
 	;;
 
 	vulkan)
@@ -150,6 +148,7 @@ src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globox_pe_vulkan.a")
+ldlibs+=("-lvulkan-1")
 	;;
 
 	*)
@@ -171,6 +170,9 @@ libs+=("res/dpishit/lib/dpishit/dpishit_pe.a")
 libs+=("res/dpishit/lib/dpishit/win/dpishit_win.a")
 libs+=("res/willis/lib/willis/willis_pe.a")
 libs+=("res/willis/lib/willis/win/willis_win.a")
+ldlibs+=("-lshcore")
+ldlibs+=("-lgdi32")
+ldlibs+=("-ldwmapi")
 
 # default target
 default+=("\$builddir/\$name")
