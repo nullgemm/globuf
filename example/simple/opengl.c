@@ -1,7 +1,4 @@
 #include "globox.h"
-#include "cursoryx.h"
-#include "dpishit.h"
-#include "willis.h"
 
 #if defined(GLOBOX_EXAMPLE_X11)
 #if defined(GLOBOX_EXAMPLE_GLX)
