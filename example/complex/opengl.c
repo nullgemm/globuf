@@ -319,7 +319,9 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_UNKNOWN:
 		{
+#ifdef GLOBOX_EXAMPLE_LOG_ALL
 			fprintf(stderr, "received unknown event\n");
+#endif
 			break;
 		}
 		case GLOBOX_EVENT_RESTORED:
@@ -354,6 +356,7 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_DAMAGED:
 		{
+#ifdef GLOBOX_EXAMPLE_LOG_ALL
 			struct globox_rect rect = globox_get_expose(globox, &error);
 
 			if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -373,11 +376,13 @@ static void event_callback(void* data, void* event)
 				rect.y,
 				rect.width,
 				rect.height);
+#endif
 
 			break;
 		}
 	}
 
+#ifdef GLOBOX_EXAMPLE_LOG_ALL
 	// handle dpi changes
 	struct dpishit* dpishit = event_callback_data->dpishit;
 	struct dpishit_error_info error_dpishit = {0};
@@ -430,6 +435,7 @@ static void event_callback(void* data, void* event)
 			}
 		}
 	}
+#endif
 
 	// handle cursor changes
 	struct cursoryx* cursoryx = event_callback_data->cursoryx;
@@ -644,38 +650,38 @@ static void event_callback(void* data, void* event)
 				"\tstate: %s\n",
 				willis_get_event_code_name(willis, event_info.event_code, &error_willis),
 				willis_get_event_state_name(willis, event_info.event_state, &error_willis));
+		}
 
-			if (event_info.event_code == WILLIS_MOUSE_MOTION)
-			{
-				if (event_callback_data->mouse_grabbed == false)
-				{
-					fprintf(
-						stderr,
-						"\tmouse x: %d\n"
-						"\tmouse y: %d\n",
-						event_info.mouse_x,
-						event_info.mouse_y);
-				}
-				else
-				{
-					fprintf(
-						stderr,
-						"\tdiff x: %d\n"
-						"\tdiff y: %d\n",
-						(int) (event_info.diff_x >> 32),
-						(int) (event_info.diff_y >> 32));
-				}
-			}
-			else if (event_info.utf8_size > 0)
+		if (event_info.event_code == WILLIS_MOUSE_MOTION)
+		{
+			if (event_callback_data->mouse_grabbed == false)
 			{
 				fprintf(
 					stderr,
-					"\ttext: %.*s\n",
-					(int) event_info.utf8_size,
-					event_info.utf8_string);
-
-				free(event_info.utf8_string);
+					"\tmouse x: %d\n"
+					"\tmouse y: %d\n",
+					event_info.mouse_x,
+					event_info.mouse_y);
 			}
+			else
+			{
+				fprintf(
+					stderr,
+					"\tdiff x: %d\n"
+					"\tdiff y: %d\n",
+					(int) (event_info.diff_x >> 32),
+					(int) (event_info.diff_y >> 32));
+			}
+		}
+		else if (event_info.utf8_size > 0)
+		{
+			fprintf(
+				stderr,
+				"\ttext: %.*s\n",
+				(int) event_info.utf8_size,
+				event_info.utf8_string);
+
+			free(event_info.utf8_string);
 		}
 	}
 }

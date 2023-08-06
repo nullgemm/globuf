@@ -61,7 +61,9 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_UNKNOWN:
 		{
+#ifdef GLOBOX_EXAMPLE_LOG_ALL
 			fprintf(stderr, "received unknown event\n");
+#endif
 			break;
 		}
 		case GLOBOX_EVENT_RESTORED:
@@ -96,6 +98,7 @@ static void event_callback(void* data, void* event)
 		}
 		case GLOBOX_EVENT_DAMAGED:
 		{
+#ifdef GLOBOX_EXAMPLE_LOG_ALL
 			struct globox_rect rect = globox_get_expose(globox, &error);
 
 			if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -115,6 +118,7 @@ static void event_callback(void* data, void* event)
 				rect.y,
 				rect.width,
 				rect.height);
+#endif
 
 			break;
 		}

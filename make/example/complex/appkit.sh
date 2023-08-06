@@ -45,6 +45,7 @@ flags+=("-Ires/willis/include")
 ldflags+=("-framework AppKit")
 ldflags+=("-framework QuartzCore")
 defines+=("-DGLOBOX_EXAMPLE_APPKIT")
+#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then

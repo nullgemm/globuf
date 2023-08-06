@@ -45,6 +45,7 @@ flags+=("-Ires/cursoryx/include")
 flags+=("-Ires/dpishit/include")
 flags+=("-Ires/willis/include")
 defines+=("-DGLOBOX_EXAMPLE_WIN")
+#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then

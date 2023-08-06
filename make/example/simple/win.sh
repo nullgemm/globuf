@@ -42,6 +42,7 @@ flags+=("-I\$folder_include")
 flags+=("-Ires/egl")
 flags+=("-Iexample/helpers")
 defines+=("-DGLOBOX_EXAMPLE_WIN")
+#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then

@@ -41,6 +41,7 @@ flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
 ldflags+=("-z noexecstack")
 defines+=("-DGLOBOX_EXAMPLE_X11")
+#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
