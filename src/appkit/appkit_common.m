@@ -660,7 +660,6 @@ enum globox_event globox_appkit_common_handle_events(
 
 			break;
 		}
-		case NSEventTypeMouseMoved:
 		case NSEventTypeLeftMouseDragged:
 		case NSEventTypeRightMouseDragged:
 		case NSEventTypeOtherMouseDragged:
