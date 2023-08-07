@@ -521,15 +521,59 @@ enum globox_event globox_win_common_handle_events(
 		}
 		case WIN_USER_MSG_FULLSCREEN:
 		{
-			DWORD style = WS_POPUP | WS_VISIBLE;
+			BOOL ok;
+			DWORD code;
+			DWORD style;
 
+			// set style hints
 			SetLastError(0);
-			BOOL ok = SetWindowLongW(platform->event_handle, GWL_STYLE, style);
-			DWORD code = GetLastError();
+			style = WS_POPUP | WS_VISIBLE;
+			ok = SetWindowLongPtrW(platform->event_handle, GWL_STYLE, style);
+			code = GetLastError();
 
 			if ((ok == 0) && (code != 0))
 			{
 				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
+				break;
+			}
+
+			// get monitor
+			HMONITOR monitor =
+					MonitorFromWindow(
+						platform->event_handle,
+						MONITOR_DEFAULTTONEAREST);
+
+			// get monitor info
+			MONITORINFO info =
+			{
+				.cbSize = (sizeof (MONITORINFO)),
+			};
+
+			ok = GetMonitorInfo(monitor, &info);
+
+			if (ok == 0)
+			{
+				globox_error_throw(context, error, GLOBOX_ERROR_WIN_MONITOR_GET);
+				break;
+			}
+
+			// set window size and position
+			ok =
+				SetWindowPos(
+					platform->event_handle,
+					HWND_TOPMOST,
+					info.rcMonitor.left,
+					info.rcMonitor.top,
+					info.rcMonitor.right - info.rcMonitor.left,
+					info.rcMonitor.bottom - info.rcMonitor.top,
+					SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+			if (ok == 0)
+			{
+				globox_error_throw(
+					context,
+					error,
+					GLOBOX_ERROR_WIN_WINDOW_POSITION_SET);
 				break;
 			}
 
@@ -595,7 +639,7 @@ enum globox_event globox_win_common_handle_events(
 				ok =
 					SetWindowPos(
 						platform->event_handle,
-						NULL,
+						HWND_TOP,
 						0,
 						0,
 						width,

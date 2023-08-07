@@ -227,6 +227,8 @@ void globox_error_init(
 		"could not load win32 window default cursor";
 	log[GLOBOX_ERROR_WIN_PAINT_VALIDATE] =
 		"could not validate paint operation";
+	log[GLOBOX_ERROR_WIN_MONITOR_GET] =
+		"could not get monitor";
 	log[GLOBOX_ERROR_WIN_MONITOR_INFO_GET] =
 		"could not get monitor info";
 	log[GLOBOX_ERROR_WIN_WINDOW_POSITION_SET] =
