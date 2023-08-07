@@ -177,6 +177,9 @@ ldlibs+=("-lshcore")
 ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
 
+# enable to prevent console from appearing
+#ldlibs+=("-mwindows")
+
 # default target
 default+=("\$builddir/\$name")
 
