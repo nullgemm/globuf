@@ -820,6 +820,14 @@ int main(int argc, char** argv)
 	globox_prepare_init_appkit_egl(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_WIN)
 	globox_prepare_init_win_wgl(&config, &error_early);
+
+	printf(
+		"\nEncoding notice: this example outputs utf-8 encoded text as a"
+		" demonstration of the composition capabilities of willis, the"
+		" independent lib we use to handle the keyboard and mouse.\n"
+		"Since Windows only supports utf-8 console output using wchar_t"
+		" (which we do not use) non-ANSI text will not display properly"
+		" on this platform, but the text in RAM really is valid.\n\n");
 #endif
 
 	// set function pointers and perform basic init
