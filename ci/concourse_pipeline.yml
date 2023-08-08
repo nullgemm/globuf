@@ -263,6 +263,94 @@ jobs:
           run:
             path: /scripts/build_appkit.sh
             args: ["release", "appkit", "egl", "complex", "osxcross"]
+  - name: globox_build_win_software
+    plan:
+      - task: globox_build_win_software_lib
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "software", "none", "native"]
+      - task: globox_build_win_software_simple_example
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "software", "simple", "native"]
+      - task: globox_build_win_software_complex_example
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "software", "complex", "native"]
+  - name: globox_build_win_wgl
+    plan:
+      - task: globox_build_win_wgl_lib
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "wgl", "none", "native"]
+      - task: globox_build_win_wgl_simple_example
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "wgl", "simple", "native"]
+      - task: globox_build_win_wgl_complex_example
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: docker_registry:443/nullgemm/globox_image_win_mingw
+              ca_certs: ((docker_registry_certs))
+              tag: latest
+          params:
+            GIT_REPO_URL: globox_image_win_mingw
+          run:
+            path: /scripts/build_win.sh
+            args: ["release", "win", "wgl", "complex", "native"]
   - name: globox_build_appkit_native
     plan:
       - task: globox_build_appkit_software_task
