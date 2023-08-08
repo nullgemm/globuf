@@ -363,7 +363,6 @@ static void event_callback(void* data, void* event)
 			case WILLIS_MOUSE_CLICK_LEFT:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_STOP;
-				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_1:

@@ -237,6 +237,7 @@ static void event_callback(void* data, void* event)
 	if (event_info.event_state != WILLIS_STATE_PRESS)
 	{
 		struct globox_feature_state state;
+		bool sizemove = false;
 
 		switch (event_info.event_code)
 		{
@@ -309,46 +310,55 @@ static void event_callback(void* data, void* event)
 			case WILLIS_KEY_W:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_N;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_Q:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_NW;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_A:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_W;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_Z:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_SW;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_X:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_S;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_C:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_SE;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_D:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_E;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_E:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_NE;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_KEY_S:
 			{
 				event_callback_data->action.action = GLOBOX_INTERACTION_MOVE;
+				sizemove = true;
 				break;
 			}
 			case WILLIS_MOUSE_CLICK_LEFT:
@@ -385,33 +395,12 @@ static void event_callback(void* data, void* event)
 				break;
 			}
 		}
-	}
-	else
-	{
-		switch (event_info.event_code)
+
+		if (sizemove == true)
 		{
-			case WILLIS_MOUSE_CLICK_LEFT:
-			{
-				if (event_callback_data->action.action == GLOBOX_INTERACTION_STOP)
-				{
-					break;
-				}
-
-				globox_feature_set_interaction(globox, &(event_callback_data->action), &error);
-
-				if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
-				{
-					globox_error_log(globox, &error);
-					return;
-				}
-			}
-			default:
-			{
-				break;
-			}
+			globox_feature_set_interaction(globox, &(event_callback_data->action), &error);
 		}
 	}
-
 
 		// print debug info
 		if (event_info.event_code != WILLIS_NONE)
