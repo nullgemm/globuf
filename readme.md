@@ -8,7 +8,7 @@ provides windows, as demonstrated in the simple example, with the relevant
 system libraries for only dependencies.
 
 Input handling, cursor management and density detection must be taken care of 
-using other libraries, such as Willis, Cursoryx and DPIshit, independant
+using other libraries, such as Willis, Cursoryx and DPIshit, independent
 projects usable with Globox as shown in the complex example.
 
 This modular architecture makes it easy to add support for new platforms,
@@ -65,7 +65,7 @@ to compile the Globox core module. An example use for Linux would be:
 ```
 
 The scripts named after platforms will generate ninja scripts to compile
-Globox backends when supplied the `common` argument, but using backend
+Globox platforms when supplied the `common` argument, but using backend
 names instead will generate ninja scripts to compile backends:
 ```
 ./make/lib/x11.sh development common
@@ -108,7 +108,7 @@ You may have noticed there are two variants of the examples: simple and complex.
 Because Globox only implements windowing, the simple examples don't do much.
 
 Since my other libraries implementing desktop-app features also needed examples,
-I decided although they are completely independant to create a complex variant
+I decided although they are completely independent to create a complex variant
 integrating them together with Globox.
 
 To compile these complex examples, you will therefore need these libraries.
@@ -158,7 +158,7 @@ Whether you decide to go for the Windows terminal or the included MinTTY,
 make sure you are using MSYS2 with its UCRT64 environment, this is important.
 When your setup is ready, install a basic MinGW toolchain in MSYS2, like this:
 ```
-pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain git ninja
+pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain git ninja unzip
 ```
 
 For vulkan, you will need the vulkan development package:
