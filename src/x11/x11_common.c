@@ -97,10 +97,16 @@ void globox_x11_common_init(
 	}
 
 	// set pthread cond clock
+#if defined(_POSIX_MONOTONIC_CLOCK)
+	clockid_t clock = CLOCK_MONOTONIC;
+#else
+	clockid_t clock = CLOCK_REALTIME;
+#endif
+
 	error_posix =
 		pthread_condattr_setclock(
 			&cond_attr,
-			CLOCK_MONOTONIC);
+			clock);
 
 	if (error_posix != 0)
 	{
