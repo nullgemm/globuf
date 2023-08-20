@@ -29,6 +29,7 @@ name="globox_example_simple_x11"
 cmd="./\$name"
 cc="gcc"
 ld="gcc"
+as="as"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -217,6 +218,7 @@ echo "name = $name""_$backend"; \
 echo "cmd = $cmd"; \
 echo "cc = $cc"; \
 echo "ld = $ld"; \
+echo "as = $as"; \
 echo ""; \
 } > "$output/$ninja_file"
 
@@ -286,22 +288,22 @@ echo ""; \
 
 { \
 echo "rule icon_object"; \
-echo "    command = \$cc -Ires/icon -c res/icon/iconpix_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
+echo "    command = \$as -Ires/icon -c res/icon/iconpix_elf.S -o \$out"; \
+echo "    description = \$as \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_gl1"; \
-echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
+echo "    command = \$as -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
+echo "    description = \$as \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_vk1"; \
-echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
+echo "    command = \$as -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
+echo "    description = \$as \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
