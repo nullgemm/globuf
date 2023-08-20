@@ -322,15 +322,15 @@ echo ""; \
 
 { \
 echo "rule shaders_object_gl1"; \
-echo "    command = \$cc -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
+echo "    command = \$as -Ires/shaders/gl1 -c res/shaders/gl1/shaders_elf.S -o \$out"; \
+echo "    description = \$as \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "rule shaders_object_vk1"; \
-echo "    command = \$cc -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
-echo "    description = \$cc \$out"; \
+echo "    command = \$as -Ires/shaders/vk1 -c res/shaders/vk1/shaders_elf.S -o \$out"; \
+echo "    description = \$as \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
