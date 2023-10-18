@@ -892,9 +892,7 @@ void globox_buffer_free_x11_software(
 			return;
 		}
 
-		int error_shmdt =
-			shmdt(
-				backend->software_shm.shmaddr);
+		int error_shmdt = shmdt(buffer);
 
 		if (error_shmdt == -1)
 		{
