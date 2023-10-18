@@ -10,6 +10,8 @@
 #include "globox_appkit_egl.h"
 #elif defined(GLOBOX_EXAMPLE_WIN)
 #include "globox_win_wgl.h"
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+#include "globox_wayland_egl.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -485,6 +487,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_appkit_egl(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_WIN)
 	globox_prepare_init_win_wgl(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	globox_prepare_init_wayland_egl(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -554,6 +558,8 @@ int main(int argc, char** argv)
 	globox_init_appkit_egl(globox, &config_opengl, &error);
 #elif defined (GLOBOX_EXAMPLE_WIN)
 	globox_init_win_wgl(globox, &config_opengl, &error);
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	globox_init_wayland_egl(globox, &config_opengl, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)

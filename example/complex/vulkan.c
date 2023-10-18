@@ -19,6 +19,11 @@
 #include "cursoryx_win.h"
 #include "dpishit_win.h"
 #include "willis_win.h"
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+#include "globox_wayland_vulkan.h"
+#include "cursoryx_wayland.h"
+#include "dpishit_wayland.h"
+#include "willis_wayland.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -559,6 +564,8 @@ int main(int argc, char** argv)
 		"Since Windows only supports utf-8 console output using wchar_t"
 		" (which we do not use) non-ANSI text will not display properly"
 		" on this platform, but the text in RAM really is valid.\n\n");
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	globox_prepare_init_wayland_vulkan(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
@@ -815,6 +822,16 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	cursoryx_prepare_init_wayland(&config_cursor);
+
+	struct cursoryx_wayland_data cursoryx_data =
+	{
+		.add_capabilities_handler = globox_add_wayland_capabilities_handler,
+		.add_capabilities_handler_data = globox,
+		.add_registry_handler = globox_add_wayland_registry_handler,
+		.add_registry_handler_data = globox,
+	};
 #endif
 
 	struct cursoryx* cursoryx = cursoryx_init(&config_cursor, &error_cursor);
@@ -882,21 +899,6 @@ int main(int argc, char** argv)
 		},
 	};
 
-	for (size_t i = 0; i < 4; ++i)
-	{
-		event_callback_data.mouse_custom[i] =
-			cursoryx_custom_create(cursoryx, &(cursor_config[i]), &error_cursor);
-
-		if (cursoryx_error_get_code(&error_cursor) != CURSORYX_ERROR_OK)
-		{
-			cursoryx_error_log(cursoryx, &error_cursor);
-			cursoryx_clean(cursoryx, &error_cursor);
-			globox_window_destroy(globox, &error);
-			globox_clean(globox, &error);
-			return 1;
-		}
-	}
-
 	// init willis
 	struct willis_error_info error_input = {0};
 	struct willis_config_backend config_input = {0};
@@ -923,6 +925,18 @@ int main(int argc, char** argv)
 	struct willis_win_data willis_data =
 	{
 		.data = NULL,
+	};
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	willis_prepare_init_wayland(&config_input);
+
+	struct willis_wayland_data willis_data =
+	{
+		.add_capabilities_handler = globox_add_wayland_capabilities_handler,
+		.add_capabilities_handler_data = globox,
+		.add_registry_handler = globox_add_wayland_registry_handler,
+		.add_registry_handler_data = globox,
+		.event_callback = event_callback,
+		.event_callback_data = &event_callback_data,
 	};
 #endif
 
@@ -986,6 +1000,16 @@ int main(int argc, char** argv)
 	{
 		.data = NULL,
 	};
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	dpishit_prepare_init_wayland(&config_display);
+
+	struct dpishit_wayland_data dpishit_data =
+	{
+		.add_registry_handler = globox_add_wayland_registry_handler,
+		.add_registry_handler_data = globox,
+		.event_callback = event_callback,
+		.event_callback_data = &event_callback_data,
+	};
 #endif
 
 	struct dpishit* dpishit = dpishit_init(&config_display, &error_display);
@@ -1023,6 +1047,32 @@ int main(int argc, char** argv)
 
 	// configure vulkan
 	config_vulkan(&render_data);
+
+	// check window
+	globox_window_confirm(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	for (size_t i = 0; i < 4; ++i)
+	{
+		event_callback_data.mouse_custom[i] =
+			cursoryx_custom_create(cursoryx, &(cursor_config[i]), &error_cursor);
+
+		if (cursoryx_error_get_code(&error_cursor) != CURSORYX_ERROR_OK)
+		{
+			cursoryx_error_log(cursoryx, &error_cursor);
+			cursoryx_clean(cursoryx, &error_cursor);
+			globox_window_destroy(globox, &error);
+			globox_clean(globox, &error);
+			return 1;
+		}
+	}
 
 	// display the window
 	globox_window_start(globox, &error);

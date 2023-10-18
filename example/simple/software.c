@@ -7,6 +7,8 @@
 #include "globox_appkit_software.h"
 #elif defined(GLOBOX_EXAMPLE_WIN)
 #include "globox_win_software.h"
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+#include "globox_wayland_software.h"
 #endif
 
 #ifdef GLOBOX_EXAMPLE_APPKIT
@@ -163,6 +165,9 @@ static void render_callback(void* data)
 #elif defined(GLOBOX_EXAMPLE_WIN)
 		globox_buffer_alloc_win_software(
 			globox, width, height, &error);
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+		globox_buffer_alloc_wayland_software(
+			globox, width, height, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -221,6 +226,9 @@ static void render_callback(void* data)
 #elif defined(GLOBOX_EXAMPLE_WIN)
 	globox_buffer_free_win_software(
 		globox, argb, &error);
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	globox_buffer_free_wayland_software(
+		globox, argb, &error);
 #endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
@@ -273,6 +281,8 @@ int main(int argc, char** argv)
 	globox_prepare_init_appkit_software(&config, &error_early);
 #elif defined(GLOBOX_EXAMPLE_WIN)
 	globox_prepare_init_win_software(&config, &error_early);
+#elif defined(GLOBOX_EXAMPLE_WAYLAND)
+	globox_prepare_init_wayland_software(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
