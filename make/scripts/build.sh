@@ -18,7 +18,7 @@ if [ -z "$build_type" ]; then
 fi
 
 if [ -z "$build_platform" ]; then
-	build_platform=win
+	build_platform=wayland
 fi
 
 if [ -z "$build_backend" ]; then
@@ -26,7 +26,7 @@ if [ -z "$build_backend" ]; then
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=complex
+	build_example=simple
 fi
 
 if [ -z "$build_toolchain" ]; then
@@ -77,6 +77,21 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/win.sh $build_type $build_backend
+		fi
+	;;
+
+	wayland)
+		rm -rf build make/output
+		./make/lib/elf.sh $build_type common
+		./make/lib/wayland.sh $build_type common
+		./make/lib/wayland.sh $build_type $build_backend
+
+		if [ "$build_backend" == "vulkan" ]; then
+			./make/lib/elf.sh $build_type $build_backend
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			./make/example/$build_example/wayland.sh $build_type $build_backend
 		fi
 	;;
 
@@ -136,6 +151,23 @@ case $build_platform in
 
 		if [ "$build_example" != "none" ]; then
 			ninja -f ./make/output/example_"$build_example"_win_"$build_backend".ninja
+		fi
+	;;
+
+	wayland)
+		samu -f ./make/output/lib_elf.ninja
+		samu -f ./make/output/lib_wayland_common.ninja
+		samu -f ./make/output/lib_wayland_"$build_backend".ninja
+
+		samu -f ./make/output/lib_elf.ninja headers
+		samu -f ./make/output/lib_wayland_"$build_backend".ninja headers
+
+		if [ "$build_backend" == "vulkan" ]; then
+			samu -f ./make/output/lib_elf_"$build_backend".ninja
+		fi
+
+		if [ "$build_example" != "none" ]; then
+			samu -f ./make/output/example_"$build_example"_wayland_"$build_backend".ninja
 		fi
 	;;
 
