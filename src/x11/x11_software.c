@@ -260,6 +260,19 @@ void globox_x11_software_window_destroy(
 	globox_error_ok(error);
 }
 
+void globox_x11_software_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct x11_software_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
+	// run common X11 helper
+	globox_x11_common_window_confirm(context, platform, error);
+
+	// error always set
+}
+
 void globox_x11_software_window_start(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -797,6 +810,7 @@ void globox_prepare_init_x11_software(
 	config->clean = globox_x11_software_clean;
 	config->window_create = globox_x11_software_window_create;
 	config->window_destroy = globox_x11_software_window_destroy;
+	config->window_confirm = globox_x11_software_window_confirm;
 	config->window_start = globox_x11_software_window_start;
 	config->window_block = globox_x11_software_window_block;
 	config->window_stop = globox_x11_software_window_stop;

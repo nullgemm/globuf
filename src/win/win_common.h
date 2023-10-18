@@ -104,6 +104,11 @@ void globox_win_common_window_destroy(
 	struct win_platform* platform,
 	struct globox_error_info* error);
 
+void globox_win_common_window_confirm(
+	struct globox* context,
+	struct win_platform* platform,
+	struct globox_error_info* error);
+
 void globox_win_common_window_start(
 	struct globox* context,
 	struct win_platform* platform,

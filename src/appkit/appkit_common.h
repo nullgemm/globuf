@@ -94,6 +94,11 @@ void globox_appkit_common_window_destroy(
 	struct appkit_platform* platform,
 	struct globox_error_info* error);
 
+void globox_appkit_common_window_confirm(
+	struct globox* context,
+	struct appkit_platform* platform,
+	struct globox_error_info* error);
+
 void globox_appkit_common_window_start(
 	struct globox* context,
 	struct appkit_platform* platform,

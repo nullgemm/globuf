@@ -665,6 +665,14 @@ void globox_x11_common_window_destroy(
 	globox_error_ok(error);
 }
 
+void globox_x11_common_window_confirm(
+	struct globox* context,
+	struct x11_platform* platform,
+	struct globox_error_info* error)
+{
+	globox_error_ok(error);
+}
+
 void globox_x11_common_window_start(
 	struct globox* context,
 	struct x11_platform* platform,

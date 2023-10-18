@@ -360,6 +360,9 @@ struct globox_config_backend
 	void (*window_destroy)(
 		struct globox* context,
 		struct globox_error_info* error);
+	void (*window_confirm)(
+		struct globox* context,
+		struct globox_error_info* error);
 	void (*window_start)(
 		struct globox* context,
 		struct globox_error_info* error);
@@ -445,6 +448,10 @@ void globox_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error);
 
+// finish setting up the window
+void globox_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error);
 // start displaying the window and running the loop
 void globox_window_start(
 	struct globox* context,

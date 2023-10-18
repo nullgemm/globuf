@@ -25,6 +25,10 @@ void globox_x11_glx_window_destroy(
 	struct globox* context,
 	struct globox_error_info* error);
 
+void globox_x11_glx_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error);
+
 void globox_x11_glx_window_start(
 	struct globox* context,
 	struct globox_error_info* error);

@@ -247,6 +247,19 @@ void globox_appkit_egl_window_destroy(
 	globox_error_ok(error);
 }
 
+void globox_appkit_egl_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct appkit_egl_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+
+	// run common AppKit helper
+	globox_appkit_common_window_confirm(context, platform, error);
+
+	// error always set
+}
+
 void globox_appkit_egl_window_start(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -543,6 +556,7 @@ void globox_prepare_init_appkit_egl(
 	config->clean = globox_appkit_egl_clean;
 	config->window_create = globox_appkit_egl_window_create;
 	config->window_destroy = globox_appkit_egl_window_destroy;
+	config->window_confirm = globox_appkit_egl_window_confirm;
 	config->window_start = globox_appkit_egl_window_start;
 	config->window_block = globox_appkit_egl_window_block;
 	config->window_stop = globox_appkit_egl_window_stop;

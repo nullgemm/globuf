@@ -291,6 +291,19 @@ void globox_win_vulkan_window_destroy(
 	globox_error_ok(error);
 }
 
+void globox_win_vulkan_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct win_vulkan_backend* backend = context->backend_data;
+	struct win_platform* platform = &(backend->platform);
+
+	// run common win32 helper
+	globox_win_common_window_confirm(context, platform, error);
+
+	// error always set
+}
+
 void globox_win_vulkan_window_start(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -657,6 +670,7 @@ void globox_prepare_init_win_vulkan(
 	config->clean = globox_win_vulkan_clean;
 	config->window_create = globox_win_vulkan_window_create;
 	config->window_destroy = globox_win_vulkan_window_destroy;
+	config->window_confirm = globox_win_vulkan_window_confirm;
 	config->window_start = globox_win_vulkan_window_start;
 	config->window_block = globox_win_vulkan_window_block;
 	config->window_stop = globox_win_vulkan_window_stop;

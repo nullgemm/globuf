@@ -113,6 +113,15 @@ void globox_window_destroy(
 	// error always set
 }
 
+void globox_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	context->backend_callbacks.window_confirm(context, error);
+
+	// error always set
+}
+
 void globox_window_start(
 	struct globox* context,
 	struct globox_error_info* error)
