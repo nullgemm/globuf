@@ -143,6 +143,17 @@ void globox_wayland_common_init(
 	platform->thread_event_loop_data = thread_event_loop_data;
 	platform->event_init_callback = NULL;
 
+	// get wayland display
+	platform->display = wl_display_connect(NULL);
+
+	if (platform->display == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DISPLAY_GET);
+		return;
+	}
+
+	// TODO initialize listeners?
+
 	globox_error_ok(error);
 }
 
@@ -153,6 +164,9 @@ void globox_wayland_common_clean(
 {
 	int error_posix;
 	int error_cond;
+
+	// disconnect from display
+	wl_display_disconnect(platform->display);
 
 	// lock block mutex to be able to destroy the cond
 	error_posix = pthread_mutex_lock(&(platform->mutex_block));
@@ -231,8 +245,177 @@ void globox_wayland_common_window_create(
 	void* data,
 	struct globox_error_info* error)
 {
+	// store callback and data
+	platform->feature_configs = configs;
+	platform->feature_count = count;
+	platform->feature_callback = callback;
+	platform->feature_callback_data = data;
+
+	globox_error_ok(error);
+}
+
+void globox_wayland_common_window_destroy(
+	struct globox* context,
+	struct wayland_platform* platform,
+	struct globox_error_info* error)
+{
+	// lock main mutex
+	error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// destroy the surface frame
+	wl_callback_destroy(platform->surface_frame);
+
+	// destroy the XDG toplevel
+	xdg_toplevel_destroy(platform->xdg_toplevel);
+
+	// destroy the XDG surface
+	xdg_surface_destroy(platform->xdg_surface);
+
+	// destroy the Wayland surface
+	wl_surface_destroy(platform->surface);
+
+	// destroy the registry
+	wl_registry_destroy(platform->registry);
+
+	// unlock main mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	globox_error_ok(error);
+}
+
+void globox_wayland_common_window_confirm(
+	struct globox* context,
+	struct wayland_platform* platform,
+	struct globox_error_info* error)
+{
+	int error_posix;
+
+	// get registry
+	platform->registry = wl_display_get_registry(platform->display);
+
+	if (platform->registry == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_REGISTRY_GET);
+		return;
+	}
+
+	// set registry listener
+	struct wl_registry_listener listener_registry =
+	{
+		.global = wayland_helpers_callback_registry,
+		.global_remove = wayland_helpers_callback_registry_remove,
+	};
+
+	error_posix =
+		wl_registry_add_listener(
+			platform->registry,
+			&listener_registry,
+			context);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		return;
+	}
+
+	// perform a roundtrip for the registry
+	error_posix = wl_display_roundtrip(platform->display);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ROUNDTRIP);
+		return;
+	}
+
+	// check we have everything we need
+	// TODO compositor
+
+	// create wayland surface
+	platform->surface =
+		wl_compositor_create_surface(
+			platform->compositor);
+
+	if (platform->surface == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_SURFACE_CREATE);
+		return;
+	}
+
+	// get xdg surface
+	platform->xdg_surface =
+		xdg_wm_base_get_xdg_surface(
+			platform->xdg_wm_base,
+			platform->surface);	
+
+	if (platform->xdg_surface == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_XDG_SURFACE_CREATE);
+		return;
+	}
+
+	// set xdg surface listener
+	struct xdg_surface_listener listener_xdg_surface =
+	{
+		.configure = ; // TODO
+	};
+
+	error_posix =
+		xdg_surface_add_listener(
+			platform->xdg_surface,
+			&listener_xdg_surface,
+			context);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		return;
+	}
+
+	// get xdg toplevel
+	platform->xdg_toplevel =
+		xdg_surface_get_toplevel(
+			platform->xdg_surface);
+
+	if (platform->xdg_toplevel == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_XDG_TOPLEVEL_GET);
+		return;
+	}
+
+	// set xdg toplevel listener
+	struct xdg_toplevel_listener listener_xdg_toplevel =
+	{
+		.configure = ; // TODO
+		.close = ; // TODO
+	};
+
+	error_posix =
+		xdg_toplevel_add_listener(
+			platform->xdg_toplevel,
+			&listener_xdg_toplevel,
+			context);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		return;
+	}
+
 	// configure features
-	struct globox_config_reply* reply = malloc(count * (sizeof (struct globox_config_reply)));
+	struct globox_config_reply* reply =
+		malloc(platform->feature_count * (sizeof (struct globox_config_reply)));
 
 	if (reply == NULL)
 	{
@@ -240,9 +423,9 @@ void globox_wayland_common_window_create(
 		return;
 	}
 
-	for (size_t i = 0; i < count; ++i)
+	for (size_t i = 0; i < platform->feature_count; ++i)
 	{
-		enum globox_feature feature = configs[i].feature;
+		enum globox_feature feature = platform->feature_configs[i].feature;
 		reply[i].feature = feature;
 
 		switch (feature)
@@ -287,49 +470,17 @@ void globox_wayland_common_window_create(
 		}
 	}
 
-	callback(reply, count, data);
+	platform->feature_callback(
+		reply,
+		platform->feature_count,
+		platform->feature_callback_data);
+
 	free(reply);
 
-	// error always set
-}
-
-void globox_wayland_common_window_destroy(
-	struct globox* context,
-	struct wayland_platform* platform,
-	struct globox_error_info* error)
-{
-	// lock main mutex
-	error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
-	// destroy the window
-	// TODO
-
-	// unlock main mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
 	globox_error_ok(error);
 }
 
-void globox_wayland_common_window_confirm(
-	struct globox* context,
-	struct wayland_platform* platform,
-	struct globox_error_info* error)
-{
-	globox_error_ok(error);
-}
-
+// TODO HERE
 void globox_wayland_common_window_start(
 	struct globox* context,
 	struct wayland_platform* platform,
@@ -351,9 +502,13 @@ void globox_wayland_common_window_start(
 
 	if (error_posix != 0)
 	{
+		pthread_attr_destroy(&attr);
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
 	}
+
+	// show surface
+	wl_surface_commit(platform->surface);
 
 	// start the event loop in a new thread
 	// init thread function data
@@ -376,33 +531,69 @@ void globox_wayland_common_window_start(
 
 	if (error_posix != 0)
 	{
+		pthread_attr_destroy(&attr);
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
 		return;
 	}
 
-	// start the render loop in a new thread
-	// init thread function data
-	struct wayland_thread_render_loop_data render_data =
+	if (context->feature_vsync->vsync == false)
 	{
-		.globox = context,
-		.platform = platform,
-		.error = error,
-	};
+		// start the render loop in a new thread
+		// init thread function data
+		struct wayland_thread_render_loop_data render_data =
+		{
+			.globox = context,
+			.platform = platform,
+			.error = error,
+		};
 
-	platform->thread_render_loop_data = render_data;
+		platform->thread_render_loop_data = render_data;
 
-	// start function in a new thread
-	error_posix =
-		pthread_create(
-			&(platform->thread_render_loop),
-			&attr,
-			wayland_helpers_render_loop,
-			&(platform->thread_render_loop_data));
+		// start function in a new thread
+		error_posix =
+			pthread_create(
+				&(platform->thread_render_loop),
+				&attr,
+				wayland_helpers_render_loop,
+				&(platform->thread_render_loop_data));
 
-	if (error_posix != 0)
+		if (error_posix != 0)
+		{
+			pthread_attr_destroy(&attr);
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+			return;
+		}
+	}
+	else
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
-		return;
+		// get surface frame
+		platform->surface_frame = wl_surface_frame(platform->surface);
+
+		if (platform->surface_frame == NULL)
+		{
+			pthread_attr_destroy(&attr);
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET);
+			return;
+		}
+
+		// set surface frame callback
+		struct wl_callback_listener listener_surface_frame =
+		{
+			.done = ;// TODO
+		};
+
+		error_posix =
+			wl_callback_add_listener(
+				platform->surface_frame,
+				&listener_surface_frame,
+				context);
+
+		if (error_posix == -1)
+		{
+			pthread_attr_destroy(&attr);
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+			return;
+		}
 	}
 
 	// destroy the attributes
@@ -413,12 +604,6 @@ void globox_wayland_common_window_start(
 		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
 		return;
 	}
-
-	// map window
-	// TODO
-
-	// flush connection
-	// TODO
 
 	globox_error_ok(error);
 }
@@ -481,6 +666,7 @@ void globox_wayland_common_window_stop(
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
 {
+	// TODO
 	globox_error_ok(error);
 }
 
@@ -674,6 +860,59 @@ void globox_wayland_common_feature_set_interaction(
 	// configure
 	*(context->feature_interaction) = *config;
 
+	switch (config->action)
+	{
+		case GLOBOX_INTERACTION_MOVE:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+			break;
+		}
+		case GLOBOX_INTERACTION_N:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
+			break;
+		}
+		case GLOBOX_INTERACTION_NW:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
+			break;
+		}
+		case GLOBOX_INTERACTION_W:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
+			break;
+		}
+		case GLOBOX_INTERACTION_SW:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
+			break;
+		}
+		case GLOBOX_INTERACTION_S:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
+			break;
+		}
+		case GLOBOX_INTERACTION_SE:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
+			break;
+		}
+		case GLOBOX_INTERACTION_E:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
+			break;
+		}
+		case GLOBOX_INTERACTION_NE:
+		{
+			platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -709,7 +948,7 @@ void globox_wayland_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	wayland_helpers_set_state(context, platform, error);
+	wayland_helpers_set_state(context, platform, error); // TODO
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));

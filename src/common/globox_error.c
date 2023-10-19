@@ -197,6 +197,23 @@ void globox_error_init(
 	log[GLOBOX_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE] =
 		"could not find the XCB Vulkan extension";
 
+	log[GLOBOX_ERROR_WAYLAND_DISPLAY_GET] =
+		"could not get Wayland display";
+	log[GLOBOX_ERROR_WAYLAND_REGISTRY_GET] =
+		"could not get Wayland registry";
+	log[GLOBOX_ERROR_WAYLAND_LISTENER_ADD] =
+		"could not add Wayland listener";
+	log[GLOBOX_ERROR_WAYLAND_ROUNDTRIP] =
+		"could not perform Wayland roundtrip";
+	log[GLOBOX_ERROR_WAYLAND_SURFACE_CREATE] =
+		"could not create Wayland surface";
+	log[GLOBOX_ERROR_WAYLAND_XDG_SURFACE_CREATE] =
+		"could not create XDG surface";
+	log[GLOBOX_ERROR_WAYLAND_XDG_TOPLEVEL_GET] =
+		"could not get XDG toplevel";
+	log[GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET] =
+		"could not get Wayland surface frame";
+
 	log[GLOBOX_ERROR_WIN_MUTEX_CREATE] =
 		"could not create win32 mutex";
 	log[GLOBOX_ERROR_WIN_MUTEX_DESTROY] =
