@@ -269,6 +269,27 @@ void globox_wayland_common_window_destroy(
 		return;
 	}
 
+	// destroy optional protocols structures
+	if (platform->kde_blur != NULL)
+	{
+		org_kde_kwin_blur_destroy(platform->kde_blur);
+	}
+
+	if (platform->kde_blur_manager != NULL)
+	{
+		org_kde_kwin_blur_manager_destroy(platform->kde_blur_manager);
+	}
+
+	if (platform->xdg_decoration != NULL)
+	{
+		zxdg_toplevel_decoration_v1_destroy(platform->xdg_decoration);
+	}
+
+	if (platform->xdg_decoration_manager != NULL)
+	{
+		zxdg_decoration_manager_v1_destroy(platform->xdg_decoration_manager);
+	}
+
 	// destroy the surface frame
 	wl_callback_destroy(platform->surface_frame);
 
@@ -428,6 +449,41 @@ void globox_wayland_common_window_confirm(
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
 		return;
+	}
+
+	if (platform->xdg_decoration_manager != NULL)
+	{
+		// get xdg decorations
+		platform->xdg_decoration =
+			zxdg_decoration_manager_v1_get_toplevel_decoration(
+				platform->xdg_decoration_manager,
+				platform->xdg_toplevel);
+
+		if (platform->xdg_decoration == NULL)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_XDG_DECORATION_GET);
+			return;
+		}
+
+		// set xdg decorations listener
+		struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration =
+		{
+			.configure = globox_wayland_helpers_xdg_decoration_configure;
+		};
+
+		error_posix =
+			zxdg_toplevel_decoration_v1_add_listener(
+				platform->xdg_decoration,
+				&listener_xdg_decoration,
+				platform);
+
+		if (error_posix == -1)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		}
 	}
 
 	// configure features

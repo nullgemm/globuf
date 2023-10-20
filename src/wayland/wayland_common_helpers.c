@@ -267,9 +267,12 @@ void globox_wayland_helpers_set_state(
 
 			// TODO check it's still needed
 			// enlightenment bug workaround
-			zxdg_toplevel_decoration_v1_set_mode(
-				platform->xdg_decoration,
-				platform->decoration_mode);
+			if (platform->xdg_decoration != NULL)
+			{
+				zxdg_toplevel_decoration_v1_set_mode(
+					platform->xdg_decoration,
+					platform->decoration_mode);
+			}
 
 			break;
 		}
@@ -287,9 +290,12 @@ void globox_wayland_helpers_set_state(
 
 			// TODO check it's still needed
 			// enlightenment bug workaround
-			zxdg_toplevel_decoration_v1_set_mode(
-				platform->xdg_decoration,
-				platform->decoration_mode);
+			if (platform->xdg_decoration != NULL)
+			{
+				zxdg_toplevel_decoration_v1_set_mode(
+					platform->xdg_decoration,
+					platform->decoration_mode);
+			}
 
 			break;
 		}
@@ -340,12 +346,40 @@ void globox_wayland_helpers_set_frame(
 	// but we can try to use the decorations negociation protocol to try and
 	// have the compositor render them for us if it is able and willing to.
 
-	if (platform->decoration_mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
+	// for now set the decoration mode corresponding to desired frame status
+	if (context->feature_frame->frame == true)
+	{
+		platform->decoration_mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+	}
+	else
+	{
+		platform->decoration_mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
+	}
+
+	// ask for the decoration mode we want
+	if (platform->xdg_decoration != NULL)
+	{
+		zxdg_toplevel_decoration_v1_set_mode(
+			platform->xdg_decoration,
+			platform->decoration_mode);
+	}
+
+	// perform a roundtrip to find out if the request was successful
+	int error_posix = wl_display_roundtrip(platform->display);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ROUNDTRIP);
+		return;
+	}
+
+	// report actual feature status
+	if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
 	{
 		if (context->feature_frame->frame == false)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
 			context->feature_frame->frame = true;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
 			return;
 		}
 
@@ -355,12 +389,10 @@ void globox_wayland_helpers_set_frame(
 	{
 		if (context->feature_frame->frame == true)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
 			context->feature_frame->frame = false;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
 			return;
 		}
-
-		break;
 	}
 
 	globox_error_ok(error);
@@ -375,13 +407,31 @@ void globox_wayland_helpers_set_background(
 	// always available, however background blur requires the dedicated
 	// KDE protocol so we have to check for this.
 
-	if ((platform->kde_blur_manager == NULL)
-	&& (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED))
+	// enable background blur if possible, otherwise use regular transparency
+	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
 	{
-		context->feature_background->background = GLOBOX_BACKGROUND_TRANSPARENT;
+		// check the protocol is supported
+		if (platform->kde_blur_manager == NULL)
+		{
+			context->feature_background->background = GLOBOX_BACKGROUND_TRANSPARENT;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_BACKGROUND_BLUR);
+			return;
+		}
 
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_BACKGROUND_BLUR);
-		return;
+		// try to enable blur using the protocol
+		platform->kde_blur =
+			org_kde_kwin_blur_manager_create(
+				platform->kde_blur_manager,
+				platform->surface);
+
+		if (platform->kde_blur == NULL)
+		{
+			context->feature_background->background = GLOBOX_BACKGROUND_TRANSPARENT;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+
+		org_kde_kwin_blur_commit(platform->kde_blur);
 	}
 
 	globox_error_ok(error);

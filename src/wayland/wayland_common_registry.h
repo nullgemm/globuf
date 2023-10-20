@@ -41,4 +41,9 @@ void globox_wayland_helpers_xdg_toplevel_close(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel);
 
+void globox_wayland_helpers_xdg_decoration_configure(
+	void* data,
+	struct zxdg_toplevel_decoration_v1* xdg_decoration,
+	uint32_t mode);
+
 #endif

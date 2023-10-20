@@ -81,6 +81,42 @@ void globox_wayland_helpers_callback_registry(
 				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
 		}
 	}
+	else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
+	{
+		platform->xdg_decoration_manager =
+			wl_registry_bind(
+				registry,
+				name,
+				&zxdg_decoration_manager_v1_interface,
+				1);
+
+		if (platform->xdg_decoration_manager == NULL)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+	}
+	else if (strcmp(interface, org_kde_kwin_blur_manager_interface.name) == 0)
+	{
+		platform->kde_blur_manager =
+			wl_registry_bind(
+				registry,
+				name,
+				&org_kde_kwin_blur_manager_interface,
+				1);
+
+		if (platform->kde_blur_manager == NULL)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+	}
 
 	// run external capabilities handler callbacks
 	struct wayland_registry_handler_node* handler = platform->registry_handlers;
@@ -241,4 +277,15 @@ void globox_wayland_helpers_xdg_toplevel_close(
 		globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
+}
+
+void globox_wayland_helpers_xdg_decoration_configure(
+	void* data,
+	struct zxdg_toplevel_decoration_v1* xdg_decoration,
+	uint32_t mode)
+{
+	struct wayland_platform* platform = data;
+
+	// save the decoration mode actually set by the compositor
+	platform->decoration_mode = mode;
 }
