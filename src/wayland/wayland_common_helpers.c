@@ -10,9 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// classic helpers
-
-void* wayland_helpers_render_loop(void* data)
+void* globox_wayland_helpers_render_loop(void* data)
 {
 	struct wayland_thread_render_loop_data* thread_render_loop_data = data;
 
@@ -81,7 +79,7 @@ void* wayland_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void* wayland_helpers_event_loop(void* data)
+void* globox_wayland_helpers_event_loop(void* data)
 {
 	struct wayland_thread_event_loop_data* thread_event_loop_data = data;
 
@@ -119,7 +117,7 @@ void* wayland_helpers_event_loop(void* data)
 	return NULL;
 }
 
-void wayland_helpers_features_init(
+void globox_wayland_helpers_features_init(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_config_request* configs,
@@ -239,11 +237,11 @@ void wayland_helpers_features_init(
 	}
 }
 
-// TODO HERE
+// TODO required?
 // there is also a bug in ewmh that prevents interactive move & resize from
 // working properly under certain desktop environments, so we implement
 // everything for this feature as well
-void wayland_helpers_handle_interaction(
+void globox_wayland_helpers_handle_interaction(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -509,7 +507,7 @@ void set_state_hidden(
 // there is a bug in ewmh that prevents fullscreen from working properly
 // since keeping xcb-ewmh around only for initialization would be kind
 // of silly we removed the dependency and used raw xcb all the way
-void wayland_helpers_set_state(
+void globox_wayland_helpers_set_state(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -621,7 +619,7 @@ void wayland_helpers_set_state(
 	// error is always set in the switch so we don't need to set it to "ok" here
 }
 
-void wayland_helpers_set_title(
+void globox_wayland_helpers_set_title(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -634,7 +632,7 @@ void wayland_helpers_set_title(
 	globox_error_ok(error);
 }
 
-void wayland_helpers_set_icon(
+void globox_wayland_helpers_set_icon(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -643,7 +641,7 @@ void wayland_helpers_set_icon(
 	globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ICON);
 }
 
-void wayland_helpers_set_frame(
+void globox_wayland_helpers_set_frame(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -681,7 +679,7 @@ void wayland_helpers_set_frame(
 	globox_error_ok(error);
 }
 
-void wayland_helpers_set_background(
+void globox_wayland_helpers_set_background(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -702,7 +700,7 @@ void wayland_helpers_set_background(
 	globox_error_ok(error);
 }
 
-void wayland_helpers_set_vsync(
+void globox_wayland_helpers_set_vsync(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -710,6 +708,3 @@ void wayland_helpers_set_vsync(
 	// always ok
 	globox_error_ok(error);
 }
-
-// wayland-specific
-// TODO

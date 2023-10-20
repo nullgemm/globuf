@@ -213,6 +213,12 @@ void globox_error_init(
 		"could not get XDG toplevel";
 	log[GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET] =
 		"could not get Wayland surface frame";
+	log[GLOBOX_ERROR_WAYLAND_REQUEST] =
+		"could not perform Wayland request";
+	log[GLOBOX_ERROR_WAYLAND_COMPOSITOR_MISSING] =
+		"could not register Wayland compositor";
+	log[GLOBOX_ERROR_WAYLAND_XDG_WM_BASE_MISSSING] =
+		"could not register XDG WM base";
 
 	log[GLOBOX_ERROR_WIN_MUTEX_CREATE] =
 		"could not create win32 mutex";

@@ -340,7 +340,23 @@ void globox_wayland_common_window_confirm(
 	}
 
 	// check we have everything we need
-	// TODO compositor
+	if (platform->compositor == NULL)
+	{
+		globox_error_throw(
+			context,
+			error,
+			GLOBOX_ERROR_WAYLAND_COMPOSITOR_MISSING);
+		return;
+	}
+
+	if (platform->xdg_wm_base == NULL)
+	{
+		globox_error_throw(
+			context,
+			error,
+			GLOBOX_ERROR_WAYLAND_XDG_WM_BASE_MISSSING);
+		return;
+	}
 
 	// create wayland surface
 	platform->surface =
@@ -480,7 +496,6 @@ void globox_wayland_common_window_confirm(
 	globox_error_ok(error);
 }
 
-// TODO HERE
 void globox_wayland_common_window_start(
 	struct globox* context,
 	struct wayland_platform* platform,

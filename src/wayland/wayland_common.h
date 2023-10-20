@@ -63,10 +63,13 @@ struct wayland_platform
 	struct wl_display* display;
 	struct wl_registry* registry;
 	struct wl_surface* surface;
+
 	struct wl_compositor* compositor;
-	struct xdg_surface* xdg_surface;
 	struct xdg_wm_base* xdg_wm_base;
+
+	struct xdg_surface* xdg_surface;
 	struct wl_callback* surface_frame;
+
 	uint32_t sizing_edge;
 
 	// external wayland negociation callbacks handling
