@@ -57,6 +57,7 @@ struct wayland_platform
 	pthread_cond_t cond_main;
 
 	// connection
+	struct globox* globox;
 	bool closed;
 
 	// TODO comments like for x11

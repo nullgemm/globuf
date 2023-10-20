@@ -237,376 +237,66 @@ void globox_wayland_helpers_features_init(
 	}
 }
 
-// TODO required?
-// there is also a bug in ewmh that prevents interactive move & resize from
-// working properly under certain desktop environments, so we implement
-// everything for this feature as well
-void globox_wayland_helpers_handle_interaction(
-	struct globox* context,
-	struct wayland_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_generic_error_t* error_xcb;
-
-	// compute window changes
-	switch (context->feature_interaction->action)
-	{
-		case GLOBOX_INTERACTION_MOVE:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_N:
-		{
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_NW:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_W:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			break;
-		}
-		case GLOBOX_INTERACTION_SW:
-		{
-			platform->saved_window_geometry[0] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[2] += platform->old_mouse_pos_x - platform->saved_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_S:
-		{
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_SE:
-		{
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			break;
-		}
-		case GLOBOX_INTERACTION_E:
-		{
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			break;
-		}
-		case GLOBOX_INTERACTION_NE:
-		{
-			platform->saved_window_geometry[1] += platform->saved_mouse_pos_y - platform->old_mouse_pos_y;
-			platform->saved_window_geometry[2] += platform->saved_mouse_pos_x - platform->old_mouse_pos_x;
-			platform->saved_window_geometry[3] += platform->old_mouse_pos_y - platform->saved_mouse_pos_y;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-
-	// set window position
-	xcb_void_cookie_t cookie_configure =
-		xcb_configure_window_checked(
-			platform->conn,
-			platform->win,
-			XCB_CONFIG_WINDOW_X
-			| XCB_CONFIG_WINDOW_Y
-			| XCB_CONFIG_WINDOW_WIDTH
-			| XCB_CONFIG_WINDOW_HEIGHT,
-			platform->saved_window_geometry);
-
-	error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie_configure);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONFIGURE);
-		return;
-	}
-
-	xcb_flush(platform->conn);
-	globox_error_ok(error);
-}
-
-//TODO
-void set_state_event(
-	struct globox* context,
-	struct wayland_platform* platform,
-	xcb_atom_t atom,
-	uint32_t action,
-	struct globox_error_info* error)
-{
-	xcb_client_message_event_t event =
-	{
-		.response_type = XCB_CLIENT_MESSAGE,
-		.type = platform->atoms[X11_ATOM_STATE],
-		.format = 32,
-		.window = platform->win,
-		.data =
-		{
-			.data32 =
-			{
-				action,
-				atom,
-				XCB_ATOM_NONE,
-				0,
-				0,
-			},
-		},
-	};
-
-	uint32_t mask =
-		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-		| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
-
-	xcb_void_cookie_t cookie =
-		xcb_send_event_checked(
-			platform->conn,
-			1,
-			platform->win,
-			mask,
-			(const char*)(&event));
-
-	xcb_generic_error_t* error_xcb =
-		xcb_request_check(
-			platform->conn,
-			cookie);
-
-	if (error_xcb != NULL)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-//TODO
-void set_state_atoms(
-	struct globox* context,
-	struct wayland_platform* platform,
-	uint32_t action_maximized_horizontal,
-	uint32_t action_maximized_vertical,
-	uint32_t action_fullscreen,
-	struct globox_error_info* error)
-{
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_MAXIMIZED_HORIZONTAL],
-		action_maximized_horizontal,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_MAXIMIZED_VERTICAL],
-		action_maximized_vertical,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_FULLSCREEN],
-		action_fullscreen,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-}
-
-//TODO
-void set_state_hidden(
-	struct globox* context,
-	struct wayland_platform* platform,
-	struct globox_error_info* error)
-{
-	xcb_generic_error_t* error_xcb;
-
-	if (platform->atoms[X11_ATOM_CHANGE_STATE] != XCB_NONE)
-	{
-		// iconify with the ICCCM method
-		xcb_client_message_event_t event =
-		{
-			.response_type = XCB_CLIENT_MESSAGE,
-			.type = platform->atoms[X11_ATOM_CHANGE_STATE],
-			.format = 32,
-			.window = platform->win,
-			.data =
-			{
-				.data32 =
-				{
-					XCB_ICCCM_WM_STATE_ICONIC,
-				},
-			},
-		};
-
-		uint32_t mask =
-			XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-			| XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
-
-		xcb_void_cookie_t cookie =
-			xcb_send_event_checked(
-				platform->conn,
-				0,
-				platform->root_win,
-				mask,
-				(const char*)(&event));
-
-		error_xcb =
-			xcb_request_check(
-				platform->conn,
-				cookie);
-
-		if (error_xcb != NULL)
-		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_EVENT_SEND);
-			return;
-		}
-	}
-
-	set_state_event(
-		context,
-		platform,
-		platform->atoms[X11_ATOM_STATE_HIDDEN],
-		1,
-		error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-//TODO
-// there is a bug in ewmh that prevents fullscreen from working properly
-// since keeping xcb-ewmh around only for initialization would be kind
-// of silly we removed the dependency and used raw xcb all the way
 void globox_wayland_helpers_set_state(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
 {
-	xcb_void_cookie_t cookie;
-	xcb_generic_error_t* error_xcb;
-
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_REGULAR:
+		case GLOBOX_STATE_REGULAR: // TODO special case for software backend
 		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
+			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
+			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
 
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
+			if (context->feature_state->state == GLOBOX_STATE_MINIMIZED)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
+				// destroy surfaces
+				wl_surface_destroy(platform->surface);
+				xdg_surface_destroy(platform->xdg_surface);
+				xdg_toplevel_destroy(platform->xdg_toplevel);
+
+				// reset title
+				globox_feature_set_title(context, context->feature_title, error);
+
+				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				{
+					return;
+				}
 			}
 
-			set_state_atoms(context, platform, 0, 0, 0, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
+			// TODO check it's still needed
+			// enlightenment bug workaround
+			zxdg_toplevel_decoration_v1_set_mode(
+				platform->xdg_decoration,
+				platform->decoration_mode);
 
 			break;
 		}
 		case GLOBOX_STATE_MINIMIZED:
 		{
-			set_state_hidden(context, platform, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
+			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
+			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
+			xdg_toplevel_set_minimized(platform->xdg_toplevel);
 			break;
 		}
 		case GLOBOX_STATE_MAXIMIZED:
 		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
+			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
+			xdg_toplevel_set_maximized(platform->xdg_toplevel);
 
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
-			}
-
-			set_state_atoms(context, platform, 1, 1, 0, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
+			// TODO check it's still needed
+			// enlightenment bug workaround
+			zxdg_toplevel_decoration_v1_set_mode(
+				platform->xdg_decoration,
+				platform->decoration_mode);
 
 			break;
 		}
 		case GLOBOX_STATE_FULLSCREEN:
 		{
-			cookie =
-				xcb_map_window_checked(
-					platform->conn,
-					platform->win);
-
-			error_xcb =
-				xcb_request_check(
-					platform->conn,
-					cookie);
-
-			if (error_xcb != NULL)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_X11_WIN_MAP);
-				return;
-			}
-
-			set_state_atoms(context, platform, 0, 0, 1, error);
-
-			if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-			{
-				return;
-			}
-
+			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
+			xdg_toplevel_set_fullscreen(platform->xdg_toplevel, NULL); // TODO select current window output?
 			break;
 		}
 		default:
@@ -616,7 +306,7 @@ void globox_wayland_helpers_set_state(
 		}
 	}
 
-	// error is always set in the switch so we don't need to set it to "ok" here
+	globox_error_ok(error);
 }
 
 void globox_wayland_helpers_set_title(
@@ -650,30 +340,27 @@ void globox_wayland_helpers_set_frame(
 	// but we can try to use the decorations negociation protocol to try and
 	// have the compositor render them for us if it is able and willing to.
 
-	switch (platform->decoration_mode)
+	if (platform->decoration_mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
 	{
-		case ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE:
+		if (context->feature_frame->frame == false)
 		{
-			if (context->feature_frame->frame == true)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
-				context->feature_frame->frame = false;
-				return;
-			}
-
-			break;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
+			context->feature_frame->frame = true;
+			return;
 		}
-		case ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE:
+
+		break;
+	}
+	else
+	{
+		if (context->feature_frame->frame == true)
 		{
-			if (context->feature_frame->frame == false)
-			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
-				context->feature_frame->frame = true;
-				return;
-			}
-
-			break;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
+			context->feature_frame->frame = false;
+			return;
 		}
+
+		break;
 	}
 
 	globox_error_ok(error);

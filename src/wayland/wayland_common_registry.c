@@ -64,14 +64,14 @@ void globox_wayland_helpers_callback_registry(
 
 		struct xdg_wm_base_listener listener_xdg_wm_base =
 		{
-			.ping = ; // TODO
+			.ping = globox_wayland_helpers_xdg_wm_base_ping;
 		};
 
 		error_posix =
 			xdg_wm_base_add_listener(
 				platform->xdg_wm_base,
 				&listener_xdg_wm_base,
-				context);
+				platform);
 
 		if (error_posix == -1)
 		{
@@ -99,4 +99,146 @@ void globox_wayland_helpers_callback_registry(
 }
 
 // callbacks
-// TODO move somewhere else?
+
+void globox_wayland_helpers_surface_frame_done(
+	void* data,
+	struct wl_callback* callback,
+	uint32_t time)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+	struct globox_error_info error;
+
+	if (callback_current != NULL)
+	{
+		// destroy the current frame callback
+		wl_callback_destroy(callback);
+	}
+
+	// register a new frame callback
+	struct wl_callback* surface_frame = wl_surface_frame(platform->surface);
+
+	if (surface_frame == NULL)
+	{
+		globox_error_throw(context, &error, GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET);
+		return;
+	}
+
+	// set surface frame callback
+	struct wl_callback_listener listener_surface_frame =
+	{
+		.done = globox_wayland_helpers_surface_frame_done;
+	};
+
+	int error_posix =
+		wl_callback_add_listener(
+			surface_frame,
+			&listener_surface_frame,
+			platform);
+
+	if (error_posix == -1)
+	{
+		globox_error_throw(context, &error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		return;
+	}
+
+	// run developer callback
+	context->render_callback.callback(context->render_callback.data);
+}
+
+void globox_wayland_helpers_xdg_wm_base_ping(
+	void* data,
+	struct xdg_wm_base* xdg_wm_base,
+	uint32_t serial)
+{
+	xdg_wm_base_pong(xdg_wm_base, serial);
+}
+
+void globox_wayland_helpers_xdg_surface_configure(
+	void* data,
+	struct xdg_surface* xdg_surface,
+	uint32_t serial)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+
+	xdg_surface_ack_configure(xdg_surface, serial);
+
+	if (context->feature_vsync->vsync == true)
+	{
+		context->render_callback.callback(context->render_callback.data);
+	}
+}
+
+void globox_wayland_helpers_xdg_toplevel_configure(
+	void* data,
+	struct xdg_toplevel* xdg_toplevel,
+	int32_t width,
+	int32_t height,
+	struct wl_array* states)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+	struct globox_error_info error;
+
+	if ((width == 0) || (height == 0))
+	{
+		return;
+	}
+
+	if (context->feature_vsync->vsync == false)
+	{
+		// lock main mutex
+		error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+		if (error_posix != 0)
+		{
+			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			return;
+		}
+	}
+
+	context->feature_size->width = width;
+	context->feature_size->height = height;
+
+	if (context->feature_vsync->vsync == false)
+	{
+		// lock main mutex
+		error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+		if (error_posix != 0)
+		{
+			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			return;
+		}
+	}
+}
+
+void globox_wayland_helpers_xdg_toplevel_close(
+	void* data,
+	struct xdg_toplevel* xdg_toplevel)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+	struct globox_error_info error;
+
+	// lock main mutex
+	error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	platform->closed = true;
+
+	// unlock main mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+}

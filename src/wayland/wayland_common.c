@@ -120,6 +120,9 @@ void globox_wayland_common_init(
 		return;
 	}
 
+	// initialize the context platform reference
+	platform->globox = context;
+
 	// initialize the "closed" boolean
 	platform->closed = false;
 
@@ -151,8 +154,6 @@ void globox_wayland_common_init(
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DISPLAY_GET);
 		return;
 	}
-
-	// TODO initialize listeners?
 
 	globox_error_ok(error);
 }
@@ -314,15 +315,15 @@ void globox_wayland_common_window_confirm(
 	// set registry listener
 	struct wl_registry_listener listener_registry =
 	{
-		.global = wayland_helpers_callback_registry,
-		.global_remove = wayland_helpers_callback_registry_remove,
+		.global = globox_wayland_helpers_callback_registry,
+		.global_remove = globox_wayland_helpers_callback_registry_remove,
 	};
 
 	error_posix =
 		wl_registry_add_listener(
 			platform->registry,
 			&listener_registry,
-			context);
+			platform);
 
 	if (error_posix == -1)
 	{
@@ -384,14 +385,14 @@ void globox_wayland_common_window_confirm(
 	// set xdg surface listener
 	struct xdg_surface_listener listener_xdg_surface =
 	{
-		.configure = ; // TODO
+		.configure = globox_wayland_helpers_xdg_surface_configure;
 	};
 
 	error_posix =
 		xdg_surface_add_listener(
 			platform->xdg_surface,
 			&listener_xdg_surface,
-			context);
+			platform);
 
 	if (error_posix == -1)
 	{
@@ -413,15 +414,15 @@ void globox_wayland_common_window_confirm(
 	// set xdg toplevel listener
 	struct xdg_toplevel_listener listener_xdg_toplevel =
 	{
-		.configure = ; // TODO
-		.close = ; // TODO
+		.configure = globox_wayland_helpers_xdg_toplevel_configure;
+		.close = globox_wayland_helpers_xdg_toplevel_close;
 	};
 
 	error_posix =
 		xdg_toplevel_add_listener(
 			platform->xdg_toplevel,
 			&listener_xdg_toplevel,
-			context);
+			platform);
 
 	if (error_posix == -1)
 	{
@@ -448,32 +449,32 @@ void globox_wayland_common_window_confirm(
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				wayland_helpers_set_state(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_state(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				wayland_helpers_set_title(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				wayland_helpers_set_icon(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				wayland_helpers_set_frame(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_frame(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				wayland_helpers_set_background(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_VSYNC:
 			{
-				wayland_helpers_set_vsync(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_vsync(context, platform, &reply[i].error);
 				break;
 			}
 			default:
@@ -541,7 +542,7 @@ void globox_wayland_common_window_start(
 		pthread_create(
 			&(platform->thread_event_loop),
 			&attr,
-			wayland_helpers_event_loop,
+			globox_wayland_helpers_event_loop,
 			&(platform->thread_event_loop_data));
 
 	if (error_posix != 0)
@@ -569,7 +570,7 @@ void globox_wayland_common_window_start(
 			pthread_create(
 				&(platform->thread_render_loop),
 				&attr,
-				wayland_helpers_render_loop,
+				globox_wayland_helpers_render_loop,
 				&(platform->thread_render_loop_data));
 
 		if (error_posix != 0)
@@ -594,14 +595,14 @@ void globox_wayland_common_window_start(
 		// set surface frame callback
 		struct wl_callback_listener listener_surface_frame =
 		{
-			.done = ;// TODO
+			.done = globox_wayland_helpers_surface_frame_done;
 		};
 
 		error_posix =
 			wl_callback_add_listener(
 				platform->surface_frame,
 				&listener_surface_frame,
-				context);
+				platform);
 
 		if (error_posix == -1)
 		{
@@ -681,7 +682,6 @@ void globox_wayland_common_window_stop(
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO
 	globox_error_ok(error);
 }
 
@@ -963,7 +963,7 @@ void globox_wayland_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	wayland_helpers_set_state(context, platform, error); // TODO
+	globox_wayland_helpers_set_state(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1002,7 +1002,7 @@ void globox_wayland_common_feature_set_title(
 	free_check(context->feature_title->title);
 
 	context->feature_title->title = strdup(config->title);
-	wayland_helpers_set_title(context, platform, error);
+	globox_wayland_helpers_set_title(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1052,7 +1052,7 @@ void globox_wayland_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	wayland_helpers_set_icon(context, platform, error);
+	globox_wayland_helpers_set_icon(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
