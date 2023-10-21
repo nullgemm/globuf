@@ -241,6 +241,32 @@ void globox_error_init(
 		"this Wayland compositor does not support hiding window decorations";
 	log[GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE] =
 		"this Wayland compositor does not support displaying window decorations";
+	log[GLOBOX_ERROR_WAYLAND_EGL_MAKE_CURRENT] =
+		"failed to make Wayland EGL context current";
+	log[GLOBOX_ERROR_WAYLAND_EGL_SWAP_INTERVAL] =
+		"failed to set Wayland EGL swap interval";
+	log[GLOBOX_ERROR_WAYLAND_EGL_DISPLAY_GET] =
+		"failed to get Wayland EGL display";
+	log[GLOBOX_ERROR_WAYLAND_EGL_INIT] =
+		"failed to init Wayland EGL";
+	log[GLOBOX_ERROR_WAYLAND_EGL_BIND_API] =
+		"failed to bind Wayland EGL API";
+	log[GLOBOX_ERROR_WAYLAND_EGL_CONFIG] =
+		"failed to get Wayland EGL configuration";
+	log[GLOBOX_ERROR_WAYLAND_EGL_CONTEXT_CREATE] =
+		"failed to create Wayland EGL context";
+	log[GLOBOX_ERROR_WAYLAND_EGL_DESTROY_SURFACE] =
+		"failed to destroy Wayland EGL window surface";
+	log[GLOBOX_ERROR_WAYLAND_EGL_DESTROY_CONTEXT] =
+		"failed to destroy Wayland EGL context";
+	log[GLOBOX_ERROR_WAYLAND_EGL_TERMINATE] =
+		"failed to terminate Wayland EGL";
+	log[GLOBOX_ERROR_WAYLAND_EGL_WINDOW_CREATE] =
+		"failed to create Wayland EGL window";
+	log[GLOBOX_ERROR_WAYLAND_EGL_WINDOW_SURFACE] =
+		"failed to create Wayland EGL window surface";
+	log[GLOBOX_ERROR_WAYLAND_EGL_SWAP] =
+		"failed to swap Wayland EGL buffers";
 	log[GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST] =
 		"failed to create Wayland Vulkan surface";
 	log[GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSION_UNAVAILABLE] =

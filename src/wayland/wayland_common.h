@@ -57,6 +57,7 @@ struct wayland_platform
 	pthread_cond_t cond_main;
 
 	// globox
+	bool init;
 	bool closed;
 	struct globox* globox;
 

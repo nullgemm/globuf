@@ -65,13 +65,6 @@ void globox_wayland_helpers_callback_registry(
 			return;
 		}
 
-		struct xdg_wm_base_listener listener_xdg_wm_base =
-		{
-			.ping = globox_wayland_helpers_xdg_wm_base_ping,
-		};
-
-		platform->listener_xdg_wm_base = listener_xdg_wm_base;
-
 		error_posix =
 			xdg_wm_base_add_listener(
 				platform->xdg_wm_base,
@@ -184,13 +177,6 @@ void globox_wayland_helpers_surface_frame_done(
 	}
 
 	// set surface frame callback
-	struct wl_callback_listener listener_surface_frame =
-	{
-		.done = globox_wayland_helpers_surface_frame_done,
-	};
-
-	platform->listener_surface_frame = listener_surface_frame;
-
 	int error_posix =
 		wl_callback_add_listener(
 			surface_frame,
@@ -222,11 +208,18 @@ void globox_wayland_helpers_xdg_surface_configure(
 {
 	struct wayland_platform* platform = data;
 	struct globox* context = platform->globox;
+	struct globox_error_info error;
 
 	xdg_surface_ack_configure(xdg_surface, serial);
 
 	if (context->feature_vsync->vsync == true)
 	{
+		if ((platform->init == true) && (platform->render_init_callback != NULL))
+		{
+			platform->render_init_callback(context, &error);
+			platform->init = false;
+		}
+
 		context->render_callback.callback(context->render_callback.data);
 	}
 }

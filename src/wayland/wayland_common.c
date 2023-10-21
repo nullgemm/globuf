@@ -129,7 +129,53 @@ void globox_wayland_common_init(
 	platform->globox = context;
 
 	// initialize the "closed" boolean
+	platform->init = true;
 	platform->closed = false;
+
+	// initialize listeners
+	struct wl_registry_listener listener_registry =
+	{
+		.global = globox_wayland_helpers_callback_registry,
+		.global_remove = globox_wayland_helpers_callback_registry_remove,
+	};
+
+	platform->listener_registry = listener_registry;
+
+	struct xdg_wm_base_listener listener_xdg_wm_base =
+	{
+		.ping = globox_wayland_helpers_xdg_wm_base_ping,
+	};
+
+	platform->listener_xdg_wm_base = listener_xdg_wm_base;
+
+	struct xdg_surface_listener listener_xdg_surface =
+	{
+		.configure = globox_wayland_helpers_xdg_surface_configure,
+	};
+
+	platform->listener_xdg_surface = listener_xdg_surface;
+
+	struct xdg_toplevel_listener listener_xdg_toplevel =
+	{
+		.configure = globox_wayland_helpers_xdg_toplevel_configure,
+		.close = globox_wayland_helpers_xdg_toplevel_close,
+	};
+
+	platform->listener_xdg_toplevel = listener_xdg_toplevel;
+
+	struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration =
+	{
+		.configure = globox_wayland_helpers_xdg_decoration_configure,
+	};
+
+	platform->listener_xdg_decoration = listener_xdg_decoration;
+
+	struct wl_callback_listener listener_surface_frame =
+	{
+		.done = globox_wayland_helpers_surface_frame_done,
+	};
+
+	platform->listener_surface_frame = listener_surface_frame;
 
 	// initialize render thread
 	struct wayland_thread_render_loop_data thread_render_loop_data =
@@ -370,14 +416,6 @@ void globox_wayland_common_window_confirm(
 	}
 
 	// set registry listener
-	struct wl_registry_listener listener_registry =
-	{
-		.global = globox_wayland_helpers_callback_registry,
-		.global_remove = globox_wayland_helpers_callback_registry_remove,
-	};
-
-	platform->listener_registry = listener_registry;
-
 	error_posix =
 		wl_registry_add_listener(
 			platform->registry,
@@ -442,13 +480,6 @@ void globox_wayland_common_window_confirm(
 	}
 
 	// set xdg surface listener
-	struct xdg_surface_listener listener_xdg_surface =
-	{
-		.configure = globox_wayland_helpers_xdg_surface_configure,
-	};
-
-	platform->listener_xdg_surface = listener_xdg_surface;
-
 	error_posix =
 		xdg_surface_add_listener(
 			platform->xdg_surface,
@@ -473,14 +504,6 @@ void globox_wayland_common_window_confirm(
 	}
 
 	// set xdg toplevel listener
-	struct xdg_toplevel_listener listener_xdg_toplevel =
-	{
-		.configure = globox_wayland_helpers_xdg_toplevel_configure,
-		.close = globox_wayland_helpers_xdg_toplevel_close,
-	};
-
-	platform->listener_xdg_toplevel = listener_xdg_toplevel;
-
 	error_posix =
 		xdg_toplevel_add_listener(
 			platform->xdg_toplevel,
@@ -508,13 +531,6 @@ void globox_wayland_common_window_confirm(
 		}
 
 		// set xdg decorations listener
-		struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration =
-		{
-			.configure = globox_wayland_helpers_xdg_decoration_configure,
-		};
-
-		platform->listener_xdg_decoration = listener_xdg_decoration;
-
 		error_posix =
 			zxdg_toplevel_decoration_v1_add_listener(
 				platform->xdg_decoration,
@@ -693,13 +709,6 @@ void globox_wayland_common_window_start(
 		}
 
 		// set surface frame callback
-		struct wl_callback_listener listener_surface_frame =
-		{
-			.done = globox_wayland_helpers_surface_frame_done,
-		};
-
-		platform->listener_surface_frame = listener_surface_frame;
-
 		error_posix =
 			wl_callback_add_listener(
 				surface_frame,

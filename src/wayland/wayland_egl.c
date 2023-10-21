@@ -37,8 +37,15 @@ void globox_wayland_egl_init(
 	// initialize values that can be initialized explicitly
 	backend->config = NULL;
 
+	// update toplevel configure listener
+	struct wayland_platform* platform =
+		&(backend->platform);
+
+	platform->listener_xdg_toplevel.configure =
+		globox_wayland_helpers_egl_toplevel_configure;
+
 	// initialize the platform
-	globox_wayland_common_init(context, &(backend->platform), error);
+	globox_wayland_common_init(context, platform, error);
 
 	// error always set
 }
@@ -80,7 +87,7 @@ void globox_wayland_egl_window_create(
 	}
 
 	// configure features here
-	wayland_helpers_features_init(context, platform, configs, count, error);
+	globox_wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -95,8 +102,109 @@ void globox_wayland_egl_window_create(
 		return;
 	}
 
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	globox_error_ok(error);
+}
+
+void globox_wayland_egl_window_destroy(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct wayland_egl_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+
+	// lock mutex
+	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		return;
+	}
+
+	// destroy Wayland EGL window
+	wl_egl_window_destroy(backend->window);
+
+	// destroy all structures and terminate EGL
+	EGLBoolean error_egl;
+
+	error_egl = eglDestroySurface(backend->display, backend->surface);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_SURFACE);
+		return;
+	}
+
+	error_egl = eglDestroyContext(backend->display, backend->egl);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_CONTEXT);
+		return;
+	}
+
+	error_egl = eglTerminate(backend->display);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_TERMINATE);
+		return;
+	}
+
+	// unlock mutex
+	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
+
+	if (error_posix != 0)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		return;
+	}
+
+	// run common Wayland helper
+	globox_wayland_common_window_destroy(context, platform, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
+
+	globox_error_ok(error);
+}
+
+void globox_wayland_egl_window_confirm(
+	struct globox* context,
+	struct globox_error_info* error)
+{
+	struct wayland_egl_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+
+	// run common Wayland helper
+	globox_wayland_common_window_confirm(context, platform, error);
+
+	// create EGL window
+	backend->window =
+		wl_egl_window_create(
+			platform->surface,
+			context->feature_size->width,
+			context->feature_size->height);
+
+	if (backend->window == EGL_NO_SURFACE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_CREATE);
+		return;
+	}
+
 	// get display
-	backend->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	backend->display = eglGetDisplay(platform->display);
 
 	if (backend->display == EGL_NO_DISPLAY)
 	{
@@ -164,126 +272,19 @@ void globox_wayland_egl_window_create(
 		return;
 	}
 
-	// get visual id from EGL
-	EGLint visual_id;
-
-	error_egl =
-		eglGetConfigAttrib(
+	// create EGL surface
+	backend->surface =
+		eglCreateWindowSurface(
 			backend->display,
 			backend->attr_config,
-			EGL_NATIVE_VISUAL_ID,
-			&visual_id);
+			(EGLNativeWindowType) backend->window,
+			NULL);
 
-	if (error_egl == EGL_FALSE)
+	if (backend->surface == EGL_NO_SURFACE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONFIG_ATTR);
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_SURFACE);
 		return;
 	}
-
-	platform->visual_id = visual_id;
-
-	// get visual depth from EGL
-	EGLint visual_depth;
-
-	error_egl =
-		eglGetConfigAttrib(
-			backend->display,
-			backend->attr_config,
-			EGL_DEPTH_SIZE,
-			&visual_depth);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONFIG_ATTR);
-		return;
-	}
-
-	platform->visual_depth = visual_depth;
-
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-void globox_wayland_egl_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
-{
-	struct wayland_egl_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-
-	// lock mutex
-	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
-		return;
-	}
-
-	// destroy all structures and terminate EGL
-	EGLBoolean error_egl;
-
-	error_egl = eglDestroySurface(backend->display, backend->surface);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_SURFACE);
-		return;
-	}
-
-	error_egl = eglDestroyContext(backend->display, backend->egl);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_CONTEXT);
-		return;
-	}
-
-	error_egl = eglTerminate(backend->display);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_TERMINATE);
-		return;
-	}
-
-	// unlock mutex
-	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
-
-	if (error_posix != 0)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
-		return;
-	}
-
-	// run common Wayland helper
-	globox_wayland_common_window_destroy(context, platform, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
-	globox_error_ok(error);
-}
-
-void globox_wayland_egl_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
-{
-	struct wayland_egl_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-
-	// run common Wayland helper
-	globox_wayland_common_window_confirm(context, platform, error);
 
 	// error always set
 }
@@ -294,20 +295,6 @@ void globox_wayland_egl_window_start(
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
-
-	// create EGL surface
-	backend->surface =
-		eglCreateWindowSurface(
-			backend->display,
-			backend->attr_config,
-			(EGLNativeWindowType) platform->win,
-			NULL);
-
-	if (backend->surface == EGL_NO_SURFACE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_SURFACE);
-		return;
-	}
 
 	// run common Wayland helper
 	globox_wayland_common_window_start(context, platform, error);
@@ -359,7 +346,7 @@ void globox_wayland_egl_init_render(
 	// run common Wayland helper
 	globox_wayland_common_init_render(context, platform, config, error);
 
-	platform->render_init_callback = wayland_helpers_egl_bind;
+	platform->render_init_callback = globox_wayland_helpers_egl_bind;
 
 	// error always set
 }
@@ -523,7 +510,6 @@ void globox_wayland_egl_update_content(
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_SWAP);
 		return;
 	}
-
 
 	globox_error_ok(error);
 }
