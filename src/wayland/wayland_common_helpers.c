@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wayland-client.h>
+
+#include "xdg-decoration-client-protocol.h"
+#include "kde-blur-client-protocol.h"
 
 void* globox_wayland_helpers_render_loop(void* data)
 {

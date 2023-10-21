@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <wayland-client.h>
 
 void globox_wayland_helpers_callback_registry(
 	void* data,
