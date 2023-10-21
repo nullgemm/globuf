@@ -241,6 +241,12 @@ void globox_error_init(
 		"this Wayland compositor does not support hiding window decorations";
 	log[GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE] =
 		"this Wayland compositor does not support displaying window decorations";
+	log[GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST] =
+		"failed to create Wayland Vulkan surface";
+	log[GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSION_UNAVAILABLE] =
+		"failed to list Vulkan extensions";
+	log[GLOBOX_ERROR_WAYLAND_VULKAN_SURFACE_CREATE] =
+		"could not find the Wayland Vulkan extension";
 
 	log[GLOBOX_ERROR_WIN_MUTEX_CREATE] =
 		"could not create win32 mutex";

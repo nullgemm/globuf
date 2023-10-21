@@ -1466,7 +1466,11 @@ void swapchain_vulkan(struct globox_render_data* data)
 		.pQueueFamilyIndices = NULL,
 
 		.preTransform = data->surf_caps.currentTransform,
+#if defined(GLOBOX_EXAMPLE_WAYLAND)
+		.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+#else
 		.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+#endif
 		.presentMode = data->surf_modes[data->surf_modes_index],
 		.clipped = VK_TRUE,
 		.oldSwapchain = VK_NULL_HANDLE,
