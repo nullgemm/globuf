@@ -16,6 +16,11 @@ void globox_wayland_helpers_callback_registry(
 	const char* interface,
 	uint32_t version);
 
+void globox_wayland_helpers_callback_registry_remove(
+	void* data,
+	struct wl_registry* registry,
+	uint32_t name);
+
 void globox_wayland_helpers_surface_frame_done(
 	void* data,
 	struct wl_callback* callback,

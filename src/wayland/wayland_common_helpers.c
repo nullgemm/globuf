@@ -378,7 +378,7 @@ void globox_wayland_helpers_set_frame(
 	}
 
 	// report actual feature status
-	if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
+	if (platform->decoration_mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE)
 	{
 		if (context->feature_frame->frame == false)
 		{
@@ -386,8 +386,6 @@ void globox_wayland_helpers_set_frame(
 			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
 			return;
 		}
-
-		break;
 	}
 	else
 	{

@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 700
+
 #include "include/globox.h"
 #include "include/globox_software.h"
 #include "include/globox_wayland_software.h"
@@ -5,6 +7,7 @@
 #include "common/globox_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_helpers.h"
+#include "wayland/wayland_common_registry.h"
 #include "wayland/wayland_software.h"
 #include "wayland/wayland_software_helpers.h"
 
@@ -40,22 +43,11 @@ void globox_wayland_software_init(
 	context->backend_data = backend;
 
 	// initialize values that can be initialized explicitly
-	backend->shared_pixmaps = false;
-
-	// open a connection to the X server
-	struct wayland_platform* platform = &(backend->platform);
-	platform->conn = xcb_connect(NULL, &(platform->screen_id));
-	int error_posix = xcb_connection_has_error(platform->conn);
-
-	if (error_posix > 0)
-	{
-		xcb_disconnect(platform->conn);
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_CONN);
-		return;
-	}
+	backend->shm = NULL;
+	backend->buffer = NULL;
 
 	// initialize the platform
-	globox_wayland_common_init(context, platform, error);
+	globox_wayland_common_init(context, &(backend->platform), error);
 
 	// error always set
 }
@@ -66,9 +58,6 @@ void globox_wayland_software_clean(
 {
 	struct wayland_software_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
-
-	// close the connection to the X server
-	xcb_disconnect(platform->conn);
 
 	// clean the platform
 	globox_wayland_common_clean(context, platform, error);
@@ -100,7 +89,7 @@ void globox_wayland_software_window_create(
 	}
 
 	// configure features here
-	wayland_helpers_features_init(context, platform, configs, count, error);
+	globox_wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

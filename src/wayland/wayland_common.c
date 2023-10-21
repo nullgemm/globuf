@@ -5,6 +5,7 @@
 #include "common/globox_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_helpers.h"
+#include "wayland/wayland_common_registry.h"
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -264,6 +265,8 @@ void globox_wayland_common_window_destroy(
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
 {
+	int error_posix;
+
 	// lock main mutex
 	error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
@@ -410,7 +413,7 @@ void globox_wayland_common_window_confirm(
 	// set xdg surface listener
 	struct xdg_surface_listener listener_xdg_surface =
 	{
-		.configure = globox_wayland_helpers_xdg_surface_configure;
+		.configure = globox_wayland_helpers_xdg_surface_configure,
 	};
 
 	error_posix =
@@ -439,8 +442,8 @@ void globox_wayland_common_window_confirm(
 	// set xdg toplevel listener
 	struct xdg_toplevel_listener listener_xdg_toplevel =
 	{
-		.configure = globox_wayland_helpers_xdg_toplevel_configure;
-		.close = globox_wayland_helpers_xdg_toplevel_close;
+		.configure = globox_wayland_helpers_xdg_toplevel_configure,
+		.close = globox_wayland_helpers_xdg_toplevel_close,
 	};
 
 	error_posix =
@@ -472,7 +475,7 @@ void globox_wayland_common_window_confirm(
 		// set xdg decorations listener
 		struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration =
 		{
-			.configure = globox_wayland_helpers_xdg_decoration_configure;
+			.configure = globox_wayland_helpers_xdg_decoration_configure,
 		};
 
 		error_posix =
@@ -485,7 +488,7 @@ void globox_wayland_common_window_confirm(
 		{
 			globox_error_throw(
 				context,
-				&error,
+				error,
 				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
 		}
 	}
@@ -655,7 +658,7 @@ void globox_wayland_common_window_start(
 		// set surface frame callback
 		struct wl_callback_listener listener_surface_frame =
 		{
-			.done = globox_wayland_helpers_surface_frame_done;
+			.done = globox_wayland_helpers_surface_frame_done,
 		};
 
 		error_posix =

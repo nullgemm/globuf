@@ -23,9 +23,8 @@ void globox_wayland_helpers_callback_registry(
 	const char* interface,
 	uint32_t version)
 {
-	struct globox* context = data;
-	struct wayland_software_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
 
 	int error_posix;
 	struct globox_error_info error;
@@ -68,7 +67,7 @@ void globox_wayland_helpers_callback_registry(
 
 		struct xdg_wm_base_listener listener_xdg_wm_base =
 		{
-			.ping = globox_wayland_helpers_xdg_wm_base_ping;
+			.ping = globox_wayland_helpers_xdg_wm_base_ping,
 		};
 
 		error_posix =
@@ -138,6 +137,14 @@ void globox_wayland_helpers_callback_registry(
 	}
 }
 
+void globox_wayland_helpers_callback_registry_remove(
+	void* data,
+	struct wl_registry* registry,
+	uint32_t name)
+{
+	// TODO not needed?
+}
+
 // callbacks
 
 void globox_wayland_helpers_surface_frame_done(
@@ -149,7 +156,7 @@ void globox_wayland_helpers_surface_frame_done(
 	struct globox* context = platform->globox;
 	struct globox_error_info error;
 
-	if (callback_current != NULL)
+	if (callback != NULL)
 	{
 		// destroy the current frame callback
 		wl_callback_destroy(callback);
@@ -167,7 +174,7 @@ void globox_wayland_helpers_surface_frame_done(
 	// set surface frame callback
 	struct wl_callback_listener listener_surface_frame =
 	{
-		.done = globox_wayland_helpers_surface_frame_done;
+		.done = globox_wayland_helpers_surface_frame_done,
 	};
 
 	int error_posix =
@@ -220,6 +227,7 @@ void globox_wayland_helpers_xdg_toplevel_configure(
 	struct wayland_platform* platform = data;
 	struct globox* context = platform->globox;
 	struct globox_error_info error;
+	int error_posix;
 
 	if ((width == 0) || (height == 0))
 	{
@@ -261,6 +269,7 @@ void globox_wayland_helpers_xdg_toplevel_close(
 	struct wayland_platform* platform = data;
 	struct globox* context = platform->globox;
 	struct globox_error_info error;
+	int error_posix;
 
 	// lock main mutex
 	error_posix = pthread_mutex_lock(&(platform->mutex_main));

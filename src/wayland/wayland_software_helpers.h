@@ -22,6 +22,6 @@ void globox_wayland_helpers_callback_registry_shm(
 
 void globox_wayland_helpers_buffer_release(
 	void* data,
-	wl_buffer* wl_buffer);
+	struct wl_buffer* wl_buffer);
 
 #endif

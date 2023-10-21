@@ -69,6 +69,7 @@ struct wayland_platform
 	struct xdg_wm_base* xdg_wm_base;
 
 	struct xdg_surface* xdg_surface;
+	struct xdg_toplevel* xdg_toplevel;
 	struct wl_callback* surface_frame;
 
 	struct zxdg_decoration_manager_v1* xdg_decoration_manager;
@@ -77,6 +78,7 @@ struct wayland_platform
 	struct org_kde_kwin_blur_manager* kde_blur_manager;
 	struct org_kde_kwin_blur* kde_blur;
 
+	uint32_t decoration_mode;
 	uint32_t sizing_edge;
 
 	// external wayland negociation callbacks handling
@@ -89,6 +91,8 @@ struct wayland_platform
 		size_t count,
 		void* data);
 	void* feature_callback_data;
+	struct globox_config_request* feature_configs;
+	size_t feature_count;
 
 	// render handling
 	pthread_t thread_render_loop;

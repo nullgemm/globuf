@@ -130,6 +130,7 @@ ninja_file=lib_wayland_common.ninja
 name+="_common"
 src+=("src/wayland/wayland_common.c")
 src+=("src/wayland/wayland_common_helpers.c")
+src+=("src/wayland/wayland_common_registry.c")
 	;;
 
 	software)

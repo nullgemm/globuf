@@ -7,6 +7,7 @@
 #include "wayland/wayland_common.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <wayland-client.h>
 
@@ -46,7 +47,7 @@ void globox_wayland_helpers_callback_registry_shm(
 
 void globox_wayland_helpers_buffer_release(
 	void* data,
-	wl_buffer* buffer)
+	struct wl_buffer* buffer)
 {
 	wl_buffer_destroy(buffer);
 }

@@ -4,6 +4,7 @@
 #include "globox.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <wayland-client.h>
 
 bool globox_add_wayland_capabilities_handler(
 	void* data,

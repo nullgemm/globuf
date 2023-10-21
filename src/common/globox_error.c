@@ -229,6 +229,16 @@ void globox_error_init(
 		"could not mmap shared Wayland memory";
 	log[GLOBOX_ERROR_WAYLAND_REGISTRY_CALLBACK] =
 		"could not add Wayland registry callback";
+	log[GLOBOX_ERROR_WAYLAND_EVENT_WAIT] =
+		"failed to get a Wayland event";
+	log[GLOBOX_ERROR_WAYLAND_ICON] =
+		"this Wayland compositor does not support application icons";
+	log[GLOBOX_ERROR_WAYLAND_BACKGROUND_BLUR] =
+		"this Wayland compositor does not support background blur";
+	log[GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED] =
+		"this Wayland compositor does not support hiding window decorations";
+	log[GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE] =
+		"this Wayland compositor does not support displaying window decorations";
 
 	log[GLOBOX_ERROR_WIN_MUTEX_CREATE] =
 		"could not create win32 mutex";
