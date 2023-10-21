@@ -37,15 +37,15 @@ void globox_wayland_egl_init(
 	// initialize values that can be initialized explicitly
 	backend->config = NULL;
 
-	// update toplevel configure listener
+	// initialize the platform
 	struct wayland_platform* platform =
 		&(backend->platform);
 
+	globox_wayland_common_init(context, platform, error);
+
+	// update toplevel configure listener
 	platform->listener_xdg_toplevel.configure =
 		globox_wayland_helpers_egl_toplevel_configure;
-
-	// initialize the platform
-	globox_wayland_common_init(context, platform, error);
 
 	// error always set
 }
