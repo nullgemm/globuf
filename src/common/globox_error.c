@@ -227,6 +227,8 @@ void globox_error_init(
 		"could not register XDG decoration manager";
 	log[GLOBOX_ERROR_WAYLAND_MMAP] =
 		"could not mmap shared Wayland memory";
+	log[GLOBOX_ERROR_WAYLAND_MUNMAP] =
+		"could not munmap shared Wayland memory";
 	log[GLOBOX_ERROR_WAYLAND_REGISTRY_CALLBACK] =
 		"could not add Wayland registry callback";
 	log[GLOBOX_ERROR_WAYLAND_EVENT_WAIT] =

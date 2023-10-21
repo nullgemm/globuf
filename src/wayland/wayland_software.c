@@ -45,6 +45,7 @@ void globox_wayland_software_init(
 	// initialize values that can be initialized explicitly
 	backend->shm = NULL;
 	backend->buffer = NULL;
+	backend->buffer_len = 0;
 
 	// initialize the platform
 	globox_wayland_common_init(context, &(backend->platform), error);
@@ -539,7 +540,7 @@ uint32_t* globox_buffer_alloc_wayland_software(
 	struct globox_error_info* error)
 {
 	struct wayland_software_backend* backend = context->backend_data;
-	size_t len = 4 * width * height;
+	backend->buffer_len = 4 * width * height;
 
 	// create shm - code by sircmpwn
 	int retries = 100;
@@ -590,7 +591,7 @@ uint32_t* globox_buffer_alloc_wayland_software(
 
 	do
 	{
-		error_posix = ftruncate(fd, len);
+		error_posix = ftruncate(fd, backend->buffer_len);
 	}
 	while ((error_posix < 0) && (errno == EINTR));
 
@@ -605,7 +606,7 @@ uint32_t* globox_buffer_alloc_wayland_software(
 	uint32_t* argb =
 		mmap(
 			NULL,
-			len,
+			backend->buffer_len,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED,
 			fd,
@@ -623,11 +624,11 @@ uint32_t* globox_buffer_alloc_wayland_software(
 		wl_shm_create_pool(
 			backend->shm,
 			fd,
-			len);
+			backend->buffer_len);
 
 	if (software_pool == NULL)
 	{
-		munmap(argb, len);
+		munmap(argb, backend->buffer_len);
 		close(fd);
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_REQUEST);
 		return NULL;
@@ -657,7 +658,7 @@ uint32_t* globox_buffer_alloc_wayland_software(
 	if (backend->buffer == NULL)
 	{
 		wl_shm_pool_destroy(software_pool);
-		munmap(argb, len);
+		munmap(argb, backend->buffer_len);
 		close(fd);
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_REQUEST);
 		return NULL;
@@ -677,16 +678,15 @@ void globox_buffer_free_wayland_software(
 	uint32_t* buffer,
 	struct globox_error_info* error)
 {
-	// TODO required?
-#if 0
-	int error_posix = munmap(buffer, len);
+	struct wayland_software_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+	int error_posix = munmap(buffer, backend->buffer_len);
 
 	if (error_posix < 0)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_MUNMAP);
-		return NULL;
+		return;
 	}
-#endif
 
 	globox_error_ok(error);
 }

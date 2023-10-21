@@ -11,6 +11,7 @@ struct wayland_software_backend
 	struct wayland_platform platform;
 	struct wl_shm* shm;
 	struct wl_buffer* buffer;
+	size_t buffer_len;
 
 	// listeners
 	struct wl_buffer_listener listener_buffer;
