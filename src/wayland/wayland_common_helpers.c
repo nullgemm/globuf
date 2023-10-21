@@ -269,15 +269,6 @@ void globox_wayland_helpers_set_state(
 				}
 			}
 
-			// TODO check it's still needed
-			// enlightenment bug workaround
-			if (platform->xdg_decoration != NULL)
-			{
-				zxdg_toplevel_decoration_v1_set_mode(
-					platform->xdg_decoration,
-					platform->decoration_mode);
-			}
-
 			break;
 		}
 		case GLOBOX_STATE_MINIMIZED:
@@ -291,16 +282,6 @@ void globox_wayland_helpers_set_state(
 		{
 			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
 			xdg_toplevel_set_maximized(platform->xdg_toplevel);
-
-			// TODO check it's still needed
-			// enlightenment bug workaround
-			if (platform->xdg_decoration != NULL)
-			{
-				zxdg_toplevel_decoration_v1_set_mode(
-					platform->xdg_decoration,
-					platform->decoration_mode);
-			}
-
 			break;
 		}
 		case GLOBOX_STATE_FULLSCREEN:
