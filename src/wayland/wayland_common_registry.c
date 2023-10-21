@@ -144,7 +144,10 @@ void globox_wayland_helpers_callback_registry_remove(
 	struct wl_registry* registry,
 	uint32_t name)
 {
-	// TODO not needed?
+	// The Wayland protocol specifies global objects are still valid until
+	// explicitly destroyed so we can handle this task in globox cleanup
+	// functions to avoid sending requests to invalid objects: in the
+	// meantime, associated actions are simply ignored.
 }
 
 // callbacks
