@@ -164,6 +164,11 @@ void globox_wayland_helpers_surface_frame_done(
 		wl_callback_destroy(callback);
 	}
 
+	if (platform->closed == true)
+	{
+		return;
+	}
+
 	// register a new frame callback
 	struct wl_callback* surface_frame = wl_surface_frame(platform->surface);
 
@@ -274,6 +279,9 @@ void globox_wayland_helpers_xdg_toplevel_close(
 	struct globox* context = platform->globox;
 	struct globox_error_info error;
 	int error_posix;
+
+	// make the globox blocking function exit gracefully
+	pthread_cond_broadcast(&(platform->cond_main));
 
 	// lock main mutex
 	error_posix = pthread_mutex_lock(&(platform->mutex_main));

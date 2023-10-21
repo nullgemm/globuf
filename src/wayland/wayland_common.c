@@ -297,9 +297,6 @@ void globox_wayland_common_window_destroy(
 		zxdg_decoration_manager_v1_destroy(platform->xdg_decoration_manager);
 	}
 
-	// destroy the surface frame
-	wl_callback_destroy(platform->surface_frame);
-
 	// destroy the XDG toplevel
 	xdg_toplevel_destroy(platform->xdg_toplevel);
 
@@ -680,6 +677,7 @@ void globox_wayland_common_window_start(
 		if (error_posix == -1)
 		{
 			pthread_attr_destroy(&attr);
+			wl_callback_destroy(platform->surface_frame);
 			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
 			return;
 		}
@@ -739,12 +737,15 @@ void globox_wayland_common_window_block(
 		return;
 	}
 
-	error_posix = pthread_join(platform->thread_render_loop, NULL);
-
-	if (error_posix != 0)
+	if (context->feature_vsync->vsync == false)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
-		return;
+		error_posix = pthread_join(platform->thread_render_loop, NULL);
+
+		if (error_posix != 0)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_JOIN);
+			return;
+		}
 	}
 
 	globox_error_ok(error);
