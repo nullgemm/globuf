@@ -102,6 +102,75 @@ void globox_wayland_egl_window_create(
 		return;
 	}
 
+	// get display
+	backend->display = eglGetDisplay(platform->display);
+
+	if (backend->display == EGL_NO_DISPLAY)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DISPLAY_GET);
+		return;
+	}
+
+	// init
+	EGLBoolean error_egl;
+	EGLint display_version_major;
+	EGLint display_version_minor;
+
+	error_egl =
+		eglInitialize(
+			backend->display,
+			&display_version_major,
+			&display_version_minor);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_INIT);
+		return;
+	}
+
+	// use OpenGL
+	error_egl = eglBindAPI(EGL_OPENGL_API);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_BIND_API);
+		return;
+	}
+
+	error_egl =
+		eglChooseConfig(
+			backend->display,
+			backend->config->attributes,
+			&(backend->attr_config),
+			1,
+			&(backend->attr_config_size));
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONFIG);
+		return;
+	}
+
+	EGLint attr_context[] =
+	{
+		EGL_CONTEXT_MAJOR_VERSION, backend->config->major_version,
+		EGL_CONTEXT_MINOR_VERSION, backend->config->minor_version,
+		EGL_NONE,
+	};
+
+	backend->egl =
+		eglCreateContext(
+			backend->display,
+			backend->attr_config,
+			EGL_NO_CONTEXT,
+			attr_context);
+
+	if (backend->egl == EGL_NO_CONTEXT)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONTEXT_CREATE);
+		return;
+	}
+
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
@@ -200,75 +269,6 @@ void globox_wayland_egl_window_confirm(
 	if (backend->window == EGL_NO_SURFACE)
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_CREATE);
-		return;
-	}
-
-	// get display
-	backend->display = eglGetDisplay(platform->display);
-
-	if (backend->display == EGL_NO_DISPLAY)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DISPLAY_GET);
-		return;
-	}
-
-	// init
-	EGLBoolean error_egl;
-	EGLint display_version_major;
-	EGLint display_version_minor;
-
-	error_egl =
-		eglInitialize(
-			backend->display,
-			&display_version_major,
-			&display_version_minor);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_INIT);
-		return;
-	}
-
-	// use OpenGL
-	error_egl = eglBindAPI(EGL_OPENGL_API);
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_BIND_API);
-		return;
-	}
-
-	error_egl =
-		eglChooseConfig(
-			backend->display,
-			backend->config->attributes,
-			&(backend->attr_config),
-			1,
-			&(backend->attr_config_size));
-
-	if (error_egl == EGL_FALSE)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONFIG);
-		return;
-	}
-
-	EGLint attr_context[] =
-	{
-		EGL_CONTEXT_MAJOR_VERSION, backend->config->major_version,
-		EGL_CONTEXT_MINOR_VERSION, backend->config->minor_version,
-		EGL_NONE,
-	};
-
-	backend->egl =
-		eglCreateContext(
-			backend->display,
-			backend->attr_config,
-			EGL_NO_CONTEXT,
-			attr_context);
-
-	if (backend->egl == EGL_NO_CONTEXT)
-	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONTEXT_CREATE);
 		return;
 	}
 
