@@ -161,6 +161,7 @@ void globox_wayland_helpers_surface_frame_done(
 	if (callback != NULL)
 	{
 		// destroy the current frame callback
+		// this is where the surface_frame from last time is destroyed
 		wl_callback_destroy(callback);
 	}
 
@@ -170,6 +171,7 @@ void globox_wayland_helpers_surface_frame_done(
 	}
 
 	// register a new frame callback
+	// valgrind false positive, surface_frame is destroyed in the next callback
 	struct wl_callback* surface_frame = wl_surface_frame(platform->surface);
 
 	if (surface_frame == NULL)

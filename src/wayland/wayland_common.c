@@ -276,6 +276,28 @@ void globox_wayland_common_window_destroy(
 		return;
 	}
 
+	// destroy additional registry handlers
+	struct wayland_registry_handler_node* registry_handler = platform->registry_handlers;
+	struct wayland_registry_handler_node* registry_handler_next;
+
+	while (registry_handler != NULL)
+	{
+		registry_handler_next = registry_handler->next;
+		free(registry_handler);
+		registry_handler = registry_handler_next;
+	}
+
+	// destroy additional capabilities handlers
+	struct wayland_capabilities_handler_node* capabilities_handler = platform->capabilities_handlers;
+	struct wayland_capabilities_handler_node* capabilities_handler_next;
+
+	while (capabilities_handler != NULL)
+	{
+		capabilities_handler_next = capabilities_handler->next;
+		free(capabilities_handler);
+		capabilities_handler = capabilities_handler_next;
+	}
+
 	// destroy optional protocols structures
 	if (platform->kde_blur != NULL)
 	{
@@ -295,6 +317,16 @@ void globox_wayland_common_window_destroy(
 	if (platform->xdg_decoration_manager != NULL)
 	{
 		zxdg_decoration_manager_v1_destroy(platform->xdg_decoration_manager);
+	}
+
+	if (platform->xdg_wm_base != NULL)
+	{
+		xdg_wm_base_destroy(platform->xdg_wm_base);
+	}
+
+	if (platform->compositor != NULL)
+	{
+		wl_compositor_destroy(platform->compositor);
 	}
 
 	// destroy the XDG toplevel
@@ -651,9 +683,9 @@ void globox_wayland_common_window_start(
 	else
 	{
 		// get surface frame
-		platform->surface_frame = wl_surface_frame(platform->surface);
+		struct wl_callback* surface_frame = wl_surface_frame(platform->surface);
 
-		if (platform->surface_frame == NULL)
+		if (surface_frame == NULL)
 		{
 			pthread_attr_destroy(&attr);
 			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET);
@@ -670,14 +702,14 @@ void globox_wayland_common_window_start(
 
 		error_posix =
 			wl_callback_add_listener(
-				platform->surface_frame,
+				surface_frame,
 				&(platform->listener_surface_frame),
 				platform);
 
 		if (error_posix == -1)
 		{
 			pthread_attr_destroy(&attr);
-			wl_callback_destroy(platform->surface_frame);
+			wl_callback_destroy(surface_frame);
 			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
 			return;
 		}

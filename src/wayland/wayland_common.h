@@ -70,7 +70,6 @@ struct wayland_platform
 
 	struct xdg_surface* xdg_surface;
 	struct xdg_toplevel* xdg_toplevel;
-	struct wl_callback* surface_frame;
 
 	struct zxdg_decoration_manager_v1* xdg_decoration_manager;
 	struct zxdg_toplevel_decoration_v1* xdg_decoration;
