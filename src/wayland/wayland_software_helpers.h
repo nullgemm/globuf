@@ -11,6 +11,9 @@ struct wayland_software_backend
 	struct wayland_platform platform;
 	struct wl_shm* shm;
 	struct wl_buffer* buffer;
+
+	// listeners
+	struct wl_buffer_listener listener_buffer;
 };
 
 void globox_wayland_helpers_callback_registry_shm(

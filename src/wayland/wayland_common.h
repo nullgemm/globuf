@@ -94,6 +94,14 @@ struct wayland_platform
 	struct globox_config_request* feature_configs;
 	size_t feature_count;
 
+	// listeners
+	struct wl_registry_listener listener_registry;
+	struct wl_callback_listener listener_surface_frame;
+	struct xdg_wm_base_listener listener_xdg_wm_base;
+	struct xdg_surface_listener listener_xdg_surface;
+	struct xdg_toplevel_listener listener_xdg_toplevel;
+	struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration;
+
 	// render handling
 	pthread_t thread_render_loop;
 	struct wayland_thread_render_loop_data thread_render_loop_data;

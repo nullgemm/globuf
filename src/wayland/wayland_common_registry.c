@@ -70,10 +70,12 @@ void globox_wayland_helpers_callback_registry(
 			.ping = globox_wayland_helpers_xdg_wm_base_ping,
 		};
 
+		platform->listener_xdg_wm_base = listener_xdg_wm_base;
+
 		error_posix =
 			xdg_wm_base_add_listener(
 				platform->xdg_wm_base,
-				&listener_xdg_wm_base,
+				&(platform->listener_xdg_wm_base),
 				platform);
 
 		if (error_posix == -1)
@@ -177,10 +179,12 @@ void globox_wayland_helpers_surface_frame_done(
 		.done = globox_wayland_helpers_surface_frame_done,
 	};
 
+	platform->listener_surface_frame = listener_surface_frame;
+
 	int error_posix =
 		wl_callback_add_listener(
 			surface_frame,
-			&listener_surface_frame,
+			&(platform->listener_surface_frame),
 			platform);
 
 	if (error_posix == -1)

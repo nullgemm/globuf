@@ -347,10 +347,12 @@ void globox_wayland_common_window_confirm(
 		.global_remove = globox_wayland_helpers_callback_registry_remove,
 	};
 
+	platform->listener_registry = listener_registry;
+
 	error_posix =
 		wl_registry_add_listener(
 			platform->registry,
-			&listener_registry,
+			&(platform->listener_registry),
 			platform);
 
 	if (error_posix == -1)
@@ -416,10 +418,12 @@ void globox_wayland_common_window_confirm(
 		.configure = globox_wayland_helpers_xdg_surface_configure,
 	};
 
+	platform->listener_xdg_surface = listener_xdg_surface;
+
 	error_posix =
 		xdg_surface_add_listener(
 			platform->xdg_surface,
-			&listener_xdg_surface,
+			&(platform->listener_xdg_surface),
 			platform);
 
 	if (error_posix == -1)
@@ -446,10 +450,12 @@ void globox_wayland_common_window_confirm(
 		.close = globox_wayland_helpers_xdg_toplevel_close,
 	};
 
+	platform->listener_xdg_toplevel = listener_xdg_toplevel;
+
 	error_posix =
 		xdg_toplevel_add_listener(
 			platform->xdg_toplevel,
-			&listener_xdg_toplevel,
+			&(platform->listener_xdg_toplevel),
 			platform);
 
 	if (error_posix == -1)
@@ -478,10 +484,12 @@ void globox_wayland_common_window_confirm(
 			.configure = globox_wayland_helpers_xdg_decoration_configure,
 		};
 
+		platform->listener_xdg_decoration = listener_xdg_decoration;
+
 		error_posix =
 			zxdg_toplevel_decoration_v1_add_listener(
 				platform->xdg_decoration,
-				&listener_xdg_decoration,
+				&(platform->listener_xdg_decoration),
 				platform);
 
 		if (error_posix == -1)
@@ -661,10 +669,12 @@ void globox_wayland_common_window_start(
 			.done = globox_wayland_helpers_surface_frame_done,
 		};
 
+		platform->listener_surface_frame = listener_surface_frame;
+
 		error_posix =
 			wl_callback_add_listener(
 				platform->surface_frame,
-				&listener_surface_frame,
+				&(platform->listener_surface_frame),
 				platform);
 
 		if (error_posix == -1)

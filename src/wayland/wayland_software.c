@@ -417,10 +417,12 @@ void globox_wayland_software_update_content(
 		.release = globox_wayland_helpers_buffer_release,
 	};
 
+	backend->listener_buffer = listener_buffer;
+
 	error_posix =
 		wl_buffer_add_listener(
 			backend->buffer,
-			&listener_buffer,
+			&(backend->listener_buffer),
 			context);
 
 	if (error_posix == -1)
