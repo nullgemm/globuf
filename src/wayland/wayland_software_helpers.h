@@ -9,11 +9,15 @@
 struct wayland_software_backend
 {
 	struct wayland_platform platform;
+
+	// software structures
 	struct wl_shm* shm;
 	struct wl_buffer* buffer;
+
+	// mmap'd buffer size
 	size_t buffer_len;
 
-	// listeners
+	// wayland buffer listener
 	struct wl_buffer_listener listener_buffer;
 };
 
