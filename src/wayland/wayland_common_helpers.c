@@ -350,7 +350,19 @@ void globox_wayland_helpers_set_frame(
 	// but we can try to use the decorations negociation protocol to try and
 	// have the compositor render them for us if it is able and willing to.
 
-	// for now set the decoration mode corresponding to desired frame status
+	// by not providing the XDG decoration protocol, compositors enforce CSDs
+	if (platform->xdg_decoration == NULL)
+	{
+		if (context->feature_frame->frame == true)
+		{
+			context->feature_frame->frame = false;
+			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
+		}
+
+		return;
+	}
+
+	// ask for the decoration mode we want
 	if (context->feature_frame->frame == true)
 	{
 		platform->decoration_mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
@@ -360,19 +372,16 @@ void globox_wayland_helpers_set_frame(
 		platform->decoration_mode = ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE;
 	}
 
-	// ask for the decoration mode we want
-	if (platform->xdg_decoration != NULL)
-	{
-		zxdg_toplevel_decoration_v1_set_mode(
-			platform->xdg_decoration,
-			platform->decoration_mode);
-	}
+	zxdg_toplevel_decoration_v1_set_mode(
+		platform->xdg_decoration,
+		platform->decoration_mode);
 
 	// perform a roundtrip to find out if the request was successful
 	int error_posix = wl_display_roundtrip(platform->display);
 
 	if (error_posix == -1)
 	{
+		context->feature_frame->frame = false;
 		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ROUNDTRIP);
 		return;
 	}
