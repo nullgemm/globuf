@@ -31,7 +31,7 @@ void globox_wayland_helpers_callback_registry_shm(
 			wl_registry_bind(
 				registry,
 				name,
-				&wl_compositor_interface,
+				&wl_shm_interface,
 				1);
 
 		if (backend->shm == NULL)

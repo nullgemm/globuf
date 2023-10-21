@@ -488,6 +488,16 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// check window
+	globox_window_confirm(globox, &error);
+
+	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
+	{
+		globox_error_log(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
 	// display the window
 	globox_window_start(globox, &error);
 
