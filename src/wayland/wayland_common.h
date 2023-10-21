@@ -56,29 +56,42 @@ struct wayland_platform
 	pthread_mutex_t mutex_xsync;
 	pthread_cond_t cond_main;
 
-	// connection
-	struct globox* globox;
+	// globox
 	bool closed;
+	struct globox* globox;
 
-	// TODO comments like for x11
+	// core structures
 	struct wl_display* display;
 	struct wl_registry* registry;
 	struct wl_surface* surface;
 
+	// base interfaces
 	struct wl_compositor* compositor;
 	struct xdg_wm_base* xdg_wm_base;
 
+	// desktop structures
 	struct xdg_surface* xdg_surface;
 	struct xdg_toplevel* xdg_toplevel;
 
+	// desktop decorations interface
 	struct zxdg_decoration_manager_v1* xdg_decoration_manager;
 	struct zxdg_toplevel_decoration_v1* xdg_decoration;
 
+	// kde blur interface
 	struct org_kde_kwin_blur_manager* kde_blur_manager;
 	struct org_kde_kwin_blur* kde_blur;
 
+	// wayland window status info
 	uint32_t decoration_mode;
 	uint32_t sizing_edge;
+
+	// wayland listeners
+	struct wl_registry_listener listener_registry;
+	struct wl_callback_listener listener_surface_frame;
+	struct xdg_wm_base_listener listener_xdg_wm_base;
+	struct xdg_surface_listener listener_xdg_surface;
+	struct xdg_toplevel_listener listener_xdg_toplevel;
+	struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration;
 
 	// external wayland negociation callbacks handling
 	struct wayland_capabilities_handler_node* capabilities_handlers;
@@ -92,14 +105,6 @@ struct wayland_platform
 	void* feature_callback_data;
 	struct globox_config_request* feature_configs;
 	size_t feature_count;
-
-	// listeners
-	struct wl_registry_listener listener_registry;
-	struct wl_callback_listener listener_surface_frame;
-	struct xdg_wm_base_listener listener_xdg_wm_base;
-	struct xdg_surface_listener listener_xdg_surface;
-	struct xdg_toplevel_listener listener_xdg_toplevel;
-	struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration;
 
 	// render handling
 	pthread_t thread_render_loop;
