@@ -400,6 +400,16 @@ void globox_wayland_common_window_destroy(
 		xdg_wm_base_destroy(platform->xdg_wm_base);
 	}
 
+	if (platform->pointer != NULL)
+	{
+		wl_pointer_destroy(platform->pointer);
+	}
+
+	if (platform->seat != NULL)
+	{
+		wl_seat_destroy(platform->seat);
+	}
+
 	if (platform->compositor != NULL)
 	{
 		wl_compositor_destroy(platform->compositor);

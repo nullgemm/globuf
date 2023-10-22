@@ -47,38 +47,6 @@ void globox_wayland_helpers_callback_registry(
 			return;
 		}
 	}
-	else if (strcmp(interface, xdg_wm_base_interface.name) == 0)
-	{
-		platform->xdg_wm_base =
-			wl_registry_bind(
-				registry,
-				name,
-				&xdg_wm_base_interface,
-				1);
-
-		if (platform->xdg_wm_base == NULL)
-		{
-			globox_error_throw(
-				context,
-				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
-			return;
-		}
-
-		error_posix =
-			xdg_wm_base_add_listener(
-				platform->xdg_wm_base,
-				&(platform->listener_xdg_wm_base),
-				platform);
-
-		if (error_posix == -1)
-		{
-			globox_error_throw(
-				context,
-				&error,
-				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
-		}
-	}
 	else if (strcmp(interface, wl_seat_interface.name) == 0)
 	{
 		platform->seat =
@@ -101,6 +69,38 @@ void globox_wayland_helpers_callback_registry(
 			wl_seat_add_listener(
 				platform->seat,
 				&(platform->listener_seat),
+				platform);
+
+		if (error_posix == -1)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		}
+	}
+	else if (strcmp(interface, xdg_wm_base_interface.name) == 0)
+	{
+		platform->xdg_wm_base =
+			wl_registry_bind(
+				registry,
+				name,
+				&xdg_wm_base_interface,
+				1);
+
+		if (platform->xdg_wm_base == NULL)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+
+		error_posix =
+			xdg_wm_base_add_listener(
+				platform->xdg_wm_base,
+				&(platform->listener_xdg_wm_base),
 				platform);
 
 		if (error_posix == -1)
