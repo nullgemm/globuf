@@ -16,9 +16,9 @@ and also means it's possible to select the target window system at run time.
 
 ## Supported platforms and backends
 Wayland
- - `software` provides an abstract buffer using libwayland-client. (TODO)
- - `vulkan` provides Vulkan contexts using Vulkan's WSI Wayland support. (TODO)
- - `egl` provides OpenGL contexts using only EGL and libwayland-client. (TODO)
+ - `software` provides an abstract buffer using libwayland-client.
+ - `vulkan` provides Vulkan contexts using Vulkan's WSI Wayland support.
+ - `egl` provides OpenGL contexts using only EGL and libwayland-client.
 
 X11
  - `software` provides CPU and GPU buffers using XCB's SHM module.
@@ -121,7 +121,20 @@ You can then proceed to building the complex variant of the examples.
 
 
 ### Wayland support
-(TODO)
+Globox makes use of the following protocol extensions:
+ - xdg-shell-protocol
+ - xdg-decoration-client-protocol (optional at run time)
+ - kde-blur-client-protocol (optional at run time)
+
+The complex example requires two more for advanced mouse cursor control:
+ - zwp-pointer-constraints-protocol
+ - zwp-relative-pointer-protocol
+
+Make sure the corresponding protocol description xml files are available
+on your system and generate their interface code using this script:
+```
+./make/scripts/wayland_get.sh
+```
 
 
 ### X11 support
