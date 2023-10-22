@@ -64,6 +64,8 @@ struct wayland_platform
 	// core structures
 	struct wl_display* display;
 	struct wl_registry* registry;
+	struct wl_seat* seat;
+	struct wl_pointer* pointer;
 	struct wl_surface* surface;
 
 	// base interfaces
@@ -88,7 +90,10 @@ struct wayland_platform
 
 	// wayland listeners
 	struct wl_registry_listener listener_registry;
+	struct wl_seat_listener listener_seat;
+	struct wl_pointer_listener listener_pointer;
 	struct wl_callback_listener listener_surface_frame;
+
 	struct xdg_wm_base_listener listener_xdg_wm_base;
 	struct xdg_surface_listener listener_xdg_surface;
 	struct xdg_toplevel_listener listener_xdg_toplevel;

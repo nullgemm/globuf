@@ -5,6 +5,7 @@
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_registry.h"
 
+#include <linux/input.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,8 +15,7 @@
 #include "xdg-decoration-client-protocol.h"
 #include "kde-blur-client-protocol.h"
 
-// registry
-
+// registry callbacks
 void globox_wayland_helpers_callback_registry(
 	void* data,
 	struct wl_registry* registry,
@@ -69,6 +69,38 @@ void globox_wayland_helpers_callback_registry(
 			xdg_wm_base_add_listener(
 				platform->xdg_wm_base,
 				&(platform->listener_xdg_wm_base),
+				platform);
+
+		if (error_posix == -1)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		}
+	}
+	else if (strcmp(interface, wl_seat_interface.name) == 0)
+	{
+		platform->seat =
+			wl_registry_bind(
+				registry,
+				name,
+				&wl_seat_interface,
+				4);
+
+		if (platform->seat == NULL)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_REQUEST);
+			return;
+		}
+
+		error_posix =
+			wl_seat_add_listener(
+				platform->seat,
+				&(platform->listener_seat),
 				platform);
 
 		if (error_posix == -1)
@@ -143,8 +175,197 @@ void globox_wayland_helpers_callback_registry_remove(
 	// meantime, associated actions are simply ignored.
 }
 
-// callbacks
+// seat listener
+void globox_wayland_helpers_seat_capabilities(
+	void* data,
+	struct wl_seat* seat,
+	uint32_t capabilities)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+	struct globox_error_info error;
 
+	// register internal pointer listener
+	bool pointer = (capabilities & WL_SEAT_CAPABILITY_POINTER) != 0;
+
+	if ((pointer == true) && (platform->pointer == NULL))
+	{
+		platform->pointer = wl_seat_get_pointer(platform->seat);
+
+		if (platform->pointer == NULL)
+		{
+			globox_error_throw(
+				context,
+				&error,
+				GLOBOX_ERROR_WAYLAND_POINTER_GET);
+		}
+		else
+		{
+			int error_posix =
+				wl_pointer_add_listener(
+					platform->pointer,
+					&(platform->listener_pointer),
+					platform);
+
+			if (error_posix == -1)
+			{
+				globox_error_throw(
+					context,
+					&error,
+					GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+			}
+		}
+	}
+	else if ((pointer == false) && (platform->pointer != NULL))
+	{
+		wl_pointer_release(platform->pointer);
+
+		platform->pointer = NULL;
+	}
+
+	// run external capabilities handler callbacks
+	struct wayland_capabilities_handler_node* handler = platform->capabilities_handlers;
+
+	while (handler != NULL)
+	{
+		handler->capabilities_handler(handler->capabilities_handler_data, seat, capabilities);
+		handler = handler->next;
+	}
+}
+
+void globox_wayland_helpers_seat_name(
+	void* data,
+	struct wl_seat* seat,
+	const char* name)
+{
+	// not needed
+}
+
+// pointer listener
+void globox_wayland_helpers_pointer_enter(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t serial,
+	struct wl_surface* surface,
+	wl_fixed_t surface_x,
+	wl_fixed_t surface_y)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_leave(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t serial,
+	struct wl_surface* surface)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_motion(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t time,
+	wl_fixed_t surface_x,
+	wl_fixed_t surface_y)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_button(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t serial,
+	uint32_t time,
+	uint32_t button,
+	uint32_t state)
+{
+	struct wayland_platform* platform = data;
+	struct globox* context = platform->globox;
+	struct globox_error_info error;
+
+	// get current interaction type
+	enum globox_interaction action_code = context->feature_interaction->action;
+
+	if ((button == BTN_LEFT)
+	&& (state == WL_POINTER_BUTTON_STATE_PRESSED)
+	&& (action_code != GLOBOX_INTERACTION_STOP))
+	{
+		// initiate interactive move and resize
+		if (platform->sizing_edge == XDG_TOPLEVEL_RESIZE_EDGE_NONE)
+		{
+			xdg_toplevel_move(
+				platform->xdg_toplevel,
+				platform->seat,
+				serial);
+		}
+		else
+		{
+			xdg_toplevel_resize(
+				platform->xdg_toplevel,
+				platform->seat,
+				serial,
+				platform->sizing_edge);
+		}
+
+		// Wayland does not communicate events responsible for stopping
+		// interactive move and resize operations so we have to reset
+		// the internal information immediately after starting them.
+		struct globox_feature_interaction action =
+		{
+			.action = GLOBOX_INTERACTION_STOP,
+		};
+
+		globox_feature_set_interaction(context, &action, &error);
+
+		platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+	}
+}
+
+void globox_wayland_helpers_pointer_axis(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t time,
+	uint32_t axis,
+	wl_fixed_t value)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_frame(
+	void* data,
+	struct wl_pointer* wl_pointer)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_axis_source(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t axis_source)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_axis_stop(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t time,
+	uint32_t axis)
+{
+	// not needed
+}
+
+void globox_wayland_helpers_pointer_axis_discrete(
+	void* data,
+	struct wl_pointer* wl_pointer,
+	uint32_t axis,
+	int32_t discrete)
+{
+	// not needed
+}
+
+// frame callback listener
 void globox_wayland_helpers_surface_frame_done(
 	void* data,
 	struct wl_callback* callback,
@@ -193,6 +414,7 @@ void globox_wayland_helpers_surface_frame_done(
 	context->render_callback.callback(context->render_callback.data);
 }
 
+// XDG WM base listener
 void globox_wayland_helpers_xdg_wm_base_ping(
 	void* data,
 	struct xdg_wm_base* xdg_wm_base,
@@ -201,6 +423,7 @@ void globox_wayland_helpers_xdg_wm_base_ping(
 	xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
+// XDG surface listener
 void globox_wayland_helpers_xdg_surface_configure(
 	void* data,
 	struct xdg_surface* xdg_surface,
@@ -224,6 +447,7 @@ void globox_wayland_helpers_xdg_surface_configure(
 	}
 }
 
+// XDG toplevel listener
 void globox_wayland_helpers_xdg_toplevel_configure(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel,
@@ -302,6 +526,7 @@ void globox_wayland_helpers_xdg_toplevel_close(
 	}
 }
 
+// XDG decoration listener
 void globox_wayland_helpers_xdg_decoration_configure(
 	void* data,
 	struct zxdg_toplevel_decoration_v1* xdg_decoration,

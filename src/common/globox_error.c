@@ -205,6 +205,8 @@ void globox_error_init(
 		"could not add Wayland listener";
 	log[GLOBOX_ERROR_WAYLAND_ROUNDTRIP] =
 		"could not perform Wayland roundtrip";
+	log[GLOBOX_ERROR_WAYLAND_POINTER_GET] =
+		"could not get Wayland pointer";
 	log[GLOBOX_ERROR_WAYLAND_SURFACE_CREATE] =
 		"could not create Wayland surface";
 	log[GLOBOX_ERROR_WAYLAND_XDG_SURFACE_CREATE] =

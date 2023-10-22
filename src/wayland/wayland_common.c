@@ -132,7 +132,7 @@ void globox_wayland_common_init(
 	platform->init = true;
 	platform->closed = false;
 
-	// initialize listeners
+	// registry listener
 	struct wl_registry_listener listener_registry =
 	{
 		.global = globox_wayland_helpers_callback_registry,
@@ -141,6 +141,40 @@ void globox_wayland_common_init(
 
 	platform->listener_registry = listener_registry;
 
+	// seat listener
+	struct wl_seat_listener listener_seat =
+	{
+		.capabilities = globox_wayland_helpers_seat_capabilities,
+		.name = globox_wayland_helpers_seat_name,
+	};
+
+	platform->listener_seat = listener_seat;
+
+	// pointer listener
+	struct wl_pointer_listener listener_pointer =
+	{
+		.enter = globox_wayland_helpers_pointer_enter,
+		.leave = globox_wayland_helpers_pointer_leave,
+		.motion = globox_wayland_helpers_pointer_motion,
+		.button = globox_wayland_helpers_pointer_button,
+		.axis = globox_wayland_helpers_pointer_axis,
+		.frame = globox_wayland_helpers_pointer_frame,
+		.axis_source = globox_wayland_helpers_pointer_axis_source,
+		.axis_stop = globox_wayland_helpers_pointer_axis_stop,
+		.axis_discrete = globox_wayland_helpers_pointer_axis_discrete,
+	};
+
+	platform->listener_pointer = listener_pointer;
+
+	// frame callback listener
+	struct wl_callback_listener listener_surface_frame =
+	{
+		.done = globox_wayland_helpers_surface_frame_done,
+	};
+
+	platform->listener_surface_frame = listener_surface_frame;
+
+	// XDG WM base listener
 	struct xdg_wm_base_listener listener_xdg_wm_base =
 	{
 		.ping = globox_wayland_helpers_xdg_wm_base_ping,
@@ -148,6 +182,7 @@ void globox_wayland_common_init(
 
 	platform->listener_xdg_wm_base = listener_xdg_wm_base;
 
+	// XDG surface listener
 	struct xdg_surface_listener listener_xdg_surface =
 	{
 		.configure = globox_wayland_helpers_xdg_surface_configure,
@@ -155,6 +190,7 @@ void globox_wayland_common_init(
 
 	platform->listener_xdg_surface = listener_xdg_surface;
 
+	// XDG toplevel listener
 	struct xdg_toplevel_listener listener_xdg_toplevel =
 	{
 		.configure = globox_wayland_helpers_xdg_toplevel_configure,
@@ -163,19 +199,13 @@ void globox_wayland_common_init(
 
 	platform->listener_xdg_toplevel = listener_xdg_toplevel;
 
+	// XDG decoration listener
 	struct zxdg_toplevel_decoration_v1_listener listener_xdg_decoration =
 	{
 		.configure = globox_wayland_helpers_xdg_decoration_configure,
 	};
 
 	platform->listener_xdg_decoration = listener_xdg_decoration;
-
-	struct wl_callback_listener listener_surface_frame =
-	{
-		.done = globox_wayland_helpers_surface_frame_done,
-	};
-
-	platform->listener_surface_frame = listener_surface_frame;
 
 	// initialize render thread
 	struct wayland_thread_render_loop_data thread_render_loop_data =
