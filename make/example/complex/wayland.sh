@@ -187,8 +187,8 @@ libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")
 libs+=("res/cursoryx/lib/cursoryx/wayland/cursoryx_wayland.a")
 libs+=("res/dpishit/lib/dpishit/dpishit_elf.a")
 libs+=("res/dpishit/lib/dpishit/wayland/dpishit_wayland.a")
-libs+=("res/willis/lib/willis/willis_elf.a")
 libs+=("res/willis/lib/willis/wayland/willis_wayland.a")
+libs+=("res/willis/lib/willis/willis_elf.a")
 
 # default target
 default+=("\$builddir/\$name")
