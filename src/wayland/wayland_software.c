@@ -47,6 +47,14 @@ void globox_wayland_software_init(
 	backend->buffer = NULL;
 	backend->buffer_len = 0;
 
+	// buffer listener
+	struct wl_buffer_listener listener_buffer =
+	{
+		.release = globox_wayland_helpers_buffer_release,
+	};
+
+	backend->listener_buffer = listener_buffer;
+
 	// initialize the platform
 	globox_wayland_common_init(context, &(backend->platform), error);
 
@@ -413,13 +421,6 @@ void globox_wayland_software_update_content(
 	int error_posix;
 
 	// set buffer listener
-	struct wl_buffer_listener listener_buffer =
-	{
-		.release = globox_wayland_helpers_buffer_release,
-	};
-
-	backend->listener_buffer = listener_buffer;
-
 	error_posix =
 		wl_buffer_add_listener(
 			backend->buffer,
