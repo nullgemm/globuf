@@ -701,3 +701,41 @@ bool globox_add_wayland_registry_handler(
 	platform->registry_handlers = handler;
 	return true;
 }
+
+// callback for helper libraries to register registry remove handlers
+bool globox_add_wayland_registry_remover(
+	void* data,
+	void (*registry_remover)(
+		void* data,
+		struct wl_registry* registry,
+		uint32_t name),
+	void* registry_remover_data)
+{
+	struct globox* context = data;
+	struct wayland_vulkan_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+
+	struct wayland_registry_remover_node* remover =
+		malloc(sizeof (struct wayland_registry_remover_node));
+
+	if (remover == NULL)
+	{
+		return false;
+	}
+
+	remover->registry_remover = registry_remover;
+	remover->registry_remover_data = registry_remover_data;
+	remover->next = platform->registry_removers;
+
+	platform->registry_removers = remover;
+	return true;
+}
+
+struct wl_surface* globox_get_wayland_surface(
+	struct globox* context)
+{
+	struct wayland_vulkan_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+
+	return platform->surface;
+}

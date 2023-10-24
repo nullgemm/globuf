@@ -1046,6 +1046,8 @@ int main(int argc, char** argv)
 	{
 		.add_registry_handler = globox_add_wayland_registry_handler,
 		.add_registry_handler_data = globox,
+		.add_registry_remover = globox_add_wayland_registry_remover,
+		.add_registry_remover_data = globox,
 		.event_callback = event_callback,
 		.event_callback_data = &event_callback_data,
 	};
@@ -1062,6 +1064,27 @@ int main(int argc, char** argv)
 	}
 
 	event_callback_data.dpishit = dpishit;
+
+	// start dpishit
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
+
+	dpishit_start(dpishit, &dpishit_data, &error_display);
+
+	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
+	{
+		dpishit_error_log(dpishit, &error_display);
+		dpishit_clean(dpishit, &error_display);
+		globox_window_destroy(globox, &error);
+		globox_clean(globox, &error);
+		return 1;
+	}
 
 	// check window
 	globox_window_confirm(globox, &error);
@@ -1089,26 +1112,12 @@ int main(int argc, char** argv)
 		}
 	}
 
-	// start dpishit
-	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
-	{
-		dpishit_error_log(dpishit, &error_display);
-		dpishit_clean(dpishit, &error_display);
-		globox_window_destroy(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
-	}
-
-	dpishit_start(dpishit, &dpishit_data, &error_display);
-
-	if (dpishit_error_get_code(&error_display) != DPISHIT_ERROR_OK)
-	{
-		dpishit_error_log(dpishit, &error_display);
-		dpishit_clean(dpishit, &error_display);
-		globox_window_destroy(globox, &error);
-		globox_clean(globox, &error);
-		return 1;
-	}
+#if defined(GLOBOX_EXAMPLE_WAYLAND)
+	dpishit_set_wayland_surface(
+		dpishit,
+		globox_get_wayland_surface(globox),
+		&error_display);
+#endif
 
 	// display the window
 	globox_window_start(globox, &error);
