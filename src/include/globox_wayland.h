@@ -24,4 +24,15 @@ bool globox_add_wayland_registry_handler(
 		uint32_t version),
 	void* registry_handler_data);
 
+bool globox_add_wayland_registry_remover(
+	void* data,
+	void (*registry_remover)(
+		void* data,
+		struct wl_registry* registry,
+		uint32_t name),
+	void* registry_remover_data);
+
+struct wl_surface* globox_get_wayland_surface(
+	struct globox* context);
+
 #endif

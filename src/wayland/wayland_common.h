@@ -49,6 +49,16 @@ struct wayland_registry_handler_node
 	struct wayland_registry_handler_node* next;
 };
 
+struct wayland_registry_remover_node
+{
+	void (*registry_remover)(
+		void* data,
+		struct wl_registry* registry,
+		uint32_t name);
+	void* registry_remover_data;
+	struct wayland_registry_remover_node* next;
+};
+
 struct wayland_platform
 {
 	pthread_mutex_t mutex_main;
@@ -102,6 +112,7 @@ struct wayland_platform
 	// external wayland negociation callbacks handling
 	struct wayland_capabilities_handler_node* capabilities_handlers;
 	struct wayland_registry_handler_node* registry_handlers;
+	struct wayland_registry_remover_node* registry_removers;
 
 	// globox feature negociation
 	void (*feature_callback)(
