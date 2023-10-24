@@ -363,6 +363,17 @@ void globox_wayland_common_window_destroy(
 		registry_handler = registry_handler_next;
 	}
 
+	// destroy additional registry removers
+	struct wayland_registry_remover_node* registry_remover = platform->registry_removers;
+	struct wayland_registry_remover_node* registry_remover_next;
+
+	while (registry_remover != NULL)
+	{
+		registry_remover_next = registry_remover->next;
+		free(registry_remover);
+		registry_remover = registry_remover_next;
+	}
+
 	// destroy additional capabilities handlers
 	struct wayland_capabilities_handler_node* capabilities_handler = platform->capabilities_handlers;
 	struct wayland_capabilities_handler_node* capabilities_handler_next;
