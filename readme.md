@@ -18,7 +18,7 @@ and also means it's possible to select the target window system at run time.
 Wayland
  - `software` provides an abstract buffer using libwayland-client.
  - `vulkan` provides Vulkan contexts using Vulkan's WSI Wayland support.
- - `egl` provides OpenGL contexts using only EGL and libwayland-client.
+ - `egl` provides OpenGL contexts using only EGL and libwayland-egl.
 
 X11
  - `software` provides CPU and GPU buffers using XCB's SHM module.
