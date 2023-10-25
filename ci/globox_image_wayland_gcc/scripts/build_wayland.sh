@@ -12,5 +12,7 @@ if [ "$4" == "complex" ]; then
 ./make/scripts/willis_get.sh
 fi
 
+./make/scripts/wayland_get.sh
+
 # test build
 ./make/scripts/build.sh "$@"
