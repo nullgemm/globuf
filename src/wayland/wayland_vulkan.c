@@ -595,6 +595,7 @@ VkSurfaceKHR* globox_wayland_get_surface_vulkan(
 	return &(backend->surface);
 }
 
+
 // init Wayland Vulkan
 void globox_prepare_init_wayland_vulkan(
 	struct globox_config_backend* config,

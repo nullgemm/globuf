@@ -393,6 +393,7 @@ void globox_appkit_software_update_content(
 	globox_error_ok(error);
 }
 
+
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)
 uint32_t* globox_buffer_alloc_appkit_software(

@@ -613,6 +613,7 @@ struct wl_surface* globox_get_wayland_surface(
 	return platform->surface;
 }
 
+
 // OpenGL configuration setter
 void globox_init_wayland_egl(
 	struct globox* context,
