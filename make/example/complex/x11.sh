@@ -152,6 +152,7 @@ link+=("x11")
 link+=("x11-xcb")
 link+=("xrender")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+libs+=("\$folder_library/globox_elf_software.a")
 defines+=("-DGLOBOX_EXAMPLE_GLX")
 	;;
 

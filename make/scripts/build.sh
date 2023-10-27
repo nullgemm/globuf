@@ -22,11 +22,11 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=vulkan
+	build_backend=software
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=simple
+	build_example=complex
 fi
 
 if [ -z "$build_toolchain" ]; then
@@ -41,9 +41,11 @@ case $build_platform in
 		./make/lib/x11.sh $build_type common
 		./make/lib/x11.sh $build_type $build_backend
 
-		if [ "$build_backend" == "vulkan" ]; then
-			./make/lib/elf.sh $build_type $build_backend
-		fi
+		case $build_backend in
+			vulkan|software)
+				./make/lib/elf.sh $build_type $build_backend
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/x11.sh $build_type $build_backend
@@ -56,9 +58,11 @@ case $build_platform in
 		./make/lib/appkit.sh $build_type common $build_toolchain
 		./make/lib/appkit.sh $build_type $build_backend $build_toolchain
 
-		if [ "$build_backend" == "vulkan" ]; then
-			./make/lib/macho.sh $build_type $build_backend $build_toolchain
-		fi
+		case $build_backend in
+			vulkan|software)
+				./make/lib/macho.sh $build_type $build_backend $build_toolchain
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/appkit.sh $build_type $build_backend $build_toolchain
@@ -71,9 +75,11 @@ case $build_platform in
 		./make/lib/win.sh $build_type common
 		./make/lib/win.sh $build_type $build_backend
 
-		if [ "$build_backend" == "vulkan" ]; then
-			./make/lib/pe.sh $build_type $build_backend
-		fi
+		case $build_backend in
+			vulkan|software)
+				./make/lib/pe.sh $build_type $build_backend
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/win.sh $build_type $build_backend
@@ -86,9 +92,11 @@ case $build_platform in
 		./make/lib/wayland.sh $build_type common
 		./make/lib/wayland.sh $build_type $build_backend
 
-		if [ "$build_backend" == "vulkan" ]; then
-			./make/lib/elf.sh $build_type $build_backend
-		fi
+		case $build_backend in
+			vulkan|software)
+				./make/lib/elf.sh $build_type $build_backend
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			./make/example/$build_example/wayland.sh $build_type $build_backend
@@ -111,9 +119,11 @@ case $build_platform in
 		samu -f ./make/output/lib_elf.ninja headers
 		samu -f ./make/output/lib_x11_"$build_backend".ninja headers
 
-		if [ "$build_backend" == "vulkan" ]; then
-			samu -f ./make/output/lib_elf_"$build_backend".ninja
-		fi
+		case $build_backend in
+			vulkan|software)
+				samu -f ./make/output/lib_elf_"$build_backend".ninja
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_x11_"$build_backend".ninja
@@ -128,9 +138,11 @@ case $build_platform in
 		samu -f ./make/output/lib_macho.ninja headers
 		samu -f ./make/output/lib_appkit_"$build_backend".ninja headers
 
-		if [ "$build_backend" == "vulkan" ]; then
-			samu -f ./make/output/lib_macho_"$build_backend".ninja
-		fi
+		case $build_backend in
+			vulkan|software)
+				samu -f ./make/output/lib_macho_"$build_backend".ninja
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_appkit_"$build_backend".ninja
@@ -145,9 +157,11 @@ case $build_platform in
 		ninja -f ./make/output/lib_pe.ninja headers
 		ninja -f ./make/output/lib_win_"$build_backend".ninja headers
 
-		if [ "$build_backend" == "vulkan" ]; then
-			ninja -f ./make/output/lib_pe_"$build_backend".ninja
-		fi
+		case $build_backend in
+			vulkan|software)
+				ninja -f ./make/output/lib_pe_"$build_backend".ninja
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			ninja -f ./make/output/example_"$build_example"_win_"$build_backend".ninja
@@ -162,9 +176,11 @@ case $build_platform in
 		samu -f ./make/output/lib_elf.ninja headers
 		samu -f ./make/output/lib_wayland_"$build_backend".ninja headers
 
-		if [ "$build_backend" == "vulkan" ]; then
-			samu -f ./make/output/lib_elf_"$build_backend".ninja
-		fi
+		case $build_backend in
+			vulkan|software)
+				samu -f ./make/output/lib_elf_"$build_backend".ninja
+			;;
+		esac
 
 		if [ "$build_example" != "none" ]; then
 			samu -f ./make/output/example_"$build_example"_wayland_"$build_backend".ninja

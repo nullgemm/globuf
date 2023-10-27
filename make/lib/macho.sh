@@ -12,7 +12,7 @@ toolchain=$3
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, vulkan"
+echo "backend types: common, software, vulkan"
 echo "target toolchain types: osxcross, native"
 }
 
@@ -125,6 +125,13 @@ case $backend in
 ninja_file=lib_macho.ninja
 src+=("src/common/globox.c")
 src+=("src/common/globox_error.c")
+	;;
+
+	software)
+ninja_file=lib_macho_software.ninja
+name+="_software"
+flags+=("-Ires/moltenvk/include")
+src+=("src/common/globox_software.c")
 	;;
 
 	vulkan)

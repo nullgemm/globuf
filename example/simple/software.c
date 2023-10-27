@@ -156,19 +156,8 @@ static void render_callback(void* data)
 	}
 
 	uint32_t* argb =
-#if defined(GLOBOX_EXAMPLE_X11)
-		globox_buffer_alloc_x11_software(
+		globox_buffer_alloc_software(
 			globox, width, height, &error);
-#elif defined(GLOBOX_EXAMPLE_APPKIT)
-		globox_buffer_alloc_appkit_software(
-			globox, width, height, &error);
-#elif defined(GLOBOX_EXAMPLE_WIN)
-		globox_buffer_alloc_win_software(
-			globox, width, height, &error);
-#elif defined(GLOBOX_EXAMPLE_WAYLAND)
-		globox_buffer_alloc_wayland_software(
-			globox, width, height, &error);
-#endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{
@@ -217,19 +206,8 @@ static void render_callback(void* data)
 		return;
 	}
 
-#if defined(GLOBOX_EXAMPLE_X11)
-	globox_buffer_free_x11_software(
+	globox_buffer_free_software(
 		globox, argb, &error);
-#elif defined(GLOBOX_EXAMPLE_APPKIT)
-	globox_buffer_free_appkit_software(
-		globox, argb, &error);
-#elif defined(GLOBOX_EXAMPLE_WIN)
-	globox_buffer_free_win_software(
-		globox, argb, &error);
-#elif defined(GLOBOX_EXAMPLE_WAYLAND)
-	globox_buffer_free_wayland_software(
-		globox, argb, &error);
-#endif
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{

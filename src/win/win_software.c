@@ -582,36 +582,6 @@ void globox_win_software_update_content(
 }
 
 
-void globox_prepare_init_win_software(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
-{
-	config->data = NULL;
-	config->init = globox_win_software_init;
-	config->clean = globox_win_software_clean;
-	config->window_create = globox_win_software_window_create;
-	config->window_destroy = globox_win_software_window_destroy;
-	config->window_confirm = globox_win_software_window_confirm;
-	config->window_start = globox_win_software_window_start;
-	config->window_block = globox_win_software_window_block;
-	config->window_stop = globox_win_software_window_stop;
-	config->init_render = globox_win_software_init_render;
-	config->init_events = globox_win_software_init_events;
-	config->handle_events = globox_win_software_handle_events;
-	config->init_features = globox_win_software_init_features;
-	config->feature_set_interaction = globox_win_software_feature_set_interaction;
-	config->feature_set_state = globox_win_software_feature_set_state;
-	config->feature_set_title = globox_win_software_feature_set_title;
-	config->feature_set_icon = globox_win_software_feature_set_icon;
-	config->get_width = globox_win_software_get_width;
-	config->get_height = globox_win_software_get_height;
-	config->get_expose = globox_win_software_get_expose;
-	config->update_content = globox_win_software_update_content;
-
-	globox_error_ok(error);
-}
-
-
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)
 uint32_t* globox_buffer_alloc_win_software(
@@ -723,6 +693,50 @@ void globox_buffer_free_win_software(
 		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
+
+	globox_error_ok(error);
+}
+
+
+void globox_prepare_init_win_software(
+	struct globox_config_backend* config,
+	struct globox_error_info* error)
+{
+	struct globox_calls_software* software =
+		malloc(sizeof (struct globox_calls_software));
+
+	if (software == NULL)
+	{
+		error->code = GLOBOX_ERROR_ALLOC;
+		error->file = __FILE__;
+		error->line = __LINE__;
+		return;
+	}
+
+	software->alloc = globox_buffer_alloc_win_software;
+	software->free = globox_buffer_free_win_software;
+
+	config->data = software;
+	config->init = globox_win_software_init;
+	config->clean = globox_win_software_clean;
+	config->window_create = globox_win_software_window_create;
+	config->window_destroy = globox_win_software_window_destroy;
+	config->window_confirm = globox_win_software_window_confirm;
+	config->window_start = globox_win_software_window_start;
+	config->window_block = globox_win_software_window_block;
+	config->window_stop = globox_win_software_window_stop;
+	config->init_render = globox_win_software_init_render;
+	config->init_events = globox_win_software_init_events;
+	config->handle_events = globox_win_software_handle_events;
+	config->init_features = globox_win_software_init_features;
+	config->feature_set_interaction = globox_win_software_feature_set_interaction;
+	config->feature_set_state = globox_win_software_feature_set_state;
+	config->feature_set_title = globox_win_software_feature_set_title;
+	config->feature_set_icon = globox_win_software_feature_set_icon;
+	config->get_width = globox_win_software_get_width;
+	config->get_height = globox_win_software_get_height;
+	config->get_expose = globox_win_software_get_expose;
+	config->update_content = globox_win_software_update_content;
 
 	globox_error_ok(error);
 }

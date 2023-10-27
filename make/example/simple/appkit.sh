@@ -133,6 +133,7 @@ case $backend in
 	software)
 ninja_file=example_simple_appkit_software.ninja
 src+=("example/simple/software.c")
+libs+=("\$folder_library/globox_macho_software_$toolchain.a")
 	;;
 
 	egl)

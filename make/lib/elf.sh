@@ -11,7 +11,7 @@ backend=$2
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, vulkan"
+echo "backend types: common, software, vulkan"
 }
 
 # utilitary variables
@@ -125,6 +125,12 @@ case $backend in
 ninja_file=lib_elf.ninja
 src+=("src/common/globox.c")
 src+=("src/common/globox_error.c")
+	;;
+
+	software)
+ninja_file=lib_elf_software.ninja
+name+="_software"
+src+=("src/common/globox_software.c")
 	;;
 
 	vulkan)

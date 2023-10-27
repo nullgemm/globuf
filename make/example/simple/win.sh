@@ -132,6 +132,7 @@ case $backend in
 	software)
 ninja_file=example_simple_win_software.ninja
 src+=("example/simple/software.c")
+libs+=("\$folder_library/globox_pe_software.a")
 	;;
 
 	wgl)

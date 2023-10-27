@@ -138,6 +138,7 @@ src+=("example/simple/software.c")
 link+=("xcb-shm")
 link+=("xcb-randr")
 link+=("xcb-render")
+libs+=("\$folder_library/globox_elf_software.a")
 	;;
 
 	glx)
