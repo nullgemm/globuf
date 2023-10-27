@@ -153,6 +153,7 @@ void globox_wayland_helpers_features_init(
 
 				break;
 			}
+#if 0
 			case GLOBOX_FEATURE_ICON:
 			{
 				if (configs[i].config != NULL)
@@ -173,6 +174,7 @@ void globox_wayland_helpers_features_init(
 
 				break;
 			}
+#endif
 			case GLOBOX_FEATURE_SIZE:
 			{
 				// handled directly in the wayland window creation code

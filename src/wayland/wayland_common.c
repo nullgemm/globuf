@@ -947,6 +947,7 @@ struct globox_config_features*
 		return NULL;
 	}
 
+#if 0
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_ICON;
 	context->feature_icon =
@@ -958,6 +959,7 @@ struct globox_config_features*
 		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
 		return NULL;
 	}
+#endif
 
 	// always available
 	features->list[features->count] = GLOBOX_FEATURE_SIZE;
