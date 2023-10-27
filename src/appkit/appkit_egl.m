@@ -1,5 +1,5 @@
 #include "include/globox.h"
-#include "include/globox_egl.h"
+#include "include/globox_opengl.h"
 #include "include/globox_appkit_egl.h"
 
 #include "common/globox_private.h"
@@ -547,11 +547,38 @@ double globox_appkit_egl_get_scale(
 }
 
 
+// OpenGL configuration setter
+void globox_init_appkit_egl(
+	struct globox* context,
+	struct globox_config_opengl* config,
+	struct globox_error_info* error)
+{
+	struct appkit_egl_backend* backend = context->backend_data;
+
+	backend->config = config;
+
+	globox_error_ok(error);
+}
+
+
 void globox_prepare_init_appkit_egl(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)
 {
-	config->data = NULL;
+	struct globox_calls_opengl* opengl =
+		malloc(sizeof (struct globox_calls_opengl));
+
+	if (opengl == NULL)
+	{
+		error->code = GLOBOX_ERROR_ALLOC;
+		error->file = __FILE__;
+		error->line = __LINE__;
+		return;
+	}
+
+	opengl->init = globox_init_appkit_egl;
+
+	config->data = opengl;
 	config->init = globox_appkit_egl_init;
 	config->clean = globox_appkit_egl_clean;
 	config->window_create = globox_appkit_egl_window_create;
@@ -572,20 +599,6 @@ void globox_prepare_init_appkit_egl(
 	config->get_height = globox_appkit_egl_get_height;
 	config->get_expose = globox_appkit_egl_get_expose;
 	config->update_content = globox_appkit_egl_update_content;
-
-	globox_error_ok(error);
-}
-
-
-// OpenGL configuration setter
-void globox_init_appkit_egl(
-	struct globox* context,
-	struct globox_config_egl* config,
-	struct globox_error_info* error)
-{
-	struct appkit_egl_backend* backend = context->backend_data;
-
-	backend->config = config;
 
 	globox_error_ok(error);
 }

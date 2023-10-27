@@ -860,42 +860,20 @@ int main(int argc, char** argv)
 	}
 
 	// set OpenGL configuration attributes
-#if defined(GLOBOX_EXAMPLE_GLX)
-	struct globox_config_glx config_opengl =
+	struct globox_config_opengl config_opengl =
 	{
 		.major_version = 2,
 		.minor_version = 0,
+#if defined(GLOBOX_EXAMPLE_GLX)
 		.attributes = glx_config_attrib,
-	};
 #elif defined(GLOBOX_EXAMPLE_EGL)
-	struct globox_config_egl config_opengl =
-	{
-		.major_version = 2,
-		.minor_version = 0,
 		.attributes = egl_config_attrib,
-	};
 #elif defined(GLOBOX_EXAMPLE_WGL)
-	struct globox_config_wgl config_opengl =
-	{
-		.major_version = 2,
-		.minor_version = 0,
 		.attributes = wgl_config_attrib,
+#endif
 	};
-#endif
 
-#if defined(GLOBOX_EXAMPLE_X11)
-#if defined(GLOBOX_EXAMPLE_GLX)
-	globox_init_x11_glx(globox, &config_opengl, &error);
-#elif defined(GLOBOX_EXAMPLE_EGL)
-	globox_init_x11_egl(globox, &config_opengl, &error);
-#endif
-#elif defined(GLOBOX_EXAMPLE_APPKIT)
-	globox_init_appkit_egl(globox, &config_opengl, &error);
-#elif defined(GLOBOX_EXAMPLE_WIN)
-	globox_init_win_wgl(globox, &config_opengl, &error);
-#elif defined(GLOBOX_EXAMPLE_WAYLAND)
-	globox_init_wayland_egl(globox, &config_opengl, &error);
-#endif
+	globox_init_opengl(globox, &config_opengl, &error);
 
 	if (globox_error_get_code(&error) != GLOBOX_ERROR_OK)
 	{

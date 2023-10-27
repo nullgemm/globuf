@@ -149,6 +149,7 @@ link+=("egl")
 link+=("glesv2")
 link+=("wayland-egl")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+libs+=("\$folder_library/globox_elf_opengl.a")
 defines+=("-DGLOBOX_EXAMPLE_EGL")
 	;;
 

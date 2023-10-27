@@ -11,7 +11,7 @@ backend=$2
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, vulkan"
+echo "backend types: common, software, opengl, vulkan"
 }
 
 # utilitary variables
@@ -133,6 +133,12 @@ name+="_software"
 src+=("src/common/globox_software.c")
 	;;
 
+	opengl)
+ninja_file=lib_elf_opengl.ninja
+name+="_opengl"
+src+=("src/common/globox_opengl.c")
+	;;
+
 	vulkan)
 ninja_file=lib_elf_vulkan.ninja
 name+="_vulkan"
@@ -226,10 +232,8 @@ echo "build \$folder_include/globox.h: \$"; \
 echo "cp src/include/globox.h"; \
 echo "build \$folder_include/globox_software.h: \$"; \
 echo "cp src/include/globox_software.h"; \
-echo "build \$folder_include/globox_glx.h: \$"; \
-echo "cp src/include/globox_glx.h"; \
-echo "build \$folder_include/globox_egl.h: \$"; \
-echo "cp src/include/globox_egl.h"; \
+echo "build \$folder_include/globox_opengl.h: \$"; \
+echo "cp src/include/globox_opengl.h"; \
 echo "build \$folder_include/globox_vulkan.h: \$"; \
 echo "cp src/include/globox_vulkan.h"; \
 echo ""; \
@@ -239,8 +243,7 @@ echo ""; \
 echo "build headers: phony \$"; \
 echo "\$folder_include/globox.h \$"; \
 echo "\$folder_include/globox_software.h \$"; \
-echo "\$folder_include/globox_glx.h \$"; \
-echo "\$folder_include/globox_egl.h \$"; \
+echo "\$folder_include/globox_opengl.h \$"; \
 echo "\$folder_include/globox_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"

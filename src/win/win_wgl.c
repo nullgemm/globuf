@@ -1,5 +1,5 @@
 #include "include/globox.h"
-#include "include/globox_wgl.h"
+#include "include/globox_opengl.h"
 #include "include/globox_win_wgl.h"
 
 #include "common/globox_private.h"
@@ -675,11 +675,38 @@ void globox_win_wgl_update_content(
 }
 
 
+// OpenGL configuration setter
+void globox_init_win_wgl(
+	struct globox* context,
+	struct globox_config_opengl* config,
+	struct globox_error_info* error)
+{
+	struct win_wgl_backend* backend = context->backend_data;
+
+	backend->config = config;
+
+	globox_error_ok(error);
+}
+
+
 void globox_prepare_init_win_wgl(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)
 {
-	config->data = NULL;
+	struct globox_calls_opengl* opengl =
+		malloc(sizeof (struct globox_calls_opengl));
+
+	if (opengl == NULL)
+	{
+		error->code = GLOBOX_ERROR_ALLOC;
+		error->file = __FILE__;
+		error->line = __LINE__;
+		return;
+	}
+
+	opengl->init = globox_init_win_wgl;
+
+	config->data = opengl;
 	config->init = globox_win_wgl_init;
 	config->clean = globox_win_wgl_clean;
 	config->window_create = globox_win_wgl_window_create;
@@ -700,20 +727,6 @@ void globox_prepare_init_win_wgl(
 	config->get_height = globox_win_wgl_get_height;
 	config->get_expose = globox_win_wgl_get_expose;
 	config->update_content = globox_win_wgl_update_content;
-
-	globox_error_ok(error);
-}
-
-
-// OpenGL configuration setter
-void globox_init_win_wgl(
-	struct globox* context,
-	struct globox_config_wgl* config,
-	struct globox_error_info* error)
-{
-	struct win_wgl_backend* backend = context->backend_data;
-
-	backend->config = config;
 
 	globox_error_ok(error);
 }

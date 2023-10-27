@@ -2,14 +2,15 @@
 #define H_GLOBOX_INTERNAL_APPKIT_EGL_HELPERS
 
 #include "include/globox.h"
-#include "include/globox_egl.h"
+#include "include/globox_opengl.h"
+#include "appkit/appkit_opengl.h"
 #include "appkit/appkit_common.h"
 #include <EGL/egl.h>
 
 struct appkit_egl_backend
 {
 	struct appkit_platform platform;
-	struct globox_config_egl* config;
+	struct globox_config_opengl* config;
 
 	EGLContext egl;
 	EGLDisplay display;

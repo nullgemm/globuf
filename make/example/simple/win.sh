@@ -139,6 +139,7 @@ libs+=("\$folder_library/globox_pe_software.a")
 ninja_file=example_simple_win_wgl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+libs+=("\$folder_library/globox_pe_opengl.a")
 defines+=("-DGLOBOX_EXAMPLE_WGL")
 ldlibs+=("-lopengl32")
 	;;

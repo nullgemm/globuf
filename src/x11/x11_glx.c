@@ -1,5 +1,5 @@
 #include "include/globox.h"
-#include "include/globox_glx.h"
+#include "include/globox_opengl.h"
 #include "include/globox_x11_glx.h"
 
 #include "common/globox_private.h"
@@ -782,11 +782,38 @@ xcb_screen_t* globox_get_x11_screen(struct globox* context)
 }
 
 
+// OpenGL configuration setter
+void globox_init_x11_glx(
+	struct globox* context,
+	struct globox_config_opengl* config,
+	struct globox_error_info* error)
+{
+	struct x11_glx_backend* backend = context->backend_data;
+
+	backend->config = config;
+
+	globox_error_ok(error);
+}
+
+
 void globox_prepare_init_x11_glx(
 	struct globox_config_backend* config,
 	struct globox_error_info* error)
 {
-	config->data = NULL;
+	struct globox_calls_opengl* opengl =
+		malloc(sizeof (struct globox_calls_opengl));
+
+	if (opengl == NULL)
+	{
+		error->code = GLOBOX_ERROR_ALLOC;
+		error->file = __FILE__;
+		error->line = __LINE__;
+		return;
+	}
+
+	opengl->init = globox_init_x11_glx;
+
+	config->data = opengl;
 	config->init = globox_x11_glx_init;
 	config->clean = globox_x11_glx_clean;
 	config->window_create = globox_x11_glx_window_create;
@@ -807,20 +834,6 @@ void globox_prepare_init_x11_glx(
 	config->get_height = globox_x11_glx_get_height;
 	config->get_expose = globox_x11_glx_get_expose;
 	config->update_content = globox_x11_glx_update_content;
-
-	globox_error_ok(error);
-}
-
-
-// OpenGL configuration setter
-void globox_init_x11_glx(
-	struct globox* context,
-	struct globox_config_glx* config,
-	struct globox_error_info* error)
-{
-	struct x11_glx_backend* backend = context->backend_data;
-
-	backend->config = config;
 
 	globox_error_ok(error);
 }

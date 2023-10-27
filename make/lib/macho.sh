@@ -12,7 +12,7 @@ toolchain=$3
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
 echo "build types: development, release, sanitized"
-echo "backend types: common, software, vulkan"
+echo "backend types: common, software, opengl, vulkan"
 echo "target toolchain types: osxcross, native"
 }
 
@@ -130,8 +130,13 @@ src+=("src/common/globox_error.c")
 	software)
 ninja_file=lib_macho_software.ninja
 name+="_software"
-flags+=("-Ires/moltenvk/include")
 src+=("src/common/globox_software.c")
+
+	opengl)
+ninja_file=lib_macho_opengl.ninja
+name+="_opengl"
+flags+=("-Ires/angle/include")
+src+=("src/common/globox_opengl.c")
 	;;
 
 	vulkan)
@@ -253,8 +258,8 @@ echo "build \$folder_include/globox.h: \$"; \
 echo "cp src/include/globox.h"; \
 echo "build \$folder_include/globox_software.h: \$"; \
 echo "cp src/include/globox_software.h"; \
-echo "build \$folder_include/globox_egl.h: \$"; \
-echo "cp src/include/globox_egl.h"; \
+echo "build \$folder_include/globox_opengl.h: \$"; \
+echo "cp src/include/globox_opengl.h"; \
 echo "build \$folder_include/globox_vulkan.h: \$"; \
 echo "cp src/include/globox_vulkan.h"; \
 echo ""; \
@@ -264,7 +269,7 @@ echo ""; \
 echo "build headers: phony \$"; \
 echo "\$folder_include/globox.h \$"; \
 echo "\$folder_include/globox_software.h \$"; \
-echo "\$folder_include/globox_egl.h \$"; \
+echo "\$folder_include/globox_opengl.h \$"; \
 echo "\$folder_include/globox_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"

@@ -22,7 +22,7 @@ if [ -z "$build_platform" ]; then
 fi
 
 if [ -z "$build_backend" ]; then
-	build_backend=software
+	build_backend=egl
 fi
 
 if [ -z "$build_example" ]; then
@@ -42,8 +42,12 @@ case $build_platform in
 		./make/lib/x11.sh $build_type $build_backend
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				./make/lib/elf.sh $build_type $build_backend
+			;;
+
+			egl|glx)
+				./make/lib/elf.sh $build_type opengl
 			;;
 		esac
 
@@ -59,8 +63,12 @@ case $build_platform in
 		./make/lib/appkit.sh $build_type $build_backend $build_toolchain
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				./make/lib/macho.sh $build_type $build_backend $build_toolchain
+			;;
+
+			egl)
+				./make/lib/macho.sh $build_type opengl $build_toolchain
 			;;
 		esac
 
@@ -76,8 +84,12 @@ case $build_platform in
 		./make/lib/win.sh $build_type $build_backend
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				./make/lib/pe.sh $build_type $build_backend
+			;;
+
+			wgl)
+				./make/lib/pe.sh $build_type opengl
 			;;
 		esac
 
@@ -93,8 +105,12 @@ case $build_platform in
 		./make/lib/wayland.sh $build_type $build_backend
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				./make/lib/elf.sh $build_type $build_backend
+			;;
+
+			egl)
+				./make/lib/elf.sh $build_type opengl
 			;;
 		esac
 
@@ -120,8 +136,12 @@ case $build_platform in
 		samu -f ./make/output/lib_x11_"$build_backend".ninja headers
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				samu -f ./make/output/lib_elf_"$build_backend".ninja
+			;;
+
+			egl|glx)
+				samu -f ./make/output/lib_elf_opengl.ninja
 			;;
 		esac
 
@@ -139,8 +159,12 @@ case $build_platform in
 		samu -f ./make/output/lib_appkit_"$build_backend".ninja headers
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				samu -f ./make/output/lib_macho_"$build_backend".ninja
+			;;
+
+			egl)
+				samu -f ./make/output/lib_macho_opengl.ninja
 			;;
 		esac
 
@@ -158,8 +182,12 @@ case $build_platform in
 		ninja -f ./make/output/lib_win_"$build_backend".ninja headers
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				ninja -f ./make/output/lib_pe_"$build_backend".ninja
+			;;
+
+			wgl)
+				ninja -f ./make/output/lib_pe_opengl.ninja
 			;;
 		esac
 
@@ -177,8 +205,12 @@ case $build_platform in
 		samu -f ./make/output/lib_wayland_"$build_backend".ninja headers
 
 		case $build_backend in
-			vulkan|software)
+			software|vulkan)
 				samu -f ./make/output/lib_elf_"$build_backend".ninja
+			;;
+
+			egl)
+				samu -f ./make/output/lib_elf_opengl.ninja
 			;;
 		esac
 

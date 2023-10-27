@@ -1,5 +1,5 @@
 #include "include/globox.h"
-#include "include/globox_egl.h"
+#include "include/globox_opengl.h"
 #include "include/globox_wayland_egl.h"
 
 #include "common/globox_private.h"
@@ -515,36 +515,6 @@ void globox_wayland_egl_update_content(
 }
 
 
-void globox_prepare_init_wayland_egl(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
-{
-	config->data = NULL;
-	config->init = globox_wayland_egl_init;
-	config->clean = globox_wayland_egl_clean;
-	config->window_create = globox_wayland_egl_window_create;
-	config->window_destroy = globox_wayland_egl_window_destroy;
-	config->window_confirm = globox_wayland_egl_window_confirm;
-	config->window_start = globox_wayland_egl_window_start;
-	config->window_block = globox_wayland_egl_window_block;
-	config->window_stop = globox_wayland_egl_window_stop;
-	config->init_render = globox_wayland_egl_init_render;
-	config->init_events = globox_wayland_egl_init_events;
-	config->handle_events = globox_wayland_egl_handle_events;
-	config->init_features = globox_wayland_egl_init_features;
-	config->feature_set_interaction = globox_wayland_egl_feature_set_interaction;
-	config->feature_set_state = globox_wayland_egl_feature_set_state;
-	config->feature_set_title = globox_wayland_egl_feature_set_title;
-	config->feature_set_icon = globox_wayland_egl_feature_set_icon;
-	config->get_width = globox_wayland_egl_get_width;
-	config->get_height = globox_wayland_egl_get_height;
-	config->get_expose = globox_wayland_egl_get_expose;
-	config->update_content = globox_wayland_egl_update_content;
-
-	globox_error_ok(error);
-}
-
-
 // callback for helper libraries to register capabilities handlers
 bool globox_add_wayland_capabilities_handler(
 	void* data,
@@ -646,12 +616,55 @@ struct wl_surface* globox_get_wayland_surface(
 // OpenGL configuration setter
 void globox_init_wayland_egl(
 	struct globox* context,
-	struct globox_config_egl* config,
+	struct globox_config_opengl* config,
 	struct globox_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 
 	backend->config = config;
+
+	globox_error_ok(error);
+}
+
+
+void globox_prepare_init_wayland_egl(
+	struct globox_config_backend* config,
+	struct globox_error_info* error)
+{
+	struct globox_calls_opengl* opengl =
+		malloc(sizeof (struct globox_calls_opengl));
+
+	if (opengl == NULL)
+	{
+		error->code = GLOBOX_ERROR_ALLOC;
+		error->file = __FILE__;
+		error->line = __LINE__;
+		return;
+	}
+
+	opengl->init = globox_init_wayland_egl;
+
+	config->data = opengl;
+	config->init = globox_wayland_egl_init;
+	config->clean = globox_wayland_egl_clean;
+	config->window_create = globox_wayland_egl_window_create;
+	config->window_destroy = globox_wayland_egl_window_destroy;
+	config->window_confirm = globox_wayland_egl_window_confirm;
+	config->window_start = globox_wayland_egl_window_start;
+	config->window_block = globox_wayland_egl_window_block;
+	config->window_stop = globox_wayland_egl_window_stop;
+	config->init_render = globox_wayland_egl_init_render;
+	config->init_events = globox_wayland_egl_init_events;
+	config->handle_events = globox_wayland_egl_handle_events;
+	config->init_features = globox_wayland_egl_init_features;
+	config->feature_set_interaction = globox_wayland_egl_feature_set_interaction;
+	config->feature_set_state = globox_wayland_egl_feature_set_state;
+	config->feature_set_title = globox_wayland_egl_feature_set_title;
+	config->feature_set_icon = globox_wayland_egl_feature_set_icon;
+	config->get_width = globox_wayland_egl_get_width;
+	config->get_height = globox_wayland_egl_get_height;
+	config->get_expose = globox_wayland_egl_get_expose;
+	config->update_content = globox_wayland_egl_update_content;
 
 	globox_error_ok(error);
 }

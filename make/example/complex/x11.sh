@@ -141,6 +141,7 @@ src+=("example/complex/software.c")
 link+=("xcb-shm")
 link+=("xcb-randr")
 link+=("xcb-render")
+libs+=("\$folder_library/globox_elf_software.a")
 	;;
 
 	glx)
@@ -152,7 +153,7 @@ link+=("x11")
 link+=("x11-xcb")
 link+=("xrender")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globox_elf_software.a")
+libs+=("\$folder_library/globox_elf_opengl.a")
 defines+=("-DGLOBOX_EXAMPLE_GLX")
 	;;
 
@@ -162,6 +163,7 @@ src+=("example/complex/opengl.c")
 link+=("egl")
 link+=("glesv2")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
+libs+=("\$folder_library/globox_elf_opengl.a")
 defines+=("-DGLOBOX_EXAMPLE_EGL")
 	;;
 

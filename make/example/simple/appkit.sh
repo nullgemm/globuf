@@ -140,6 +140,7 @@ libs+=("\$folder_library/globox_macho_software_$toolchain.a")
 ninja_file=example_simple_appkit_egl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gles2/shaders.o")
+libs+=("\$folder_library/globox_macho_opengl_$toolchain.a")
 defines+=("-DGLOBOX_EXAMPLE_EGL")
 flags+=("-Ires/angle/include")
 ldflags+=("-Lres/angle/libs")
