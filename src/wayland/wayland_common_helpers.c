@@ -248,7 +248,7 @@ void globox_wayland_helpers_set_state(
 {
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_REGULAR: // TODO special case for software backend
+		case GLOBOX_STATE_REGULAR:
 		{
 			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
 			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
@@ -287,7 +287,7 @@ void globox_wayland_helpers_set_state(
 		case GLOBOX_STATE_FULLSCREEN:
 		{
 			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
-			xdg_toplevel_set_fullscreen(platform->xdg_toplevel, NULL); // TODO select current window output?
+			xdg_toplevel_set_fullscreen(platform->xdg_toplevel, NULL);
 			break;
 		}
 		default:
