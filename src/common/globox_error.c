@@ -144,6 +144,8 @@ void globox_error_init(
 		"failed to configure X11 window";
 	log[GLOBOX_ERROR_X11_QUERY_POINTER] =
 		"failed to query X11 mouse pointer position";
+	log[GLOBOX_ERROR_X11_VSYNC] =
+		"frame callback VSync is not available for X11";
 	log[GLOBOX_ERROR_X11_GLX] =
 		"failed to get GLX extension for X11";
 	log[GLOBOX_ERROR_X11_GLX_FB_CONF_LIST] =

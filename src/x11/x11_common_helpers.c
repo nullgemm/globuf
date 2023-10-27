@@ -900,9 +900,8 @@ void x11_helpers_set_vsync(
 	struct x11_platform* platform,
 	struct globox_error_info* error)
 {
-	// TODO setter
-
-	globox_error_ok(error);
+	// never ok
+	globox_error_throw(context, error, GLOBOX_ERROR_X11_VSYNC);
 }
 
 enum globox_event x11_helpers_get_state(
