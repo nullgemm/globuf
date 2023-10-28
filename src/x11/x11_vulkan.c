@@ -629,8 +629,8 @@ void globox_x11_vulkan_update_content(
 void* globox_x11_vulkan_callback(
 	struct globox* context)
 {
-	struct appkit_vulkan_backend* backend = context->backend_data;
-	struct appkit_platform* platform = &(backend->platform);
+	struct x11_vulkan_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
 	return platform;
 }
 

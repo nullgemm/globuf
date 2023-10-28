@@ -608,8 +608,8 @@ void globox_x11_egl_update_content(
 void* globox_x11_egl_callback(
 	struct globox* context)
 {
-	struct appkit_egl_backend* backend = context->backend_data;
-	struct appkit_platform* platform = &(backend->platform);
+	struct x11_egl_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
 	return platform;
 }
 

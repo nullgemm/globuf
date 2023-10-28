@@ -751,8 +751,8 @@ void globox_x11_glx_update_content(
 void* globox_x11_glx_callback(
 	struct globox* context)
 {
-	struct appkit_glx_backend* backend = context->backend_data;
-	struct appkit_platform* platform = &(backend->platform);
+	struct x11_glx_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
 	return platform;
 }
 
