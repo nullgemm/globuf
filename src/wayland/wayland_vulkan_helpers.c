@@ -12,7 +12,7 @@
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_wayland.h>
 
-size_t globox_wayland_helpers_vulkan_add_extensions(
+size_t wayland_helpers_vulkan_add_extensions(
 	struct globox* context,
 	const char*** ext_needed,
 	bool** ext_found,

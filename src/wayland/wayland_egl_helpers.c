@@ -9,7 +9,7 @@
 #include <string.h>
 #include <EGL/egl.h>
 
-void globox_wayland_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
+void wayland_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 
@@ -52,7 +52,7 @@ void globox_wayland_helpers_egl_bind(struct globox* context, struct globox_error
 	globox_error_ok(error);
 }
 
-void globox_wayland_helpers_egl_toplevel_configure(
+void wayland_helpers_egl_toplevel_configure(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel,
 	int32_t width,

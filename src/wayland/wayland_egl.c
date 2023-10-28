@@ -45,7 +45,7 @@ void globox_wayland_egl_init(
 
 	// update toplevel configure listener
 	platform->listener_xdg_toplevel.configure =
-		globox_wayland_helpers_egl_toplevel_configure;
+		wayland_helpers_egl_toplevel_configure;
 
 	// error always set
 }
@@ -87,7 +87,7 @@ void globox_wayland_egl_window_create(
 	}
 
 	// configure features here
-	globox_wayland_helpers_features_init(context, platform, configs, count, error);
+	wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -346,7 +346,7 @@ void globox_wayland_egl_init_render(
 	// run common Wayland helper
 	globox_wayland_common_init_render(context, platform, config, error);
 
-	platform->render_init_callback = globox_wayland_helpers_egl_bind;
+	platform->render_init_callback = wayland_helpers_egl_bind;
 
 	// error always set
 }

@@ -21,14 +21,14 @@ struct wayland_software_backend
 	struct wl_buffer_listener listener_buffer;
 };
 
-void globox_wayland_helpers_callback_registry_shm(
+void wayland_helpers_callback_registry_shm(
 	void* data,
 	struct wl_registry* registry,
 	uint32_t name,
 	const char* interface,
 	uint32_t version);
 
-void globox_wayland_helpers_buffer_release(
+void wayland_helpers_buffer_release(
 	void* data,
 	struct wl_buffer* wl_buffer);
 

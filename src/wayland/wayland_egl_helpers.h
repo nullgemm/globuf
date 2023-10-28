@@ -21,11 +21,11 @@ struct wayland_egl_backend
 	struct wl_egl_window* window;
 };
 
-void globox_wayland_helpers_egl_bind(
+void wayland_helpers_egl_bind(
 	struct globox* context,
 	struct globox_error_info* error);
 
-void globox_wayland_helpers_egl_toplevel_configure(
+void wayland_helpers_egl_toplevel_configure(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel,
 	int32_t width,

@@ -14,7 +14,7 @@
 #include "xdg-decoration-client-protocol.h"
 #include "kde-blur-client-protocol.h"
 
-void* globox_wayland_helpers_render_loop(void* data)
+void* wayland_helpers_render_loop(void* data)
 {
 	struct wayland_thread_render_loop_data* thread_render_loop_data = data;
 
@@ -83,7 +83,7 @@ void* globox_wayland_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void* globox_wayland_helpers_event_loop(void* data)
+void* wayland_helpers_event_loop(void* data)
 {
 	struct wayland_thread_event_loop_data* thread_event_loop_data = data;
 
@@ -121,7 +121,7 @@ void* globox_wayland_helpers_event_loop(void* data)
 	return NULL;
 }
 
-void globox_wayland_helpers_features_init(
+void wayland_helpers_features_init(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_config_request* configs,
@@ -243,7 +243,7 @@ void globox_wayland_helpers_features_init(
 	}
 }
 
-void globox_wayland_helpers_set_state(
+void wayland_helpers_set_state(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -302,7 +302,7 @@ void globox_wayland_helpers_set_state(
 	globox_error_ok(error);
 }
 
-void globox_wayland_helpers_set_title(
+void wayland_helpers_set_title(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -315,7 +315,7 @@ void globox_wayland_helpers_set_title(
 	globox_error_ok(error);
 }
 
-void globox_wayland_helpers_set_icon(
+void wayland_helpers_set_icon(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -324,7 +324,7 @@ void globox_wayland_helpers_set_icon(
 	globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ICON);
 }
 
-void globox_wayland_helpers_set_frame(
+void wayland_helpers_set_frame(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -392,7 +392,7 @@ void globox_wayland_helpers_set_frame(
 	globox_error_ok(error);
 }
 
-void globox_wayland_helpers_set_background(
+void wayland_helpers_set_background(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)
@@ -431,7 +431,7 @@ void globox_wayland_helpers_set_background(
 	globox_error_ok(error);
 }
 
-void globox_wayland_helpers_set_vsync(
+void wayland_helpers_set_vsync(
 	struct globox* context,
 	struct wayland_platform* platform,
 	struct globox_error_info* error)

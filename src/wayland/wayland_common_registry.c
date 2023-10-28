@@ -16,7 +16,7 @@
 #include "kde-blur-client-protocol.h"
 
 // registry callbacks
-void globox_wayland_helpers_callback_registry(
+void wayland_helpers_callback_registry(
 	void* data,
 	struct wl_registry* registry,
 	uint32_t name,
@@ -164,7 +164,7 @@ void globox_wayland_helpers_callback_registry(
 	}
 }
 
-void globox_wayland_helpers_callback_registry_remove(
+void wayland_helpers_callback_registry_remove(
 	void* data,
 	struct wl_registry* registry,
 	uint32_t name)
@@ -176,7 +176,7 @@ void globox_wayland_helpers_callback_registry_remove(
 }
 
 // seat listener
-void globox_wayland_helpers_seat_capabilities(
+void wayland_helpers_seat_capabilities(
 	void* data,
 	struct wl_seat* seat,
 	uint32_t capabilities)
@@ -233,7 +233,7 @@ void globox_wayland_helpers_seat_capabilities(
 	}
 }
 
-void globox_wayland_helpers_seat_name(
+void wayland_helpers_seat_name(
 	void* data,
 	struct wl_seat* seat,
 	const char* name)
@@ -242,7 +242,7 @@ void globox_wayland_helpers_seat_name(
 }
 
 // pointer listener
-void globox_wayland_helpers_pointer_enter(
+void wayland_helpers_pointer_enter(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t serial,
@@ -253,7 +253,7 @@ void globox_wayland_helpers_pointer_enter(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_leave(
+void wayland_helpers_pointer_leave(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t serial,
@@ -262,7 +262,7 @@ void globox_wayland_helpers_pointer_leave(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_motion(
+void wayland_helpers_pointer_motion(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t time,
@@ -272,7 +272,7 @@ void globox_wayland_helpers_pointer_motion(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_button(
+void wayland_helpers_pointer_button(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t serial,
@@ -322,7 +322,7 @@ void globox_wayland_helpers_pointer_button(
 	}
 }
 
-void globox_wayland_helpers_pointer_axis(
+void wayland_helpers_pointer_axis(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t time,
@@ -332,14 +332,14 @@ void globox_wayland_helpers_pointer_axis(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_frame(
+void wayland_helpers_pointer_frame(
 	void* data,
 	struct wl_pointer* wl_pointer)
 {
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_axis_source(
+void wayland_helpers_pointer_axis_source(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t axis_source)
@@ -347,7 +347,7 @@ void globox_wayland_helpers_pointer_axis_source(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_axis_stop(
+void wayland_helpers_pointer_axis_stop(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t time,
@@ -356,7 +356,7 @@ void globox_wayland_helpers_pointer_axis_stop(
 	// not needed
 }
 
-void globox_wayland_helpers_pointer_axis_discrete(
+void wayland_helpers_pointer_axis_discrete(
 	void* data,
 	struct wl_pointer* wl_pointer,
 	uint32_t axis,
@@ -366,7 +366,7 @@ void globox_wayland_helpers_pointer_axis_discrete(
 }
 
 // frame callback listener
-void globox_wayland_helpers_surface_frame_done(
+void wayland_helpers_surface_frame_done(
 	void* data,
 	struct wl_callback* callback,
 	uint32_t time)
@@ -415,7 +415,7 @@ void globox_wayland_helpers_surface_frame_done(
 }
 
 // XDG WM base listener
-void globox_wayland_helpers_xdg_wm_base_ping(
+void wayland_helpers_xdg_wm_base_ping(
 	void* data,
 	struct xdg_wm_base* xdg_wm_base,
 	uint32_t serial)
@@ -424,7 +424,7 @@ void globox_wayland_helpers_xdg_wm_base_ping(
 }
 
 // XDG surface listener
-void globox_wayland_helpers_xdg_surface_configure(
+void wayland_helpers_xdg_surface_configure(
 	void* data,
 	struct xdg_surface* xdg_surface,
 	uint32_t serial)
@@ -448,7 +448,7 @@ void globox_wayland_helpers_xdg_surface_configure(
 }
 
 // XDG toplevel listener
-void globox_wayland_helpers_xdg_toplevel_configure(
+void wayland_helpers_xdg_toplevel_configure(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel,
 	int32_t width,
@@ -493,7 +493,7 @@ void globox_wayland_helpers_xdg_toplevel_configure(
 	}
 }
 
-void globox_wayland_helpers_xdg_toplevel_close(
+void wayland_helpers_xdg_toplevel_close(
 	void* data,
 	struct xdg_toplevel* xdg_toplevel)
 {
@@ -527,7 +527,7 @@ void globox_wayland_helpers_xdg_toplevel_close(
 }
 
 // XDG decoration listener
-void globox_wayland_helpers_xdg_decoration_configure(
+void wayland_helpers_xdg_decoration_configure(
 	void* data,
 	struct zxdg_toplevel_decoration_v1* xdg_decoration,
 	uint32_t mode)

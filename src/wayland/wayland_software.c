@@ -50,7 +50,7 @@ void globox_wayland_software_init(
 	// buffer listener
 	struct wl_buffer_listener listener_buffer =
 	{
-		.release = globox_wayland_helpers_buffer_release,
+		.release = wayland_helpers_buffer_release,
 	};
 
 	backend->listener_buffer = listener_buffer;
@@ -98,7 +98,7 @@ void globox_wayland_software_window_create(
 	}
 
 	// configure features here
-	globox_wayland_helpers_features_init(context, platform, configs, count, error);
+	wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -178,7 +178,7 @@ void globox_wayland_software_window_confirm(
 	bool error_reg =
 		globox_add_wayland_registry_handler(
 			context,
-			globox_wayland_helpers_callback_registry_shm,
+			wayland_helpers_callback_registry_shm,
 			context);
 
 	if (error_reg == false)

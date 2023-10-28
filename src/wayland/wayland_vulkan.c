@@ -40,7 +40,7 @@ void globox_wayland_vulkan_init(
 	backend->ext_needed = NULL;
 	backend->ext_found = NULL;
 	backend->ext_len =
-		globox_wayland_helpers_vulkan_add_extensions(
+		wayland_helpers_vulkan_add_extensions(
 			context,
 			&(backend->ext_needed),
 			&(backend->ext_found),
@@ -211,7 +211,7 @@ void globox_wayland_vulkan_window_create(
 	}
 
 	// configure features here
-	globox_wayland_helpers_features_init(context, platform, configs, count, error);
+	wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
