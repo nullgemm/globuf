@@ -585,6 +585,14 @@ void globox_win_vulkan_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_win_vulkan_callback(
+	struct globox* context)
+{
+	struct win_vulkan_backend* backend = context->backend_data;
+	struct win_platform* platform = &(backend->platform);
+	return platform;
+}
+
 
 // Vulkan configuration setter
 void globox_win_init_vulkan(
@@ -666,6 +674,7 @@ void globox_prepare_init_win_vulkan(
 	vulkan->get_surface = globox_win_get_surface_vulkan;
 
 	config->data = vulkan;
+	config->callback = globox_win_vulkan_callback;
 	config->init = globox_win_vulkan_init;
 	config->clean = globox_win_vulkan_clean;
 	config->window_create = globox_win_vulkan_window_create;

@@ -674,6 +674,14 @@ void globox_win_wgl_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_win_wgl_callback(
+	struct globox* context)
+{
+	struct win_wgl_backend* backend = context->backend_data;
+	struct win_platform* platform = &(backend->platform);
+	return platform;
+}
+
 
 // OpenGL configuration setter
 void globox_init_win_wgl(
@@ -707,6 +715,7 @@ void globox_prepare_init_win_wgl(
 	opengl->init = globox_init_win_wgl;
 
 	config->data = opengl;
+	config->callback = globox_win_wgl_callback;
 	config->init = globox_win_wgl_init;
 	config->clean = globox_win_wgl_clean;
 	config->window_create = globox_win_wgl_window_create;

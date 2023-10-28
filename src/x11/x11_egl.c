@@ -605,37 +605,12 @@ void globox_x11_egl_update_content(
 	globox_error_ok(error);
 }
 
-
-xcb_connection_t* globox_get_x11_conn(struct globox* context)
+void* globox_x11_egl_callback(
+	struct globox* context)
 {
-	struct x11_egl_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->conn;
-}
-
-xcb_window_t globox_get_x11_window(struct globox* context)
-{
-	struct x11_egl_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->win;
-}
-
-xcb_window_t globox_get_x11_root(struct globox* context)
-{
-	struct x11_egl_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->root_win;
-}
-
-xcb_screen_t* globox_get_x11_screen(struct globox* context)
-{
-	struct x11_egl_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->screen_obj;
+	struct appkit_egl_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+	return platform;
 }
 
 
@@ -671,6 +646,7 @@ void globox_prepare_init_x11_egl(
 	opengl->init = globox_init_x11_egl;
 
 	config->data = opengl;
+	config->callback = globox_x11_egl_callback;
 	config->init = globox_x11_egl_init;
 	config->clean = globox_x11_egl_clean;
 	config->window_create = globox_x11_egl_window_create;

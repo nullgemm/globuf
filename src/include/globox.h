@@ -381,7 +381,11 @@ struct globox_feature_vsync
 // depends on most of the above
 struct globox_config_backend
 {
+	// custom data for initialization
 	void* data;
+	// custom call for internal use
+	void* (*callback)(
+		struct globox* context);
 	// function pointers for each cross-platform globox call
 	// lifecycle
 	void (*init)(

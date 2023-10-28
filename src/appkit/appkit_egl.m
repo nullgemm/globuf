@@ -516,6 +516,15 @@ void globox_appkit_egl_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_appkit_egl_callback(
+	struct globox* context)
+{
+	struct appkit_egl_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+	return platform;
+}
+
+
 double globox_appkit_egl_get_scale(
 	struct globox* context,
 	struct globox_error_info* error)
@@ -579,6 +588,7 @@ void globox_prepare_init_appkit_egl(
 	opengl->init = globox_init_appkit_egl;
 
 	config->data = opengl;
+	config->callback = globox_appkit_egl_callback;
 	config->init = globox_appkit_egl_init;
 	config->clean = globox_appkit_egl_clean;
 	config->window_create = globox_appkit_egl_window_create;

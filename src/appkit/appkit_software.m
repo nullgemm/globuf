@@ -393,6 +393,14 @@ void globox_appkit_software_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_appkit_software_callback(
+	struct globox* context)
+{
+	struct appkit_software_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+	return platform;
+}
+
 
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)
@@ -450,6 +458,7 @@ void globox_prepare_init_appkit_software(
 	software->free = globox_buffer_free_appkit_software;
 
 	config->data = software;
+	config->callback = globox_appkit_software_callback;
 	config->init = globox_appkit_software_init;
 	config->clean = globox_appkit_software_clean;
 	config->window_create = globox_appkit_software_window_create;

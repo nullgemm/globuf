@@ -626,38 +626,14 @@ void globox_x11_vulkan_update_content(
 	globox_error_ok(error);
 }
 
-
-xcb_connection_t* globox_get_x11_conn(struct globox* context)
+void* globox_x11_vulkan_callback(
+	struct globox* context)
 {
-	struct x11_vulkan_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->conn;
+	struct appkit_vulkan_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+	return platform;
 }
 
-xcb_window_t globox_get_x11_window(struct globox* context)
-{
-	struct x11_vulkan_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->win;
-}
-
-xcb_window_t globox_get_x11_root(struct globox* context)
-{
-	struct x11_vulkan_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->root_win;
-}
-
-xcb_screen_t* globox_get_x11_screen(struct globox* context)
-{
-	struct x11_vulkan_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	return platform->screen_obj;
-}
 
 // Vulkan configuration setter
 void globox_x11_init_vulkan(
@@ -741,6 +717,7 @@ void globox_prepare_init_x11_vulkan(
 	vulkan->get_surface = globox_x11_get_surface_vulkan;
 
 	config->data = vulkan;
+	config->callback = globox_x11_vulkan_callback;
 	config->init = globox_x11_vulkan_init;
 	config->clean = globox_x11_vulkan_clean;
 	config->window_create = globox_x11_vulkan_window_create;

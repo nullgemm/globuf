@@ -543,6 +543,14 @@ void globox_appkit_vulkan_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_appkit_vulkan_callback(
+	struct globox* context)
+{
+	struct appkit_vulkan_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+	return platform;
+}
+
 
 // Vulkan configuration setter
 void globox_appkit_init_vulkan(
@@ -624,6 +632,7 @@ void globox_prepare_init_appkit_vulkan(
 	vulkan->get_surface = globox_appkit_get_surface_vulkan;
 
 	config->data = vulkan;
+	config->callback = globox_appkit_vulkan_callback;
 	config->init = globox_appkit_vulkan_init;
 	config->clean = globox_appkit_vulkan_clean;
 	config->window_create = globox_appkit_vulkan_window_create;

@@ -1744,3 +1744,32 @@ struct globox_rect globox_x11_common_get_expose(
 	globox_error_ok(error);
 	return value;
 }
+
+// platform-specific calls
+xcb_connection_t* globox_get_x11_conn(struct globox* context)
+{
+	struct x11_platform* platform = context->backend_callbacks.callback(context);
+
+	return platform->conn;
+}
+
+xcb_window_t globox_get_x11_window(struct globox* context)
+{
+	struct x11_platform* platform = context->backend_callbacks.callback(context);
+
+	return platform->win;
+}
+
+xcb_window_t globox_get_x11_root(struct globox* context)
+{
+	struct x11_platform* platform = context->backend_callbacks.callback(context);
+
+	return platform->root_win;
+}
+
+xcb_screen_t* globox_get_x11_screen(struct globox* context)
+{
+	struct x11_platform* platform = context->backend_callbacks.callback(context);
+
+	return platform->screen_obj;
+}

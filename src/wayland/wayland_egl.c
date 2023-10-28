@@ -514,103 +514,12 @@ void globox_wayland_egl_update_content(
 	globox_error_ok(error);
 }
 
-
-// callback for helper libraries to register capabilities handlers
-bool globox_add_wayland_capabilities_handler(
-	void* data,
-	void (*capabilities_handler)(
-		void* data,
-		struct wl_seat* seat,
-		uint32_t capabilities),
-	void* capabilities_handler_data)
-{
-	struct globox* context = data;
-	struct wayland_egl_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-
-	struct wayland_capabilities_handler_node* handler =
-		malloc(sizeof (struct wayland_capabilities_handler_node));
-
-	if (handler == NULL)
-	{
-		return false;
-	}
-
-	handler->capabilities_handler = capabilities_handler;
-	handler->capabilities_handler_data = capabilities_handler_data;
-	handler->next = platform->capabilities_handlers;
-
-	platform->capabilities_handlers = handler;
-	return true;
-}
-
-// callback for helper libraries to register registry handlers
-bool globox_add_wayland_registry_handler(
-	void* data,
-	void (*registry_handler)(
-		void* data,
-		struct wl_registry* registry,
-		uint32_t name,
-		const char* interface,
-		uint32_t version),
-	void* registry_handler_data)
-{
-	struct globox* context = data;
-	struct wayland_egl_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-
-	struct wayland_registry_handler_node* handler =
-		malloc(sizeof (struct wayland_registry_handler_node));
-
-	if (handler == NULL)
-	{
-		return false;
-	}
-
-	handler->registry_handler = registry_handler;
-	handler->registry_handler_data = registry_handler_data;
-	handler->next = platform->registry_handlers;
-
-	platform->registry_handlers = handler;
-	return true;
-}
-
-// callback for helper libraries to register registry remove handlers
-bool globox_add_wayland_registry_remover(
-	void* data,
-	void (*registry_remover)(
-		void* data,
-		struct wl_registry* registry,
-		uint32_t name),
-	void* registry_remover_data)
-{
-	struct globox* context = data;
-	struct wayland_egl_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-
-	struct wayland_registry_remover_node* remover =
-		malloc(sizeof (struct wayland_registry_remover_node));
-
-	if (remover == NULL)
-	{
-		return false;
-	}
-
-	remover->registry_remover = registry_remover;
-	remover->registry_remover_data = registry_remover_data;
-	remover->next = platform->registry_removers;
-
-	platform->registry_removers = remover;
-	return true;
-}
-
-struct wl_surface* globox_get_wayland_surface(
+void* globox_wayland_egl_callback(
 	struct globox* context)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
-
-	return platform->surface;
+	return platform;
 }
 
 
@@ -646,6 +555,7 @@ void globox_prepare_init_wayland_egl(
 	opengl->init = globox_init_wayland_egl;
 
 	config->data = opengl;
+	config->callback = globox_wayland_egl_callback;
 	config->init = globox_wayland_egl_init;
 	config->clean = globox_wayland_egl_clean;
 	config->window_create = globox_wayland_egl_window_create;

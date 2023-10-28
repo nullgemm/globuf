@@ -581,6 +581,14 @@ void globox_win_software_update_content(
 	globox_error_ok(error);
 }
 
+void* globox_win_software_callback(
+	struct globox* context)
+{
+	struct win_software_backend* backend = context->backend_data;
+	struct win_platform* platform = &(backend->platform);
+	return platform;
+}
+
 
 // simple allocator we provide so developers don't try to recycle buffers
 // (it would not be thread-safe and break this multi-threaded version of globox)
@@ -717,6 +725,7 @@ void globox_prepare_init_win_software(
 	software->free = globox_buffer_free_win_software;
 
 	config->data = software;
+	config->callback = globox_win_software_callback;
 	config->init = globox_win_software_init;
 	config->clean = globox_win_software_clean;
 	config->window_create = globox_win_software_window_create;
