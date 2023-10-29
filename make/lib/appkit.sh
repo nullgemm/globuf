@@ -315,7 +315,7 @@ echo -ne "build \$folder_library/\$name.a: ar" >> "$output/$ninja_file"
 for file in "${obj[@]}"; do
 	echo -ne " \$\n$file" >> "$output/$ninja_file"
 done
-echo "" >> "$output/$ninja_file"
+echo -e "\n" >> "$output/$ninja_file"
 
 ## special targets
 { \
