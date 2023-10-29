@@ -1,0 +1,2 @@
+globox_buffer_alloc_software
+globox_buffer_free_software
