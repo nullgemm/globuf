@@ -57,7 +57,6 @@ case $build in
 	development)
 flags+=("-g")
 defines+=("-DGLOBOX_ERROR_LOG_THROW")
-defines+=("-DGLOBOX_ERROR_HELPER_XCB")
 	;;
 
 	release)
