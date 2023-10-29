@@ -175,9 +175,6 @@ exit 1
 	;;
 esac
 
-# save symbols file path
-symbols_file="src/appkit/symbols_$backend.txt"
-
 # target toolchain type
 if [ -z "$toolchain" ]; then
 	toolchain=osxcross
