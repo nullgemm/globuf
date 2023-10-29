@@ -211,7 +211,7 @@ void globox_wayland_vulkan_window_create(
 	}
 
 	// configure features here
-	wayland_helpers_features_init(context, platform, configs, count, error);
+	globox_wayland_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

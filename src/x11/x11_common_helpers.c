@@ -16,7 +16,7 @@
 #include <xcb/xcb_errors.h>
 #endif
 
-void* x11_helpers_render_loop(void* data)
+void* globox_x11_helpers_render_loop(void* data)
 {
 	struct x11_thread_render_loop_data* thread_render_loop_data = data;
 
@@ -173,7 +173,7 @@ void* x11_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void* x11_helpers_event_loop(void* data)
+void* globox_x11_helpers_event_loop(void* data)
 {
 	struct x11_thread_event_loop_data* thread_event_loop_data = data;
 
@@ -218,7 +218,7 @@ void* x11_helpers_event_loop(void* data)
 	return NULL;
 }
 
-void x11_helpers_features_init(
+void globox_x11_helpers_features_init(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_config_request* configs,
@@ -341,7 +341,7 @@ void x11_helpers_features_init(
 // there is also a bug in ewmh that prevents interactive move & resize from
 // working properly under certain desktop environments, so we implement
 // everything for this feature as well
-void x11_helpers_handle_interaction(
+void globox_x11_helpers_handle_interaction(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -603,7 +603,7 @@ void set_state_hidden(
 // there is a bug in ewmh that prevents fullscreen from working properly
 // since keeping xcb-ewmh around only for initialization would be kind
 // of silly we removed the dependency and used raw xcb all the way
-void x11_helpers_set_state(
+void globox_x11_helpers_set_state(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -715,7 +715,7 @@ void x11_helpers_set_state(
 	// error is always set in the switch so we don't need to set it to "ok" here
 }
 
-void x11_helpers_set_title(
+void globox_x11_helpers_set_title(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -745,7 +745,7 @@ void x11_helpers_set_title(
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_icon(
+void globox_x11_helpers_set_icon(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -784,7 +784,7 @@ void x11_helpers_set_icon(
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_frame(
+void globox_x11_helpers_set_frame(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -834,7 +834,7 @@ void x11_helpers_set_frame(
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_background(
+void globox_x11_helpers_set_background(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -895,7 +895,7 @@ void x11_helpers_set_background(
 	globox_error_ok(error);
 }
 
-void x11_helpers_set_vsync(
+void globox_x11_helpers_set_vsync(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -904,7 +904,7 @@ void x11_helpers_set_vsync(
 	globox_error_throw(context, error, GLOBOX_ERROR_X11_VSYNC);
 }
 
-enum globox_event x11_helpers_get_state(
+enum globox_event globox_x11_helpers_get_state(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -970,7 +970,7 @@ enum globox_event x11_helpers_get_state(
 	return event;
 }
 
-void x11_helpers_get_title(
+void globox_x11_helpers_get_title(
 	struct globox* context,
 	struct x11_platform* platform,
 	struct globox_error_info* error)
@@ -1018,7 +1018,7 @@ void x11_helpers_get_title(
 }
 
 #ifdef GLOBOX_ERROR_HELPER_XCB
-void x11_helpers_xcb_error_log(
+void globox_x11_helpers_xcb_error_log(
 	struct globox* context,
 	struct x11_platform* platform,
 	xcb_generic_error_t* error)

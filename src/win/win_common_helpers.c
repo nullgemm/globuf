@@ -17,7 +17,7 @@
 #include <errhandlingapi.h>
 #endif
 
-unsigned __stdcall win_helpers_render_loop(void* data)
+unsigned __stdcall globox_win_helpers_render_loop(void* data)
 {
 	struct win_thread_render_loop_data* thread_render_loop_data = data;
 
@@ -118,7 +118,7 @@ unsigned __stdcall win_helpers_render_loop(void* data)
 	return 0;
 }
 
-unsigned __stdcall win_helpers_event_loop(void* data)
+unsigned __stdcall globox_win_helpers_event_loop(void* data)
 {
 	struct win_thread_event_loop_data* thread_event_loop_data = data;
 
@@ -246,7 +246,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 		(HANDLE) _beginthreadex(
 			NULL,
 			0,
-			win_helpers_render_loop,
+			globox_win_helpers_render_loop,
 			(void*) &(platform->thread_render_loop_data),
 			0,
 			NULL);
@@ -377,7 +377,7 @@ unsigned __stdcall win_helpers_event_loop(void* data)
 	return 0;
 }
 
-LRESULT CALLBACK win_helpers_window_procedure(
+LRESULT CALLBACK globox_win_helpers_window_procedure(
 	HWND hwnd,
 	UINT msg,
 	WPARAM wParam,
@@ -559,7 +559,7 @@ LRESULT CALLBACK win_helpers_window_procedure(
 	return result;
 }
 
-void win_helpers_features_init(
+void globox_win_helpers_features_init(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_config_request* configs,
@@ -682,7 +682,7 @@ void win_helpers_features_init(
 	}
 }
 
-void win_helpers_set_state(
+void globox_win_helpers_set_state(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -730,7 +730,7 @@ void win_helpers_set_state(
 	globox_error_ok(error);
 }
 
-LPWSTR win_helpers_utf8_to_wchar(const char* string)
+LPWSTR globox_win_helpers_utf8_to_wchar(const char* string)
 {
 	int codepoints =
 		MultiByteToWideChar(
@@ -773,7 +773,7 @@ LPWSTR win_helpers_utf8_to_wchar(const char* string)
 	return buf;
 }
 
-HICON win_helpers_bitmap_to_icon(
+HICON globox_win_helpers_bitmap_to_icon(
 	struct globox* context,
 	struct win_platform* platform,
 	BITMAP* bmp,
@@ -846,7 +846,7 @@ HICON win_helpers_bitmap_to_icon(
 	return icon;
 }
 
-void win_helpers_save_window_state(
+void globox_win_helpers_save_window_state(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -869,7 +869,7 @@ void win_helpers_save_window_state(
 	}
 }
 
-enum win_dpi_api win_helpers_set_dpi_awareness()
+enum win_dpi_api globox_win_helpers_set_dpi_awareness()
 {
 	// try the Windows 10 API, v2 (available since the "creators update")
 	BOOL ok;
@@ -914,13 +914,13 @@ enum win_dpi_api win_helpers_set_dpi_awareness()
 	return WIN_DPI_API_NONE;
 }
 
-void win_helpers_set_title(
+void globox_win_helpers_set_title(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
 {
 	platform->win_name =
-		win_helpers_utf8_to_wchar(context->feature_title->title);
+		globox_win_helpers_utf8_to_wchar(context->feature_title->title);
 
 	if (platform->win_name == NULL)
 	{
@@ -931,7 +931,7 @@ void win_helpers_set_title(
 	globox_error_ok(error);
 }
 
-void win_helpers_set_icon(
+void globox_win_helpers_set_icon(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -948,7 +948,7 @@ void win_helpers_set_icon(
 	};
 
 	platform->icon_32 =
-		win_helpers_bitmap_to_icon(context, platform, &pixmap_32, error);
+		globox_win_helpers_bitmap_to_icon(context, platform, &pixmap_32, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -973,7 +973,7 @@ void win_helpers_set_icon(
 	};
 
 	platform->icon_64 =
-		win_helpers_bitmap_to_icon(context, platform, &pixmap_64, error);
+		globox_win_helpers_bitmap_to_icon(context, platform, &pixmap_64, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -989,7 +989,7 @@ void win_helpers_set_icon(
 	globox_error_ok(error);
 }
 
-void win_helpers_set_frame(
+void globox_win_helpers_set_frame(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -997,7 +997,7 @@ void win_helpers_set_frame(
 	globox_error_ok(error);
 }
 
-void win_helpers_set_background(
+void globox_win_helpers_set_background(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -1011,7 +1011,7 @@ void win_helpers_set_background(
 	globox_error_ok(error);
 }
 
-void win_helpers_set_vsync(
+void globox_win_helpers_set_vsync(
 	struct globox* context,
 	struct win_platform* platform,
 	struct globox_error_info* error)
@@ -1020,7 +1020,7 @@ void win_helpers_set_vsync(
 }
 
 #ifdef GLOBOX_ERROR_HELPER_WIN
-void win_helpers_win32_error_log()
+void globox_win_helpers_win32_error_log()
 {
 	DWORD error;
 	LPVOID message;

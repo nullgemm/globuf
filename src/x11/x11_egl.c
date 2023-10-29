@@ -94,7 +94,7 @@ void globox_x11_egl_window_create(
 	}
 
 	// configure features here
-	x11_helpers_features_init(context, platform, configs, count, error);
+	globox_x11_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

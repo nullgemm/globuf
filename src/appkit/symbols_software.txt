@@ -1,0 +1,1 @@
+globox_prepare_init_appkit_software

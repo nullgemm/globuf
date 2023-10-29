@@ -480,7 +480,7 @@ void globox_appkit_common_window_start(
 		pthread_create(
 			&(platform->thread_render_loop),
 			&attr,
-			appkit_helpers_render_loop,
+			globox_appkit_helpers_render_loop,
 			&(platform->thread_render_loop_data));
 
 	if (error_posix != 0)
@@ -697,7 +697,7 @@ enum globox_event globox_appkit_common_handle_events(
 				platform->saved_mouse_pos_x = point.x;
 				platform->saved_mouse_pos_y = point.y;
 
-				appkit_helpers_handle_interaction(context, platform, error);
+				globox_appkit_helpers_handle_interaction(context, platform, error);
 			}
 
 			break;
@@ -931,7 +931,7 @@ void globox_appkit_common_feature_set_state(
 	// configure
 	if (config->state != context->feature_state->state)
 	{
-		appkit_helpers_set_state(
+		globox_appkit_helpers_set_state(
 			context,
 			platform->win,
 			config,

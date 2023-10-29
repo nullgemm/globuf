@@ -98,7 +98,7 @@ void globox_win_wgl_window_create(
 	}
 
 	// configure features here
-	win_helpers_features_init(context, platform, configs, count, error);
+	globox_win_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{

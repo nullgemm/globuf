@@ -56,7 +56,7 @@ void globox_win_common_init(
 
 	platform->icon_32 = NULL;
 	platform->icon_64 = NULL;
-	platform->dpi = win_helpers_set_dpi_awareness();
+	platform->dpi = globox_win_helpers_set_dpi_awareness();
 
 	platform->win_module = NULL;
 
@@ -163,17 +163,17 @@ void globox_win_common_window_create(
 		{
 			case GLOBOX_FEATURE_TITLE:
 			{
-				win_helpers_set_title(context, platform, &reply[i].error);
+				globox_win_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				win_helpers_set_icon(context, platform, &reply[i].error);
+				globox_win_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				win_helpers_set_background(context, platform, &reply[i].error);
+				globox_win_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			default:
@@ -212,7 +212,7 @@ void globox_win_common_window_create(
 	{
 		.cbSize = sizeof (WNDCLASSEXW),
 		.style = CS_HREDRAW | CS_VREDRAW,
-		.lpfnWndProc = win_helpers_window_procedure,
+		.lpfnWndProc = globox_win_helpers_window_procedure,
 		.cbClsExtra = 0,
 		.cbWndExtra = 0,
 		.hInstance = platform->win_module,
@@ -295,7 +295,7 @@ void globox_win_common_window_start(
 		(HANDLE) _beginthreadex(
 			NULL,
 			0,
-			win_helpers_event_loop,
+			globox_win_helpers_event_loop,
 			&(platform->thread_event_loop_data),
 			0,
 			NULL);
@@ -750,7 +750,7 @@ enum globox_event globox_win_common_handle_events(
 				}
 				case SC_MAXIMIZE:
 				{
-					win_helpers_save_window_state(context, platform, error);
+					globox_win_helpers_save_window_state(context, platform, error);
 
 					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 					{
@@ -763,7 +763,7 @@ enum globox_event globox_win_common_handle_events(
 				}
 				case SC_MINIMIZE:
 				{
-					win_helpers_save_window_state(context, platform, error);
+					globox_win_helpers_save_window_state(context, platform, error);
 
 					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 					{
@@ -1087,7 +1087,7 @@ void globox_win_common_feature_set_state(
 		return;
 	}
 
-	win_helpers_save_window_state(context, platform, error);
+	globox_win_helpers_save_window_state(context, platform, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
@@ -1097,7 +1097,7 @@ void globox_win_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	win_helpers_set_state(context, platform, error);
+	globox_win_helpers_set_state(context, platform, error);
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
@@ -1144,7 +1144,7 @@ void globox_win_common_feature_set_title(
 	free_check(platform->win_name);
 
 	platform->win_name =
-		win_helpers_utf8_to_wchar(context->feature_title->title);
+		globox_win_helpers_utf8_to_wchar(context->feature_title->title);
 
 	BOOL ok = SetWindowTextW(platform->event_handle, platform->win_name);
 
@@ -1200,7 +1200,7 @@ void globox_win_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	win_helpers_set_icon(context, platform, error);
+	globox_win_helpers_set_icon(context, platform, error);
 
 	// return on configuration error
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)

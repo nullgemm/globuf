@@ -25,28 +25,28 @@
 	- (void) displayLayer: (CALayer*) layer;
 @end
 
-void* appkit_helpers_render_loop(
+void* globox_appkit_helpers_render_loop(
 	void* data);
 
-void appkit_helpers_features_init(
+void globox_appkit_helpers_features_init(
 	struct globox* context,
 	struct appkit_platform* platform,
 	struct globox_config_request* configs,
 	size_t count,
 	struct globox_error_info* error);
 
-void appkit_helpers_send_app_event(
+void globox_appkit_helpers_send_app_event(
 	struct globox* context,
 	struct appkit_platform* platform,
 	enum globox_event event);
 
-void appkit_helpers_set_state(
+void globox_appkit_helpers_set_state(
 	struct globox* context,
 	id window,
 	struct globox_feature_state* config,
 	struct globox_error_info* error);
 
-void appkit_helpers_handle_interaction(
+void globox_appkit_helpers_handle_interaction(
 	struct globox* context,
 	struct appkit_platform* platform,
 	struct globox_error_info* error);

@@ -616,32 +616,32 @@ void globox_wayland_common_window_confirm(
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				wayland_helpers_set_state(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_state(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				wayland_helpers_set_title(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				wayland_helpers_set_icon(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				wayland_helpers_set_frame(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_frame(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				wayland_helpers_set_background(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_VSYNC:
 			{
-				wayland_helpers_set_vsync(context, platform, &reply[i].error);
+				globox_wayland_helpers_set_vsync(context, platform, &reply[i].error);
 				break;
 			}
 			default:
@@ -709,7 +709,7 @@ void globox_wayland_common_window_start(
 		pthread_create(
 			&(platform->thread_event_loop),
 			&attr,
-			wayland_helpers_event_loop,
+			globox_wayland_helpers_event_loop,
 			&(platform->thread_event_loop_data));
 
 	if (error_posix != 0)
@@ -737,7 +737,7 @@ void globox_wayland_common_window_start(
 			pthread_create(
 				&(platform->thread_render_loop),
 				&attr,
-				wayland_helpers_render_loop,
+				globox_wayland_helpers_render_loop,
 				&(platform->thread_render_loop_data));
 
 		if (error_posix != 0)
@@ -1131,7 +1131,7 @@ void globox_wayland_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	wayland_helpers_set_state(context, platform, error);
+	globox_wayland_helpers_set_state(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1170,7 +1170,7 @@ void globox_wayland_common_feature_set_title(
 	free_check(context->feature_title->title);
 
 	context->feature_title->title = strdup(config->title);
-	wayland_helpers_set_title(context, platform, error);
+	globox_wayland_helpers_set_title(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1220,7 +1220,7 @@ void globox_wayland_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	wayland_helpers_set_icon(context, platform, error);
+	globox_wayland_helpers_set_icon(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));

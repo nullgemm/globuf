@@ -540,32 +540,32 @@ void globox_x11_common_window_create(
 		{
 			case GLOBOX_FEATURE_STATE:
 			{
-				x11_helpers_set_state(context, platform, &reply[i].error);
+				globox_x11_helpers_set_state(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_TITLE:
 			{
-				x11_helpers_set_title(context, platform, &reply[i].error);
+				globox_x11_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_ICON:
 			{
-				x11_helpers_set_icon(context, platform, &reply[i].error);
+				globox_x11_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_FRAME:
 			{
-				x11_helpers_set_frame(context, platform, &reply[i].error);
+				globox_x11_helpers_set_frame(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_BACKGROUND:
 			{
-				x11_helpers_set_background(context, platform, &reply[i].error);
+				globox_x11_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			case GLOBOX_FEATURE_VSYNC:
 			{
-				x11_helpers_set_vsync(context, platform, &reply[i].error);
+				globox_x11_helpers_set_vsync(context, platform, &reply[i].error);
 				break;
 			}
 			default:
@@ -714,7 +714,7 @@ void globox_x11_common_window_start(
 		pthread_create(
 			&(platform->thread_event_loop),
 			&attr,
-			x11_helpers_event_loop,
+			globox_x11_helpers_event_loop,
 			&(platform->thread_event_loop_data));
 
 	if (error_posix != 0)
@@ -739,7 +739,7 @@ void globox_x11_common_window_start(
 		pthread_create(
 			&(platform->thread_render_loop),
 			&attr,
-			x11_helpers_render_loop,
+			globox_x11_helpers_render_loop,
 			&(platform->thread_render_loop_data));
 
 	if (error_posix != 0)
@@ -930,7 +930,7 @@ enum globox_event globox_x11_common_handle_events(
 				xcb_generic_error_t* error_xcb =
 					(xcb_generic_error_t*) xcb_event;
 
-				x11_helpers_xcb_error_log(
+				globox_x11_helpers_xcb_error_log(
 					context,
 					platform,
 					error_xcb);
@@ -1023,12 +1023,12 @@ enum globox_event globox_x11_common_handle_events(
 			{
 				if (context->feature_state != NULL)
 				{
-					globox_event = x11_helpers_get_state(context, platform, error);
+					globox_event = globox_x11_helpers_get_state(context, platform, error);
 				}
 			}
 			else if (state->atom == XCB_ATOM_WM_NAME)
 			{
-				x11_helpers_get_title(context, platform, error);
+				globox_x11_helpers_get_title(context, platform, error);
 			}
 
 			// unlock mutex
@@ -1311,7 +1311,7 @@ enum globox_event globox_x11_common_handle_events(
 				platform->saved_mouse_pos_x = motion->root_x;
 				platform->saved_mouse_pos_y = motion->root_y;
 
-				x11_helpers_handle_interaction(context, platform, error);
+				globox_x11_helpers_handle_interaction(context, platform, error);
 
 				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 				{
@@ -1535,7 +1535,7 @@ void globox_x11_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	x11_helpers_set_state(context, platform, error);
+	globox_x11_helpers_set_state(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1574,7 +1574,7 @@ void globox_x11_common_feature_set_title(
 	free_check(context->feature_title->title);
 
 	context->feature_title->title = strdup(config->title);
-	x11_helpers_set_title(context, platform, error);
+	globox_x11_helpers_set_title(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
@@ -1624,7 +1624,7 @@ void globox_x11_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	x11_helpers_set_icon(context, platform, error);
+	globox_x11_helpers_set_icon(context, platform, error);
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));

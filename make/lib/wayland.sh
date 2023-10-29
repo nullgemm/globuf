@@ -26,7 +26,9 @@ folder_library="\$folder_globox/lib/globox/wayland"
 folder_include="\$folder_globox/include"
 name="globox_wayland"
 cc="gcc"
+ld="ld"
 ar="ar"
+objcopy="objcopy"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -161,6 +163,9 @@ exit 1
 	;;
 esac
 
+# save symbols file path
+symbols_file="src/wayland/symbols_$backend.txt"
+
 # default target
 default+=("\$folder_library/\$name.a")
 
@@ -176,7 +181,9 @@ echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name"; \
 echo "cc = $cc"; \
+echo "ld = $ld"; \
 echo "ar = $ar"; \
+echo "objcopy = $objcopy"; \
 echo ""; \
 } > "$output/$ninja_file"
 
@@ -198,9 +205,30 @@ echo -e "\n" >> "$output/$ninja_file"
 # ninja rules
 { \
 echo "# rules"; \
+echo "rule global"; \
+echo "    command = \$objcopy -D --globalize-symbols=$symbols_file \$in \$out"; \
+echo "    description = globalize \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule local"; \
+echo "    command = \$objcopy -w -L \"*\" \$in \$out"; \
+echo "    description = localize \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
 echo "rule ar"; \
 echo "    command = \$ar rcs \$out \$in"; \
 echo "    description = ar \$out"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+{ \
+echo "rule ld"; \
+echo "    command = \$ld -r \$in -o \$out"; \
+echo "    description = ld \$out"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
@@ -267,13 +295,37 @@ for file in "${src[@]}"; do
 	} >> "$output/$ninja_file"
 done
 
-## main targets
-echo "# archive objects" >> "$output/$ninja_file"
-echo -n "build \$folder_library/\$name.a: ar" >> "$output/$ninja_file"
+## merge objects
+echo "# merge objects" >> "$output/$ninja_file"
+echo -n "build \$folder_objects/\$name.o: ld" >> "$output/$ninja_file"
 for file in "${obj[@]}"; do
 	echo -ne " \$\n$file" >> "$output/$ninja_file"
 done
 echo -e "\n" >> "$output/$ninja_file"
+
+## archive object
+{ \
+echo "# archive objects"; \
+echo "build \$folder_objects/\$name.a: ar \$"; \
+echo "\$folder_objects/\$name.o"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+## make API symbols local
+{ \
+echo "# make API symbols local"; \
+echo "build \$folder_objects/\$name.local.a: local \$"; \
+echo "\$folder_objects/\$name.a"; \
+echo ""; \
+} >> "$output/$ninja_file"
+
+## make API symbols global
+{ \
+echo "# make API symbols global"; \
+echo "build \$folder_library/\$name.a: global \$"; \
+echo "\$folder_objects/\$name.local.a"; \
+echo ""; \
+} >> "$output/$ninja_file"
 
 ## special targets
 { \

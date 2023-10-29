@@ -44,7 +44,7 @@
 		event = GLOBOX_EVENT_MAXIMIZED;
 	}
 
-	appkit_helpers_send_app_event(context, platform, event);
+	globox_appkit_helpers_send_app_event(context, platform, event);
 
 	[super zoom: sender];
 }
@@ -57,7 +57,7 @@
 
 - (void) windowDidResize: (NSNotification*) notification
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		GLOBOX_EVENT_MOVED_RESIZED);
@@ -65,7 +65,7 @@
 
 - (void) windowDidMiniaturize: (NSNotification*) notification
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		GLOBOX_EVENT_MINIMIZED);
@@ -86,7 +86,7 @@
 		event = GLOBOX_EVENT_RESTORED;
 	}
 
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		event);
@@ -94,7 +94,7 @@
 
 - (void) windowDidEnterFullScreen: (NSNotification*) notification
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		GLOBOX_EVENT_FULLSCREEN);
@@ -115,7 +115,7 @@
 		event = GLOBOX_EVENT_RESTORED;
 	}
 
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		event);
@@ -123,7 +123,7 @@
 
 - (void) windowDidMove: (NSNotification*) notification
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		GLOBOX_EVENT_MOVED_RESIZED);
@@ -131,7 +131,7 @@
 
 - (BOOL) windowShouldClose: (NSWindow*) sender
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxDelegateData->globox,
 		globoxDelegateData->platform,
 		GLOBOX_EVENT_CLOSED);
@@ -147,7 +147,7 @@
 
 - (void) displayLayer: (CALayer*) layer
 {
-	appkit_helpers_send_app_event(
+	globox_appkit_helpers_send_app_event(
 		globoxLayerDelegateData->globox,
 		globoxLayerDelegateData->platform,
 		GLOBOX_EVENT_DAMAGED);
@@ -155,7 +155,7 @@
 
 @end
 
-void* appkit_helpers_render_loop(void* data)
+void* globox_appkit_helpers_render_loop(void* data)
 {
 	struct appkit_thread_render_loop_data* thread_render_loop_data = data;
 
@@ -247,7 +247,7 @@ void* appkit_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void appkit_helpers_features_init(
+void globox_appkit_helpers_features_init(
 	struct globox* context,
 	struct appkit_platform* platform,
 	struct globox_config_request* configs,
@@ -349,7 +349,7 @@ void appkit_helpers_features_init(
 	}
 }
 
-void appkit_helpers_send_app_event(
+void globox_appkit_helpers_send_app_event(
 	struct globox* context,
 	struct appkit_platform* platform,
 	enum globox_event event)
@@ -371,7 +371,7 @@ void appkit_helpers_send_app_event(
 		atStart:NO];
 }
 
-void appkit_helpers_set_state(
+void globox_appkit_helpers_set_state(
 	struct globox* context,
 	id window,
 	struct globox_feature_state* config,
@@ -458,7 +458,7 @@ void appkit_helpers_set_state(
 	globox_error_ok(error);
 }
 
-void appkit_helpers_handle_interaction(
+void globox_appkit_helpers_handle_interaction(
 	struct globox* context,
 	struct appkit_platform* platform,
 	struct globox_error_info* error)

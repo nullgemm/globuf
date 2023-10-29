@@ -1,0 +1,2 @@
+globox_prepare_init_appkit_egl
+globox_appkit_egl_get_scale

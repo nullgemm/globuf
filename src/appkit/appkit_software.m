@@ -76,7 +76,7 @@ void globox_appkit_software_window_create(
 	}
 
 	// configure features here
-	appkit_helpers_features_init(context, platform, configs, count, error);
+	globox_appkit_helpers_features_init(context, platform, configs, count, error);
 
 	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
 	{
