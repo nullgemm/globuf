@@ -3,7 +3,7 @@
 
 #include "include/globox.h"
 #include "include/globox_opengl.h"
-#include "appkit/appkit_opengl.h"
+#include "appkit/appkit_egl.h"
 #include "appkit/appkit_common.h"
 #include <EGL/egl.h>
 
