@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <xcb/xcb.h>
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 void globox_x11_egl_init(
 	struct globox* context,
@@ -101,14 +102,6 @@ void globox_x11_egl_window_create(
 		return;
 	}
 
-	// run common X11 helper
-	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
-
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
-	{
-		return;
-	}
-
 	// get display
 	backend->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
@@ -144,20 +137,71 @@ void globox_x11_egl_window_create(
 		return;
 	}
 
+	// get egl config count
+	EGLint attr_configs_alloc_size = 0;
+	EGLint attr_configs_fill_size = 0;
+	EGLConfig* attr_configs = NULL;
+
 	error_egl =
 		eglChooseConfig(
 			backend->display,
 			backend->config->attributes,
-			&(backend->attr_config),
-			1,
-			&(backend->attr_config_size));
+			NULL,
+			0,
+			&attr_configs_alloc_size);
 
-	if (error_egl == EGL_FALSE)
+	if ((error_egl == EGL_FALSE) || (attr_configs_alloc_size == 0))
 	{
 		globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_CONFIG);
 		return;
 	}
 
+	// allocate config array
+	attr_configs = malloc((sizeof (EGLConfig)) * attr_configs_alloc_size);
+
+	if (attr_configs == NULL)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		return;
+	}
+
+	// get egl configs
+	error_egl =
+		eglChooseConfig(
+			backend->display,
+			backend->config->attributes,
+			attr_configs,
+			attr_configs_alloc_size,
+			&attr_configs_fill_size);
+
+	if (error_egl == EGL_FALSE)
+	{
+		globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_CONFIG);
+		free(attr_configs);
+		return;
+	}
+
+	// check if the egl config groups extension is available
+	bool group_ext = false;
+
+#ifdef EGL_EXT_config_select_group
+	const char* list =
+		eglQueryString(
+			backend->display,
+			EGL_EXTENSIONS);
+
+	group_ext =
+		x11_helpers_egl_ext_support(
+			list,
+			"EGL_EXT_config_select_group");
+#endif
+
+	if (group_ext == false)
+	{
+		context->feature_background->background = GLOBOX_BACKGROUND_OPAQUE;
+	}
+
+	// find compatible visual
 	EGLint attr_context[] =
 	{
 		EGL_CONTEXT_MAJOR_VERSION, backend->config->major_version,
@@ -165,6 +209,75 @@ void globox_x11_egl_window_create(
 		EGL_NONE,
 	};
 
+	EGLint i = 0;
+
+	while (i < attr_configs_fill_size)
+	{
+		// get visual depth from EGL
+		EGLint visual_depth;
+
+		error_egl =
+			eglGetConfigAttrib(
+				backend->display,
+				attr_configs[i],
+				EGL_DEPTH_SIZE,
+				&visual_depth);
+
+		if (error_egl == EGL_FALSE)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_CONFIG_ATTR);
+			free(attr_configs);
+			return;
+		}
+
+		// break if creating an opaque context
+		if (context->feature_background->background == GLOBOX_BACKGROUND_OPAQUE)
+		{
+			platform->visual_depth = visual_depth;
+			break;
+		}
+
+		// get transparency info from EGL
+		EGLint group;
+
+		error_egl =
+			eglGetConfigAttrib(
+				backend->display,
+				attr_configs[i],
+				EGL_CONFIG_SELECT_GROUP_EXT,
+				&group);
+
+		if (error_egl == EGL_FALSE)
+		{
+			globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_CONFIG_ATTR);
+			free(attr_configs);
+			return;
+		}
+
+		// break if visual supports transparency
+		if ((group == 1) && (visual_depth == 24))
+		{
+			platform->visual_depth = 32;
+			break;
+		}
+
+		// continue searching for a compatible context
+		++i;
+	}
+
+	// since X11 EGL transparency support was only added recently,
+	// fall back to using opaque contexts if needed...
+	if (i == attr_configs_fill_size)
+	{
+		context->feature_background->background = GLOBOX_BACKGROUND_OPAQUE;
+		i = 0;
+	}
+
+	// save config and free array
+	backend->attr_config = attr_configs[i];
+	free(attr_configs);
+
+	// create context
 	backend->egl =
 		eglCreateContext(
 			backend->display,
@@ -196,23 +309,30 @@ void globox_x11_egl_window_create(
 
 	platform->visual_id = visual_id;
 
-	// get visual depth from EGL
-	EGLint visual_depth;
-
-	error_egl =
-		eglGetConfigAttrib(
-			backend->display,
-			backend->attr_config,
-			EGL_DEPTH_SIZE,
-			&visual_depth);
-
-	if (error_egl == EGL_FALSE)
+	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_CONFIG_ATTR);
-		return;
+		// generate a compatible colormap for the chosen visual id
+		xcb_colormap_t colormap =
+			xcb_generate_id(
+				platform->conn);
+
+		xcb_create_colormap(
+			platform->conn,
+			XCB_COLORMAP_ALLOC_NONE,
+			colormap,
+			platform->screen_obj->root,
+			platform->visual_id);
+
+		platform->attr_val[2] = colormap;
 	}
 
-	platform->visual_depth = visual_depth;
+	// run common X11 helper
+	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
+
+	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	{
+		return;
+	}
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));

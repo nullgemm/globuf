@@ -15,8 +15,11 @@ struct x11_egl_backend
 	EGLDisplay display;
 	EGLSurface surface;
 	EGLConfig attr_config;
-	EGLint attr_config_size;
 };
+
+bool x11_helpers_egl_ext_support(
+	const char *list,
+	const char *extension);
 
 void x11_helpers_egl_bind(
 	struct globox* context,

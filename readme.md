@@ -24,7 +24,6 @@ X11
  - `software` provides CPU and GPU buffers using XCB's SHM module.
  - `vulkan` provides Vulkan contexts using Vulkan's WSI XCB support.
  - `egl` provides OpenGL contexts using XCB, EGL and libX11 when required.
-   Transparent contexts are not supported yet because of a bug in EGL.
  - `glx` provides OpenGL contexts using XCB, GLX and libX11 when required.
 
 Windows (background blur is not supported since it requires using private APIs)

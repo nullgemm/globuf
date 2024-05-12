@@ -174,6 +174,7 @@ void globox_x11_glx_window_create(
 			continue;
 		}
 
+		// TODO clarify validity matching code
 		fb_valid = true;
 		backend->fb_config = fb_config_list[i];
 

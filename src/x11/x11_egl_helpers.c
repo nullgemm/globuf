@@ -9,6 +9,33 @@
 #include <string.h>
 #include <EGL/egl.h>
 
+bool x11_helpers_egl_ext_support(const char *list, const char *extension)
+{
+	const char* beg = list;
+	const char* end;
+	const char* cur;
+
+	cur = strstr(beg, extension);
+
+	while (cur != NULL)
+	{
+		end = cur + strlen(extension);
+
+		// the extension name might be a subset of another one so
+		// we must check the surrouding characters to make sure
+		if (((cur == beg) || (cur[-1] == ' '))
+			&& ((end[0] == '\0') || (end[0] == ' ')))
+		{
+			return true;
+		}
+
+		beg = end;
+		cur = strstr(beg, extension);
+	}
+
+	return false;
+}
+
 void x11_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
 {
 	struct x11_egl_backend* backend = context->backend_data;
