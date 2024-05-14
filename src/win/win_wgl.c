@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_opengl.h"
-#include "include/globox_win_wgl.h"
+#include "include/globuf.h"
+#include "include/globuf_opengl.h"
+#include "include/globuf_win_wgl.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "win/win_common.h"
 #include "win/win_common_helpers.h"
 #include "win/win_wgl.h"
@@ -18,16 +18,16 @@
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 
-void globox_win_wgl_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct win_wgl_backend* backend = malloc(sizeof (struct win_wgl_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -40,9 +40,9 @@ void globox_win_wgl_init(
 
 	// initialize the platform
 	struct win_platform* platform = &(backend->platform);
-	globox_win_common_init(context, platform, error);
+	globuf_win_common_init(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -59,15 +59,15 @@ void globox_win_wgl_init(
 	// error always set
 }
 
-void globox_win_wgl_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// clean the platform
-	globox_win_common_clean(context, platform, error);
+	globuf_win_common_clean(context, platform, error);
 
 	// free the backend
 	free(backend);
@@ -75,13 +75,13 @@ void globox_win_wgl_clean(
 	// error always set
 }
 
-void globox_win_wgl_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_win_wgl_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -93,21 +93,21 @@ void globox_win_wgl_window_create(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_win_helpers_features_init(context, platform, configs, count, error);
+	globuf_win_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
 	// run common win32 helper
-	globox_win_common_window_create(
+	globuf_win_common_window_create(
 		context,
 		platform,
 		configs,
@@ -116,7 +116,7 @@ void globox_win_wgl_window_create(
 		data,
 		error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -127,16 +127,16 @@ void globox_win_wgl_window_create(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_wgl_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -148,14 +148,14 @@ void globox_win_wgl_window_destroy(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
 	// run common win32 helper
-	globox_win_common_window_destroy(context, platform, error);
+	globuf_win_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -166,29 +166,29 @@ void globox_win_wgl_window_destroy(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_wgl_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_window_confirm(context, platform, error);
+	globuf_win_common_window_confirm(context, platform, error);
 
 	// error always set
 }
 
-void globox_win_wgl_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -200,14 +200,14 @@ void globox_win_wgl_window_start(
 	platform->render_init_callback = win_helpers_wgl_render;
 
 	// run common win32 helper
-	globox_win_common_window_start(context, platform, error);
+	globuf_win_common_window_start(context, platform, error);
 
 	// lock mutex
 	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -216,7 +216,7 @@ void globox_win_wgl_window_start(
 
 	if (device_context == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_DEVICE_CONTEXT_GET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -262,7 +262,7 @@ void globox_win_wgl_window_start(
 
 	if (pixel_format == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -272,7 +272,7 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_PIXEL_FORMAT_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -282,7 +282,7 @@ void globox_win_wgl_window_start(
 
 	if (backend->wgl == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_CREATE);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -292,7 +292,7 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -304,7 +304,7 @@ void globox_win_wgl_window_start(
 
 	if (wglCreateContextAttribsARB == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_FUNC_LOAD);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -315,7 +315,7 @@ void globox_win_wgl_window_start(
 
 	if (wglChoosePixelFormatARB == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_FUNC_LOAD);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_FUNC_LOAD);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -325,7 +325,7 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -334,7 +334,7 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_DESTROY);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -366,7 +366,7 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_PIXEL_FORMAT_CHOOSE);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -376,9 +376,9 @@ void globox_win_wgl_window_start(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PIXEL_FORMAT_SET);
-#if defined(GLOBOX_COMPAT_WINE)
-		globox_error_ok(error);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_PIXEL_FORMAT_SET);
+#if defined(GLOBUF_COMPAT_WINE)
+		globuf_error_ok(error);
 #else
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -401,7 +401,7 @@ void globox_win_wgl_window_start(
 
 	if (backend->wgl == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_CREATE);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -416,31 +416,31 @@ void globox_win_wgl_window_start(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_win_wgl_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper (mutex locked when unblocked)
-	globox_win_common_window_block(context, platform, error);
+	globuf_win_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_win_wgl_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_win_wgl_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -452,7 +452,7 @@ void globox_win_wgl_window_stop(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -461,13 +461,13 @@ void globox_win_wgl_window_stop(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_CONTEXT_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_CONTEXT_DESTROY);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
 	// run common win32 helper
-	globox_win_common_window_stop(context, platform, error);
+	globuf_win_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
 
@@ -476,7 +476,7 @@ void globox_win_wgl_window_stop(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -484,48 +484,48 @@ void globox_win_wgl_window_stop(
 }
 
 
-void globox_win_wgl_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_init_render(context, platform, config, error);
+	globuf_win_common_init_render(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_win_wgl_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_init_events(context, platform, config, error);
+	globuf_win_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-enum globox_event globox_win_wgl_handle_events(
-	struct globox* context,
+enum globuf_event globuf_win_wgl_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
-	enum globox_event out =
-		globox_win_common_handle_events(
+	enum globuf_event out =
+		globuf_win_common_handle_events(
 			context,
 			platform,
 			event,
@@ -536,117 +536,117 @@ enum globox_event globox_win_wgl_handle_events(
 }
 
 
-struct globox_config_features* globox_win_wgl_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_win_wgl_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	struct globox_config_features* features =
-		globox_win_common_init_features(context, platform, error);
+	struct globuf_config_features* features =
+		globuf_win_common_init_features(context, platform, error);
 
 	// return the newly created features info structure
 	// error always set
 	return features;
 }
 
-void globox_win_wgl_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_feature_set_interaction(context, platform, config, error);
+	globuf_win_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_win_wgl_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_feature_set_state(context, platform, config, error);
+	globuf_win_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_win_wgl_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_feature_set_title(context, platform, config, error);
+	globuf_win_common_feature_set_title(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_win_wgl_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_win_wgl_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// run common win32 helper
-	globox_win_common_feature_set_icon(context, platform, config, error);
+	globuf_win_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_win_wgl_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_win_wgl_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_win_common_get_width(context, platform, error);
+	return globuf_win_common_get_width(context, platform, error);
 }
 
-unsigned globox_win_wgl_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_win_wgl_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_win_common_get_height(context, platform, error);
+	return globuf_win_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_win_wgl_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_win_wgl_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_win_common_get_expose(context, platform, error);
+	return globuf_win_common_get_expose(context, platform, error);
 }
 
 
-void globox_win_wgl_update_content(
-	struct globox* context,
+void globuf_win_wgl_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -656,7 +656,7 @@ void globox_win_wgl_update_content(
 
 	if (device_context == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_DEVICE_CONTEXT_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_DEVICE_CONTEXT_GET);
 		return;
 	}
 
@@ -665,17 +665,17 @@ void globox_win_wgl_update_content(
 
 	if (ok == FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WGL_SWAP);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WGL_SWAP);
 		return;
 	}
 
 	// release device context
 	ReleaseDC(platform->event_handle, device_context);
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_win_wgl_callback(
-	struct globox* context)
+void* globuf_win_wgl_callback(
+	struct globuf* context)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 	struct win_platform* platform = &(backend->platform);
@@ -684,58 +684,58 @@ void* globox_win_wgl_callback(
 
 
 // OpenGL configuration setter
-void globox_init_win_wgl(
-	struct globox* context,
-	struct globox_config_opengl* config,
-	struct globox_error_info* error)
+void globuf_init_win_wgl(
+	struct globuf* context,
+	struct globuf_config_opengl* config,
+	struct globuf_error_info* error)
 {
 	struct win_wgl_backend* backend = context->backend_data;
 
 	backend->config = config;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_prepare_init_win_wgl(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_win_wgl(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_opengl* opengl =
-		malloc(sizeof (struct globox_calls_opengl));
+	struct globuf_calls_opengl* opengl =
+		malloc(sizeof (struct globuf_calls_opengl));
 
 	if (opengl == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	opengl->init = globox_init_win_wgl;
+	opengl->init = globuf_init_win_wgl;
 
 	config->data = opengl;
-	config->callback = globox_win_wgl_callback;
-	config->init = globox_win_wgl_init;
-	config->clean = globox_win_wgl_clean;
-	config->window_create = globox_win_wgl_window_create;
-	config->window_destroy = globox_win_wgl_window_destroy;
-	config->window_start = globox_win_wgl_window_start;
-	config->window_confirm = globox_win_wgl_window_confirm;
-	config->window_block = globox_win_wgl_window_block;
-	config->window_stop = globox_win_wgl_window_stop;
-	config->init_render = globox_win_wgl_init_render;
-	config->init_events = globox_win_wgl_init_events;
-	config->handle_events = globox_win_wgl_handle_events;
-	config->init_features = globox_win_wgl_init_features;
-	config->feature_set_interaction = globox_win_wgl_feature_set_interaction;
-	config->feature_set_state = globox_win_wgl_feature_set_state;
-	config->feature_set_title = globox_win_wgl_feature_set_title;
-	config->feature_set_icon = globox_win_wgl_feature_set_icon;
-	config->get_width = globox_win_wgl_get_width;
-	config->get_height = globox_win_wgl_get_height;
-	config->get_expose = globox_win_wgl_get_expose;
-	config->update_content = globox_win_wgl_update_content;
+	config->callback = globuf_win_wgl_callback;
+	config->init = globuf_win_wgl_init;
+	config->clean = globuf_win_wgl_clean;
+	config->window_create = globuf_win_wgl_window_create;
+	config->window_destroy = globuf_win_wgl_window_destroy;
+	config->window_start = globuf_win_wgl_window_start;
+	config->window_confirm = globuf_win_wgl_window_confirm;
+	config->window_block = globuf_win_wgl_window_block;
+	config->window_stop = globuf_win_wgl_window_stop;
+	config->init_render = globuf_win_wgl_init_render;
+	config->init_events = globuf_win_wgl_init_events;
+	config->handle_events = globuf_win_wgl_handle_events;
+	config->init_features = globuf_win_wgl_init_features;
+	config->feature_set_interaction = globuf_win_wgl_feature_set_interaction;
+	config->feature_set_state = globuf_win_wgl_feature_set_state;
+	config->feature_set_title = globuf_win_wgl_feature_set_title;
+	config->feature_set_icon = globuf_win_wgl_feature_set_icon;
+	config->get_width = globuf_win_wgl_get_width;
+	config->get_height = globuf_win_wgl_get_height;
+	config->get_expose = globuf_win_wgl_get_expose;
+	config->update_content = globuf_win_wgl_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

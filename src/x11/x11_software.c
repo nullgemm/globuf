@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_software.h"
-#include "include/globox_x11_software.h"
+#include "include/globuf.h"
+#include "include/globuf_software.h"
+#include "include/globuf_x11_software.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "x11/x11_common.h"
 #include "x11/x11_common_helpers.h"
 #include "x11/x11_software.h"
@@ -15,16 +15,16 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_image.h>
 
-void globox_x11_software_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct x11_software_backend* backend = malloc(sizeof (struct x11_software_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -46,19 +46,19 @@ void globox_x11_software_init(
 	if (error_posix > 0)
 	{
 		xcb_disconnect(platform->conn);
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONN);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_CONN);
 		return;
 	}
 
 	// initialize the platform
-	globox_x11_common_init(context, platform, error);
+	globuf_x11_common_init(context, platform, error);
 
 	// error always set
 }
 
-void globox_x11_software_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -67,7 +67,7 @@ void globox_x11_software_clean(
 	xcb_disconnect(platform->conn);
 
 	// clean the platform
-	globox_x11_common_clean(context, platform, error);
+	globuf_x11_common_clean(context, platform, error);
 
 	// free the backend
 	free(backend);
@@ -75,13 +75,13 @@ void globox_x11_software_clean(
 	// error always set
 }
 
-void globox_x11_software_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_x11_software_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -91,24 +91,24 @@ void globox_x11_software_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_x11_helpers_features_init(context, platform, configs, count, error);
+	globuf_x11_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// select visual configuration
-	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+	if (context->feature_background->background != GLOBUF_BACKGROUND_OPAQUE)
 	{
 		x11_helpers_visual_transparent(context, error);
 
-		if (globox_error_get_code(error) == GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE)
+		if (globuf_error_get_code(error) == GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE)
 		{
 			x11_helpers_visual_opaque(context, error);
 		}
@@ -118,15 +118,15 @@ void globox_x11_software_window_create(
 		x11_helpers_visual_opaque(context, error);
 	}
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// run common X11 helper
-	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
+	globuf_x11_common_window_create(context, platform, configs, count, callback, data, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -157,7 +157,7 @@ void globox_x11_software_window_create(
 
 	if (error_gc != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_GC_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_GC_CREATE);
 		return;
 	}
 
@@ -187,7 +187,7 @@ void globox_x11_software_window_create(
 
 		if ((error_shm != NULL) || (reply_shm == NULL))
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_SHM_VERSION);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_SHM_VERSION);
 			return;
 		}
 
@@ -215,24 +215,24 @@ void globox_x11_software_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_x11_software_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_destroy(context, platform, error);
+	globuf_x11_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -242,7 +242,7 @@ void globox_x11_software_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -253,65 +253,65 @@ void globox_x11_software_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_x11_software_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_confirm(context, platform, error);
+	globuf_x11_common_window_confirm(context, platform, error);
 
 	// error always set
 }
 
-void globox_x11_software_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_start(context, platform, error);
+	globuf_x11_common_window_start(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_software_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper (mutex locked when unblocked)
-	globox_x11_common_window_block(context, platform, error);
+	globuf_x11_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_software_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_software_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_stop(context, platform, error);
+	globuf_x11_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
 
@@ -319,55 +319,55 @@ void globox_x11_software_window_stop(
 }
 
 
-void globox_x11_software_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_x11_software_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_init_render(context, platform, config, error);
+	globuf_x11_common_init_render(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_software_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_x11_software_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_init_events(context, platform, config, error);
+	globuf_x11_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-enum globox_event globox_x11_software_handle_events(
-	struct globox* context,
+enum globuf_event globuf_x11_software_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	enum globox_event out =
-		globox_x11_common_handle_events(
+	enum globuf_event out =
+		globuf_x11_common_handle_events(
 			context,
 			platform,
 			event,
 			error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return out;
 	}
@@ -388,14 +388,14 @@ enum globox_event globox_x11_software_handle_events(
 
 			if (error_posix != 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 				break;
 			}
 
 			// safe value updates
-			if (platform->xsync_status == GLOBOX_XSYNC_CONFIGURED)
+			if (platform->xsync_status == GLOBUF_XSYNC_CONFIGURED)
 			{
-				platform->xsync_status = GLOBOX_XSYNC_ACKNOWLEDGED;
+				platform->xsync_status = GLOBUF_XSYNC_ACKNOWLEDGED;
 			}
 
 			// unlock xsync mutex
@@ -403,11 +403,11 @@ enum globox_event globox_x11_software_handle_events(
 
 			if (error_posix != 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
 			}
 
-			out = GLOBOX_EVENT_MOVED_RESIZED;
+			out = GLOBUF_EVENT_MOVED_RESIZED;
 			break;
 		}
 	}
@@ -418,18 +418,18 @@ enum globox_event globox_x11_software_handle_events(
 }
 
 
-struct globox_config_features* globox_x11_software_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_x11_software_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	struct globox_config_features* features =
-		globox_x11_common_init_features(context, platform, error);
+	struct globuf_config_features* features =
+		globuf_x11_common_init_features(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return features;
 	}
@@ -456,7 +456,7 @@ struct globox_config_features* globox_x11_software_init_features(
 
 	if (error_xcb != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_PROP_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_PROP_GET);
 
 		return features;
 	}
@@ -473,14 +473,14 @@ struct globox_config_features* globox_x11_software_init_features(
 	{
 		if (net_atoms[i] == platform->atoms[X11_ATOM_FRAME_DRAWN])
 		{
-			features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+			features->list[features->count] = GLOBUF_FEATURE_VSYNC;
 			context->feature_vsync =
-				malloc(sizeof (struct globox_feature_vsync));
+				malloc(sizeof (struct globuf_feature_vsync));
 			features->count += 1;
 
 			if (context->feature_vsync == NULL)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+				globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 				return NULL;
 			}
 
@@ -497,105 +497,105 @@ struct globox_config_features* globox_x11_software_init_features(
 	return features;
 }
 
-void globox_x11_software_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+void globuf_x11_software_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_interaction(context, platform, config, error);
+	globuf_x11_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_software_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_x11_software_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_state(context, platform, config, error);
+	globuf_x11_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_software_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_x11_software_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_title(context, platform, config, error);
+	globuf_x11_common_feature_set_title(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_software_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_x11_software_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_icon(context, platform, config, error);
+	globuf_x11_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_x11_software_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_x11_software_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_width(context, platform, error);
+	return globuf_x11_common_get_width(context, platform, error);
 }
 
-unsigned globox_x11_software_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_x11_software_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_height(context, platform, error);
+	return globuf_x11_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_x11_software_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_x11_software_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_expose(context, platform, error);
+	return globuf_x11_common_get_expose(context, platform, error);
 }
 
 
-void globox_x11_software_update_content(
-	struct globox* context,
+void globuf_x11_software_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
-	struct globox_update_software* update = data;
+	struct globuf_update_software* update = data;
 
 	// unlike wayland, X can't automatically copy buffers from cpu to gpu
 	// so if the display server is running in DRM we need to do it manually
@@ -631,7 +631,7 @@ void globox_x11_software_update_content(
 
 		if (error_pixmap != NULL)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
+			globuf_error_throw(context, error, GLOBUF_ERROR_X11_PIXMAP);
 			return;
 		}
 
@@ -668,7 +668,7 @@ void globox_x11_software_update_content(
 
 				if (error_image != NULL)
 				{
-					globox_error_throw(context, error, GLOBOX_ERROR_X11_IMAGE);
+					globuf_error_throw(context, error, GLOBUF_ERROR_X11_IMAGE);
 					return;
 				}
 
@@ -699,7 +699,7 @@ void globox_x11_software_update_content(
 
 		if (error_image != NULL)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_IMAGE);
+			globuf_error_throw(context, error, GLOBUF_ERROR_X11_IMAGE);
 			return;
 		}
 	}
@@ -723,7 +723,7 @@ void globox_x11_software_update_content(
 
 		if (error_pixmap != NULL)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_X11_PIXMAP);
+			globuf_error_throw(context, error, GLOBUF_ERROR_X11_PIXMAP);
 			return;
 		}
 	}
@@ -748,7 +748,7 @@ void globox_x11_software_update_content(
 
 	if (error_copy != NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_COPY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_COPY);
 		return;
 	}
 
@@ -756,7 +756,7 @@ void globox_x11_software_update_content(
 
 	if (error_flush <= 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_FLUSH);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_FLUSH);
 		return;
 	}
 
@@ -764,11 +764,11 @@ void globox_x11_software_update_content(
 		platform->conn,
 		backend->software_pixmap);
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_x11_software_callback(
-	struct globox* context)
+void* globuf_x11_software_callback(
+	struct globuf* context)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -777,12 +777,12 @@ void* globox_x11_software_callback(
 
 
 // simple allocator we provide so developers don't try to recycle buffers
-// (it would not be thread-safe and break this multi-threaded version of globox)
-uint32_t* globox_buffer_alloc_x11_software(
-	struct globox* context,
+// (it would not be thread-safe and break this multi-threaded version of globuf)
+uint32_t* globuf_buffer_alloc_x11_software(
+	struct globuf* context,
 	unsigned width,
 	unsigned height,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	uint32_t* argb = NULL;
@@ -794,7 +794,7 @@ uint32_t* globox_buffer_alloc_x11_software(
 
 		if (argb == NULL)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+			globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 			return NULL;
 		}
 	}
@@ -802,7 +802,7 @@ uint32_t* globox_buffer_alloc_x11_software(
 	{
 		x11_helpers_shm_create(context, len, error);
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 		{
 			return NULL;
 		}
@@ -810,14 +810,14 @@ uint32_t* globox_buffer_alloc_x11_software(
 		argb = (uint32_t*) backend->software_shm.shmaddr;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return argb;
 }
 
-void globox_buffer_free_x11_software(
-	struct globox* context,
+void globuf_buffer_free_x11_software(
+	struct globuf* context,
 	uint32_t* buffer,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -843,10 +843,10 @@ void globox_buffer_free_x11_software(
 
 		if (error_shm != NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				error,
-				GLOBOX_ERROR_X11_SHM_DETACH);
+				GLOBUF_ERROR_X11_SHM_DETACH);
 
 			return;
 		}
@@ -855,59 +855,59 @@ void globox_buffer_free_x11_software(
 
 		if (error_shmdt == -1)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				error,
-				GLOBOX_ERROR_POSIX_SHMDT);
+				GLOBUF_ERROR_POSIX_SHMDT);
 
 			return;
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_prepare_init_x11_software(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_x11_software(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_software* software =
-		malloc(sizeof (struct globox_calls_software));
+	struct globuf_calls_software* software =
+		malloc(sizeof (struct globuf_calls_software));
 
 	if (software == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	software->alloc = globox_buffer_alloc_x11_software;
-	software->free = globox_buffer_free_x11_software;
+	software->alloc = globuf_buffer_alloc_x11_software;
+	software->free = globuf_buffer_free_x11_software;
 
 	config->data = software;
-	config->callback = globox_x11_software_callback;
-	config->init = globox_x11_software_init;
-	config->clean = globox_x11_software_clean;
-	config->window_create = globox_x11_software_window_create;
-	config->window_destroy = globox_x11_software_window_destroy;
-	config->window_confirm = globox_x11_software_window_confirm;
-	config->window_start = globox_x11_software_window_start;
-	config->window_block = globox_x11_software_window_block;
-	config->window_stop = globox_x11_software_window_stop;
-	config->init_render = globox_x11_software_init_render;
-	config->init_events = globox_x11_software_init_events;
-	config->handle_events = globox_x11_software_handle_events;
-	config->init_features = globox_x11_software_init_features;
-	config->feature_set_interaction = globox_x11_software_feature_set_interaction;
-	config->feature_set_state = globox_x11_software_feature_set_state;
-	config->feature_set_title = globox_x11_software_feature_set_title;
-	config->feature_set_icon = globox_x11_software_feature_set_icon;
-	config->get_width = globox_x11_software_get_width;
-	config->get_height = globox_x11_software_get_height;
-	config->get_expose = globox_x11_software_get_expose;
-	config->update_content = globox_x11_software_update_content;
+	config->callback = globuf_x11_software_callback;
+	config->init = globuf_x11_software_init;
+	config->clean = globuf_x11_software_clean;
+	config->window_create = globuf_x11_software_window_create;
+	config->window_destroy = globuf_x11_software_window_destroy;
+	config->window_confirm = globuf_x11_software_window_confirm;
+	config->window_start = globuf_x11_software_window_start;
+	config->window_block = globuf_x11_software_window_block;
+	config->window_stop = globuf_x11_software_window_stop;
+	config->init_render = globuf_x11_software_init_render;
+	config->init_events = globuf_x11_software_init_events;
+	config->handle_events = globuf_x11_software_handle_events;
+	config->init_features = globuf_x11_software_init_features;
+	config->feature_set_interaction = globuf_x11_software_feature_set_interaction;
+	config->feature_set_state = globuf_x11_software_feature_set_state;
+	config->feature_set_title = globuf_x11_software_feature_set_title;
+	config->feature_set_icon = globuf_x11_software_feature_set_icon;
+	config->get_width = globuf_x11_software_get_width;
+	config->get_height = globuf_x11_software_get_height;
+	config->get_expose = globuf_x11_software_get_expose;
+	config->update_content = globuf_x11_software_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

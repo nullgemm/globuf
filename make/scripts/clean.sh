@@ -5,5 +5,5 @@ path="$(pwd)/$0"
 folder=$(dirname "$path")
 cd "$folder"/../.. || exit
 
-rm -rf build globox_bin_* valgrind.log drmemory.log
+rm -rf build globuf_bin_* valgrind.log drmemory.log
 ./make/scripts/clean_ninja.sh

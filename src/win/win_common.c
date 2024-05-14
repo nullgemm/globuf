@@ -1,6 +1,6 @@
-#include "include/globox.h"
-#include "include/globox_win.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "include/globuf_win.h"
+#include "common/globuf_private.h"
 #include "win/win_common.h"
 #include "win/win_common_helpers.h"
 
@@ -19,10 +19,10 @@ static inline void free_check(const void* ptr)
 	}
 }
 
-void globox_win_common_init(
-	struct globox* context,
+void globuf_win_common_init(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// create win32 mutexes
 	// main mutex
@@ -30,7 +30,7 @@ void globox_win_common_init(
 
 	if (platform->mutex_main == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_CREATE);
 		return;
 	}
 
@@ -56,7 +56,7 @@ void globox_win_common_init(
 
 	platform->icon_32 = NULL;
 	platform->icon_64 = NULL;
-	platform->dpi = globox_win_helpers_set_dpi_awareness();
+	platform->dpi = globuf_win_helpers_set_dpi_awareness();
 
 	platform->win_module = NULL;
 
@@ -75,7 +75,7 @@ void globox_win_common_init(
 	// initialize render thread
 	struct win_thread_render_loop_data thread_render_loop_data =
 	{
-		.globox = NULL,
+		.globuf = NULL,
 		.platform = NULL,
 		.error = NULL,
 	};
@@ -86,7 +86,7 @@ void globox_win_common_init(
 	// initialize event thread
 	struct win_thread_event_loop_data thread_event_loop_data =
 	{
-		.globox = NULL,
+		.globuf = NULL,
 		.platform = NULL,
 		.error = NULL,
 	};
@@ -94,13 +94,13 @@ void globox_win_common_init(
 	platform->thread_event_loop_data = thread_event_loop_data;
 	platform->event_init_callback = NULL;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_clean(
-	struct globox* context,
+void globuf_win_common_clean(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	BOOL ok;
 
@@ -108,7 +108,7 @@ void globox_win_common_clean(
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_DESTROY);
 		return;
 	}
 
@@ -132,53 +132,53 @@ void globox_win_common_clean(
 	free_check(context->feature_background);
 	free_check(context->feature_vsync);
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_create(
-	struct globox* context,
+void globuf_win_common_window_create(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// configure features
-	struct globox_config_reply* reply =
-		malloc(count * (sizeof (struct globox_config_reply)));
+	struct globuf_config_reply* reply =
+		malloc(count * (sizeof (struct globuf_config_reply)));
 
 	if (reply == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
 	for (size_t i = 0; i < count; ++i)
 	{
-		enum globox_feature feature = configs[i].feature;
+		enum globuf_feature feature = configs[i].feature;
 		reply[i].feature = feature;
 
 		switch (feature)
 		{
-			case GLOBOX_FEATURE_TITLE:
+			case GLOBUF_FEATURE_TITLE:
 			{
-				globox_win_helpers_set_title(context, platform, &reply[i].error);
+				globuf_win_helpers_set_title(context, platform, &reply[i].error);
 				break;
 			}
-			case GLOBOX_FEATURE_ICON:
+			case GLOBUF_FEATURE_ICON:
 			{
-				globox_win_helpers_set_icon(context, platform, &reply[i].error);
+				globuf_win_helpers_set_icon(context, platform, &reply[i].error);
 				break;
 			}
-			case GLOBOX_FEATURE_BACKGROUND:
+			case GLOBUF_FEATURE_BACKGROUND:
 			{
-				globox_win_helpers_set_background(context, platform, &reply[i].error);
+				globuf_win_helpers_set_background(context, platform, &reply[i].error);
 				break;
 			}
 			default:
 			{
-				reply[i].error.code = GLOBOX_ERROR_OK;
+				reply[i].error.code = GLOBUF_ERROR_OK;
 				reply[i].error.file = NULL;
 				reply[i].error.line = 0;
 				break;
@@ -194,7 +194,7 @@ void globox_win_common_window_create(
 
 	if (platform->win_module == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MODULE_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MODULE_GET);
 		return;
 	}
 
@@ -203,7 +203,7 @@ void globox_win_common_window_create(
 
 	if (platform->default_cursor == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CURSOR_LOAD);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_CURSOR_LOAD);
 		return;
 	}
 
@@ -212,7 +212,7 @@ void globox_win_common_window_create(
 	{
 		.cbSize = sizeof (WNDCLASSEXW),
 		.style = CS_HREDRAW | CS_VREDRAW,
-		.lpfnWndProc = globox_win_helpers_window_procedure,
+		.lpfnWndProc = globuf_win_helpers_window_procedure,
 		.cbClsExtra = 0,
 		.cbWndExtra = 0,
 		.hInstance = platform->win_module,
@@ -230,34 +230,34 @@ void globox_win_common_window_create(
 
 	if (atom == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_CLASS_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_CLASS_CREATE);
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_destroy(
-	struct globox* context,
+void globuf_win_common_window_destroy(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	free_check(platform->win_name);
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_confirm(
-	struct globox* context,
+void globuf_win_common_window_confirm(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_start(
-	struct globox* context,
+void globuf_win_common_window_start(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -267,7 +267,7 @@ void globox_win_common_window_start(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -275,7 +275,7 @@ void globox_win_common_window_start(
 	// init thread function data
 	struct win_thread_event_loop_data event_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -283,7 +283,7 @@ void globox_win_common_window_start(
 	// init render function data
 	struct win_thread_render_loop_data render_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -295,14 +295,14 @@ void globox_win_common_window_start(
 		(HANDLE) _beginthreadex(
 			NULL,
 			0,
-			globox_win_helpers_event_loop,
+			globuf_win_helpers_event_loop,
 			&(platform->thread_event_loop_data),
 			0,
 			NULL);
 
 	if (platform->thread_event == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_START);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_EVENT_START);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -312,7 +312,7 @@ void globox_win_common_window_start(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
@@ -330,7 +330,7 @@ void globox_win_common_window_start(
 
 		if (ok == 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_COND_WAIT);
 			return;
 		}
 	}
@@ -338,13 +338,13 @@ void globox_win_common_window_start(
 	ReleaseSRWLockExclusive(&(platform->lock_window));
 
 	// success
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_block(
-	struct globox* context,
+void globuf_win_common_window_block(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// wait for the block cond
 	AcquireSRWLockExclusive(&(platform->lock_block));
@@ -360,7 +360,7 @@ void globox_win_common_window_block(
 
 		if (ok == 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_COND_WAIT);
 			return;
 		}
 	}
@@ -372,18 +372,18 @@ void globox_win_common_window_block(
 
 	if (code == WAIT_FAILED)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_WAIT);
 		return;
 	}
 
 	// success
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_window_stop(
-	struct globox* context,
+void globuf_win_common_window_stop(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	BOOL ok;
 
@@ -391,7 +391,7 @@ void globox_win_common_window_stop(
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_RENDER_CLOSE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_RENDER_CLOSE);
 		return;
 	}
 
@@ -399,21 +399,21 @@ void globox_win_common_window_stop(
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_EVENT_CLOSE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_EVENT_CLOSE);
 		return;
 	}
 
 	// TODO more
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_win_common_init_render(
-	struct globox* context,
+void globuf_win_common_init_render(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -423,7 +423,7 @@ void globox_win_common_init_render(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -435,18 +435,18 @@ void globox_win_common_init_render(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_init_events(
-	struct globox* context,
+void globuf_win_common_init_events(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -456,7 +456,7 @@ void globox_win_common_init_events(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -468,18 +468,18 @@ void globox_win_common_init_events(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-enum globox_event globox_win_common_handle_events(
-	struct globox* context,
+enum globuf_event globuf_win_common_handle_events(
+	struct globuf* context,
 	struct win_platform* platform,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -489,12 +489,12 @@ enum globox_event globox_win_common_handle_events(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
-		return GLOBOX_EVENT_INVALID;
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
+		return GLOBUF_EVENT_INVALID;
 	}
 
 	// process system events
-	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
+	enum globuf_event globuf_event = GLOBUF_EVENT_UNKNOWN;
 	MSG* msg = event;
 
 	// only lock the main mutex when making changes to the context
@@ -504,10 +504,10 @@ enum globox_event globox_win_common_handle_events(
 		{
 			// make it known this is the end
 			platform->closed = true;
-			context->feature_state->state = GLOBOX_STATE_CLOSED;
+			context->feature_state->state = GLOBUF_STATE_CLOSED;
 
 			PostQuitMessage(0);
-			globox_event = GLOBOX_EVENT_CLOSED;
+			globuf_event = GLOBUF_EVENT_CLOSED;
 
 			break;
 		}
@@ -522,7 +522,7 @@ enum globox_event globox_win_common_handle_events(
 				context->expose.y = region.top;
 				context->expose.width = (region.right - region.left);
 				context->expose.height = (region.bottom - region.top);
-				globox_event = GLOBOX_EVENT_DAMAGED;
+				globuf_event = GLOBUF_EVENT_DAMAGED;
 			}
 
 			break;
@@ -541,7 +541,7 @@ enum globox_event globox_win_common_handle_events(
 
 			if ((ok == 0) && (code != 0))
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
+				globuf_error_throw(context, error, GLOBUF_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
@@ -561,7 +561,7 @@ enum globox_event globox_win_common_handle_events(
 
 			if (ok == 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_MONITOR_GET);
+				globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MONITOR_GET);
 				break;
 			}
 
@@ -578,14 +578,14 @@ enum globox_event globox_win_common_handle_events(
 
 			if (ok == 0)
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_WIN_WINDOW_POSITION_SET);
+					GLOBUF_ERROR_WIN_WINDOW_POSITION_SET);
 				break;
 			}
 
-			globox_event = GLOBOX_EVENT_FULLSCREEN;
+			globuf_event = GLOBUF_EVENT_FULLSCREEN;
 			break;
 		}
 		case WIN_USER_MSG_MAXIMIZE:
@@ -609,7 +609,7 @@ enum globox_event globox_win_common_handle_events(
 
 			if ((ok == 0) && (code != 0))
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
+				globuf_error_throw(context, error, GLOBUF_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
@@ -633,10 +633,10 @@ enum globox_event globox_win_common_handle_events(
 
 				if (ok == 0)
 				{
-					globox_error_throw(
+					globuf_error_throw(
 						context,
 						error,
-						GLOBOX_ERROR_WIN_MONITOR_INFO_GET);
+						GLOBUF_ERROR_WIN_MONITOR_INFO_GET);
 					break;
 				}
 
@@ -656,10 +656,10 @@ enum globox_event globox_win_common_handle_events(
 
 				if (ok == 0)
 				{
-					globox_error_throw(
+					globuf_error_throw(
 						context,
 						error,
-						GLOBOX_ERROR_WIN_WINDOW_POSITION_SET);
+						GLOBUF_ERROR_WIN_WINDOW_POSITION_SET);
 					break;
 				}
 			}
@@ -686,7 +686,7 @@ enum globox_event globox_win_common_handle_events(
 
 			if ((ok == 0) && (code != 0))
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_WIN_STYLE_SET);
+				globuf_error_throw(context, error, GLOBUF_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
@@ -715,10 +715,10 @@ enum globox_event globox_win_common_handle_events(
 
 			if ((ok == 0) && (code != 0))
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_WIN_STYLE_SET);
+					GLOBUF_ERROR_WIN_STYLE_SET);
 				break;
 			}
 
@@ -729,10 +729,10 @@ enum globox_event globox_win_common_handle_events(
 
 			if (ok == 0)
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_WIN_PLACEMENT_SET);
+					GLOBUF_ERROR_WIN_PLACEMENT_SET);
 				break;
 			}
 
@@ -744,34 +744,34 @@ enum globox_event globox_win_common_handle_events(
 			{
 				case SC_RESTORE:
 				{
-					context->feature_state->state = GLOBOX_STATE_REGULAR;
-					globox_event = GLOBOX_EVENT_RESTORED;
+					context->feature_state->state = GLOBUF_STATE_REGULAR;
+					globuf_event = GLOBUF_EVENT_RESTORED;
 					break;
 				}
 				case SC_MAXIMIZE:
 				{
-					globox_win_helpers_save_window_state(context, platform, error);
+					globuf_win_helpers_save_window_state(context, platform, error);
 
-					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+					if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 					{
 						break;
 					}
 
-					context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
-					globox_event = GLOBOX_EVENT_MAXIMIZED;
+					context->feature_state->state = GLOBUF_STATE_MAXIMIZED;
+					globuf_event = GLOBUF_EVENT_MAXIMIZED;
 					break;
 				}
 				case SC_MINIMIZE:
 				{
-					globox_win_helpers_save_window_state(context, platform, error);
+					globuf_win_helpers_save_window_state(context, platform, error);
 
-					if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+					if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 					{
 						break;
 					}
 
-					context->feature_state->state = GLOBOX_STATE_MINIMIZED;
-					globox_event = GLOBOX_EVENT_MINIMIZED;
+					context->feature_state->state = GLOBUF_STATE_MINIMIZED;
+					globuf_event = GLOBUF_EVENT_MINIMIZED;
 					break;
 				}
 				default:
@@ -789,9 +789,9 @@ enum globox_event globox_win_common_handle_events(
 		}
 		case WM_EXITSIZEMOVE:
 		{
-			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			if (context->feature_interaction->action != GLOBUF_INTERACTION_STOP)
 			{
-				context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+				context->feature_interaction->action = GLOBUF_INTERACTION_STOP;
 			}
 
 			platform->sizemove = false;
@@ -800,28 +800,28 @@ enum globox_event globox_win_common_handle_events(
 		case WM_MOVING:
 		case WM_SIZING:
 		{
-			if (context->feature_state->state != GLOBOX_STATE_REGULAR)
+			if (context->feature_state->state != GLOBUF_STATE_REGULAR)
 			{
-				context->feature_state->state = GLOBOX_STATE_REGULAR;
-				globox_event = GLOBOX_EVENT_RESTORED;
+				context->feature_state->state = GLOBUF_STATE_REGULAR;
+				globuf_event = GLOBUF_EVENT_RESTORED;
 			}
 			else
 			{
-				globox_event = GLOBOX_EVENT_MOVED_RESIZED;
+				globuf_event = GLOBUF_EVENT_MOVED_RESIZED;
 			}
 
 			break;
 		}
 		case WM_MOVE:
 		{
-			globox_event = GLOBOX_EVENT_MOVED_RESIZED;
+			globuf_event = GLOBUF_EVENT_MOVED_RESIZED;
 			break;
 		}
 		case WM_SIZE:
 		{
 			context->feature_size->width = LOWORD(msg->lParam);
 			context->feature_size->height = HIWORD(msg->lParam);
-			globox_event = GLOBOX_EVENT_MOVED_RESIZED;
+			globuf_event = GLOBUF_EVENT_MOVED_RESIZED;
 			break;
 		}
 		default:
@@ -830,10 +830,10 @@ enum globox_event globox_win_common_handle_events(
 		}
 	}
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
-		return GLOBOX_EVENT_INVALID;
+		return GLOBUF_EVENT_INVALID;
 	}
 
 	// unlock mutex
@@ -841,19 +841,19 @@ enum globox_event globox_win_common_handle_events(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
-		return globox_event;
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
+		return globuf_event;
 	}
 
-	globox_error_ok(error);
-	return globox_event;
+	globuf_error_ok(error);
+	return globuf_event;
 }
 
-struct globox_config_features*
-	globox_win_common_init_features(
-		struct globox* context,
+struct globuf_config_features*
+	globuf_win_common_init_features(
+		struct globuf* context,
 		struct win_platform* platform,
-		struct globox_error_info* error)
+		struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -863,146 +863,146 @@ struct globox_config_features*
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return NULL;
 	}
 
-	struct globox_config_features* features =
-		malloc(sizeof (struct globox_config_features));
+	struct globuf_config_features* features =
+		malloc(sizeof (struct globuf_config_features));
 
 	if (features == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	features->count = 0;
 	features->list =
-		malloc(GLOBOX_FEATURE_COUNT * (sizeof (enum globox_feature)));
+		malloc(GLOBUF_FEATURE_COUNT * (sizeof (enum globuf_feature)));
 
 	if (features->list == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	features->list[features->count] = GLOBUF_FEATURE_INTERACTION;
 	context->feature_interaction =
-		malloc(sizeof (struct globox_feature_interaction));
+		malloc(sizeof (struct globuf_feature_interaction));
 	features->count += 1;
 
 	if (context->feature_interaction == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
-	context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+	context->feature_interaction->action = GLOBUF_INTERACTION_STOP;
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_STATE;
+	features->list[features->count] = GLOBUF_FEATURE_STATE;
 	context->feature_state =
-		malloc(sizeof (struct globox_feature_state));
+		malloc(sizeof (struct globuf_feature_state));
 	features->count += 1;
 
 	if (context->feature_state == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	features->list[features->count] = GLOBUF_FEATURE_TITLE;
 	context->feature_title =
-		malloc(sizeof (struct globox_feature_title));
+		malloc(sizeof (struct globuf_feature_title));
 	features->count += 1;
 
 	if (context->feature_title == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_ICON;
+	features->list[features->count] = GLOBUF_FEATURE_ICON;
 	context->feature_icon =
-		malloc(sizeof (struct globox_feature_icon));
+		malloc(sizeof (struct globuf_feature_icon));
 	features->count += 1;
 
 	if (context->feature_icon == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	features->list[features->count] = GLOBUF_FEATURE_SIZE;
 	context->feature_size =
-		malloc(sizeof (struct globox_feature_size));
+		malloc(sizeof (struct globuf_feature_size));
 	features->count += 1;
 
 	if (context->feature_size == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_POS;
+	features->list[features->count] = GLOBUF_FEATURE_POS;
 	context->feature_pos =
-		malloc(sizeof (struct globox_feature_pos));
+		malloc(sizeof (struct globuf_feature_pos));
 	features->count += 1;
 
 	if (context->feature_pos == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_FRAME;
+	features->list[features->count] = GLOBUF_FEATURE_FRAME;
 	context->feature_frame =
-		malloc(sizeof (struct globox_feature_frame));
+		malloc(sizeof (struct globuf_feature_frame));
 	features->count += 1;
 
 	if (context->feature_frame == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	features->list[features->count] = GLOBUF_FEATURE_BACKGROUND;
 	context->feature_background =
-		malloc(sizeof (struct globox_feature_background));
+		malloc(sizeof (struct globuf_feature_background));
 	features->count += 1;
 
 	if (context->feature_background == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	features->list[features->count] = GLOBUF_FEATURE_VSYNC;
 	context->feature_vsync =
-		malloc(sizeof (struct globox_feature_vsync));
+		malloc(sizeof (struct globuf_feature_vsync));
 	features->count += 1;
 
 	if (context->feature_vsync == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		ReleaseMutex(platform->mutex_main);
 		return NULL;
 	}
@@ -1012,19 +1012,19 @@ struct globox_config_features*
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return NULL;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return features;
 }
 
-void globox_win_common_feature_set_interaction(
-	struct globox* context,
+void globuf_win_common_feature_set_interaction(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1034,14 +1034,14 @@ void globox_win_common_feature_set_interaction(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
 	// not supported while resizing
 	if (platform->sizemove == true)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_INTERACTION_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_INTERACTION_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -1054,18 +1054,18 @@ void globox_win_common_feature_set_interaction(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_feature_set_state(
-	struct globox* context,
+void globuf_win_common_feature_set_state(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1075,21 +1075,21 @@ void globox_win_common_feature_set_state(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
 	// not supported while resizing
 	if (platform->sizemove == true)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_STATE_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_STATE_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
 
-	globox_win_helpers_save_window_state(context, platform, error);
+	globuf_win_helpers_save_window_state(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -1097,10 +1097,10 @@ void globox_win_common_feature_set_state(
 
 	// configure
 	*(context->feature_state) = *config;
-	globox_win_helpers_set_state(context, platform, error);
+	globuf_win_helpers_set_state(context, platform, error);
 
 	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -1111,18 +1111,18 @@ void globox_win_common_feature_set_state(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_feature_set_title(
-	struct globox* context,
+void globuf_win_common_feature_set_title(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1132,7 +1132,7 @@ void globox_win_common_feature_set_title(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -1144,13 +1144,13 @@ void globox_win_common_feature_set_title(
 	free_check(platform->win_name);
 
 	platform->win_name =
-		globox_win_helpers_utf8_to_wchar(context->feature_title->title);
+		globuf_win_helpers_utf8_to_wchar(context->feature_title->title);
 
 	BOOL ok = SetWindowTextW(platform->event_handle, platform->win_name);
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_TITLE_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_TITLE_SET);
 		ReleaseMutex(platform->mutex_main);
 		return;
 	}
@@ -1160,18 +1160,18 @@ void globox_win_common_feature_set_title(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_common_feature_set_icon(
-	struct globox* context,
+void globuf_win_common_feature_set_icon(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1181,7 +1181,7 @@ void globox_win_common_feature_set_icon(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return;
 	}
 
@@ -1200,10 +1200,10 @@ void globox_win_common_feature_set_icon(
 		context->feature_icon->len = 0;
 	}
 
-	globox_win_helpers_set_icon(context, platform, error);
+	globuf_win_helpers_set_icon(context, platform, error);
 
 	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		ReleaseMutex(platform->mutex_main);
 		return;
@@ -1226,17 +1226,17 @@ void globox_win_common_feature_set_icon(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-unsigned globox_win_common_get_width(
-	struct globox* context,
+unsigned globuf_win_common_get_width(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1246,7 +1246,7 @@ unsigned globox_win_common_get_width(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return 0;
 	}
 
@@ -1258,19 +1258,19 @@ unsigned globox_win_common_get_width(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return value;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }
 
-unsigned globox_win_common_get_height(
-	struct globox* context,
+unsigned globuf_win_common_get_height(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	DWORD main_lock;
 	BOOL main_unlock;
@@ -1280,7 +1280,7 @@ unsigned globox_win_common_get_height(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return 0;
 	}
 
@@ -1292,21 +1292,21 @@ unsigned globox_win_common_get_height(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return value;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }
 
-struct globox_rect globox_win_common_get_expose(
-	struct globox* context,
+struct globuf_rect globuf_win_common_get_expose(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	struct globox_rect dummy =
+	struct globuf_rect dummy =
 	{
 		.x = 0,
 		.y = 0,
@@ -1322,23 +1322,23 @@ struct globox_rect globox_win_common_get_expose(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return dummy;
 	}
 
 	// save value
-	struct globox_rect value = context->expose;
+	struct globuf_rect value = context->expose;
 
 	// unlock mutex
 	main_unlock = ReleaseMutex(platform->mutex_main);
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return value;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }

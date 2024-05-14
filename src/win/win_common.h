@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_WIN_COMMON
-#define H_GLOBOX_INTERNAL_WIN_COMMON
+#ifndef H_GLOBUF_INTERNAL_WIN_COMMON
+#define H_GLOBUF_INTERNAL_WIN_COMMON
 
-#include "include/globox.h"
+#include "include/globuf.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,16 +27,16 @@ enum win_dpi_api
 
 struct win_thread_render_loop_data
 {
-	struct globox* globox;
+	struct globuf* globuf;
 	struct win_platform* platform;
-	struct globox_error_info* error;
+	struct globuf_error_info* error;
 };
 
 struct win_thread_event_loop_data
 {
-	struct globox* globox;
+	struct globuf* globuf;
 	struct win_platform* platform;
-	struct globox_error_info* error;
+	struct globuf_error_info* error;
 };
 
 struct win_platform
@@ -80,113 +80,113 @@ struct win_platform
 	void (*event_init_callback)(struct win_thread_render_loop_data* data);
 };
 
-void globox_win_common_init(
-	struct globox* context,
+void globuf_win_common_init(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_clean(
-	struct globox* context,
+void globuf_win_common_clean(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_create(
-	struct globox* context,
+void globuf_win_common_window_create(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_destroy(
-	struct globox* context,
+void globuf_win_common_window_destroy(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_confirm(
-	struct globox* context,
+void globuf_win_common_window_confirm(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_start(
-	struct globox* context,
+void globuf_win_common_window_start(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_block(
-	struct globox* context,
+void globuf_win_common_window_block(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_window_stop(
-	struct globox* context,
+void globuf_win_common_window_stop(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 
-void globox_win_common_init_render(
-	struct globox* context,
+void globuf_win_common_init_render(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_render* config,
-	struct globox_error_info* error);
+	struct globuf_config_render* config,
+	struct globuf_error_info* error);
 
-void globox_win_common_init_events(
-	struct globox* context,
+void globuf_win_common_init_events(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_events* config,
-	struct globox_error_info* error);
+	struct globuf_config_events* config,
+	struct globuf_error_info* error);
 
-enum globox_event globox_win_common_handle_events(
-	struct globox* context,
+enum globuf_event globuf_win_common_handle_events(
+	struct globuf* context,
 	struct win_platform* platform,
 	void* event,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 
-struct globox_config_features* globox_win_common_init_features(
-	struct globox* context,
+struct globuf_config_features* globuf_win_common_init_features(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_win_common_feature_set_interaction(
-	struct globox* context,
+void globuf_win_common_feature_set_interaction(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error);
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error);
 
-void globox_win_common_feature_set_state(
-	struct globox* context,
+void globuf_win_common_feature_set_state(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_state* config,
-	struct globox_error_info* error);
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error);
 
-void globox_win_common_feature_set_title(
-	struct globox* context,
+void globuf_win_common_feature_set_title(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_title* config,
-	struct globox_error_info* error);
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error);
 
-void globox_win_common_feature_set_icon(
-	struct globox* context,
+void globuf_win_common_feature_set_icon(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error);
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error);
 
 
-unsigned globox_win_common_get_width(
-	struct globox* context,
+unsigned globuf_win_common_get_width(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-unsigned globox_win_common_get_height(
-	struct globox* context,
+unsigned globuf_win_common_get_height(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-struct globox_rect globox_win_common_get_expose(
-	struct globox* context,
+struct globuf_rect globuf_win_common_get_expose(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 #endif

@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "x11/x11_software_helpers.h"
 #include "x11/x11_software.h"
 #include "x11/x11_common.h"
@@ -14,8 +14,8 @@
 #include <xcb/shm.h>
 
 void x11_helpers_visual_transparent(
-	struct globox* context,
-	struct globox_error_info* error)
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -36,10 +36,10 @@ void x11_helpers_visual_transparent(
 
 	if (error_pict != NULL)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -84,10 +84,10 @@ void x11_helpers_visual_transparent(
 	{
 		free(reply_pict);
 
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -144,10 +144,10 @@ void x11_helpers_visual_transparent(
 	{
 		free(reply_pict);
 
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -168,13 +168,13 @@ void x11_helpers_visual_transparent(
 
 	free(reply_pict);
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return;
 }
 
 void x11_helpers_visual_opaque(
-	struct globox* context,
-	struct globox_error_info* error)
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -208,10 +208,10 @@ void x11_helpers_visual_opaque(
 			if ((visual->_class != XCB_VISUAL_CLASS_TRUE_COLOR)
 				&& (visual->_class != XCB_VISUAL_CLASS_DIRECT_COLOR))
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+					GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 				return;
 			}
@@ -226,23 +226,23 @@ void x11_helpers_visual_opaque(
 
 	if (depth_iter.rem == 0)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_MISSING);
+			GLOBUF_ERROR_X11_VISUAL_MISSING);
 
 		return;
 	}
 
 	platform->visual_depth = depth_iter.data->depth;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 void x11_helpers_shm_create(
-	struct globox* context,
+	struct globuf* context,
 	size_t len,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -272,10 +272,10 @@ void x11_helpers_shm_create(
 
 	if (shmid == -1)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_POSIX_SHMID);
+			GLOBUF_ERROR_POSIX_SHMID);
 
 		return;
 	}
@@ -285,10 +285,10 @@ void x11_helpers_shm_create(
 
 	if (backend->software_shm.shmaddr == ((void*) -1))
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_POSIX_SHMADDR);
+			GLOBUF_ERROR_POSIX_SHMADDR);
 
 		return;
 	}
@@ -307,10 +307,10 @@ void x11_helpers_shm_create(
 
 	if (error_attach != NULL)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_SHM_ATTACH);
+			GLOBUF_ERROR_X11_SHM_ATTACH);
 
 		return;
 	}
@@ -319,13 +319,13 @@ void x11_helpers_shm_create(
 
 	if (error_shmctl == -1)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_POSIX_SHMCTL);
+			GLOBUF_ERROR_POSIX_SHMCTL);
 
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

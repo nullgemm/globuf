@@ -1,2 +1,2 @@
-globox_buffer_alloc_software
-globox_buffer_free_software
+globuf_buffer_alloc_software
+globuf_buffer_free_software

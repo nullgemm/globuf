@@ -1,8 +1,8 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "include/globox_appkit.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "include/globuf_appkit.h"
+#include "common/globuf_private.h"
 #include "appkit/appkit_common.h"
 #include "appkit/appkit_common_helpers.h"
 
@@ -20,10 +20,10 @@ static inline void free_check(const void* ptr)
 	}
 }
 
-void globox_appkit_common_init(
-	struct globox* context,
+void globuf_appkit_common_init(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	int error_posix;
 	pthread_mutexattr_t mutex_attr;
@@ -34,7 +34,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_ATTR_INIT);
 		return;
 	}
 
@@ -46,7 +46,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_SETTYPE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_ATTR_SETTYPE);
 		return;
 	}
 
@@ -55,7 +55,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_INIT);
 		return;
 	}
 
@@ -64,7 +64,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_INIT);
 		return;
 	}
 
@@ -73,7 +73,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_ATTR_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_ATTR_DESTROY);
 		return;
 	}
 
@@ -82,7 +82,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_COND_ATTR_INIT);
 		return;
 	}
 
@@ -91,7 +91,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_COND_INIT);
 		return;
 	}
 
@@ -100,7 +100,7 @@ void globox_appkit_common_init(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_ATTR_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_COND_ATTR_DESTROY);
 		return;
 	}
 
@@ -115,13 +115,13 @@ void globox_appkit_common_init(
 	// initialize the "closed" boolean
 	platform->closed = false;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_clean(
-	struct globox* context,
+void globuf_appkit_common_clean(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	int error_posix;
 	int error_cond;
@@ -131,7 +131,7 @@ void globox_appkit_common_clean(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -143,13 +143,13 @@ void globox_appkit_common_clean(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	if (error_cond != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_COND_DESTROY);
 		return;
 	}
 
@@ -158,7 +158,7 @@ void globox_appkit_common_clean(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_DESTROY);
 		return;
 	}
 
@@ -167,21 +167,21 @@ void globox_appkit_common_clean(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_DESTROY);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_window_create(
-	struct globox* context,
+void globuf_appkit_common_window_create(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	NSString* title =
 		[[NSString alloc] initWithUTF8String:context->feature_title->title];
@@ -206,7 +206,7 @@ void globox_appkit_common_window_create(
 
 	struct appkit_thread_event_loop_data event_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -215,7 +215,7 @@ void globox_appkit_common_window_create(
 
 	struct appkit_window_delegate_data delegate_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -224,12 +224,12 @@ void globox_appkit_common_window_create(
 
 	// create the window (must execute on the main thread)
 	platform->win_delegate =
-		[GloboxWindowDelegate new];
+		[GlobufWindowDelegate new];
 
 	id delegate = platform->win_delegate;
 
 	[delegate
-		setGloboxDelegateData:
+		setGlobufDelegateData:
 			&(platform->window_delegate_data)];
 
 	// TODO keep only the minimal (ifdef'd) dispatch_sync sections
@@ -240,7 +240,7 @@ void globox_appkit_common_window_create(
 	dispatch_sync(dispatch_get_main_queue(), ^{
 #endif
 		platform->win =
-			[[GloboxWindow alloc]
+			[[GlobufWindow alloc]
 				initWithContentRect:rect
 				styleMask:mask
 				backing:NSBackingStoreBuffered
@@ -252,7 +252,7 @@ void globox_appkit_common_window_create(
 	window = platform->win;
 
 	[window
-		setGloboxEventData:
+		setGlobufEventData:
 			&(platform->thread_event_loop_data)];
 
 	[window
@@ -265,14 +265,14 @@ void globox_appkit_common_window_create(
 	// set background mode
 	switch (context->feature_background->background)
 	{
-		case GLOBOX_BACKGROUND_BLURRED:
-		case GLOBOX_BACKGROUND_TRANSPARENT:
+		case GLOBUF_BACKGROUND_BLURRED:
+		case GLOBUF_BACKGROUND_TRANSPARENT:
 		{
 			[window setOpaque: NO];
 			[window setBackgroundColor: [NSColor clearColor]];
 			break;
 		}
-		case GLOBOX_BACKGROUND_OPAQUE:
+		case GLOBUF_BACKGROUND_OPAQUE:
 		{
 			break;
 		}
@@ -295,17 +295,17 @@ void globox_appkit_common_window_create(
 
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_MINIMIZED:
+		case GLOBUF_STATE_MINIMIZED:
 		{
 			[window miniaturize:nil];
 			break;
 		}
-		case GLOBOX_STATE_MAXIMIZED:
+		case GLOBUF_STATE_MAXIMIZED:
 		{
 			[window zoom:nil];
 			break;
 		}
-		case GLOBOX_STATE_FULLSCREEN:
+		case GLOBUF_STATE_FULLSCREEN:
 		{
 			[window toggleFullScreen:nil];
 			break;
@@ -332,7 +332,7 @@ void globox_appkit_common_window_create(
 	// create the custom layer delegate data
 	struct appkit_layer_delegate_data layer_delegate_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -340,15 +340,15 @@ void globox_appkit_common_window_create(
 	platform->layer_delegate_data = layer_delegate_data;
 
 	// create a custom layer delegate
-	platform->layer_delegate = [GloboxLayerDelegate new];
-	[platform->layer_delegate setGloboxLayerDelegateData: &(platform->layer_delegate_data)];
+	platform->layer_delegate = [GlobufLayerDelegate new];
+	[platform->layer_delegate setGlobufLayerDelegateData: &(platform->layer_delegate_data)];
 
 	// make the view layer-hosting
 	[platform->view setLayer: platform->layer];
 	[platform->view setWantsLayer: YES];
 
 	// create an effects view if we are using background blur
-	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	if (context->feature_background->background == GLOBUF_BACKGROUND_BLURRED)
 	{
 		// create the blur view
 		platform->view_blur = [NSVisualEffectView new];
@@ -369,33 +369,33 @@ void globox_appkit_common_window_create(
 	}
 
 	// configure features
-	struct globox_config_reply* reply =
-		malloc(count * (sizeof (struct globox_config_reply)));
+	struct globuf_config_reply* reply =
+		malloc(count * (sizeof (struct globuf_config_reply)));
 
 	if (reply == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
 	for (size_t i = 0; i < count; ++i)
 	{
-		enum globox_feature feature = configs[i].feature;
+		enum globuf_feature feature = configs[i].feature;
 		reply[i].feature = feature;
 
 		switch (feature)
 		{
-			case GLOBOX_FEATURE_ICON:
+			case GLOBUF_FEATURE_ICON:
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					&reply[i].error,
-					GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+					GLOBUF_ERROR_FEATURE_UNAVAILABLE);
 				break;
 			}
 			default:
 			{
-				reply[i].error.code = GLOBOX_ERROR_OK;
+				reply[i].error.code = GLOBUF_ERROR_OK;
 				reply[i].error.file = NULL;
 				reply[i].error.line = 0;
 				break;
@@ -409,29 +409,29 @@ void globox_appkit_common_window_create(
 	// error always set
 }
 
-void globox_appkit_common_window_destroy(
-	struct globox* context,
+void globuf_appkit_common_window_destroy(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// TODO
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_window_confirm(
-	struct globox* context,
+void globuf_appkit_common_window_confirm(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_window_start(
-	struct globox* context,
+void globuf_appkit_common_window_start(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	GloboxWindow* win = platform->win;
+	GlobufWindow* win = platform->win;
 
 	[win setAppearance:
 		[NSAppearance appearanceNamed:
@@ -452,7 +452,7 @@ void globox_appkit_common_window_start(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_THREAD_ATTR_INIT);
 		return;
 	}
 
@@ -460,7 +460,7 @@ void globox_appkit_common_window_start(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_JOINABLE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_THREAD_ATTR_JOINABLE);
 		return;
 	}
 
@@ -468,7 +468,7 @@ void globox_appkit_common_window_start(
 	// init thread function data
 	struct appkit_thread_render_loop_data render_data =
 	{
-		.globox = context,
+		.globuf = context,
 		.platform = platform,
 		.error = error,
 	};
@@ -480,12 +480,12 @@ void globox_appkit_common_window_start(
 		pthread_create(
 			&(platform->thread_render_loop),
 			&attr,
-			globox_appkit_helpers_render_loop,
+			globuf_appkit_helpers_render_loop,
 			&(platform->thread_render_loop_data));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_THREAD_CREATE);
 		return;
 	}
 
@@ -494,17 +494,17 @@ void globox_appkit_common_window_start(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_THREAD_ATTR_DESTROY);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_THREAD_ATTR_DESTROY);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_window_block(
-	struct globox* context,
+void globuf_appkit_common_window_block(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	int error_posix;
 	int error_cond;
@@ -514,7 +514,7 @@ void globox_appkit_common_window_block(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -526,30 +526,30 @@ void globox_appkit_common_window_block(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	if (error_cond != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_COND_WAIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_COND_WAIT);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_window_stop(
-	struct globox* context,
+void globuf_appkit_common_window_stop(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -563,43 +563,43 @@ void globox_appkit_common_window_stop(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_appkit_common_init_render(
-	struct globox* context,
+void globuf_appkit_common_init_render(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	// set the event callback
 	context->render_callback = *config;
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_init_events(
-	struct globox* context,
+void globuf_appkit_common_init_events(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	// set the event callback
 	context->event_callbacks = *config;
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-enum globox_event globox_appkit_common_handle_events(
-	struct globox* context,
+enum globuf_event globuf_appkit_common_handle_events(
+	struct globuf* context,
 	struct appkit_platform* platform,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	enum globox_event globox_event = GLOBOX_EVENT_UNKNOWN;
+	enum globuf_event globuf_event = GLOBUF_EVENT_UNKNOWN;
 	NSEvent* nsevent = (NSEvent*) event;
 	NSEventType type = [nsevent type];
 
@@ -609,54 +609,54 @@ enum globox_event globox_appkit_common_handle_events(
 		{
 			if ([nsevent subtype] == 0)
 			{
-				enum globox_event data = [nsevent data1];
+				enum globuf_event data = [nsevent data1];
 
 				switch (data)
 				{
-					case GLOBOX_EVENT_RESTORED:
+					case GLOBUF_EVENT_RESTORED:
 					{
-						context->feature_state->state = GLOBOX_STATE_REGULAR;
-						globox_event = data;
+						context->feature_state->state = GLOBUF_STATE_REGULAR;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_MINIMIZED:
+					case GLOBUF_EVENT_MINIMIZED:
 					{
-						context->feature_state->state = GLOBOX_STATE_MINIMIZED;
-						globox_event = data;
+						context->feature_state->state = GLOBUF_STATE_MINIMIZED;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_MAXIMIZED:
+					case GLOBUF_EVENT_MAXIMIZED:
 					{
-						context->feature_state->state = GLOBOX_STATE_MAXIMIZED;
-						globox_event = data;
+						context->feature_state->state = GLOBUF_STATE_MAXIMIZED;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_FULLSCREEN:
+					case GLOBUF_EVENT_FULLSCREEN:
 					{
-						context->feature_state->state = GLOBOX_STATE_FULLSCREEN;
-						globox_event = data;
+						context->feature_state->state = GLOBUF_STATE_FULLSCREEN;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_MOVED_RESIZED:
+					case GLOBUF_EVENT_MOVED_RESIZED:
 					{
-						globox_event = data;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_DAMAGED:
+					case GLOBUF_EVENT_DAMAGED:
 					{
 						NSRect frame = [platform->view frame];
 						context->expose.x = NSMinX(frame);
 						context->expose.y = NSMinY(frame);
 						context->expose.width = NSWidth(frame);
 						context->expose.height = NSHeight(frame);
-						globox_event = data;
+						globuf_event = data;
 						break;
 					}
-					case GLOBOX_EVENT_CLOSED:
+					case GLOBUF_EVENT_CLOSED:
 					{
 						[platform->win close];
 						platform->closed = true;
-						globox_event = data;
+						globuf_event = data;
 						break;
 					}
 					default:
@@ -675,12 +675,12 @@ enum globox_event globox_appkit_common_handle_events(
 			// stop interactive move & resize when in fullscreen
 			if (([platform->win styleMask] & NSWindowStyleMaskFullScreen) != 0)
 			{
-				context->feature_interaction->action = GLOBOX_INTERACTION_STOP;
+				context->feature_interaction->action = GLOBUF_INTERACTION_STOP;
 				break;
 			}
 
 			// handle interactive move & resize
-			if (context->feature_interaction->action != GLOBOX_INTERACTION_STOP)
+			if (context->feature_interaction->action != GLOBUF_INTERACTION_STOP)
 			{
 				if (platform->saved_window == false)
 				{
@@ -697,7 +697,7 @@ enum globox_event globox_appkit_common_handle_events(
 				platform->saved_mouse_pos_x = point.x;
 				platform->saved_mouse_pos_y = point.y;
 
-				globox_appkit_helpers_handle_interaction(context, platform, error);
+				globuf_appkit_helpers_handle_interaction(context, platform, error);
 			}
 
 			break;
@@ -724,14 +724,14 @@ enum globox_event globox_appkit_common_handle_events(
 			platform->saved_mouse_pos_y = 0;
 
 			// get current interaction type
-			enum globox_interaction action = context->feature_interaction->action;
+			enum globuf_interaction action = context->feature_interaction->action;
 
 			// reset interaction type
-			if (action != GLOBOX_INTERACTION_STOP)
+			if (action != GLOBUF_INTERACTION_STOP)
 			{
-				struct globox_feature_interaction action =
+				struct globuf_feature_interaction action =
 				{
-					.action = GLOBOX_INTERACTION_STOP,
+					.action = GLOBUF_INTERACTION_STOP,
 				};
 
 				*(context->feature_interaction) = action;
@@ -745,147 +745,147 @@ enum globox_event globox_appkit_common_handle_events(
 		}
 	}
 
-	globox_error_ok(error);
-	return globox_event;
+	globuf_error_ok(error);
+	return globuf_event;
 }
 
-struct globox_config_features*
-	globox_appkit_common_init_features(
-		struct globox* context,
+struct globuf_config_features*
+	globuf_appkit_common_init_features(
+		struct globuf* context,
 		struct appkit_platform* platform,
-		struct globox_error_info* error)
+		struct globuf_error_info* error)
 {
-	struct globox_config_features* features =
-		malloc(sizeof (struct globox_config_features));
+	struct globuf_config_features* features =
+		malloc(sizeof (struct globuf_config_features));
 
 	if (features == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	features->count = 0;
 	features->list =
-		malloc(GLOBOX_FEATURE_COUNT * (sizeof (enum globox_feature)));
+		malloc(GLOBUF_FEATURE_COUNT * (sizeof (enum globuf_feature)));
 
 	if (features->list == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_INTERACTION;
+	features->list[features->count] = GLOBUF_FEATURE_INTERACTION;
 	context->feature_interaction =
-		malloc(sizeof (struct globox_feature_interaction));
+		malloc(sizeof (struct globuf_feature_interaction));
 	features->count += 1;
 
 	if (context->feature_interaction == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_STATE;
+	features->list[features->count] = GLOBUF_FEATURE_STATE;
 	context->feature_state =
-		malloc(sizeof (struct globox_feature_state));
+		malloc(sizeof (struct globuf_feature_state));
 	features->count += 1;
 
 	if (context->feature_state == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_TITLE;
+	features->list[features->count] = GLOBUF_FEATURE_TITLE;
 	context->feature_title =
-		malloc(sizeof (struct globox_feature_title));
+		malloc(sizeof (struct globuf_feature_title));
 	features->count += 1;
 
 	if (context->feature_title == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_SIZE;
+	features->list[features->count] = GLOBUF_FEATURE_SIZE;
 	context->feature_size =
-		malloc(sizeof (struct globox_feature_size));
+		malloc(sizeof (struct globuf_feature_size));
 	features->count += 1;
 
 	if (context->feature_size == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_POS;
+	features->list[features->count] = GLOBUF_FEATURE_POS;
 	context->feature_pos =
-		malloc(sizeof (struct globox_feature_pos));
+		malloc(sizeof (struct globuf_feature_pos));
 	features->count += 1;
 
 	if (context->feature_pos == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_FRAME;
+	features->list[features->count] = GLOBUF_FEATURE_FRAME;
 	context->feature_frame =
-		malloc(sizeof (struct globox_feature_frame));
+		malloc(sizeof (struct globuf_feature_frame));
 	features->count += 1;
 
 	if (context->feature_frame == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_BACKGROUND;
+	features->list[features->count] = GLOBUF_FEATURE_BACKGROUND;
 	context->feature_background =
-		malloc(sizeof (struct globox_feature_background));
+		malloc(sizeof (struct globuf_feature_background));
 	features->count += 1;
 
 	if (context->feature_background == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
 	// always available
-	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	features->list[features->count] = GLOBUF_FEATURE_VSYNC;
 	context->feature_vsync =
-		malloc(sizeof (struct globox_feature_vsync));
+		malloc(sizeof (struct globuf_feature_vsync));
 	features->count += 1;
 
 	if (context->feature_vsync == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return features;
 }
 
-void globox_appkit_common_feature_set_interaction(
-	struct globox* context,
+void globuf_appkit_common_feature_set_interaction(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -900,38 +900,38 @@ void globox_appkit_common_feature_set_interaction(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_feature_set_state(
-	struct globox* context,
+void globuf_appkit_common_feature_set_state(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure
 	if (config->state != context->feature_state->state)
 	{
-		globox_appkit_helpers_set_state(
+		globuf_appkit_helpers_set_state(
 			context,
 			platform->win,
 			config,
@@ -943,31 +943,31 @@ void globox_appkit_common_feature_set_state(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// return on configuration error
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_feature_set_title(
-	struct globox* context,
+void globuf_appkit_common_feature_set_title(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -988,33 +988,33 @@ void globox_appkit_common_feature_set_title(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_common_feature_set_icon(
-	struct globox* context,
+void globuf_appkit_common_feature_set_icon(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
-	globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_UNAVAILABLE);
+	globuf_error_throw(context, error, GLOBUF_ERROR_FEATURE_UNAVAILABLE);
 }
 
-unsigned globox_appkit_common_get_width(
-	struct globox* context,
+unsigned globuf_appkit_common_get_width(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
 	}
 
@@ -1026,26 +1026,26 @@ unsigned globox_appkit_common_get_width(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }
 
-unsigned globox_appkit_common_get_height(
-	struct globox* context,
+unsigned globuf_appkit_common_get_height(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return 0;
 	}
 
@@ -1057,21 +1057,21 @@ unsigned globox_appkit_common_get_height(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return 0;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }
 
-struct globox_rect globox_appkit_common_get_expose(
-	struct globox* context,
+struct globuf_rect globuf_appkit_common_get_expose(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	struct globox_rect dummy =
+	struct globuf_rect dummy =
 	{
 		.x = 0,
 		.y = 0,
@@ -1084,23 +1084,23 @@ struct globox_rect globox_appkit_common_get_expose(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return dummy;
 	}
 
 	// save value
-	struct globox_rect value = context->expose;
+	struct globuf_rect value = context->expose;
 
 	// unlock mutex
 	error_posix = pthread_mutex_unlock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return dummy;
 	}
 
 	// return value
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return value;
 }

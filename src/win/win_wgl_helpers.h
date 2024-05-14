@@ -1,8 +1,8 @@
-#ifndef H_GLOBOX_INTERNAL_WIN_WGL_HELPERS
-#define H_GLOBOX_INTERNAL_WIN_WGL_HELPERS
+#ifndef H_GLOBUF_INTERNAL_WIN_WGL_HELPERS
+#define H_GLOBUF_INTERNAL_WIN_WGL_HELPERS
 
-#include "include/globox.h"
-#include "include/globox_opengl.h"
+#include "include/globuf.h"
+#include "include/globuf_opengl.h"
 #include "win/win_common.h"
 
 #include <wingdi.h>
@@ -10,7 +10,7 @@
 struct win_wgl_backend
 {
 	struct win_platform platform;
-	struct globox_config_opengl* config;
+	struct globuf_config_opengl* config;
 	HGLRC wgl;
 	HDC device_context;
 	PIXELFORMATDESCRIPTOR format_descriptor;

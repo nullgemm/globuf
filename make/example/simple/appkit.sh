@@ -19,15 +19,15 @@ echo "target toolchain types: osxcross, native"
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
 output="make/output"
-name_lib="globox_appkit"
+name_lib="globuf_appkit"
 
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox"
-folder_include="\$folder_globox/include"
-name="globox_example_simple_appkit"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf"
+folder_include="\$folder_globuf/include"
+name="globuf_example_simple_appkit"
 src+=("example/helpers/appkit.m")
 
 # compiler flags
@@ -42,8 +42,8 @@ flags+=("-I\$folder_include")
 flags+=("-Iexample/helpers")
 ldflags+=("-framework AppKit")
 ldflags+=("-framework QuartzCore")
-defines+=("-DGLOBOX_EXAMPLE_APPKIT")
-#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
+defines+=("-DGLOBUF_EXAMPLE_APPKIT")
+#defines+=("-DGLOBUF_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -133,15 +133,15 @@ case $backend in
 	software)
 ninja_file=example_simple_appkit_software.ninja
 src+=("example/simple/software.c")
-libs+=("\$folder_library/globox_macho_software_$toolchain.a")
+libs+=("\$folder_library/globuf_macho_software_$toolchain.a")
 	;;
 
 	egl)
 ninja_file=example_simple_appkit_egl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gles2/shaders.o")
-libs+=("\$folder_library/globox_macho_opengl_$toolchain.a")
-defines+=("-DGLOBOX_EXAMPLE_EGL")
+libs+=("\$folder_library/globuf_macho_opengl_$toolchain.a")
+defines+=("-DGLOBUF_EXAMPLE_EGL")
 flags+=("-Ires/angle/include")
 ldflags+=("-Lres/angle/libs")
 ldlibs+=("-lEGL")
@@ -153,7 +153,7 @@ ninja_file=example_simple_appkit_vulkan.ninja
 src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globox_macho_vulkan_$toolchain.a")
+libs+=("\$folder_library/globuf_macho_vulkan_$toolchain.a")
 flags+=("-Ires/moltenvk/include")
 ldflags+=("-Lres/moltenvk/libs")
 ldflags+=("-lc++")
@@ -206,7 +206,7 @@ cmd="open -n \$name.app"
 obj+=("\$folder_objects/res/icon/iconpix.o")
 libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
 libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
-libs+=("\$folder_library/globox_macho_$lib_suffix.a")
+libs+=("\$folder_library/globuf_macho_$lib_suffix.a")
 
 # default target
 default+=("\$builddir/\$name.app")
@@ -230,7 +230,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name""_$backend"; \

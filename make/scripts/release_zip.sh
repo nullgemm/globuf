@@ -6,7 +6,7 @@ folder=$(dirname "$path")
 cd "$folder"/../.. || exit
 
 tag=$(git tag --sort v:refname | tail -n 1)
-release=globox_bin_"$tag"
+release=globuf_bin_"$tag"
 
 cp license.md "$release/lib/"
 zip -r "$release.zip" "$release"

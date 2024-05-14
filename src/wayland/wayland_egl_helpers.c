@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_egl_helpers.h"
 #include "wayland/wayland_egl.h"
 #include "wayland/wayland_common.h"
@@ -9,7 +9,7 @@
 #include <string.h>
 #include <EGL/egl.h>
 
-void wayland_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
+void wayland_helpers_egl_bind(struct globuf* context, struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 
@@ -25,7 +25,7 @@ void wayland_helpers_egl_bind(struct globox* context, struct globox_error_info* 
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_MAKE_CURRENT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_MAKE_CURRENT);
 		return;
 	}
 
@@ -45,11 +45,11 @@ void wayland_helpers_egl_bind(struct globox* context, struct globox_error_info* 
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_SWAP_INTERVAL);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_SWAP_INTERVAL);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 void wayland_helpers_egl_toplevel_configure(
@@ -60,9 +60,9 @@ void wayland_helpers_egl_toplevel_configure(
 	struct wl_array* states)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
+	struct globuf* context = platform->globuf;
 	struct wayland_egl_backend* backend = context->backend_data;
-	struct globox_error_info error;
+	struct globuf_error_info error;
 	int error_posix;
 
 	if ((width == 0) || (height == 0))
@@ -77,7 +77,7 @@ void wayland_helpers_egl_toplevel_configure(
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 			return;
 		}
 	}
@@ -93,7 +93,7 @@ void wayland_helpers_egl_toplevel_configure(
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 			return;
 		}
 	}

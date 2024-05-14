@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "appkit/appkit_egl_helpers.h"
 #include "appkit/appkit_egl.h"
 #include "appkit/appkit_common.h"
@@ -9,7 +9,7 @@
 #include <string.h>
 #include <EGL/egl.h>
 
-void appkit_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
+void appkit_helpers_egl_bind(struct globuf* context, struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 
@@ -25,7 +25,7 @@ void appkit_helpers_egl_bind(struct globox* context, struct globox_error_info* e
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_MAKE_CURRENT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_MAKE_CURRENT);
 		return;
 	}
 
@@ -45,9 +45,9 @@ void appkit_helpers_egl_bind(struct globox* context, struct globox_error_info* e
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_SWAP_INTERVAL);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_SWAP_INTERVAL);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

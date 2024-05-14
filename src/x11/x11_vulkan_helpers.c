@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "x11/x11_vulkan_helpers.h"
 #include "x11/x11_vulkan.h"
 #include "x11/x11_common.h"
@@ -14,10 +14,10 @@
 #include <xcb/render.h>
 
 size_t x11_helpers_vulkan_add_extensions(
-	struct globox* context,
+	struct globuf* context,
 	const char*** ext_needed,
 	bool** ext_found,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// list vulkan extensions here to make the code cleaner
 	const char* extensions_names[] =
@@ -35,7 +35,7 @@ size_t x11_helpers_vulkan_add_extensions(
 
 	if (*ext_needed == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return 0;
 	}
 
@@ -44,7 +44,7 @@ size_t x11_helpers_vulkan_add_extensions(
 
 	if (*ext_found == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return 0;
 	}
 
@@ -55,14 +55,14 @@ size_t x11_helpers_vulkan_add_extensions(
 		(*ext_found)[i] = false;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 
 	return extensions_count;
 }
 
 void x11_helpers_vulkan_visual_transparent(
-	struct globox* context,
-	struct globox_error_info* error)
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -83,10 +83,10 @@ void x11_helpers_vulkan_visual_transparent(
 
 	if (error_pict != NULL)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -131,10 +131,10 @@ void x11_helpers_vulkan_visual_transparent(
 	{
 		free(reply_pict);
 
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -191,10 +191,10 @@ void x11_helpers_vulkan_visual_transparent(
 	{
 		free(reply_pict);
 
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+			GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 		return;
 	}
@@ -215,13 +215,13 @@ void x11_helpers_vulkan_visual_transparent(
 
 	free(reply_pict);
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 	return;
 }
 
 void x11_helpers_vulkan_visual_opaque(
-	struct globox* context,
-	struct globox_error_info* error)
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -255,10 +255,10 @@ void x11_helpers_vulkan_visual_opaque(
 			if ((visual->_class != XCB_VISUAL_CLASS_TRUE_COLOR)
 				&& (visual->_class != XCB_VISUAL_CLASS_DIRECT_COLOR))
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE);
+					GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE);
 
 				return;
 			}
@@ -273,15 +273,15 @@ void x11_helpers_vulkan_visual_opaque(
 
 	if (depth_iter.rem == 0)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VISUAL_MISSING);
+			GLOBUF_ERROR_X11_VISUAL_MISSING);
 
 		return;
 	}
 
 	platform->visual_depth = depth_iter.data->depth;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

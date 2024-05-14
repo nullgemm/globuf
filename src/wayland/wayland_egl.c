@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_opengl.h"
-#include "include/globox_wayland_egl.h"
+#include "include/globuf.h"
+#include "include/globuf_opengl.h"
+#include "include/globuf_wayland_egl.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_helpers.h"
 #include "wayland/wayland_egl.h"
@@ -14,16 +14,16 @@
 #include <wayland-client.h>
 #include <wayland-egl.h>
 
-void globox_wayland_egl_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct wayland_egl_backend* backend = malloc(sizeof (struct wayland_egl_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -41,7 +41,7 @@ void globox_wayland_egl_init(
 	struct wayland_platform* platform =
 		&(backend->platform);
 
-	globox_wayland_common_init(context, platform, error);
+	globuf_wayland_common_init(context, platform, error);
 
 	// update toplevel configure listener
 	platform->listener_xdg_toplevel.configure =
@@ -50,15 +50,15 @@ void globox_wayland_egl_init(
 	// error always set
 }
 
-void globox_wayland_egl_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// clean the platform
-	globox_wayland_common_clean(context, platform, error);
+	globuf_wayland_common_clean(context, platform, error);
 
 	// free the backend
 	free(backend);
@@ -66,13 +66,13 @@ void globox_wayland_egl_clean(
 	// error always set
 }
 
-void globox_wayland_egl_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_wayland_egl_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -82,22 +82,22 @@ void globox_wayland_egl_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_wayland_helpers_features_init(context, platform, configs, count, error);
+	globuf_wayland_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// run common Wayland helper
-	globox_wayland_common_window_create(context, platform, configs, count, callback, data, error);
+	globuf_wayland_common_window_create(context, platform, configs, count, callback, data, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -107,7 +107,7 @@ void globox_wayland_egl_window_create(
 
 	if (backend->display == EGL_NO_DISPLAY)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DISPLAY_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_DISPLAY_GET);
 		return;
 	}
 
@@ -124,7 +124,7 @@ void globox_wayland_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_INIT);
 		return;
 	}
 
@@ -133,7 +133,7 @@ void globox_wayland_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_BIND_API);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_BIND_API);
 		return;
 	}
 
@@ -147,7 +147,7 @@ void globox_wayland_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONFIG);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_CONFIG);
 		return;
 	}
 
@@ -167,7 +167,7 @@ void globox_wayland_egl_window_create(
 
 	if (backend->egl == EGL_NO_CONTEXT)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_CONTEXT_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_CONTEXT_CREATE);
 		return;
 	}
 
@@ -176,16 +176,16 @@ void globox_wayland_egl_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_egl_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -195,7 +195,7 @@ void globox_wayland_egl_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -209,7 +209,7 @@ void globox_wayland_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_SURFACE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_DESTROY_SURFACE);
 		return;
 	}
 
@@ -217,7 +217,7 @@ void globox_wayland_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_DESTROY_CONTEXT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_DESTROY_CONTEXT);
 		return;
 	}
 
@@ -225,7 +225,7 @@ void globox_wayland_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_TERMINATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_TERMINATE);
 		return;
 	}
 
@@ -234,30 +234,30 @@ void globox_wayland_egl_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// run common Wayland helper
-	globox_wayland_common_window_destroy(context, platform, error);
+	globuf_wayland_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_egl_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_confirm(context, platform, error);
+	globuf_wayland_common_window_confirm(context, platform, error);
 
 	// create EGL window
 	backend->window =
@@ -268,7 +268,7 @@ void globox_wayland_egl_window_confirm(
 
 	if (backend->window == EGL_NO_SURFACE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_WINDOW_CREATE);
 		return;
 	}
 
@@ -282,52 +282,52 @@ void globox_wayland_egl_window_confirm(
 
 	if (backend->surface == EGL_NO_SURFACE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_WINDOW_SURFACE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_WINDOW_SURFACE);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_wayland_egl_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_start(context, platform, error);
+	globuf_wayland_common_window_start(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_wayland_egl_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper (mutex locked when unblocked)
-	globox_wayland_common_window_block(context, platform, error);
+	globuf_wayland_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_wayland_egl_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_egl_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_stop(context, platform, error);
+	globuf_wayland_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
 
@@ -335,49 +335,49 @@ void globox_wayland_egl_window_stop(
 }
 
 
-void globox_wayland_egl_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_init_render(context, platform, config, error);
+	globuf_wayland_common_init_render(context, platform, config, error);
 
 	platform->render_init_callback = wayland_helpers_egl_bind;
 
 	// error always set
 }
 
-void globox_wayland_egl_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_init_events(context, platform, config, error);
+	globuf_wayland_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-enum globox_event globox_wayland_egl_handle_events(
-	struct globox* context,
+enum globuf_event globuf_wayland_egl_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	enum globox_event out =
-		globox_wayland_common_handle_events(
+	enum globuf_event out =
+		globuf_wayland_common_handle_events(
 			context,
 			platform,
 			event,
@@ -388,117 +388,117 @@ enum globox_event globox_wayland_egl_handle_events(
 }
 
 
-struct globox_config_features* globox_wayland_egl_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_wayland_egl_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	struct globox_config_features* features =
-		globox_wayland_common_init_features(context, platform, error);
+	struct globuf_config_features* features =
+		globuf_wayland_common_init_features(context, platform, error);
 
 	// return the newly created features info structure
 	// error always set
 	return features;
 }
 
-void globox_wayland_egl_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_interaction(context, platform, config, error);
+	globuf_wayland_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_egl_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_state(context, platform, config, error);
+	globuf_wayland_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_egl_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_title(context, platform, config, error);
+	globuf_wayland_common_feature_set_title(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_egl_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_wayland_egl_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_icon(context, platform, config, error);
+	globuf_wayland_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_wayland_egl_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_wayland_egl_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_width(context, platform, error);
+	return globuf_wayland_common_get_width(context, platform, error);
 }
 
-unsigned globox_wayland_egl_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_wayland_egl_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_height(context, platform, error);
+	return globuf_wayland_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_wayland_egl_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_wayland_egl_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_expose(context, platform, error);
+	return globuf_wayland_common_get_expose(context, platform, error);
 }
 
 
-void globox_wayland_egl_update_content(
-	struct globox* context,
+void globuf_wayland_egl_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -507,15 +507,15 @@ void globox_wayland_egl_update_content(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EGL_SWAP);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EGL_SWAP);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_wayland_egl_callback(
-	struct globox* context)
+void* globuf_wayland_egl_callback(
+	struct globuf* context)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -524,58 +524,58 @@ void* globox_wayland_egl_callback(
 
 
 // OpenGL configuration setter
-void globox_init_wayland_egl(
-	struct globox* context,
-	struct globox_config_opengl* config,
-	struct globox_error_info* error)
+void globuf_init_wayland_egl(
+	struct globuf* context,
+	struct globuf_config_opengl* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_egl_backend* backend = context->backend_data;
 
 	backend->config = config;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_prepare_init_wayland_egl(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_wayland_egl(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_opengl* opengl =
-		malloc(sizeof (struct globox_calls_opengl));
+	struct globuf_calls_opengl* opengl =
+		malloc(sizeof (struct globuf_calls_opengl));
 
 	if (opengl == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	opengl->init = globox_init_wayland_egl;
+	opengl->init = globuf_init_wayland_egl;
 
 	config->data = opengl;
-	config->callback = globox_wayland_egl_callback;
-	config->init = globox_wayland_egl_init;
-	config->clean = globox_wayland_egl_clean;
-	config->window_create = globox_wayland_egl_window_create;
-	config->window_destroy = globox_wayland_egl_window_destroy;
-	config->window_confirm = globox_wayland_egl_window_confirm;
-	config->window_start = globox_wayland_egl_window_start;
-	config->window_block = globox_wayland_egl_window_block;
-	config->window_stop = globox_wayland_egl_window_stop;
-	config->init_render = globox_wayland_egl_init_render;
-	config->init_events = globox_wayland_egl_init_events;
-	config->handle_events = globox_wayland_egl_handle_events;
-	config->init_features = globox_wayland_egl_init_features;
-	config->feature_set_interaction = globox_wayland_egl_feature_set_interaction;
-	config->feature_set_state = globox_wayland_egl_feature_set_state;
-	config->feature_set_title = globox_wayland_egl_feature_set_title;
-	config->feature_set_icon = globox_wayland_egl_feature_set_icon;
-	config->get_width = globox_wayland_egl_get_width;
-	config->get_height = globox_wayland_egl_get_height;
-	config->get_expose = globox_wayland_egl_get_expose;
-	config->update_content = globox_wayland_egl_update_content;
+	config->callback = globuf_wayland_egl_callback;
+	config->init = globuf_wayland_egl_init;
+	config->clean = globuf_wayland_egl_clean;
+	config->window_create = globuf_wayland_egl_window_create;
+	config->window_destroy = globuf_wayland_egl_window_destroy;
+	config->window_confirm = globuf_wayland_egl_window_confirm;
+	config->window_start = globuf_wayland_egl_window_start;
+	config->window_block = globuf_wayland_egl_window_block;
+	config->window_stop = globuf_wayland_egl_window_stop;
+	config->init_render = globuf_wayland_egl_init_render;
+	config->init_events = globuf_wayland_egl_init_events;
+	config->handle_events = globuf_wayland_egl_handle_events;
+	config->init_features = globuf_wayland_egl_init_features;
+	config->feature_set_interaction = globuf_wayland_egl_feature_set_interaction;
+	config->feature_set_state = globuf_wayland_egl_feature_set_state;
+	config->feature_set_title = globuf_wayland_egl_feature_set_title;
+	config->feature_set_icon = globuf_wayland_egl_feature_set_icon;
+	config->get_width = globuf_wayland_egl_get_width;
+	config->get_height = globuf_wayland_egl_get_height;
+	config->get_expose = globuf_wayland_egl_get_expose;
+	config->update_content = globuf_wayland_egl_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

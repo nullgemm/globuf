@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_vulkan.h"
-#include "include/globox_wayland_vulkan.h"
+#include "include/globuf.h"
+#include "include/globuf_vulkan.h"
+#include "include/globuf_wayland_vulkan.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_helpers.h"
 #include "wayland/wayland_vulkan.h"
@@ -15,16 +15,16 @@
 #include <vulkan/vulkan_wayland.h>
 #include <wayland-client.h>
 
-void globox_wayland_vulkan_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct wayland_vulkan_backend* backend = malloc(sizeof (struct wayland_vulkan_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -46,15 +46,15 @@ void globox_wayland_vulkan_init(
 			&(backend->ext_found),
 			error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// initialize the platform
-	globox_wayland_common_init(context, &(backend->platform), error);
+	globuf_wayland_common_init(context, &(backend->platform), error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -72,10 +72,10 @@ void globox_wayland_vulkan_init(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST);
+			GLOBUF_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST);
 		return;
 	}
 
@@ -90,10 +90,10 @@ void globox_wayland_vulkan_init(
 
 	if (ext_props == NULL)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_ALLOC);
+			GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -106,10 +106,10 @@ void globox_wayland_vulkan_init(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST);
+			GLOBUF_ERROR_WAYLAND_VULKAN_EXTENSIONS_LIST);
 		return;
 	}
 
@@ -159,19 +159,19 @@ void globox_wayland_vulkan_init(
 	// fail if we couldn't get all the required extensions
 	if (ext_found != backend->ext_len)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_WAYLAND_VULKAN_EXTENSION_UNAVAILABLE);
+			GLOBUF_ERROR_WAYLAND_VULKAN_EXTENSION_UNAVAILABLE);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_wayland_vulkan_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -182,7 +182,7 @@ void globox_wayland_vulkan_clean(
 	free(backend->ext_found);
 
 	// clean the platform
-	globox_wayland_common_clean(context, platform, error);
+	globuf_wayland_common_clean(context, platform, error);
 
 	// free the backend
 	free(backend);
@@ -190,13 +190,13 @@ void globox_wayland_vulkan_clean(
 	// error always set
 }
 
-void globox_wayland_vulkan_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_wayland_vulkan_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -206,22 +206,22 @@ void globox_wayland_vulkan_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_wayland_helpers_features_init(context, platform, configs, count, error);
+	globuf_wayland_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// run common Wayland helper
-	globox_wayland_common_window_create(context, platform, configs, count, callback, data, error);
+	globuf_wayland_common_window_create(context, platform, configs, count, callback, data, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -231,16 +231,16 @@ void globox_wayland_vulkan_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_vulkan_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -250,7 +250,7 @@ void globox_wayland_vulkan_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -264,32 +264,32 @@ void globox_wayland_vulkan_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// run common Wayland helper
-	globox_wayland_common_window_destroy(context, platform, error);
+	globuf_wayland_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_vulkan_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_confirm(context, platform, error);
+	globuf_wayland_common_window_confirm(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -311,52 +311,52 @@ void globox_wayland_vulkan_window_confirm(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_VULKAN_SURFACE_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_VULKAN_SURFACE_CREATE);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_wayland_vulkan_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_start(context, platform, error);
+	globuf_wayland_common_window_start(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_wayland_vulkan_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper (mutex locked when unblocked)
-	globox_wayland_common_window_block(context, platform, error);
+	globuf_wayland_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_wayland_vulkan_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_window_stop(context, platform, error);
+	globuf_wayland_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
 
@@ -364,49 +364,49 @@ void globox_wayland_vulkan_window_stop(
 }
 
 
-void globox_wayland_vulkan_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_init_render(context, platform, config, error);
+	globuf_wayland_common_init_render(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_wayland_vulkan_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_init_events(context, platform, config, error);
+	globuf_wayland_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-enum globox_event globox_wayland_vulkan_handle_events(
-	struct globox* context,
+enum globuf_event globuf_wayland_vulkan_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	enum globox_event out =
-		globox_wayland_common_handle_events(
+	enum globuf_event out =
+		globuf_wayland_common_handle_events(
 			context,
 			platform,
 			event,
@@ -416,127 +416,127 @@ enum globox_event globox_wayland_vulkan_handle_events(
 }
 
 
-struct globox_config_features* globox_wayland_vulkan_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_wayland_vulkan_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	struct globox_config_features* features =
-		globox_wayland_common_init_features(context, platform, error);
+	struct globuf_config_features* features =
+		globuf_wayland_common_init_features(context, platform, error);
 
 	// return the newly created features info structure
 	// error always set
 	return features;
 }
 
-void globox_wayland_vulkan_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_interaction(context, platform, config, error);
+	globuf_wayland_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_vulkan_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_state(context, platform, config, error);
+	globuf_wayland_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_vulkan_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_title(context, platform, config, error);
+	globuf_wayland_common_feature_set_title(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_wayland_vulkan_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_wayland_vulkan_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// run common Wayland helper
-	globox_wayland_common_feature_set_icon(context, platform, config, error);
+	globuf_wayland_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_wayland_vulkan_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_wayland_vulkan_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_width(context, platform, error);
+	return globuf_wayland_common_get_width(context, platform, error);
 }
 
-unsigned globox_wayland_vulkan_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_wayland_vulkan_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_height(context, platform, error);
+	return globuf_wayland_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_wayland_vulkan_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_wayland_vulkan_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_wayland_common_get_expose(context, platform, error);
+	return globuf_wayland_common_get_expose(context, platform, error);
 }
 
 
-void globox_wayland_vulkan_update_content(
-	struct globox* context,
+void globuf_wayland_vulkan_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	wl_surface_commit(platform->surface);
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_wayland_vulkan_callback(
-	struct globox* context)
+void* globuf_wayland_vulkan_callback(
+	struct globuf* context)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
@@ -545,45 +545,45 @@ void* globox_wayland_vulkan_callback(
 
 
 // Vulkan configuration setter
-void globox_wayland_init_vulkan(
-	struct globox* context,
-	struct globox_config_vulkan* config,
-	struct globox_error_info* error)
+void globuf_wayland_init_vulkan(
+	struct globuf* context,
+	struct globuf_config_vulkan* config,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 
 	backend->config = config;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 // get Vulkan extensions
-void globox_wayland_get_extensions_vulkan(
-	struct globox* context,
+void globuf_wayland_get_extensions_vulkan(
+	struct globuf* context,
 	uint32_t* len,
 	const char*** list,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 
 	*len = backend->ext_len;
 	*list = backend->ext_needed;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 // create Vulkan surface
-VkBool32 globox_wayland_presentation_support_vulkan(
-	struct globox* context,
+VkBool32 globuf_wayland_presentation_support_vulkan(
+	struct globuf* context,
 	VkPhysicalDevice physical_device,
 	uint32_t queue_family_index,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
-	struct globox_config_vulkan* config = backend->config;
+	struct globuf_config_vulkan* config = backend->config;
 
-	error->code = GLOBOX_ERROR_OK;
+	error->code = GLOBUF_ERROR_OK;
 
 	return vkGetPhysicalDeviceWaylandPresentationSupportKHR(
 		physical_device,
@@ -592,61 +592,61 @@ VkBool32 globox_wayland_presentation_support_vulkan(
 }
 
 // get Vulkan surface
-VkSurfaceKHR* globox_wayland_get_surface_vulkan(
-	struct globox* context,
-	struct globox_error_info* error)
+VkSurfaceKHR* globuf_wayland_get_surface_vulkan(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct wayland_vulkan_backend* backend = context->backend_data;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 
 	return &(backend->surface);
 }
 
 
 // init Wayland Vulkan
-void globox_prepare_init_wayland_vulkan(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_wayland_vulkan(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_vulkan* vulkan =
-		malloc(sizeof (struct globox_calls_vulkan));
+	struct globuf_calls_vulkan* vulkan =
+		malloc(sizeof (struct globuf_calls_vulkan));
 
 	if (vulkan == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	vulkan->init = globox_wayland_init_vulkan;
-	vulkan->get_extensions = globox_wayland_get_extensions_vulkan;
-	vulkan->presentation_support = globox_wayland_presentation_support_vulkan;
-	vulkan->get_surface = globox_wayland_get_surface_vulkan;
+	vulkan->init = globuf_wayland_init_vulkan;
+	vulkan->get_extensions = globuf_wayland_get_extensions_vulkan;
+	vulkan->presentation_support = globuf_wayland_presentation_support_vulkan;
+	vulkan->get_surface = globuf_wayland_get_surface_vulkan;
 
 	config->data = vulkan;
-	config->callback = globox_wayland_vulkan_callback;
-	config->init = globox_wayland_vulkan_init;
-	config->clean = globox_wayland_vulkan_clean;
-	config->window_create = globox_wayland_vulkan_window_create;
-	config->window_destroy = globox_wayland_vulkan_window_destroy;
-	config->window_confirm = globox_wayland_vulkan_window_confirm;
-	config->window_start = globox_wayland_vulkan_window_start;
-	config->window_block = globox_wayland_vulkan_window_block;
-	config->window_stop = globox_wayland_vulkan_window_stop;
-	config->init_render = globox_wayland_vulkan_init_render;
-	config->init_events = globox_wayland_vulkan_init_events;
-	config->handle_events = globox_wayland_vulkan_handle_events;
-	config->init_features = globox_wayland_vulkan_init_features;
-	config->feature_set_interaction = globox_wayland_vulkan_feature_set_interaction;
-	config->feature_set_state = globox_wayland_vulkan_feature_set_state;
-	config->feature_set_title = globox_wayland_vulkan_feature_set_title;
-	config->feature_set_icon = globox_wayland_vulkan_feature_set_icon;
-	config->get_width = globox_wayland_vulkan_get_width;
-	config->get_height = globox_wayland_vulkan_get_height;
-	config->get_expose = globox_wayland_vulkan_get_expose;
-	config->update_content = globox_wayland_vulkan_update_content;
+	config->callback = globuf_wayland_vulkan_callback;
+	config->init = globuf_wayland_vulkan_init;
+	config->clean = globuf_wayland_vulkan_clean;
+	config->window_create = globuf_wayland_vulkan_window_create;
+	config->window_destroy = globuf_wayland_vulkan_window_destroy;
+	config->window_confirm = globuf_wayland_vulkan_window_confirm;
+	config->window_start = globuf_wayland_vulkan_window_start;
+	config->window_block = globuf_wayland_vulkan_window_block;
+	config->window_stop = globuf_wayland_vulkan_window_stop;
+	config->init_render = globuf_wayland_vulkan_init_render;
+	config->init_events = globuf_wayland_vulkan_init_events;
+	config->handle_events = globuf_wayland_vulkan_handle_events;
+	config->init_features = globuf_wayland_vulkan_init_features;
+	config->feature_set_interaction = globuf_wayland_vulkan_feature_set_interaction;
+	config->feature_set_state = globuf_wayland_vulkan_feature_set_state;
+	config->feature_set_title = globuf_wayland_vulkan_feature_set_title;
+	config->feature_set_icon = globuf_wayland_vulkan_feature_set_icon;
+	config->get_width = globuf_wayland_vulkan_get_width;
+	config->get_height = globuf_wayland_vulkan_get_height;
+	config->get_expose = globuf_wayland_vulkan_get_expose;
+	config->update_content = globuf_wayland_vulkan_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

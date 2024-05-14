@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_registry.h"
 
@@ -24,10 +24,10 @@ void wayland_helpers_callback_registry(
 	uint32_t version)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
+	struct globuf* context = platform->globuf;
 
 	int error_posix;
-	struct globox_error_info error;
+	struct globuf_error_info error;
 
 	if (strcmp(interface, wl_compositor_interface.name) == 0)
 	{
@@ -40,10 +40,10 @@ void wayland_helpers_callback_registry(
 
 		if (platform->compositor == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 	}
@@ -58,10 +58,10 @@ void wayland_helpers_callback_registry(
 
 		if (platform->seat == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 
@@ -73,10 +73,10 @@ void wayland_helpers_callback_registry(
 
 		if (error_posix == -1)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+				GLOBUF_ERROR_WAYLAND_LISTENER_ADD);
 		}
 	}
 	else if (strcmp(interface, xdg_wm_base_interface.name) == 0)
@@ -90,10 +90,10 @@ void wayland_helpers_callback_registry(
 
 		if (platform->xdg_wm_base == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 
@@ -105,10 +105,10 @@ void wayland_helpers_callback_registry(
 
 		if (error_posix == -1)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+				GLOBUF_ERROR_WAYLAND_LISTENER_ADD);
 		}
 	}
 	else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
@@ -122,10 +122,10 @@ void wayland_helpers_callback_registry(
 
 		if (platform->xdg_decoration_manager == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 	}
@@ -140,10 +140,10 @@ void wayland_helpers_callback_registry(
 
 		if (platform->kde_blur_manager == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 	}
@@ -170,7 +170,7 @@ void wayland_helpers_callback_registry_remove(
 	uint32_t name)
 {
 	// The Wayland protocol specifies global objects are still valid until
-	// explicitly destroyed so we can handle this task in globox cleanup
+	// explicitly destroyed so we can handle this task in globuf cleanup
 	// functions to avoid sending requests to invalid objects: in the
 	// meantime, associated actions are simply ignored.
 }
@@ -182,8 +182,8 @@ void wayland_helpers_seat_capabilities(
 	uint32_t capabilities)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 
 	// register internal pointer listener
 	bool pointer = (capabilities & WL_SEAT_CAPABILITY_POINTER) != 0;
@@ -194,10 +194,10 @@ void wayland_helpers_seat_capabilities(
 
 		if (platform->pointer == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_POINTER_GET);
+				GLOBUF_ERROR_WAYLAND_POINTER_GET);
 		}
 		else
 		{
@@ -209,10 +209,10 @@ void wayland_helpers_seat_capabilities(
 
 			if (error_posix == -1)
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					&error,
-					GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+					GLOBUF_ERROR_WAYLAND_LISTENER_ADD);
 			}
 		}
 	}
@@ -281,15 +281,15 @@ void wayland_helpers_pointer_button(
 	uint32_t state)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 
 	// get current interaction type
-	enum globox_interaction action_code = context->feature_interaction->action;
+	enum globuf_interaction action_code = context->feature_interaction->action;
 
 	if ((button == BTN_LEFT)
 	&& (state == WL_POINTER_BUTTON_STATE_PRESSED)
-	&& (action_code != GLOBOX_INTERACTION_STOP))
+	&& (action_code != GLOBUF_INTERACTION_STOP))
 	{
 		// initiate interactive move and resize
 		if (platform->sizing_edge == XDG_TOPLEVEL_RESIZE_EDGE_NONE)
@@ -311,12 +311,12 @@ void wayland_helpers_pointer_button(
 		// Wayland does not communicate events responsible for stopping
 		// interactive move and resize operations so we have to reset
 		// the internal information immediately after starting them.
-		struct globox_feature_interaction action =
+		struct globuf_feature_interaction action =
 		{
-			.action = GLOBOX_INTERACTION_STOP,
+			.action = GLOBUF_INTERACTION_STOP,
 		};
 
-		globox_feature_set_interaction(context, &action, &error);
+		globuf_feature_set_interaction(context, &action, &error);
 
 		platform->sizing_edge = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
 	}
@@ -372,8 +372,8 @@ void wayland_helpers_surface_frame_done(
 	uint32_t time)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 
 	if (callback != NULL)
 	{
@@ -393,7 +393,7 @@ void wayland_helpers_surface_frame_done(
 
 	if (surface_frame == NULL)
 	{
-		globox_error_throw(context, &error, GLOBOX_ERROR_WAYLAND_SURFACE_FRAME_GET);
+		globuf_error_throw(context, &error, GLOBUF_ERROR_WAYLAND_SURFACE_FRAME_GET);
 		return;
 	}
 
@@ -406,7 +406,7 @@ void wayland_helpers_surface_frame_done(
 
 	if (error_posix == -1)
 	{
-		globox_error_throw(context, &error, GLOBOX_ERROR_WAYLAND_LISTENER_ADD);
+		globuf_error_throw(context, &error, GLOBUF_ERROR_WAYLAND_LISTENER_ADD);
 		return;
 	}
 
@@ -430,8 +430,8 @@ void wayland_helpers_xdg_surface_configure(
 	uint32_t serial)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 
 	xdg_surface_ack_configure(xdg_surface, serial);
 
@@ -456,8 +456,8 @@ void wayland_helpers_xdg_toplevel_configure(
 	struct wl_array* states)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 	int error_posix;
 
 	if ((width == 0) || (height == 0))
@@ -472,7 +472,7 @@ void wayland_helpers_xdg_toplevel_configure(
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 			return;
 		}
 	}
@@ -487,7 +487,7 @@ void wayland_helpers_xdg_toplevel_configure(
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 			return;
 		}
 	}
@@ -498,11 +498,11 @@ void wayland_helpers_xdg_toplevel_close(
 	struct xdg_toplevel* xdg_toplevel)
 {
 	struct wayland_platform* platform = data;
-	struct globox* context = platform->globox;
-	struct globox_error_info error;
+	struct globuf* context = platform->globuf;
+	struct globuf_error_info error;
 	int error_posix;
 
-	// make the globox blocking function exit gracefully
+	// make the globuf blocking function exit gracefully
 	pthread_cond_broadcast(&(platform->cond_main));
 
 	// lock main mutex
@@ -510,7 +510,7 @@ void wayland_helpers_xdg_toplevel_close(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -521,7 +521,7 @@ void wayland_helpers_xdg_toplevel_close(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, &error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, &error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 }

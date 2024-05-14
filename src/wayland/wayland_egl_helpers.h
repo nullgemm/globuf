@@ -1,8 +1,8 @@
-#ifndef H_GLOBOX_INTERNAL_WAYLAND_EGL_HELPERS
-#define H_GLOBOX_INTERNAL_WAYLAND_EGL_HELPERS
+#ifndef H_GLOBUF_INTERNAL_WAYLAND_EGL_HELPERS
+#define H_GLOBUF_INTERNAL_WAYLAND_EGL_HELPERS
 
-#include "include/globox.h"
-#include "include/globox_opengl.h"
+#include "include/globuf.h"
+#include "include/globuf_opengl.h"
 #include "wayland/wayland_common.h"
 
 #include <EGL/egl.h>
@@ -11,7 +11,7 @@
 struct wayland_egl_backend
 {
 	struct wayland_platform platform;
-	struct globox_config_opengl* config;
+	struct globuf_config_opengl* config;
 
 	EGLContext egl;
 	EGLDisplay display;
@@ -22,8 +22,8 @@ struct wayland_egl_backend
 };
 
 void wayland_helpers_egl_bind(
-	struct globox* context,
-	struct globox_error_info* error);
+	struct globuf* context,
+	struct globuf_error_info* error);
 
 void wayland_helpers_egl_toplevel_configure(
 	void* data,

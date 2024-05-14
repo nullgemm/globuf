@@ -23,10 +23,10 @@ output="make/output"
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox"
-folder_include="\$folder_globox/include"
-name="globox_macho"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf"
+folder_include="\$folder_globuf/include"
+name="globuf_macho"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -39,9 +39,9 @@ flags+=("-Isrc")
 flags+=("-Isrc/include")
 flags+=("-fPIC")
 
-#defines+=("-DGLOBOX_ERROR_ABORT")
-#defines+=("-DGLOBOX_ERROR_SKIP")
-defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+#defines+=("-DGLOBUF_ERROR_ABORT")
+#defines+=("-DGLOBUF_ERROR_SKIP")
+defines+=("-DGLOBUF_ERROR_LOG_DEBUG")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -51,7 +51,7 @@ fi
 case $build in
 	development)
 flags+=("-g")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	release)
@@ -60,7 +60,7 @@ flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-defines+=("-DGLOBOX_ERROR_LOG_MANUAL")
+defines+=("-DGLOBUF_ERROR_LOG_MANUAL")
 	;;
 
 	sanitized_memory)
@@ -71,7 +71,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=leak")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_undefined)
@@ -82,7 +82,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=undefined")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_address)
@@ -94,7 +94,7 @@ flags+=("-fno-optimize-sibling-calls")
 flags+=("-fsanitize=address")
 flags+=("-fsanitize-address-use-after-scope")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_thread)
@@ -105,7 +105,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=thread")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	*)
@@ -123,28 +123,28 @@ fi
 case $backend in
 	common)
 ninja_file=lib_macho.ninja
-src+=("src/common/globox.c")
-src+=("src/common/globox_error.c")
+src+=("src/common/globuf.c")
+src+=("src/common/globuf_error.c")
 	;;
 
 	software)
 ninja_file=lib_macho_software.ninja
 name+="_software"
-src+=("src/common/globox_software.c")
+src+=("src/common/globuf_software.c")
 	;;
 
 	opengl)
 ninja_file=lib_macho_opengl.ninja
 name+="_opengl"
 flags+=("-Ires/angle/include")
-src+=("src/common/globox_opengl.c")
+src+=("src/common/globuf_opengl.c")
 	;;
 
 	vulkan)
 ninja_file=lib_macho_vulkan.ninja
 name+="_vulkan"
 flags+=("-Ires/moltenvk/include")
-src+=("src/common/globox_vulkan.c")
+src+=("src/common/globuf_vulkan.c")
 	;;
 
 	*)
@@ -192,7 +192,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name"; \
@@ -258,23 +258,23 @@ echo ""; \
 ## copy headers
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox.h: \$"; \
-echo "cp src/include/globox.h"; \
-echo "build \$folder_include/globox_software.h: \$"; \
-echo "cp src/include/globox_software.h"; \
-echo "build \$folder_include/globox_opengl.h: \$"; \
-echo "cp src/include/globox_opengl.h"; \
-echo "build \$folder_include/globox_vulkan.h: \$"; \
-echo "cp src/include/globox_vulkan.h"; \
+echo "build \$folder_include/globuf.h: \$"; \
+echo "cp src/include/globuf.h"; \
+echo "build \$folder_include/globuf_software.h: \$"; \
+echo "cp src/include/globuf_software.h"; \
+echo "build \$folder_include/globuf_opengl.h: \$"; \
+echo "cp src/include/globuf_opengl.h"; \
+echo "build \$folder_include/globuf_vulkan.h: \$"; \
+echo "cp src/include/globuf_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox.h \$"; \
-echo "\$folder_include/globox_software.h \$"; \
-echo "\$folder_include/globox_opengl.h \$"; \
-echo "\$folder_include/globox_vulkan.h"; \
+echo "\$folder_include/globuf.h \$"; \
+echo "\$folder_include/globuf_software.h \$"; \
+echo "\$folder_include/globuf_opengl.h \$"; \
+echo "\$folder_include/globuf_vulkan.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 

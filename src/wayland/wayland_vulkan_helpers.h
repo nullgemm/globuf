@@ -1,8 +1,8 @@
-#ifndef H_GLOBOX_INTERNAL_WAYLAND_VULKAN_HELPERS
-#define H_GLOBOX_INTERNAL_WAYLAND_VULKAN_HELPERS
+#ifndef H_GLOBUF_INTERNAL_WAYLAND_VULKAN_HELPERS
+#define H_GLOBUF_INTERNAL_WAYLAND_VULKAN_HELPERS
 
-#include "include/globox.h"
-#include "include/globox_vulkan.h"
+#include "include/globuf.h"
+#include "include/globuf_vulkan.h"
 #include "wayland/wayland_common.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -12,9 +12,9 @@
 struct wayland_vulkan_backend
 {
 	struct wayland_platform platform;
-	struct globox_config_vulkan* config;
+	struct globuf_config_vulkan* config;
 
-	// vulkan extensions used by globox
+	// vulkan extensions used by globuf
 	uint32_t ext_len;
 	const char** ext_needed;
 	bool* ext_found;
@@ -24,9 +24,9 @@ struct wayland_vulkan_backend
 };
 
 size_t wayland_helpers_vulkan_add_extensions(
-	struct globox* context,
+	struct globuf* context,
 	const char*** ext_needed,
 	bool** ext_found,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 #endif

@@ -1,1 +1,1 @@
-globox_prepare_init_wayland_vulkan
+globuf_prepare_init_wayland_vulkan

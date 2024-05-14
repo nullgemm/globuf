@@ -16,10 +16,10 @@
 // run the example main() on a secondary thread (symbol renamed)
 extern int real_main(int argc, char** argv);
 
-@interface GloboxThread: NSThread
+@interface GlobufThread: NSThread
 @end
 
-@implementation GloboxThread
+@implementation GlobufThread
 - (void) main
 {
 	real_main(0, NULL);
@@ -84,10 +84,10 @@ int main(int argc, char** argv)
 	[NSApp finishLaunching];
 
 
-	// start globox
+	// start globuf
 	// we *have* to use a NSThread for this, posix threads are not guaranteed to
-	// play well with AppKit (here we use GloboxThread which inherits NSThread)
-	GloboxThread* thread = [GloboxThread new];
+	// play well with AppKit (here we use GlobufThread which inherits NSThread)
+	GlobufThread* thread = [GlobufThread new];
 	[thread start];
 
 

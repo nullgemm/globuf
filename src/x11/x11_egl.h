@@ -1,105 +1,105 @@
-#ifndef H_GLOBOX_INTERNAL_X11_EGL
-#define H_GLOBOX_INTERNAL_X11_EGL
+#ifndef H_GLOBUF_INTERNAL_X11_EGL
+#define H_GLOBUF_INTERNAL_X11_EGL
 
-#include "include/globox.h"
+#include "include/globuf.h"
 #include <stddef.h>
 
-// # main API (globox.h)
-void globox_x11_egl_init(
-	struct globox* context,
-	struct globox_error_info* error);
+// # main API (globuf.h)
+void globuf_x11_egl_init(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_clean(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_clean(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_x11_egl_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_start(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_block(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_window_stop(
-	struct globox* context,
-	struct globox_error_info* error);
+void globuf_x11_egl_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
 
-void globox_x11_egl_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error);
 
-enum globox_event globox_x11_egl_handle_events(
-	struct globox* context,
+enum globuf_event globuf_x11_egl_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 
-struct globox_config_features* globox_x11_egl_init_features(
-	struct globox* context,
-	struct globox_error_info* error);
+struct globuf_config_features* globuf_x11_egl_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error);
 
-void globox_x11_egl_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error);
+void globuf_x11_egl_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error);
 
 
-unsigned globox_x11_egl_get_width(
-	struct globox* context,
-	struct globox_error_info* error);
+unsigned globuf_x11_egl_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-unsigned globox_x11_egl_get_height(
-	struct globox* context,
-	struct globox_error_info* error);
+unsigned globuf_x11_egl_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
-struct globox_rect globox_x11_egl_get_expose(
-	struct globox* context,
-	struct globox_error_info* error);
+struct globuf_rect globuf_x11_egl_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error);
 
 
 // for this backend, `data` is NULL
-void globox_x11_egl_update_content(
-	struct globox* context,
+void globuf_x11_egl_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 #endif

@@ -1,17 +1,17 @@
 #ifndef H_EXAMPLE_VULKAN_HELPERS
 #define H_EXAMPLE_VULKAN_HELPERS
 
-#include "globox.h"
-#include "globox_vulkan.h"
+#include "globuf.h"
+#include "globuf_vulkan.h"
 
 #include <stdint.h>
 #include <vulkan/vulkan_core.h>
 
-struct globox_render_data
+struct globuf_render_data
 {
-	// globox info
-	struct globox* globox;
-	struct globox_config_vulkan config;
+	// globuf info
+	struct globuf* globuf;
+	struct globuf_config_vulkan config;
 
 	int width;
 	int height;
@@ -73,13 +73,13 @@ struct globox_render_data
 };
 
 void free_check(const void* ptr);
-void init_vulkan(struct globox_render_data* data);
-void config_vulkan(struct globox_render_data* data);
-void swapchain_free_vulkan(struct globox_render_data* data);
-void swapchain_vulkan(struct globox_render_data* data);
-void pipeline_free_vulkan(struct globox_render_data* data);
-void pipeline_vulkan(struct globox_render_data* data);
-void compile_shaders(struct globox_render_data* data);
-void render_vulkan(struct globox_render_data* data);
+void init_vulkan(struct globuf_render_data* data);
+void config_vulkan(struct globuf_render_data* data);
+void swapchain_free_vulkan(struct globuf_render_data* data);
+void swapchain_vulkan(struct globuf_render_data* data);
+void pipeline_free_vulkan(struct globuf_render_data* data);
+void pipeline_vulkan(struct globuf_render_data* data);
+void compile_shaders(struct globuf_render_data* data);
+void render_vulkan(struct globuf_render_data* data);
 
 #endif

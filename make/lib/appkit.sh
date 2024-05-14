@@ -23,10 +23,10 @@ output="make/output"
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox/appkit"
-folder_include="\$folder_globox/include"
-name="globox_appkit"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf/appkit"
+folder_include="\$folder_globuf/include"
+name="globuf_appkit"
 
 # compiler flags
 flags+=("-std=c99" "-pedantic")
@@ -44,9 +44,9 @@ flags+=("-fdiagnostics-color=always")
 ldflags+=("-framework AppKit")
 ldflags+=("-framework QuartzCore")
 
-#defines+=("-DGLOBOX_ERROR_ABORT")
-#defines+=("-DGLOBOX_ERROR_SKIP")
-defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
+#defines+=("-DGLOBUF_ERROR_ABORT")
+#defines+=("-DGLOBUF_ERROR_SKIP")
+defines+=("-DGLOBUF_ERROR_LOG_DEBUG")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -56,7 +56,7 @@ fi
 case $build in
 	development)
 flags+=("-g")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	release)
@@ -65,7 +65,7 @@ flags+=("-fstack-protector-strong")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-defines+=("-DGLOBOX_ERROR_LOG_MANUAL")
+defines+=("-DGLOBUF_ERROR_LOG_MANUAL")
 	;;
 
 	sanitized_memory)
@@ -76,7 +76,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=leak")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_undefined)
@@ -87,7 +87,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=undefined")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_address)
@@ -99,7 +99,7 @@ flags+=("-fno-optimize-sibling-calls")
 flags+=("-fsanitize=address")
 flags+=("-fsanitize-address-use-after-scope")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_thread)
@@ -110,7 +110,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=thread")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	*)
@@ -209,7 +209,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name"; \
@@ -276,18 +276,18 @@ echo ""; \
 if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox_appkit_$backend.h: \$"; \
-echo "cp src/include/globox_appkit_$backend.h"; \
+echo "build \$folder_include/globuf_appkit_$backend.h: \$"; \
+echo "cp src/include/globuf_appkit_$backend.h"; \
 echo ""; \
-echo "build \$folder_include/globox_appkit.h: \$"; \
-echo "cp src/include/globox_appkit.h"; \
+echo "build \$folder_include/globuf_appkit.h: \$"; \
+echo "cp src/include/globuf_appkit.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_appkit_$backend.h \$"; \
-echo "\$folder_include/globox_appkit.h"; \
+echo "\$folder_include/globuf_appkit_$backend.h \$"; \
+echo "\$folder_include/globuf_appkit.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi

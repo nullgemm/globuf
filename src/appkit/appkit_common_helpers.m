@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "appkit/appkit_common.h"
 #include "appkit/appkit_common_helpers.h"
 
@@ -10,15 +10,15 @@
 
 #import <AppKit/AppKit.h>
 
-@implementation GloboxWindow
+@implementation GlobufWindow
 
-@synthesize globoxEventData;
+@synthesize globufEventData;
 
 - (void) sendEvent: (NSEvent*) event
 {
-	struct globox* context = globoxEventData->globox;
-	struct appkit_platform* platform = globoxEventData->platform;
-	struct globox_error_info* error = globoxEventData->error;
+	struct globuf* context = globufEventData->globuf;
+	struct appkit_platform* platform = globufEventData->platform;
+	struct globuf_error_info* error = globufEventData->error;
 
 	// run developer callback
 	context->event_callbacks.handler(context->event_callbacks.data, event);
@@ -29,146 +29,146 @@
 
 - (void) zoom: (id) sender
 {
-	struct globox* context = globoxEventData->globox;
-	struct appkit_platform* platform = globoxEventData->platform;
+	struct globuf* context = globufEventData->globuf;
+	struct appkit_platform* platform = globufEventData->platform;
 	BOOL maximized = [platform->win isZoomed];
-	enum globox_event event;
+	enum globuf_event event;
 
 	// inverted logic because this is the function doing the max/unmax
 	if (maximized == YES)
 	{
-		event = GLOBOX_EVENT_RESTORED;
+		event = GLOBUF_EVENT_RESTORED;
 	}
 	else
 	{
-		event = GLOBOX_EVENT_MAXIMIZED;
+		event = GLOBUF_EVENT_MAXIMIZED;
 	}
 
-	globox_appkit_helpers_send_app_event(context, platform, event);
+	globuf_appkit_helpers_send_app_event(context, platform, event);
 
 	[super zoom: sender];
 }
 
 @end
 
-@implementation GloboxWindowDelegate
+@implementation GlobufWindowDelegate
 
-@synthesize globoxDelegateData;
+@synthesize globufDelegateData;
 
 - (void) windowDidResize: (NSNotification*) notification
 {
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
-		GLOBOX_EVENT_MOVED_RESIZED);
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
+		GLOBUF_EVENT_MOVED_RESIZED);
 }
 
 - (void) windowDidMiniaturize: (NSNotification*) notification
 {
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
-		GLOBOX_EVENT_MINIMIZED);
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
+		GLOBUF_EVENT_MINIMIZED);
 }
 
 - (void) windowDidDeminiaturize: (NSNotification*) notification
 {
-	struct appkit_platform* platform = globoxDelegateData->platform;
+	struct appkit_platform* platform = globufDelegateData->platform;
 	BOOL maximized = [platform->win isZoomed];
-	enum globox_event event;
+	enum globuf_event event;
 
 	if (maximized == YES)
 	{
-		event = GLOBOX_EVENT_MAXIMIZED;
+		event = GLOBUF_EVENT_MAXIMIZED;
 	}
 	else
 	{
-		event = GLOBOX_EVENT_RESTORED;
+		event = GLOBUF_EVENT_RESTORED;
 	}
 
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
 		event);
 }
 
 - (void) windowDidEnterFullScreen: (NSNotification*) notification
 {
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
-		GLOBOX_EVENT_FULLSCREEN);
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
+		GLOBUF_EVENT_FULLSCREEN);
 }
 
 - (void) windowDidExitFullScreen: (NSNotification*) notification
 {
-	struct appkit_platform* platform = globoxDelegateData->platform;
+	struct appkit_platform* platform = globufDelegateData->platform;
 	BOOL maximized = [platform->win isZoomed];
-	enum globox_event event;
+	enum globuf_event event;
 
 	if (maximized == YES)
 	{
-		event = GLOBOX_EVENT_MAXIMIZED;
+		event = GLOBUF_EVENT_MAXIMIZED;
 	}
 	else
 	{
-		event = GLOBOX_EVENT_RESTORED;
+		event = GLOBUF_EVENT_RESTORED;
 	}
 
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
 		event);
 }
 
 - (void) windowDidMove: (NSNotification*) notification
 {
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
-		GLOBOX_EVENT_MOVED_RESIZED);
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
+		GLOBUF_EVENT_MOVED_RESIZED);
 }
 
 - (BOOL) windowShouldClose: (NSWindow*) sender
 {
-	globox_appkit_helpers_send_app_event(
-		globoxDelegateData->globox,
-		globoxDelegateData->platform,
-		GLOBOX_EVENT_CLOSED);
+	globuf_appkit_helpers_send_app_event(
+		globufDelegateData->globuf,
+		globufDelegateData->platform,
+		GLOBUF_EVENT_CLOSED);
 
 	return NO;
 }
 
 @end
 
-@implementation GloboxLayerDelegate
+@implementation GlobufLayerDelegate
 
-@synthesize globoxLayerDelegateData;
+@synthesize globufLayerDelegateData;
 
 - (void) displayLayer: (CALayer*) layer
 {
-	globox_appkit_helpers_send_app_event(
-		globoxLayerDelegateData->globox,
-		globoxLayerDelegateData->platform,
-		GLOBOX_EVENT_DAMAGED);
+	globuf_appkit_helpers_send_app_event(
+		globufLayerDelegateData->globuf,
+		globufLayerDelegateData->platform,
+		GLOBUF_EVENT_DAMAGED);
 }
 
 @end
 
-void* globox_appkit_helpers_render_loop(void* data)
+void* globuf_appkit_helpers_render_loop(void* data)
 {
 	struct appkit_thread_render_loop_data* thread_render_loop_data = data;
 
-	struct globox* context = thread_render_loop_data->globox;
+	struct globuf* context = thread_render_loop_data->globuf;
 	struct appkit_platform* platform = thread_render_loop_data->platform;
-	struct globox_error_info* error = thread_render_loop_data->error;
+	struct globuf_error_info* error = thread_render_loop_data->error;
 
 	// lock main mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return NULL;
 	}
 
@@ -179,7 +179,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return NULL;
 	}
 
@@ -188,7 +188,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 	{
 		platform->render_init_callback(context, error);
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 		{
 			return NULL;
 		}
@@ -201,7 +201,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 			break;
 		}
 
@@ -215,7 +215,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
 
@@ -227,7 +227,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 			break;
 		}
 
@@ -238,7 +238,7 @@ void* globox_appkit_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
 	}
@@ -247,93 +247,93 @@ void* globox_appkit_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void globox_appkit_helpers_features_init(
-	struct globox* context,
+void globuf_appkit_helpers_features_init(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	for (size_t i = 0; i < count; ++i)
 	{
 		switch (configs[i].feature)
 		{
-			case GLOBOX_FEATURE_STATE:
+			case GLOBUF_FEATURE_STATE:
 			{
 				// handled directly in AppKit's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_state) =
-						*((struct globox_feature_state*)
+						*((struct globuf_feature_state*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_TITLE:
+			case GLOBUF_FEATURE_TITLE:
 			{
 				// handled directly in AppKit's window creation code
 				if (configs[i].config != NULL)
 				{
-					struct globox_feature_title* tmp = configs[i].config;
+					struct globuf_feature_title* tmp = configs[i].config;
 					context->feature_title->title = strdup(tmp->title);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_SIZE:
+			case GLOBUF_FEATURE_SIZE:
 			{
 				// handled directly in AppKit's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_size) =
-						*((struct globox_feature_size*)
+						*((struct globuf_feature_size*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_POS:
+			case GLOBUF_FEATURE_POS:
 			{
 				// handled directly in AppKit's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_pos) =
-						*((struct globox_feature_pos*)
+						*((struct globuf_feature_pos*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_FRAME:
+			case GLOBUF_FEATURE_FRAME:
 			{
 				// handled directly in AppKit's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_frame) =
-						*((struct globox_feature_frame*)
+						*((struct globuf_feature_frame*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_BACKGROUND:
+			case GLOBUF_FEATURE_BACKGROUND:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_background) =
-						*((struct globox_feature_background*)
+						*((struct globuf_feature_background*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_VSYNC:
+			case GLOBUF_FEATURE_VSYNC:
 			{
 				if (configs[i].config != NULL)
 				{
 					// VSync is always on and there's nothing we can do about it
-					struct globox_feature_vsync* vsync = configs[i].config;
+					struct globuf_feature_vsync* vsync = configs[i].config;
 					vsync->vsync = true;
 					*(context->feature_vsync) = *vsync;
 				}
@@ -342,17 +342,17 @@ void globox_appkit_helpers_features_init(
 			}
 			default:
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_INVALID);
+				globuf_error_throw(context, error, GLOBUF_ERROR_FEATURE_INVALID);
 				return;
 			}
 		}
 	}
 }
 
-void globox_appkit_helpers_send_app_event(
-	struct globox* context,
+void globuf_appkit_helpers_send_app_event(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	enum globox_event event)
+	enum globuf_event event)
 {
 	NSEvent* nsevent =
 		[NSEvent
@@ -371,15 +371,15 @@ void globox_appkit_helpers_send_app_event(
 		atStart:NO];
 }
 
-void globox_appkit_helpers_set_state(
-	struct globox* context,
+void globuf_appkit_helpers_set_state(
+	struct globuf* context,
 	id window,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	switch (config->state)
 	{
-		case GLOBOX_STATE_REGULAR:
+		case GLOBUF_STATE_REGULAR:
 		{
 			if ([window isMiniaturized] == YES)
 			{
@@ -398,7 +398,7 @@ void globox_appkit_helpers_set_state(
 
 			break;
 		}
-		case GLOBOX_STATE_MINIMIZED:
+		case GLOBUF_STATE_MINIMIZED:
 		{
 			// On macOS minimizing a fullscreen window is impossible. We can't
 			// work around this properly since it stems from an actual technical
@@ -406,10 +406,10 @@ void globox_appkit_helpers_set_state(
 			// window to exit fullscreen mode. Instead, we just error out.
 			if (([window styleMask] & NSWindowStyleMaskFullScreen) != 0)
 			{
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_FEATURE_STATE_INVALID);
+					GLOBUF_ERROR_FEATURE_STATE_INVALID);
 			}
 			else
 			{
@@ -418,7 +418,7 @@ void globox_appkit_helpers_set_state(
 
 			break;
 		}
-		case GLOBOX_STATE_MAXIMIZED:
+		case GLOBUF_STATE_MAXIMIZED:
 		{
 			if ([window isMiniaturized] == YES)
 			{
@@ -436,7 +436,7 @@ void globox_appkit_helpers_set_state(
 
 			break;
 		}
-		case GLOBOX_STATE_FULLSCREEN:
+		case GLOBUF_STATE_FULLSCREEN:
 		{
 			if ([window isMiniaturized] == YES)
 			{
@@ -448,27 +448,27 @@ void globox_appkit_helpers_set_state(
 		}
 		default:
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				error,
-				GLOBOX_ERROR_FEATURE_STATE_INVALID);
+				GLOBUF_ERROR_FEATURE_STATE_INVALID);
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_helpers_handle_interaction(
-	struct globox* context,
+void globuf_appkit_helpers_handle_interaction(
+	struct globuf* context,
 	struct appkit_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	NSRect frame = platform->saved_window_geometry;
 
 	// compute window changes
 	switch (context->feature_interaction->action)
 	{
-		case GLOBOX_INTERACTION_MOVE:
+		case GLOBUF_INTERACTION_MOVE:
 		{
 			frame =
 				NSOffsetRect(
@@ -477,7 +477,7 @@ void globox_appkit_helpers_handle_interaction(
 					platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_N:
+		case GLOBUF_INTERACTION_N:
 		{
 			frame =
 				NSMakeRect(
@@ -487,7 +487,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_NW:
+		case GLOBUF_INTERACTION_NW:
 		{
 			frame =
 				NSMakeRect(
@@ -497,7 +497,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame) + platform->old_mouse_pos_y - platform->saved_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_W:
+		case GLOBUF_INTERACTION_W:
 		{
 			frame =
 				NSMakeRect(
@@ -507,7 +507,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame));
 			break;
 		}
-		case GLOBOX_INTERACTION_SW:
+		case GLOBUF_INTERACTION_SW:
 		{
 			frame =
 				NSMakeRect(
@@ -517,7 +517,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_S:
+		case GLOBUF_INTERACTION_S:
 		{
 			frame =
 				NSMakeRect(
@@ -527,7 +527,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_SE:
+		case GLOBUF_INTERACTION_SE:
 		{
 			frame =
 				NSMakeRect(
@@ -537,7 +537,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame) + platform->saved_mouse_pos_y - platform->old_mouse_pos_y);
 			break;
 		}
-		case GLOBOX_INTERACTION_E:
+		case GLOBUF_INTERACTION_E:
 		{
 			frame =
 				NSMakeRect(
@@ -547,7 +547,7 @@ void globox_appkit_helpers_handle_interaction(
 					NSHeight(frame));
 			break;
 		}
-		case GLOBOX_INTERACTION_NE:
+		case GLOBUF_INTERACTION_NE:
 		{
 			frame =
 				NSMakeRect(
@@ -567,5 +567,5 @@ void globox_appkit_helpers_handle_interaction(
 	[platform->win setFrame: frame display: YES];
 	platform->saved_window_geometry = frame;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

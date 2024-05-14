@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_WAYLAND_COMMON
-#define H_GLOBOX_INTERNAL_WAYLAND_COMMON
+#ifndef H_GLOBUF_INTERNAL_WAYLAND_COMMON
+#define H_GLOBUF_INTERNAL_WAYLAND_COMMON
 
-#include "include/globox.h"
+#include "include/globuf.h"
 
 #include <pthread.h>
 #include <stdbool.h>
@@ -15,16 +15,16 @@
 // # private helpers
 struct wayland_thread_render_loop_data
 {
-	struct globox* globox;
+	struct globuf* globuf;
 	struct wayland_platform* platform;
-	struct globox_error_info* error;
+	struct globuf_error_info* error;
 };
 
 struct wayland_thread_event_loop_data
 {
-	struct globox* globox;
+	struct globuf* globuf;
 	struct wayland_platform* platform;
-	struct globox_error_info* error;
+	struct globuf_error_info* error;
 };
 
 struct wayland_capabilities_handler_node
@@ -66,10 +66,10 @@ struct wayland_platform
 	pthread_mutex_t mutex_xsync;
 	pthread_cond_t cond_main;
 
-	// globox
+	// globuf
 	bool init;
 	bool closed;
-	struct globox* globox;
+	struct globuf* globuf;
 
 	// core structures
 	struct wl_display* display;
@@ -114,133 +114,133 @@ struct wayland_platform
 	struct wayland_registry_handler_node* registry_handlers;
 	struct wayland_registry_remover_node* registry_removers;
 
-	// globox feature negociation
+	// globuf feature negociation
 	void (*feature_callback)(
-		struct globox_config_reply* replies,
+		struct globuf_config_reply* replies,
 		size_t count,
 		void* data);
 	void* feature_callback_data;
-	struct globox_config_request* feature_configs;
+	struct globuf_config_request* feature_configs;
 	size_t feature_count;
 
 	// render handling
 	pthread_t thread_render_loop;
 	struct wayland_thread_render_loop_data thread_render_loop_data;
-	void (*render_init_callback)(struct globox*, struct globox_error_info*);
+	void (*render_init_callback)(struct globuf*, struct globuf_error_info*);
 
 	// event handling
 	pthread_t thread_event_loop;
 	struct wayland_thread_event_loop_data thread_event_loop_data;
-	void (*event_init_callback)(struct globox*, struct globox_error_info*);
+	void (*event_init_callback)(struct globuf*, struct globuf_error_info*);
 };
 
-void globox_wayland_common_init(
-	struct globox* context,
+void globuf_wayland_common_init(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_clean(
-	struct globox* context,
+void globuf_wayland_common_clean(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_create(
-	struct globox* context,
+void globuf_wayland_common_window_create(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_destroy(
-	struct globox* context,
+void globuf_wayland_common_window_destroy(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_confirm(
-	struct globox* context,
+void globuf_wayland_common_window_confirm(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_start(
-	struct globox* context,
+void globuf_wayland_common_window_start(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_block(
-	struct globox* context,
+void globuf_wayland_common_window_block(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_window_stop(
-	struct globox* context,
+void globuf_wayland_common_window_stop(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 
-void globox_wayland_common_init_render(
-	struct globox* context,
+void globuf_wayland_common_init_render(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_config_render* config,
-	struct globox_error_info* error);
+	struct globuf_config_render* config,
+	struct globuf_error_info* error);
 
-void globox_wayland_common_init_events(
-	struct globox* context,
+void globuf_wayland_common_init_events(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_config_events* config,
-	struct globox_error_info* error);
+	struct globuf_config_events* config,
+	struct globuf_error_info* error);
 
-enum globox_event globox_wayland_common_handle_events(
-	struct globox* context,
+enum globuf_event globuf_wayland_common_handle_events(
+	struct globuf* context,
 	struct wayland_platform* platform,
 	void* event,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 
-struct globox_config_features* globox_wayland_common_init_features(
-	struct globox* context,
+struct globuf_config_features* globuf_wayland_common_init_features(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-void globox_wayland_common_feature_set_interaction(
-	struct globox* context,
+void globuf_wayland_common_feature_set_interaction(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error);
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error);
 
-void globox_wayland_common_feature_set_state(
-	struct globox* context,
+void globuf_wayland_common_feature_set_state(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_feature_state* config,
-	struct globox_error_info* error);
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error);
 
-void globox_wayland_common_feature_set_title(
-	struct globox* context,
+void globuf_wayland_common_feature_set_title(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_feature_title* config,
-	struct globox_error_info* error);
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error);
 
-void globox_wayland_common_feature_set_icon(
-	struct globox* context,
+void globuf_wayland_common_feature_set_icon(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error);
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error);
 
 
-unsigned globox_wayland_common_get_width(
-	struct globox* context,
+unsigned globuf_wayland_common_get_width(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-unsigned globox_wayland_common_get_height(
-	struct globox* context,
+unsigned globuf_wayland_common_get_height(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
-struct globox_rect globox_wayland_common_get_expose(
-	struct globox* context,
+struct globuf_rect globuf_wayland_common_get_expose(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 #endif

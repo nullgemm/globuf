@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_vulkan.h"
-#include "include/globox_x11_vulkan.h"
+#include "include/globuf.h"
+#include "include/globuf_vulkan.h"
+#include "include/globuf_x11_vulkan.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "x11/x11_common.h"
 #include "x11/x11_common_helpers.h"
 #include "x11/x11_vulkan.h"
@@ -15,16 +15,16 @@
 #include <vulkan/vulkan_xcb.h>
 #include <xcb/xcb.h>
 
-void globox_x11_vulkan_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct x11_vulkan_backend* backend = malloc(sizeof (struct x11_vulkan_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -46,7 +46,7 @@ void globox_x11_vulkan_init(
 			&(backend->ext_found),
 			error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -59,14 +59,14 @@ void globox_x11_vulkan_init(
 	if (error_posix > 0)
 	{
 		xcb_disconnect(platform->conn);
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_CONN);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_CONN);
 		return;
 	}
 
 	// initialize the platform
-	globox_x11_common_init(context, platform, error);
+	globuf_x11_common_init(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -84,10 +84,10 @@ void globox_x11_vulkan_init(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VULKAN_EXTENSIONS_LIST);
+			GLOBUF_ERROR_X11_VULKAN_EXTENSIONS_LIST);
 		return;
 	}
 
@@ -102,10 +102,10 @@ void globox_x11_vulkan_init(
 
 	if (ext_props == NULL)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_ALLOC);
+			GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -118,10 +118,10 @@ void globox_x11_vulkan_init(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VULKAN_EXTENSIONS_LIST);
+			GLOBUF_ERROR_X11_VULKAN_EXTENSIONS_LIST);
 		return;
 	}
 
@@ -171,19 +171,19 @@ void globox_x11_vulkan_init(
 	// fail if we couldn't get all the required extensions
 	if (ext_found != backend->ext_len)
 	{
-		globox_error_throw(
+		globuf_error_throw(
 			context,
 			error,
-			GLOBOX_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE);
+			GLOBUF_ERROR_X11_VULKAN_EXTENSION_UNAVAILABLE);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_x11_vulkan_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -197,7 +197,7 @@ void globox_x11_vulkan_clean(
 	xcb_disconnect(platform->conn);
 
 	// clean the platform
-	globox_x11_common_clean(context, platform, error);
+	globuf_x11_common_clean(context, platform, error);
 
 	// free the backend
 	free(backend);
@@ -205,13 +205,13 @@ void globox_x11_vulkan_clean(
 	// error always set
 }
 
-void globox_x11_vulkan_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_x11_vulkan_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -221,24 +221,24 @@ void globox_x11_vulkan_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_x11_helpers_features_init(context, platform, configs, count, error);
+	globuf_x11_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// select visual configuration
-	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+	if (context->feature_background->background != GLOBUF_BACKGROUND_OPAQUE)
 	{
 		x11_helpers_vulkan_visual_transparent(context, error);
 
-		if (globox_error_get_code(error) == GLOBOX_ERROR_X11_VISUAL_INCOMPATIBLE)
+		if (globuf_error_get_code(error) == GLOBUF_ERROR_X11_VISUAL_INCOMPATIBLE)
 		{
 			x11_helpers_vulkan_visual_opaque(context, error);
 		}
@@ -248,15 +248,15 @@ void globox_x11_vulkan_window_create(
 		x11_helpers_vulkan_visual_opaque(context, error);
 	}
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	// run common X11 helper
-	globox_x11_common_window_create(context, platform, configs, count, callback, data, error);
+	globuf_x11_common_window_create(context, platform, configs, count, callback, data, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -278,7 +278,7 @@ void globox_x11_vulkan_window_create(
 
 	if (error_vk != VK_SUCCESS)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_VULKAN_SURFACE_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_VULKAN_SURFACE_CREATE);
 		return;
 	}
 
@@ -287,16 +287,16 @@ void globox_x11_vulkan_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_x11_vulkan_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -306,7 +306,7 @@ void globox_x11_vulkan_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -320,73 +320,73 @@ void globox_x11_vulkan_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// run common X11 helper
-	globox_x11_common_window_destroy(context, platform, error);
+	globuf_x11_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_x11_vulkan_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_confirm(context, platform, error);
+	globuf_x11_common_window_confirm(context, platform, error);
 
 	// error always set
 }
 
-void globox_x11_vulkan_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_start(context, platform, error);
+	globuf_x11_common_window_start(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_vulkan_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper (mutex locked when unblocked)
-	globox_x11_common_window_block(context, platform, error);
+	globuf_x11_common_window_block(context, platform, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_vulkan_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_window_stop(context, platform, error);
+	globuf_x11_common_window_stop(context, platform, error);
 
 	// no extra failure check at the moment
 
@@ -394,55 +394,55 @@ void globox_x11_vulkan_window_stop(
 }
 
 
-void globox_x11_vulkan_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_init_render(context, platform, config, error);
+	globuf_x11_common_init_render(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-void globox_x11_vulkan_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_init_events(context, platform, config, error);
+	globuf_x11_common_init_events(context, platform, config, error);
 
 	// no extra failure check at the moment
 
 	// error always set
 }
 
-enum globox_event globox_x11_vulkan_handle_events(
-	struct globox* context,
+enum globuf_event globuf_x11_vulkan_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	enum globox_event out =
-		globox_x11_common_handle_events(
+	enum globuf_event out =
+		globuf_x11_common_handle_events(
 			context,
 			platform,
 			event,
 			error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return out;
 	}
@@ -463,14 +463,14 @@ enum globox_event globox_x11_vulkan_handle_events(
 
 			if (error_posix != 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+				globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 				break;
 			}
 
 			// safe value updates
-			if (platform->xsync_status == GLOBOX_XSYNC_CONFIGURED)
+			if (platform->xsync_status == GLOBUF_XSYNC_CONFIGURED)
 			{
-				platform->xsync_status = GLOBOX_XSYNC_ACKNOWLEDGED;
+				platform->xsync_status = GLOBUF_XSYNC_ACKNOWLEDGED;
 			}
 
 			// unlock xsync mutex
@@ -478,11 +478,11 @@ enum globox_event globox_x11_vulkan_handle_events(
 
 			if (error_posix != 0)
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+				globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 				break;
 			}
 
-			out = GLOBOX_EVENT_MOVED_RESIZED;
+			out = GLOBUF_EVENT_MOVED_RESIZED;
 			break;
 		}
 	}
@@ -493,31 +493,31 @@ enum globox_event globox_x11_vulkan_handle_events(
 }
 
 
-struct globox_config_features* globox_x11_vulkan_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_x11_vulkan_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	struct globox_config_features* features =
-		globox_x11_common_init_features(context, platform, error);
+	struct globuf_config_features* features =
+		globuf_x11_common_init_features(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return features;
 	}
 
-	// VSync capabilities should be checked outside of globox, report as available
-	features->list[features->count] = GLOBOX_FEATURE_VSYNC;
+	// VSync capabilities should be checked outside of globuf, report as available
+	features->list[features->count] = GLOBUF_FEATURE_VSYNC;
 	context->feature_vsync =
-		malloc(sizeof (struct globox_feature_vsync));
+		malloc(sizeof (struct globuf_feature_vsync));
 	features->count += 1;
 
 	if (context->feature_vsync == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
@@ -526,108 +526,108 @@ struct globox_config_features* globox_x11_vulkan_init_features(
 	return features;
 }
 
-void globox_x11_vulkan_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_interaction(context, platform, config, error);
+	globuf_x11_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_vulkan_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_state(context, platform, config, error);
+	globuf_x11_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_vulkan_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_title(context, platform, config, error);
+	globuf_x11_common_feature_set_title(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_x11_vulkan_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_x11_vulkan_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// run common X11 helper
-	globox_x11_common_feature_set_icon(context, platform, config, error);
+	globuf_x11_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_x11_vulkan_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_x11_vulkan_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_width(context, platform, error);
+	return globuf_x11_common_get_width(context, platform, error);
 }
 
-unsigned globox_x11_vulkan_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_x11_vulkan_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_height(context, platform, error);
+	return globuf_x11_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_x11_vulkan_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_x11_vulkan_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_x11_common_get_expose(context, platform, error);
+	return globuf_x11_common_get_expose(context, platform, error);
 }
 
 
-void globox_x11_vulkan_update_content(
-	struct globox* context,
+void globuf_x11_vulkan_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// not needed with Vulkan
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_x11_vulkan_callback(
-	struct globox* context)
+void* globuf_x11_vulkan_callback(
+	struct globuf* context)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
@@ -636,45 +636,45 @@ void* globox_x11_vulkan_callback(
 
 
 // Vulkan configuration setter
-void globox_x11_init_vulkan(
-	struct globox* context,
-	struct globox_config_vulkan* config,
-	struct globox_error_info* error)
+void globuf_x11_init_vulkan(
+	struct globuf* context,
+	struct globuf_config_vulkan* config,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 
 	backend->config = config;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 // get Vulkan extensions
-void globox_x11_get_extensions_vulkan(
-	struct globox* context,
+void globuf_x11_get_extensions_vulkan(
+	struct globuf* context,
 	uint32_t* len,
 	const char*** list,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 
 	*len = backend->ext_len;
 	*list = backend->ext_needed;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 // create Vulkan surface
-VkBool32 globox_x11_presentation_support_vulkan(
-	struct globox* context,
+VkBool32 globuf_x11_presentation_support_vulkan(
+	struct globuf* context,
 	VkPhysicalDevice physical_device,
 	uint32_t queue_family_index,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 	struct x11_platform* platform = &(backend->platform);
-	struct globox_config_vulkan* config = backend->config;
+	struct globuf_config_vulkan* config = backend->config;
 
-	error->code = GLOBOX_ERROR_OK;
+	error->code = GLOBUF_ERROR_OK;
 
 	return vkGetPhysicalDeviceXcbPresentationSupportKHR(
 		physical_device,
@@ -684,60 +684,60 @@ VkBool32 globox_x11_presentation_support_vulkan(
 }
 
 // get Vulkan surface
-VkSurfaceKHR* globox_x11_get_surface_vulkan(
-	struct globox* context,
-	struct globox_error_info* error)
+VkSurfaceKHR* globuf_x11_get_surface_vulkan(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct x11_vulkan_backend* backend = context->backend_data;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 
 	return &(backend->surface);
 }
 
 // init X11 Vulkan
-void globox_prepare_init_x11_vulkan(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_x11_vulkan(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_vulkan* vulkan =
-		malloc(sizeof (struct globox_calls_vulkan));
+	struct globuf_calls_vulkan* vulkan =
+		malloc(sizeof (struct globuf_calls_vulkan));
 
 	if (vulkan == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	vulkan->init = globox_x11_init_vulkan;
-	vulkan->get_extensions = globox_x11_get_extensions_vulkan;
-	vulkan->presentation_support = globox_x11_presentation_support_vulkan;
-	vulkan->get_surface = globox_x11_get_surface_vulkan;
+	vulkan->init = globuf_x11_init_vulkan;
+	vulkan->get_extensions = globuf_x11_get_extensions_vulkan;
+	vulkan->presentation_support = globuf_x11_presentation_support_vulkan;
+	vulkan->get_surface = globuf_x11_get_surface_vulkan;
 
 	config->data = vulkan;
-	config->callback = globox_x11_vulkan_callback;
-	config->init = globox_x11_vulkan_init;
-	config->clean = globox_x11_vulkan_clean;
-	config->window_create = globox_x11_vulkan_window_create;
-	config->window_destroy = globox_x11_vulkan_window_destroy;
-	config->window_confirm = globox_x11_vulkan_window_confirm;
-	config->window_start = globox_x11_vulkan_window_start;
-	config->window_block = globox_x11_vulkan_window_block;
-	config->window_stop = globox_x11_vulkan_window_stop;
-	config->init_render = globox_x11_vulkan_init_render;
-	config->init_events = globox_x11_vulkan_init_events;
-	config->handle_events = globox_x11_vulkan_handle_events;
-	config->init_features = globox_x11_vulkan_init_features;
-	config->feature_set_interaction = globox_x11_vulkan_feature_set_interaction;
-	config->feature_set_state = globox_x11_vulkan_feature_set_state;
-	config->feature_set_title = globox_x11_vulkan_feature_set_title;
-	config->feature_set_icon = globox_x11_vulkan_feature_set_icon;
-	config->get_width = globox_x11_vulkan_get_width;
-	config->get_height = globox_x11_vulkan_get_height;
-	config->get_expose = globox_x11_vulkan_get_expose;
-	config->update_content = globox_x11_vulkan_update_content;
+	config->callback = globuf_x11_vulkan_callback;
+	config->init = globuf_x11_vulkan_init;
+	config->clean = globuf_x11_vulkan_clean;
+	config->window_create = globuf_x11_vulkan_window_create;
+	config->window_destroy = globuf_x11_vulkan_window_destroy;
+	config->window_confirm = globuf_x11_vulkan_window_confirm;
+	config->window_start = globuf_x11_vulkan_window_start;
+	config->window_block = globuf_x11_vulkan_window_block;
+	config->window_stop = globuf_x11_vulkan_window_stop;
+	config->init_render = globuf_x11_vulkan_init_render;
+	config->init_events = globuf_x11_vulkan_init_events;
+	config->handle_events = globuf_x11_vulkan_handle_events;
+	config->init_features = globuf_x11_vulkan_init_features;
+	config->feature_set_interaction = globuf_x11_vulkan_feature_set_interaction;
+	config->feature_set_state = globuf_x11_vulkan_feature_set_state;
+	config->feature_set_title = globuf_x11_vulkan_feature_set_title;
+	config->feature_set_icon = globuf_x11_vulkan_feature_set_icon;
+	config->get_width = globuf_x11_vulkan_get_width;
+	config->get_height = globuf_x11_vulkan_get_height;
+	config->get_expose = globuf_x11_vulkan_get_expose;
+	config->update_content = globuf_x11_vulkan_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

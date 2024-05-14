@@ -1,8 +1,8 @@
-#include "include/globox.h"
-#include "include/globox_opengl.h"
-#include "include/globox_appkit_egl.h"
+#include "include/globuf.h"
+#include "include/globuf_opengl.h"
+#include "include/globuf_appkit_egl.h"
 
-#include "common/globox_private.h"
+#include "common/globuf_private.h"
 #include "appkit/appkit_common.h"
 #include "appkit/appkit_common_helpers.h"
 #include "appkit/appkit_egl.h"
@@ -16,16 +16,16 @@
 #import <AppKit/AppKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-void globox_appkit_egl_init(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_init(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	// allocate the backend
 	struct appkit_egl_backend* backend = malloc(sizeof (struct appkit_egl_backend));
 
 	if (backend == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return;
 	}
 
@@ -43,31 +43,31 @@ void globox_appkit_egl_init(
 
 	// initialize the platform
 	struct appkit_platform* platform = &(backend->platform);
-	globox_appkit_common_init(context, platform, error);
+	globuf_appkit_common_init(context, platform, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_clean(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_clean(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_clean(context, platform, error);
+	globuf_appkit_common_clean(context, platform, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_window_create(
-	struct globox* context,
-	struct globox_config_request* configs,
+void globuf_appkit_egl_window_create(
+	struct globuf* context,
+	struct globuf_config_request* configs,
 	size_t count,
-	void (*callback)(struct globox_config_reply* replies, size_t count, void* data),
+	void (*callback)(struct globuf_config_reply* replies, size_t count, void* data),
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
@@ -77,14 +77,14 @@ void globox_appkit_egl_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// configure features here
-	globox_appkit_helpers_features_init(context, platform, configs, count, error);
+	globuf_appkit_helpers_features_init(context, platform, configs, count, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
@@ -94,7 +94,7 @@ void globox_appkit_egl_window_create(
 	[platform->layer setDelegate: platform->layer_delegate];
 
 	// run common AppKit helper
-	globox_appkit_common_window_create(
+	globuf_appkit_common_window_create(
 		context,
 		platform,
 		configs,
@@ -108,7 +108,7 @@ void globox_appkit_egl_window_create(
 
 	if (backend->display == EGL_NO_DISPLAY)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_DISPLAY_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_DISPLAY_GET);
 		return;
 	}
 
@@ -125,7 +125,7 @@ void globox_appkit_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_INIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_INIT);
 		return;
 	}
 
@@ -134,7 +134,7 @@ void globox_appkit_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_BIND_API);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_BIND_API);
 		return;
 	}
 
@@ -148,7 +148,7 @@ void globox_appkit_egl_window_create(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_CONFIG);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_CONFIG);
 		return;
 	}
 
@@ -168,7 +168,7 @@ void globox_appkit_egl_window_create(
 
 	if (backend->egl == EGL_NO_CONTEXT)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_CONTEXT_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_CONTEXT_CREATE);
 		return;
 	}
 
@@ -177,16 +177,16 @@ void globox_appkit_egl_window_create(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_appkit_egl_window_destroy(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_window_destroy(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
@@ -196,7 +196,7 @@ void globox_appkit_egl_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -207,7 +207,7 @@ void globox_appkit_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_DESTROY_SURFACE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_DESTROY_SURFACE);
 		return;
 	}
 
@@ -215,7 +215,7 @@ void globox_appkit_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_DESTROY_CONTEXT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_DESTROY_CONTEXT);
 		return;
 	}
 
@@ -223,7 +223,7 @@ void globox_appkit_egl_window_destroy(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_TERMINATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_TERMINATE);
 		return;
 	}
 
@@ -232,37 +232,37 @@ void globox_appkit_egl_window_destroy(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// run common AppKit helper
-	globox_appkit_common_window_destroy(context, platform, error);
+	globuf_appkit_common_window_destroy(context, platform, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_appkit_egl_window_confirm(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_window_confirm(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_window_confirm(context, platform, error);
+	globuf_appkit_common_window_confirm(context, platform, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_window_start(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_window_start(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
@@ -272,12 +272,12 @@ void globox_appkit_egl_window_start(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
 	// run common AppKit helper
-	globox_appkit_common_window_start(context, platform, error);
+	globuf_appkit_common_window_start(context, platform, error);
 
 	// create EGL surface
 	backend->surface =
@@ -289,7 +289,7 @@ void globox_appkit_egl_window_start(
 
 	if (backend->surface == EGL_NO_SURFACE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_WINDOW_SURFACE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_WINDOW_SURFACE);
 		return;
 	}
 
@@ -298,200 +298,200 @@ void globox_appkit_egl_window_start(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
 	// error always set
 }
 
-void globox_appkit_egl_window_block(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_window_block(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_window_block(context, platform, error);
+	globuf_appkit_common_window_block(context, platform, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_window_stop(
-	struct globox* context,
-	struct globox_error_info* error)
+void globuf_appkit_egl_window_stop(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_window_stop(context, platform, error);
+	globuf_appkit_common_window_stop(context, platform, error);
 
 	// error always set
 }
 
 
-void globox_appkit_egl_init_render(
-	struct globox* context,
-	struct globox_config_render* config,
-	struct globox_error_info* error)
+void globuf_appkit_egl_init_render(
+	struct globuf* context,
+	struct globuf_config_render* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_init_render(context, platform, config, error);
+	globuf_appkit_common_init_render(context, platform, config, error);
 
 	platform->render_init_callback = appkit_helpers_egl_bind;
 
 	// error always set
 }
 
-void globox_appkit_egl_init_events(
-	struct globox* context,
-	struct globox_config_events* config,
-	struct globox_error_info* error)
+void globuf_appkit_egl_init_events(
+	struct globuf* context,
+	struct globuf_config_events* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_init_events(context, platform, config, error);
+	globuf_appkit_common_init_events(context, platform, config, error);
 
 	// error always set
 }
 
-enum globox_event globox_appkit_egl_handle_events(
-	struct globox* context,
+enum globuf_event globuf_appkit_egl_handle_events(
+	struct globuf* context,
 	void* event,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	return globox_appkit_common_handle_events(context, platform, event, error);
+	return globuf_appkit_common_handle_events(context, platform, event, error);
 }
 
 
-struct globox_config_features* globox_appkit_egl_init_features(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_config_features* globuf_appkit_egl_init_features(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_appkit_common_init_features(context, platform, error);
+	return globuf_appkit_common_init_features(context, platform, error);
 }
 
-void globox_appkit_egl_feature_set_interaction(
-	struct globox* context,
-	struct globox_feature_interaction* config,
-	struct globox_error_info* error)
-{
-	struct appkit_egl_backend* backend = context->backend_data;
-	struct appkit_platform* platform = &(backend->platform);
-
-	// run common AppKit helper
-	globox_appkit_common_feature_set_interaction(context, platform, config, error);
-
-	// error always set
-}
-
-void globox_appkit_egl_feature_set_state(
-	struct globox* context,
-	struct globox_feature_state* config,
-	struct globox_error_info* error)
+void globuf_appkit_egl_feature_set_interaction(
+	struct globuf* context,
+	struct globuf_feature_interaction* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_feature_set_state(context, platform, config, error);
+	globuf_appkit_common_feature_set_interaction(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_feature_set_title(
-	struct globox* context,
-	struct globox_feature_title* config,
-	struct globox_error_info* error)
+void globuf_appkit_egl_feature_set_state(
+	struct globuf* context,
+	struct globuf_feature_state* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_feature_set_title(context, platform, config, error);
+	globuf_appkit_common_feature_set_state(context, platform, config, error);
 
 	// error always set
 }
 
-void globox_appkit_egl_feature_set_icon(
-	struct globox* context,
-	struct globox_feature_icon* config,
-	struct globox_error_info* error)
+void globuf_appkit_egl_feature_set_title(
+	struct globuf* context,
+	struct globuf_feature_title* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// run common AppKit helper
-	globox_appkit_common_feature_set_icon(context, platform, config, error);
+	globuf_appkit_common_feature_set_title(context, platform, config, error);
+
+	// error always set
+}
+
+void globuf_appkit_egl_feature_set_icon(
+	struct globuf* context,
+	struct globuf_feature_icon* config,
+	struct globuf_error_info* error)
+{
+	struct appkit_egl_backend* backend = context->backend_data;
+	struct appkit_platform* platform = &(backend->platform);
+
+	// run common AppKit helper
+	globuf_appkit_common_feature_set_icon(context, platform, config, error);
 
 	// error always set
 }
 
 
-unsigned globox_appkit_egl_get_width(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_appkit_egl_get_width(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_appkit_common_get_width(context, platform, error);
+	return globuf_appkit_common_get_width(context, platform, error);
 }
 
-unsigned globox_appkit_egl_get_height(
-	struct globox* context,
-	struct globox_error_info* error)
+unsigned globuf_appkit_egl_get_height(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_appkit_common_get_height(context, platform, error);
+	return globuf_appkit_common_get_height(context, platform, error);
 }
 
-struct globox_rect globox_appkit_egl_get_expose(
-	struct globox* context,
-	struct globox_error_info* error)
+struct globuf_rect globuf_appkit_egl_get_expose(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
 
 	// error always set
-	return globox_appkit_common_get_expose(context, platform, error);
+	return globuf_appkit_common_get_expose(context, platform, error);
 }
 
 
-void globox_appkit_egl_update_content(
-	struct globox* context,
+void globuf_appkit_egl_update_content(
+	struct globuf* context,
 	void* data,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
-	struct globox_update_egl* update = data;
+	struct globuf_update_egl* update = data;
 
 	// lock mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return;
 	}
 
@@ -500,7 +500,7 @@ void globox_appkit_egl_update_content(
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_MACOS_EGL_SWAP);
+		globuf_error_throw(context, error, GLOBUF_ERROR_MACOS_EGL_SWAP);
 		return;
 	}
 
@@ -509,15 +509,15 @@ void globox_appkit_egl_update_content(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void* globox_appkit_egl_callback(
-	struct globox* context)
+void* globuf_appkit_egl_callback(
+	struct globuf* context)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
@@ -525,9 +525,9 @@ void* globox_appkit_egl_callback(
 }
 
 
-double globox_appkit_egl_get_scale(
-	struct globox* context,
-	struct globox_error_info* error)
+double globuf_appkit_egl_get_scale(
+	struct globuf* context,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 	struct appkit_platform* platform = &(backend->platform);
@@ -537,7 +537,7 @@ double globox_appkit_egl_get_scale(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return 1.0;
 	}
 
@@ -548,7 +548,7 @@ double globox_appkit_egl_get_scale(
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return 1.0;
 	}
 
@@ -557,58 +557,58 @@ double globox_appkit_egl_get_scale(
 
 
 // OpenGL configuration setter
-void globox_init_appkit_egl(
-	struct globox* context,
-	struct globox_config_opengl* config,
-	struct globox_error_info* error)
+void globuf_init_appkit_egl(
+	struct globuf* context,
+	struct globuf_config_opengl* config,
+	struct globuf_error_info* error)
 {
 	struct appkit_egl_backend* backend = context->backend_data;
 
 	backend->config = config;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
 
-void globox_prepare_init_appkit_egl(
-	struct globox_config_backend* config,
-	struct globox_error_info* error)
+void globuf_prepare_init_appkit_egl(
+	struct globuf_config_backend* config,
+	struct globuf_error_info* error)
 {
-	struct globox_calls_opengl* opengl =
-		malloc(sizeof (struct globox_calls_opengl));
+	struct globuf_calls_opengl* opengl =
+		malloc(sizeof (struct globuf_calls_opengl));
 
 	if (opengl == NULL)
 	{
-		error->code = GLOBOX_ERROR_ALLOC;
+		error->code = GLOBUF_ERROR_ALLOC;
 		error->file = __FILE__;
 		error->line = __LINE__;
 		return;
 	}
 
-	opengl->init = globox_init_appkit_egl;
+	opengl->init = globuf_init_appkit_egl;
 
 	config->data = opengl;
-	config->callback = globox_appkit_egl_callback;
-	config->init = globox_appkit_egl_init;
-	config->clean = globox_appkit_egl_clean;
-	config->window_create = globox_appkit_egl_window_create;
-	config->window_destroy = globox_appkit_egl_window_destroy;
-	config->window_confirm = globox_appkit_egl_window_confirm;
-	config->window_start = globox_appkit_egl_window_start;
-	config->window_block = globox_appkit_egl_window_block;
-	config->window_stop = globox_appkit_egl_window_stop;
-	config->init_render = globox_appkit_egl_init_render;
-	config->init_events = globox_appkit_egl_init_events;
-	config->handle_events = globox_appkit_egl_handle_events;
-	config->init_features = globox_appkit_egl_init_features;
-	config->feature_set_interaction = globox_appkit_egl_feature_set_interaction;
-	config->feature_set_state = globox_appkit_egl_feature_set_state;
-	config->feature_set_title = globox_appkit_egl_feature_set_title;
-	config->feature_set_icon = globox_appkit_egl_feature_set_icon;
-	config->get_width = globox_appkit_egl_get_width;
-	config->get_height = globox_appkit_egl_get_height;
-	config->get_expose = globox_appkit_egl_get_expose;
-	config->update_content = globox_appkit_egl_update_content;
+	config->callback = globuf_appkit_egl_callback;
+	config->init = globuf_appkit_egl_init;
+	config->clean = globuf_appkit_egl_clean;
+	config->window_create = globuf_appkit_egl_window_create;
+	config->window_destroy = globuf_appkit_egl_window_destroy;
+	config->window_confirm = globuf_appkit_egl_window_confirm;
+	config->window_start = globuf_appkit_egl_window_start;
+	config->window_block = globuf_appkit_egl_window_block;
+	config->window_stop = globuf_appkit_egl_window_stop;
+	config->init_render = globuf_appkit_egl_init_render;
+	config->init_events = globuf_appkit_egl_init_events;
+	config->handle_events = globuf_appkit_egl_handle_events;
+	config->init_features = globuf_appkit_egl_init_features;
+	config->feature_set_interaction = globuf_appkit_egl_feature_set_interaction;
+	config->feature_set_state = globuf_appkit_egl_feature_set_state;
+	config->feature_set_title = globuf_appkit_egl_feature_set_title;
+	config->feature_set_icon = globuf_appkit_egl_feature_set_icon;
+	config->get_width = globuf_appkit_egl_get_width;
+	config->get_height = globuf_appkit_egl_get_height;
+	config->get_expose = globuf_appkit_egl_get_expose;
+	config->update_content = globuf_appkit_egl_update_content;
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

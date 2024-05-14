@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_common.h"
 #include "wayland/wayland_common_helpers.h"
 
@@ -14,20 +14,20 @@
 #include "xdg-decoration-client-protocol.h"
 #include "kde-blur-client-protocol.h"
 
-void* globox_wayland_helpers_render_loop(void* data)
+void* globuf_wayland_helpers_render_loop(void* data)
 {
 	struct wayland_thread_render_loop_data* thread_render_loop_data = data;
 
-	struct globox* context = thread_render_loop_data->globox;
+	struct globuf* context = thread_render_loop_data->globuf;
 	struct wayland_platform* platform = thread_render_loop_data->platform;
-	struct globox_error_info* error = thread_render_loop_data->error;
+	struct globuf_error_info* error = thread_render_loop_data->error;
 
 	// lock main mutex
 	int error_posix = pthread_mutex_lock(&(platform->mutex_main));
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 		return NULL;
 	}
 
@@ -38,7 +38,7 @@ void* globox_wayland_helpers_render_loop(void* data)
 
 	if (error_posix != 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 		return NULL;
 	}
 
@@ -47,7 +47,7 @@ void* globox_wayland_helpers_render_loop(void* data)
 	{
 		platform->render_init_callback(context, error);
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 		{
 			return NULL;
 		}
@@ -63,7 +63,7 @@ void* globox_wayland_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_LOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_LOCK);
 			break;
 		}
 
@@ -74,7 +74,7 @@ void* globox_wayland_helpers_render_loop(void* data)
 
 		if (error_posix != 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_POSIX_MUTEX_UNLOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_POSIX_MUTEX_UNLOCK);
 			break;
 		}
 	}
@@ -83,13 +83,13 @@ void* globox_wayland_helpers_render_loop(void* data)
 	return NULL;
 }
 
-void* globox_wayland_helpers_event_loop(void* data)
+void* globuf_wayland_helpers_event_loop(void* data)
 {
 	struct wayland_thread_event_loop_data* thread_event_loop_data = data;
 
-	struct globox* context = thread_event_loop_data->globox;
+	struct globuf* context = thread_event_loop_data->globuf;
 	struct wayland_platform* platform = thread_event_loop_data->platform;
-	struct globox_error_info* error = thread_event_loop_data->error;
+	struct globuf_error_info* error = thread_event_loop_data->error;
 
 	int error_posix;
 
@@ -98,7 +98,7 @@ void* globox_wayland_helpers_event_loop(void* data)
 	{
 		platform->event_init_callback(context, error);
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 		{
 			return NULL;
 		}
@@ -112,7 +112,7 @@ void* globox_wayland_helpers_event_loop(void* data)
 		// IO error
 		if (error_posix == -1)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_EVENT_WAIT);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_EVENT_WAIT);
 			break;
 		}
 	}
@@ -121,44 +121,44 @@ void* globox_wayland_helpers_event_loop(void* data)
 	return NULL;
 }
 
-void globox_wayland_helpers_features_init(
-	struct globox* context,
+void globuf_wayland_helpers_features_init(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	for (size_t i = 0; i < count; ++i)
 	{
 		switch (configs[i].feature)
 		{
-			case GLOBOX_FEATURE_STATE:
+			case GLOBUF_FEATURE_STATE:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_state) =
-						*((struct globox_feature_state*)
+						*((struct globuf_feature_state*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_TITLE:
+			case GLOBUF_FEATURE_TITLE:
 			{
 				if (configs[i].config != NULL)
 				{
-					struct globox_feature_title* tmp = configs[i].config;
+					struct globuf_feature_title* tmp = configs[i].config;
 					context->feature_title->title = strdup(tmp->title);
 				}
 
 				break;
 			}
 #if 0
-			case GLOBOX_FEATURE_ICON:
+			case GLOBUF_FEATURE_ICON:
 			{
 				if (configs[i].config != NULL)
 				{
-					struct globox_feature_icon* tmp = configs[i].config;
+					struct globuf_feature_icon* tmp = configs[i].config;
 					context->feature_icon->pixmap = malloc(tmp->len * 4);
 
 					if (context->feature_icon->pixmap != NULL)
@@ -175,60 +175,60 @@ void globox_wayland_helpers_features_init(
 				break;
 			}
 #endif
-			case GLOBOX_FEATURE_SIZE:
+			case GLOBUF_FEATURE_SIZE:
 			{
 				// handled directly in the wayland window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_size) =
-						*((struct globox_feature_size*)
+						*((struct globuf_feature_size*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_POS:
+			case GLOBUF_FEATURE_POS:
 			{
 				// handled directly in the wayland window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_pos) =
-						*((struct globox_feature_pos*)
+						*((struct globuf_feature_pos*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_FRAME:
+			case GLOBUF_FEATURE_FRAME:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_frame) =
-						*((struct globox_feature_frame*)
+						*((struct globuf_feature_frame*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_BACKGROUND:
+			case GLOBUF_FEATURE_BACKGROUND:
 			{
 				// handled directly in the wayland window creation code for transparency,
 				// but some more configuration has to take place afterwards for blur
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_background) =
-						*((struct globox_feature_background*)
+						*((struct globuf_feature_background*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_VSYNC:
+			case GLOBUF_FEATURE_VSYNC:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_vsync) =
-						*((struct globox_feature_vsync*)
+						*((struct globuf_feature_vsync*)
 							configs[i].config);
 				}
 
@@ -236,26 +236,26 @@ void globox_wayland_helpers_features_init(
 			}
 			default:
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_INVALID);
+				globuf_error_throw(context, error, GLOBUF_ERROR_FEATURE_INVALID);
 				return;
 			}
 		}
 	}
 }
 
-void globox_wayland_helpers_set_state(
-	struct globox* context,
+void globuf_wayland_helpers_set_state(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_REGULAR:
+		case GLOBUF_STATE_REGULAR:
 		{
 			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
 			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
 
-			if (context->feature_state->state == GLOBOX_STATE_MINIMIZED)
+			if (context->feature_state->state == GLOBUF_STATE_MINIMIZED)
 			{
 				// destroy surfaces
 				wl_surface_destroy(platform->surface);
@@ -263,9 +263,9 @@ void globox_wayland_helpers_set_state(
 				xdg_toplevel_destroy(platform->xdg_toplevel);
 
 				// reset title
-				globox_feature_set_title(context, context->feature_title, error);
+				globuf_feature_set_title(context, context->feature_title, error);
 
-				if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+				if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 				{
 					return;
 				}
@@ -273,20 +273,20 @@ void globox_wayland_helpers_set_state(
 
 			break;
 		}
-		case GLOBOX_STATE_MINIMIZED:
+		case GLOBUF_STATE_MINIMIZED:
 		{
 			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
 			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
 			xdg_toplevel_set_minimized(platform->xdg_toplevel);
 			break;
 		}
-		case GLOBOX_STATE_MAXIMIZED:
+		case GLOBUF_STATE_MAXIMIZED:
 		{
 			xdg_toplevel_unset_fullscreen(platform->xdg_toplevel);
 			xdg_toplevel_set_maximized(platform->xdg_toplevel);
 			break;
 		}
-		case GLOBOX_STATE_FULLSCREEN:
+		case GLOBUF_STATE_FULLSCREEN:
 		{
 			xdg_toplevel_unset_maximized(platform->xdg_toplevel);
 			xdg_toplevel_set_fullscreen(platform->xdg_toplevel, NULL);
@@ -294,40 +294,40 @@ void globox_wayland_helpers_set_state(
 		}
 		default:
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_STATE_INVALID);
+			globuf_error_throw(context, error, GLOBUF_ERROR_FEATURE_STATE_INVALID);
 			return;
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_helpers_set_title(
-	struct globox* context,
+void globuf_wayland_helpers_set_title(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	xdg_toplevel_set_title(
 		platform->xdg_toplevel,
 		context->feature_title->title);
 
 	// always ok
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_helpers_set_icon(
-	struct globox* context,
+void globuf_wayland_helpers_set_icon(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// never ok
-	globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ICON);
+	globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_ICON);
 }
 
-void globox_wayland_helpers_set_frame(
-	struct globox* context,
+void globuf_wayland_helpers_set_frame(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// Wayland clients are expected to render their own decorations by default,
 	// but we can try to use the decorations negociation protocol to try and
@@ -339,7 +339,7 @@ void globox_wayland_helpers_set_frame(
 		if (context->feature_frame->frame == true)
 		{
 			context->feature_frame->frame = false;
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
 		}
 
 		return;
@@ -365,7 +365,7 @@ void globox_wayland_helpers_set_frame(
 	if (error_posix == -1)
 	{
 		context->feature_frame->frame = false;
-		globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_ROUNDTRIP);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_ROUNDTRIP);
 		return;
 	}
 
@@ -375,7 +375,7 @@ void globox_wayland_helpers_set_frame(
 		if (context->feature_frame->frame == false)
 		{
 			context->feature_frame->frame = true;
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_FORCED);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_DECORATIONS_FORCED);
 			return;
 		}
 	}
@@ -384,31 +384,31 @@ void globox_wayland_helpers_set_frame(
 		if (context->feature_frame->frame == true)
 		{
 			context->feature_frame->frame = false;
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_DECORATIONS_UNAVAILABLE);
 			return;
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_helpers_set_background(
-	struct globox* context,
+void globuf_wayland_helpers_set_background(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// The Wayland specification requires alpha support so transparency is
 	// always available, however background blur requires the dedicated
 	// KDE protocol so we have to check for this.
 
 	// enable background blur if possible, otherwise use regular transparency
-	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	if (context->feature_background->background == GLOBUF_BACKGROUND_BLURRED)
 	{
 		// check the protocol is supported
 		if (platform->kde_blur_manager == NULL)
 		{
-			context->feature_background->background = GLOBOX_BACKGROUND_TRANSPARENT;
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_BACKGROUND_BLUR);
+			context->feature_background->background = GLOBUF_BACKGROUND_TRANSPARENT;
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_BACKGROUND_BLUR);
 			return;
 		}
 
@@ -420,22 +420,22 @@ void globox_wayland_helpers_set_background(
 
 		if (platform->kde_blur == NULL)
 		{
-			context->feature_background->background = GLOBOX_BACKGROUND_TRANSPARENT;
-			globox_error_throw(context, error, GLOBOX_ERROR_WAYLAND_REQUEST);
+			context->feature_background->background = GLOBUF_BACKGROUND_TRANSPARENT;
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 
 		org_kde_kwin_blur_commit(platform->kde_blur);
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_wayland_helpers_set_vsync(
-	struct globox* context,
+void globuf_wayland_helpers_set_vsync(
+	struct globuf* context,
 	struct wayland_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// always ok
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

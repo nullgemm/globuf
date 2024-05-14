@@ -17,15 +17,15 @@ echo "backend types: software, wgl, vulkan"
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
 output="make/output"
-name_lib="globox_win"
+name_lib="globuf_win"
 
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox"
-folder_include="\$folder_globox/include"
-name="globox_example_simple_win"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf"
+folder_include="\$folder_globuf/include"
+name="globuf_example_simple_win"
 cmd="./\$name"
 cc="x86_64-w64-mingw32-gcc"
 ld="x86_64-w64-mingw32-gcc"
@@ -41,8 +41,8 @@ flags+=("-Wno-cast-function-type")
 flags+=("-I\$folder_include")
 flags+=("-Ires/egl")
 flags+=("-Iexample/helpers")
-defines+=("-DGLOBOX_EXAMPLE_WIN")
-#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
+defines+=("-DGLOBUF_EXAMPLE_WIN")
+#defines+=("-DGLOBUF_EXAMPLE_LOG_ALL")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -132,15 +132,15 @@ case $backend in
 	software)
 ninja_file=example_simple_win_software.ninja
 src+=("example/simple/software.c")
-libs+=("\$folder_library/globox_pe_software.a")
+libs+=("\$folder_library/globuf_pe_software.a")
 	;;
 
 	wgl)
 ninja_file=example_simple_win_wgl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globox_pe_opengl.a")
-defines+=("-DGLOBOX_EXAMPLE_WGL")
+libs+=("\$folder_library/globuf_pe_opengl.a")
+defines+=("-DGLOBUF_EXAMPLE_WGL")
 ldlibs+=("-lopengl32")
 	;;
 
@@ -149,7 +149,7 @@ ninja_file=example_simple_win_vulkan.ninja
 src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globox_pe_vulkan.a")
+libs+=("\$folder_library/globuf_pe_vulkan.a")
 ldlibs+=("-lvulkan-1")
 	;;
 
@@ -164,7 +164,7 @@ esac
 obj+=("\$folder_objects/res/icon/iconpix.o")
 libs+=("\$folder_library/win/$name_lib""_$backend.a")
 libs+=("\$folder_library/win/$name_lib""_common.a")
-libs+=("\$folder_library/globox_pe.a")
+libs+=("\$folder_library/globuf_pe.a")
 ldlibs+=("-lshcore")
 ldlibs+=("-lgdi32")
 ldlibs+=("-ldwmapi")
@@ -194,7 +194,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name""_$backend"; \

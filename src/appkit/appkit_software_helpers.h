@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_APPKIT_SOFTWARE_HELPERS
-#define H_GLOBOX_INTERNAL_APPKIT_SOFTWARE_HELPERS
+#ifndef H_GLOBUF_INTERNAL_APPKIT_SOFTWARE_HELPERS
+#define H_GLOBUF_INTERNAL_APPKIT_SOFTWARE_HELPERS
 
-#include "include/globox.h"
+#include "include/globuf.h"
 #include "appkit/appkit_common.h"
 
 struct appkit_software_backend

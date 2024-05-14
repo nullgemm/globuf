@@ -1,1 +1,1 @@
-globox_prepare_init_x11_software
+globuf_prepare_init_x11_software

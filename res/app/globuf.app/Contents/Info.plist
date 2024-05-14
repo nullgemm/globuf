@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>globuf</string>
+
+	<key>CFBundleIconFile</key>
+	<string>globuf.icns</string>
+
+	<key>CFBundleIdentifier</key>
+	<string>fr.nicolussi.globuf_example_app</string>
+
+	<key>CFBundleName</key>
+	<string>Globuf Example</string>
+
+    <key>CFBundleGetInfoString</key>
+    <string>Globuf Example App 1.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+
+	<key>NSHumanReadableCopyright</key>
+	<string>Licensed under WTFPL. No rights reserved.</string>
+</dict>
+</plist>

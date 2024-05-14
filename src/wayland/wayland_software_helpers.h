@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_WAYLAND_SOFTWARE_HELPERS
-#define H_GLOBOX_INTERNAL_WAYLAND_SOFTWARE_HELPERS
+#ifndef H_GLOBUF_INTERNAL_WAYLAND_SOFTWARE_HELPERS
+#define H_GLOBUF_INTERNAL_WAYLAND_SOFTWARE_HELPERS
 
-#include "include/globox.h"
+#include "include/globuf.h"
 #include "wayland/wayland_common.h"
 
 #include <wayland-client.h>

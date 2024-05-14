@@ -1,5 +1,5 @@
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "win/win_vulkan_helpers.h"
 #include "win/win_vulkan.h"
 #include "win/win_common.h"
@@ -10,10 +10,10 @@
 #include <vulkan/vulkan_core.h>
 
 size_t win_helpers_vulkan_add_extensions(
-	struct globox* context,
+	struct globuf* context,
 	const char*** ext_needed,
 	bool** ext_found,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// list vulkan extensions here to make the code cleaner
 	const char* extensions_names[] =
@@ -31,7 +31,7 @@ size_t win_helpers_vulkan_add_extensions(
 
 	if (*ext_needed == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return 0;
 	}
 
@@ -40,7 +40,7 @@ size_t win_helpers_vulkan_add_extensions(
 
 	if (*ext_found == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return 0;
 	}
 
@@ -51,7 +51,7 @@ size_t win_helpers_vulkan_add_extensions(
 		(*ext_found)[i] = false;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 
 	return extensions_count;
 }

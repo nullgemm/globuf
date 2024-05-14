@@ -17,15 +17,15 @@ echo "backend types: software, glx, egl, vulkan"
 # utilitary variables
 tag=$(git tag --sort v:refname | tail -n 1)
 output="make/output"
-name_lib="globox_wayland"
+name_lib="globuf_wayland"
 
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox"
-folder_include="\$folder_globox/include"
-name="globox_example_complex_wayland"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf"
+folder_include="\$folder_globuf/include"
+name="globuf_example_complex_wayland"
 cmd="./\$name"
 cc="gcc"
 ld="gcc"
@@ -44,8 +44,8 @@ flags+=("-Ires/cursoryx/include")
 flags+=("-Ires/dpishit/include")
 flags+=("-Ires/willis/include")
 ldflags+=("-z noexecstack")
-defines+=("-DGLOBOX_EXAMPLE_WAYLAND")
-#defines+=("-DGLOBOX_EXAMPLE_LOG_ALL")
+defines+=("-DGLOBUF_EXAMPLE_WAYLAND")
+#defines+=("-DGLOBUF_EXAMPLE_LOG_ALL")
 
 # common sources
 src+=("res/wayland_headers/xdg-shell-protocol.c")
@@ -144,7 +144,7 @@ case $backend in
 	software)
 ninja_file=example_complex_wayland_software.ninja
 src+=("example/complex/software.c")
-libs+=("\$folder_library/globox_elf_software.a")
+libs+=("\$folder_library/globuf_elf_software.a")
 	;;
 
 	egl)
@@ -154,8 +154,8 @@ link+=("egl")
 link+=("glesv2")
 link+=("wayland-egl")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globox_elf_opengl.a")
-defines+=("-DGLOBOX_EXAMPLE_EGL")
+libs+=("\$folder_library/globuf_elf_opengl.a")
+defines+=("-DGLOBUF_EXAMPLE_EGL")
 	;;
 
 	vulkan)
@@ -164,7 +164,7 @@ src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globox_elf_vulkan.a")
+libs+=("\$folder_library/globuf_elf_vulkan.a")
 	;;
 
 	*)
@@ -184,7 +184,7 @@ obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
 libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
 libs+=("\$folder_library/wayland/$name_lib""_common.a")
-libs+=("\$folder_library/globox_elf.a")
+libs+=("\$folder_library/globuf_elf.a")
 libs+=("res/cursoryx/lib/cursoryx/wayland/cursoryx_wayland.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")
 libs+=("res/dpishit/lib/dpishit/wayland/dpishit_wayland.a")
@@ -214,7 +214,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name""_$backend"; \

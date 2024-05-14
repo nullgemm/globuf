@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "x11/x11_egl_helpers.h"
 #include "x11/x11_egl.h"
 #include "x11/x11_common.h"
@@ -36,7 +36,7 @@ bool x11_helpers_egl_ext_support(const char *list, const char *extension)
 	return false;
 }
 
-void x11_helpers_egl_bind(struct globox* context, struct globox_error_info* error)
+void x11_helpers_egl_bind(struct globuf* context, struct globuf_error_info* error)
 {
 	struct x11_egl_backend* backend = context->backend_data;
 
@@ -52,7 +52,7 @@ void x11_helpers_egl_bind(struct globox* context, struct globox_error_info* erro
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_MAKE_CURRENT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_EGL_MAKE_CURRENT);
 		return;
 	}
 
@@ -72,9 +72,9 @@ void x11_helpers_egl_bind(struct globox* context, struct globox_error_info* erro
 
 	if (error_egl == EGL_FALSE)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_X11_EGL_SWAP_INTERVAL);
+		globuf_error_throw(context, error, GLOBUF_ERROR_X11_EGL_SWAP_INTERVAL);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }

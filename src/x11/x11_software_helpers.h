@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_X11_SOFTWARE_HELPERS
-#define H_GLOBOX_INTERNAL_X11_SOFTWARE_HELPERS
+#ifndef H_GLOBUF_INTERNAL_X11_SOFTWARE_HELPERS
+#define H_GLOBUF_INTERNAL_X11_SOFTWARE_HELPERS
 
-#include "include/globox.h"
+#include "include/globuf.h"
 #include "x11/x11_common.h"
 #include <xcb/xcb_image.h>
 
@@ -16,16 +16,16 @@ struct x11_software_backend
 };
 
 void x11_helpers_visual_transparent(
-	struct globox* context,
-	struct globox_error_info* error);
+	struct globuf* context,
+	struct globuf_error_info* error);
 
 void x11_helpers_visual_opaque(
-	struct globox* context,
-	struct globox_error_info* error);
+	struct globuf* context,
+	struct globuf_error_info* error);
 
 void x11_helpers_shm_create(
-	struct globox* context,
+	struct globuf* context,
 	size_t len,
-	struct globox_error_info* error);
+	struct globuf_error_info* error);
 
 #endif

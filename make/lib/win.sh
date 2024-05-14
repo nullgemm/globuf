@@ -21,10 +21,10 @@ output="make/output"
 # ninja file variables
 folder_ninja="build"
 folder_objects="\$builddir/obj"
-folder_globox="globox_bin_$tag"
-folder_library="\$folder_globox/lib/globox/win"
-folder_include="\$folder_globox/include"
-name="globox_win"
+folder_globuf="globuf_bin_$tag"
+folder_library="\$folder_globuf/lib/globuf/win"
+folder_include="\$folder_globuf/include"
+name="globuf_win"
 cc="x86_64-w64-mingw32-gcc"
 ld="ld"
 ar="x86_64-w64-mingw32-gcc-ar"
@@ -48,11 +48,11 @@ defines+=("-D_UNICODE")
 defines+=("-DWINVER=0x0A00")
 defines+=("-D_WIN32_WINNT=0x0A00")
 
-#defines+=("-DGLOBOX_ERROR_ABORT")
-#defines+=("-DGLOBOX_ERROR_SKIP")
-#defines+=("-DGLOBOX_ERROR_HELPER_WIN")
-defines+=("-DGLOBOX_ERROR_LOG_DEBUG")
-defines+=("-DGLOBOX_COMPAT_WINE")
+#defines+=("-DGLOBUF_ERROR_ABORT")
+#defines+=("-DGLOBUF_ERROR_SKIP")
+#defines+=("-DGLOBUF_ERROR_HELPER_WIN")
+defines+=("-DGLOBUF_ERROR_LOG_DEBUG")
+defines+=("-DGLOBUF_COMPAT_WINE")
 
 # customize depending on the chosen build type
 if [ -z "$build" ]; then
@@ -62,7 +62,7 @@ fi
 case $build in
 	development)
 flags+=("-g")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	release)
@@ -71,7 +71,7 @@ flags+=("-fno-stack-protector")
 flags+=("-fPIE")
 flags+=("-fPIC")
 flags+=("-O2")
-defines+=("-DGLOBOX_ERROR_LOG_MANUAL")
+defines+=("-DGLOBUF_ERROR_LOG_MANUAL")
 	;;
 
 	sanitized_memory)
@@ -82,7 +82,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=leak")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_undefined)
@@ -93,7 +93,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=undefined")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_address)
@@ -105,7 +105,7 @@ flags+=("-fno-optimize-sibling-calls")
 flags+=("-fsanitize=address")
 flags+=("-fsanitize-address-use-after-scope")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	sanitized_thread)
@@ -116,7 +116,7 @@ flags+=("-fno-optimize-sibling-calls")
 
 flags+=("-fsanitize=thread")
 flags+=("-fsanitize-recover=all")
-defines+=("-DGLOBOX_ERROR_LOG_THROW")
+defines+=("-DGLOBUF_ERROR_LOG_THROW")
 	;;
 
 	*)
@@ -181,7 +181,7 @@ mkdir -p "$output"
 echo "# vars"; \
 echo "builddir = $folder_ninja"; \
 echo "folder_objects = $folder_objects"; \
-echo "folder_globox = $folder_globox"; \
+echo "folder_globuf = $folder_globuf"; \
 echo "folder_library = $folder_library"; \
 echo "folder_include = $folder_include"; \
 echo "name = $name"; \
@@ -271,18 +271,18 @@ echo ""; \
 if [ $backend != "common" ]; then
 { \
 echo "# copy headers"; \
-echo "build \$folder_include/globox_win_$backend.h: \$"; \
-echo "cp src/include/globox_win_$backend.h"; \
+echo "build \$folder_include/globuf_win_$backend.h: \$"; \
+echo "cp src/include/globuf_win_$backend.h"; \
 echo ""; \
-echo "build \$folder_include/globox_win.h: \$"; \
-echo "cp src/include/globox_win.h"; \
+echo "build \$folder_include/globuf_win.h: \$"; \
+echo "cp src/include/globuf_win.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 
 { \
 echo "build headers: phony \$"; \
-echo "\$folder_include/globox_win_$backend.h \$"; \
-echo "\$folder_include/globox_win.h"; \
+echo "\$folder_include/globuf_win_$backend.h \$"; \
+echo "\$folder_include/globuf_win.h"; \
 echo ""; \
 } >> "$output/$ninja_file"
 fi

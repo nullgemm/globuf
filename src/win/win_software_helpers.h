@@ -1,7 +1,7 @@
-#ifndef H_GLOBOX_INTERNAL_WIN_SOFTWARE_HELPERS
-#define H_GLOBOX_INTERNAL_WIN_SOFTWARE_HELPERS
+#ifndef H_GLOBUF_INTERNAL_WIN_SOFTWARE_HELPERS
+#define H_GLOBUF_INTERNAL_WIN_SOFTWARE_HELPERS
 
-#include "include/globox.h"
+#include "include/globuf.h"
 #include "win/win_common.h"
 #include <wingdi.h>
 

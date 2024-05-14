@@ -1,7 +1,7 @@
 #define _XOPEN_SOURCE 700
 
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "wayland/wayland_software_helpers.h"
 #include "wayland/wayland_software.h"
 #include "wayland/wayland_common.h"
@@ -18,12 +18,12 @@ void wayland_helpers_callback_registry_shm(
 	const char* interface,
 	uint32_t version)
 {
-	struct globox* context = data;
+	struct globuf* context = data;
 	struct wayland_software_backend* backend = context->backend_data;
 	struct wayland_platform* platform = &(backend->platform);
 
 	int error_posix;
-	struct globox_error_info error;
+	struct globuf_error_info error;
 
 	if (strcmp(interface, wl_shm_interface.name) == 0)
 	{
@@ -36,10 +36,10 @@ void wayland_helpers_callback_registry_shm(
 
 		if (backend->shm == NULL)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				&error,
-				GLOBOX_ERROR_WAYLAND_REQUEST);
+				GLOBUF_ERROR_WAYLAND_REQUEST);
 			return;
 		}
 	}

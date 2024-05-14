@@ -1,2 +1,2 @@
-globox_prepare_init_appkit_egl
-globox_appkit_egl_get_scale
+globuf_prepare_init_appkit_egl
+globuf_appkit_egl_get_scale

@@ -1,7 +1,7 @@
 #include "vulkan_helpers.h"
 
-#include "globox.h"
-#include "globox_vulkan.h"
+#include "globuf.h"
+#include "globuf_vulkan.h"
 
 #include <math.h>
 #include <stdbool.h>
@@ -40,7 +40,7 @@ struct vk_inst_layers vk_inst_layers[] =
 	},
 #endif
 
-#if defined(GLOBOX_EXAMPLE_APPKIT)
+#if defined(GLOBUF_EXAMPLE_APPKIT)
 	{
 		.name = "MoltenVK",
 		.found = false,
@@ -262,26 +262,26 @@ void free_check(const void* ptr)
 	}
 }
 
-void init_vulkan(struct globox_render_data* data)
+void init_vulkan(struct globuf_render_data* data)
 {
-	struct globox_error_info globox_error = {0};
+	struct globuf_error_info globuf_error = {0};
 	VkInstanceCreateFlagBits instance_flags = 0;
 	VkResult error = VK_ERROR_UNKNOWN;
 
-	// get vulkan extensions from globox
-	uint32_t ext_globox_len;
-	const char** ext_globox;
+	// get vulkan extensions from globuf
+	uint32_t ext_globuf_len;
+	const char** ext_globuf;
 
-	globox_get_extensions_vulkan(
-		data->globox,
-		&ext_globox_len,
-		&ext_globox,
-		&globox_error);
+	globuf_get_extensions_vulkan(
+		data->globuf,
+		&ext_globuf_len,
+		&ext_globuf,
+		&globuf_error);
 
-	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(&globuf_error) != GLOBUF_ERROR_OK)
 	{
-		globox_error_log(data->globox, &globox_error);
-		globox_clean(data->globox, &globox_error);
+		globuf_error_log(data->globuf, &globuf_error);
+		globuf_clean(data->globuf, &globuf_error);
 		return;
 	}
 
@@ -335,7 +335,7 @@ void init_vulkan(struct globox_render_data* data)
 	// check needed instance extensions
 	size_t inst_ext_len = (sizeof (vk_inst_ext)) / (sizeof (struct vk_inst_ext));
 	size_t inst_ext_optional_len = (sizeof (vk_inst_ext_optional)) / (sizeof (struct vk_inst_ext_optional));
-	const char** inst_ext_found = malloc((inst_ext_optional_len + inst_ext_len + ext_globox_len) * (sizeof (const char*)));
+	const char** inst_ext_found = malloc((inst_ext_optional_len + inst_ext_len + ext_globuf_len) * (sizeof (const char*)));
 	uint32_t inst_ext_total_found_count = 0;
 	uint32_t inst_ext_found_count = 0;
 
@@ -347,10 +347,10 @@ void init_vulkan(struct globox_render_data* data)
 
 	printf("using vulkan instance extensions:\n");
 
-	for (uint32_t i = 0; i < ext_globox_len; ++i)
+	for (uint32_t i = 0; i < ext_globuf_len; ++i)
 	{
-		inst_ext_found[i] = ext_globox[i];
-		printf("\t%s\n", ext_globox[i]);
+		inst_ext_found[i] = ext_globuf[i];
+		printf("\t%s\n", ext_globuf[i]);
 		++inst_ext_total_found_count;
 	}
 
@@ -512,9 +512,9 @@ void init_vulkan(struct globox_render_data* data)
 	{
 		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		.pNext = NULL,
-		.pApplicationName = "globox example",
+		.pApplicationName = "globuf example",
 		.applicationVersion = 1,
-		.pEngineName = "globox vulkan example",
+		.pEngineName = "globuf vulkan example",
 		.engineVersion = 1,
 		.apiVersion = VK_MAKE_VERSION(1, 0, 0),
 	};
@@ -591,19 +591,19 @@ void init_vulkan(struct globox_render_data* data)
 	data->config.instance = data->instance;
 	data->config.allocator = NULL;
 
-	globox_init_vulkan(data->globox, &(data->config), &globox_error);
+	globuf_init_vulkan(data->globuf, &(data->config), &globuf_error);
 
-	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(&globuf_error) != GLOBUF_ERROR_OK)
 	{
-		globox_error_log(data->globox, &globox_error);
-		globox_clean(data->globox, &globox_error);
+		globuf_error_log(data->globuf, &globuf_error);
+		globuf_clean(data->globuf, &globuf_error);
 		return;
 	}
 }
 
-void config_vulkan(struct globox_render_data* data)
+void config_vulkan(struct globuf_render_data* data)
 {
-	struct globox_error_info globox_error = {0};
+	struct globuf_error_info globuf_error = {0};
 	VkResult error = VK_ERROR_UNKNOWN;
 
 	// get physical devices list
@@ -929,16 +929,16 @@ void config_vulkan(struct globox_render_data* data)
 			}
 
 			VkBool32 support =
-				globox_presentation_support_vulkan(
-					data->globox,
+				globuf_presentation_support_vulkan(
+					data->globuf,
 					data->phys_devs[i],
 					k,
-					&globox_error);
+					&globuf_error);
 
-			if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+			if (globuf_error_get_code(&globuf_error) != GLOBUF_ERROR_OK)
 			{
-				globox_error_log(data->globox, &globox_error);
-				globox_clean(data->globox, &globox_error);
+				globuf_error_log(data->globuf, &globuf_error);
+				globuf_clean(data->globuf, &globuf_error);
 				free(data->phys_devs);
 				return;
 			}
@@ -962,7 +962,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (found_device == false)
 	{
 		fprintf(stderr, "none of the available devices support presentation\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -985,7 +985,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "couldn't count vulkan device extensions\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -995,7 +995,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (dev_ext_props == NULL)
 	{
 		fprintf(stderr, "couldn't allocate vulkan device extensions list\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1010,7 +1010,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "couldn't list vulkan device extensions\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1033,7 +1033,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (dev_ext_found == NULL)
 	{
 		fprintf(stderr, "could not allocate found device extensions list\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1070,7 +1070,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (dev_ext_found_count < dev_ext_len)
 	{
 		fprintf(stderr, "couldn't get all the required vulkan device extensions\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1132,7 +1132,7 @@ void config_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "couldn't create frame fence\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1141,7 +1141,7 @@ void config_vulkan(struct globox_render_data* data)
 	free(dev_ext_found);
 }
 
-void swapchain_free_vulkan(struct globox_render_data* data)
+void swapchain_free_vulkan(struct globuf_render_data* data)
 {
 	vkDestroyRenderPass(
 		data->device,
@@ -1183,10 +1183,10 @@ void swapchain_free_vulkan(struct globox_render_data* data)
 		NULL);
 }
 
-void swapchain_vulkan(struct globox_render_data* data)
+void swapchain_vulkan(struct globuf_render_data* data)
 {
 	printf("creating vulkan swapchain\n");
-	struct globox_error_info globox_error = {0};
+	struct globuf_error_info globuf_error = {0};
 	VkResult error = VK_ERROR_UNKNOWN;
 
 	// create semaphores
@@ -1207,7 +1207,7 @@ void swapchain_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "couldn't create present semaphore\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
@@ -1222,17 +1222,17 @@ void swapchain_vulkan(struct globox_render_data* data)
 	if (error != VK_SUCCESS)
 	{
 		fprintf(stderr, "couldn't create render semaphore\n");
-		globox_clean(data->globox, &globox_error);
+		globuf_clean(data->globuf, &globuf_error);
 		free(data->phys_devs);
 		return;
 	}
 
-	// get the vulkan surface from globox
-	data->surf = globox_get_surface_vulkan(data->globox, &globox_error);
+	// get the vulkan surface from globuf
+	data->surf = globuf_get_surface_vulkan(data->globuf, &globuf_error);
 
-	if (globox_error_get_code(&globox_error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(&globuf_error) != GLOBUF_ERROR_OK)
 	{
-		globox_error_log(data->globox, &globox_error);
+		globuf_error_log(data->globuf, &globuf_error);
 		return;
 	}
 
@@ -1466,7 +1466,7 @@ void swapchain_vulkan(struct globox_render_data* data)
 		.pQueueFamilyIndices = NULL,
 
 		.preTransform = data->surf_caps.currentTransform,
-#if defined(GLOBOX_EXAMPLE_WAYLAND)
+#if defined(GLOBUF_EXAMPLE_WAYLAND)
 		.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
 #else
 		.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
@@ -1721,7 +1721,7 @@ void swapchain_vulkan(struct globox_render_data* data)
 	}
 }
 
-void pipeline_free_vulkan(struct globox_render_data* data)
+void pipeline_free_vulkan(struct globuf_render_data* data)
 {
 	vkFreeMemory(
 		data->device,
@@ -1749,7 +1749,7 @@ void pipeline_free_vulkan(struct globox_render_data* data)
 		NULL);
 }
 
-void pipeline_vulkan(struct globox_render_data* data)
+void pipeline_vulkan(struct globuf_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
 
@@ -2108,7 +2108,7 @@ void pipeline_vulkan(struct globox_render_data* data)
 	}
 }
 
-void compile_shaders(struct globox_render_data* data)
+void compile_shaders(struct globuf_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
 
@@ -2186,7 +2186,7 @@ void compile_shaders(struct globox_render_data* data)
 	data->shader_stages[1] = frag_shader_stage_create_info;
 }
 
-void render_vulkan(struct globox_render_data* data)
+void render_vulkan(struct globuf_render_data* data)
 {
 	VkResult error = VK_ERROR_UNKNOWN;
 	uint32_t image_index;

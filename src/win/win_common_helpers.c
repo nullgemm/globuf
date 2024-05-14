@@ -1,5 +1,5 @@
-#include "include/globox.h"
-#include "common/globox_private.h"
+#include "include/globuf.h"
+#include "common/globuf_private.h"
 #include "win/win_common.h"
 #include "win/win_common_helpers.h"
 
@@ -13,17 +13,17 @@
 #include <windows.h>
 #include <winuser.h>
 
-#ifdef GLOBOX_ERROR_HELPER_WIN
+#ifdef GLOBUF_ERROR_HELPER_WIN
 #include <errhandlingapi.h>
 #endif
 
-unsigned __stdcall globox_win_helpers_render_loop(void* data)
+unsigned __stdcall globuf_win_helpers_render_loop(void* data)
 {
 	struct win_thread_render_loop_data* thread_render_loop_data = data;
 
-	struct globox* context = thread_render_loop_data->globox;
+	struct globuf* context = thread_render_loop_data->globuf;
 	struct win_platform* platform = thread_render_loop_data->platform;
-	struct globox_error_info* error = thread_render_loop_data->error;
+	struct globuf_error_info* error = thread_render_loop_data->error;
 	DWORD main_lock;
 	BOOL main_unlock;
 
@@ -42,7 +42,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 
 		if (ok == 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_COND_WAIT);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_COND_WAIT);
 			_endthreadex(0);
 			return 1;
 		}
@@ -55,7 +55,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		_endthreadex(0);
 		return 1;
 	}
@@ -65,7 +65,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 	{
 		platform->render_init_callback(thread_render_loop_data);
 
-		if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+		if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 		{
 			_endthreadex(0);
 			return 1;
@@ -79,7 +79,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		_endthreadex(0);
 		return 1;
 	}
@@ -95,7 +95,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 
 		if (main_lock != WAIT_OBJECT_0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 			_endthreadex(0);
 			return 1;
 		}
@@ -108,7 +108,7 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 
 		if (main_unlock == 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 			_endthreadex(0);
 			return 1;
 		}
@@ -118,13 +118,13 @@ unsigned __stdcall globox_win_helpers_render_loop(void* data)
 	return 0;
 }
 
-unsigned __stdcall globox_win_helpers_event_loop(void* data)
+unsigned __stdcall globuf_win_helpers_event_loop(void* data)
 {
 	struct win_thread_event_loop_data* thread_event_loop_data = data;
 
-	struct globox* context = thread_event_loop_data->globox;
+	struct globuf* context = thread_event_loop_data->globuf;
 	struct win_platform* platform = thread_event_loop_data->platform;
-	struct globox_error_info* error = thread_event_loop_data->error;
+	struct globuf_error_info* error = thread_event_loop_data->error;
 	DWORD main_lock;
 	BOOL main_unlock;
 
@@ -133,7 +133,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		_endthreadex(0);
 		return 1;
 	}
@@ -168,7 +168,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (platform->event_handle == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_WINDOW_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_WINDOW_CREATE);
 		_endthreadex(0);
 		return 1;
 	}
@@ -176,7 +176,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 	SetCursor(platform->default_cursor);
 	ShowWindow(platform->event_handle, SW_SHOWNORMAL);
 
-	if (context->feature_background->background != GLOBOX_BACKGROUND_OPAQUE)
+	if (context->feature_background->background != GLOBUF_BACKGROUND_OPAQUE)
 	{
 		DWM_BLURBEHIND blur_behind =
 		{
@@ -193,10 +193,10 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 		if (ok_blur != S_OK)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_DWM_ENABLE);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_DWM_ENABLE);
 
-			#if defined(GLOBOX_COMPAT_WINE)
-				globox_error_ok(error);
+			#if defined(GLOBUF_COMPAT_WINE)
+				globuf_error_ok(error);
 			#else
 				_endthreadex(0);
 				return 1;
@@ -209,24 +209,24 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (ok_placement == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_PLACEMENT_GET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_PLACEMENT_GET);
 		_endthreadex(0);
 		return 1;
 	}
 
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_FULLSCREEN:
+		case GLOBUF_STATE_FULLSCREEN:
 		{
-			globox_feature_set_state(context, context->feature_state, error);
+			globuf_feature_set_state(context, context->feature_state, error);
 			break;
 		}
-		case GLOBOX_STATE_MAXIMIZED:
+		case GLOBUF_STATE_MAXIMIZED:
 		{
 			ShowWindow(platform->event_handle, SW_SHOWMAXIMIZED);
 			break;
 		}
-		case GLOBOX_STATE_MINIMIZED:
+		case GLOBUF_STATE_MINIMIZED:
 		{
 			ShowWindow(platform->event_handle, SW_SHOWMINIMIZED);
 			break;
@@ -246,14 +246,14 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 		(HANDLE) _beginthreadex(
 			NULL,
 			0,
-			globox_win_helpers_render_loop,
+			globuf_win_helpers_render_loop,
 			(void*) &(platform->thread_render_loop_data),
 			0,
 			NULL);
 
 	if (platform->thread_render == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_RENDER_START);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_RENDER_START);
 		_endthreadex(0);
 		return 1;
 	}
@@ -267,7 +267,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		_endthreadex(0);
 		return 1;
 	}
@@ -281,7 +281,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 		// any other value means we received another message
 		if (ok_msg == -1)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MSG_GET);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MSG_GET);
 			_endthreadex(0);
 			return 1;
 		}
@@ -295,7 +295,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 		if (main_lock != WAIT_OBJECT_0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 			_endthreadex(0);
 			return 1;
 		}
@@ -308,26 +308,26 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 		if (main_unlock == 0)
 		{
-			globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+			globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 			_endthreadex(0);
 			return 1;
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 
 	// lock mutex
 	main_lock = WaitForSingleObject(platform->mutex_main, INFINITE);
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 	}
 
 	// make it known this is the end
 	if (platform->closed == false)
 	{
-		context->feature_state->state = GLOBOX_STATE_CLOSED;
+		context->feature_state->state = GLOBUF_STATE_CLOSED;
 		platform->closed = true;
 	}
 
@@ -336,7 +336,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 	}
 
 	// wait for the render thread to finish
@@ -344,7 +344,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (code == WAIT_FAILED)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_THREAD_WAIT);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_THREAD_WAIT);
 	}
 
 	// lock mutex
@@ -352,7 +352,7 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 	}
 
 	// stop the window
@@ -364,10 +364,10 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 	}
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		_endthreadex(0);
 		return 1;
@@ -377,16 +377,16 @@ unsigned __stdcall globox_win_helpers_event_loop(void* data)
 	return 0;
 }
 
-LRESULT CALLBACK globox_win_helpers_window_procedure(
+LRESULT CALLBACK globuf_win_helpers_window_procedure(
 	HWND hwnd,
 	UINT msg,
 	WPARAM wParam,
 	LPARAM lParam)
 {
 	struct win_thread_event_loop_data* thread_event_loop_data = NULL;
-	struct globox* context;
+	struct globuf* context;
 	struct win_platform* platform;
-	struct globox_error_info* error;
+	struct globuf_error_info* error;
 
 	// deal with user data, saving it in the window as soon as possible when the
 	// first message (WM_CREATE) arrives and getting it from there afterwards
@@ -413,14 +413,14 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 
 			if (thread_event_loop_data != NULL)
 			{
-				context = thread_event_loop_data->globox;
+				context = thread_event_loop_data->globuf;
 				platform = thread_event_loop_data->platform;
 				error = thread_event_loop_data->error;
 
-				globox_error_throw(
+				globuf_error_throw(
 					context,
 					error,
-					GLOBOX_ERROR_WIN_USERDATA_SET);
+					GLOBUF_ERROR_WIN_USERDATA_SET);
 			}
 		}
 	}
@@ -435,7 +435,7 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 
 		if (thread_event_loop_data != NULL)
 		{
-			context = thread_event_loop_data->globox;
+			context = thread_event_loop_data->globuf;
 			platform = thread_event_loop_data->platform;
 			error = thread_event_loop_data->error;
 		}
@@ -486,7 +486,7 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 
 	if (main_lock != WAIT_OBJECT_0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_LOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_LOCK);
 		return result;
 	}
 
@@ -494,47 +494,47 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 	{
 		switch (context->feature_interaction->action)
 		{
-			case GLOBOX_INTERACTION_MOVE:
+			case GLOBUF_INTERACTION_MOVE:
 			{
 				result = HTCAPTION;
 				break;
 			}
-			case GLOBOX_INTERACTION_N:
+			case GLOBUF_INTERACTION_N:
 			{
 				result = HTTOP;
 				break;
 			}
-			case GLOBOX_INTERACTION_NW:
+			case GLOBUF_INTERACTION_NW:
 			{
 				result = HTTOPLEFT;
 				break;
 			}
-			case GLOBOX_INTERACTION_W:
+			case GLOBUF_INTERACTION_W:
 			{
 				result = HTLEFT;
 				break;
 			}
-			case GLOBOX_INTERACTION_SW:
+			case GLOBUF_INTERACTION_SW:
 			{
 				result = HTBOTTOMLEFT;
 				break;
 			}
-			case GLOBOX_INTERACTION_S:
+			case GLOBUF_INTERACTION_S:
 			{
 				result = HTBOTTOM;
 				break;
 			}
-			case GLOBOX_INTERACTION_SE:
+			case GLOBUF_INTERACTION_SE:
 			{
 				result = HTBOTTOMRIGHT;
 				break;
 			}
-			case GLOBOX_INTERACTION_E:
+			case GLOBUF_INTERACTION_E:
 			{
 				result = HTRIGHT;
 				break;
 			}
-			case GLOBOX_INTERACTION_NE:
+			case GLOBUF_INTERACTION_NE:
 			{
 				result = HTTOPRIGHT;
 				break;
@@ -551,7 +551,7 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 
 	if (main_unlock == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_MUTEX_UNLOCK);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_MUTEX_UNLOCK);
 		return result;
 	}
 
@@ -559,43 +559,43 @@ LRESULT CALLBACK globox_win_helpers_window_procedure(
 	return result;
 }
 
-void globox_win_helpers_features_init(
-	struct globox* context,
+void globuf_win_helpers_features_init(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_config_request* configs,
+	struct globuf_config_request* configs,
 	size_t count,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	for (size_t i = 0; i < count; ++i)
 	{
 		switch (configs[i].feature)
 		{
-			case GLOBOX_FEATURE_STATE:
+			case GLOBUF_FEATURE_STATE:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_state) =
-						*((struct globox_feature_state*)
+						*((struct globuf_feature_state*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_TITLE:
+			case GLOBUF_FEATURE_TITLE:
 			{
 				if (configs[i].config != NULL)
 				{
-					struct globox_feature_title* tmp = configs[i].config;
+					struct globuf_feature_title* tmp = configs[i].config;
 					context->feature_title->title = strdup(tmp->title);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_ICON:
+			case GLOBUF_FEATURE_ICON:
 			{
 				if (configs[i].config != NULL)
 				{
-					struct globox_feature_icon* tmp = configs[i].config;
+					struct globuf_feature_icon* tmp = configs[i].config;
 					context->feature_icon->pixmap = malloc(tmp->len * 4);
 
 					if (context->feature_icon->pixmap != NULL)
@@ -615,58 +615,58 @@ void globox_win_helpers_features_init(
 
 				break;
 			}
-			case GLOBOX_FEATURE_SIZE:
+			case GLOBUF_FEATURE_SIZE:
 			{
 				// handled directly in xcb's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_size) =
-						*((struct globox_feature_size*)
+						*((struct globuf_feature_size*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_POS:
+			case GLOBUF_FEATURE_POS:
 			{
 				// handled directly in xcb's window creation code
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_pos) =
-						*((struct globox_feature_pos*)
+						*((struct globuf_feature_pos*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_FRAME:
+			case GLOBUF_FEATURE_FRAME:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_frame) =
-						*((struct globox_feature_frame*)
+						*((struct globuf_feature_frame*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_BACKGROUND:
+			case GLOBUF_FEATURE_BACKGROUND:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_background) =
-						*((struct globox_feature_background*)
+						*((struct globuf_feature_background*)
 							configs[i].config);
 				}
 
 				break;
 			}
-			case GLOBOX_FEATURE_VSYNC:
+			case GLOBUF_FEATURE_VSYNC:
 			{
 				if (configs[i].config != NULL)
 				{
 					*(context->feature_vsync) =
-						*((struct globox_feature_vsync*)
+						*((struct globuf_feature_vsync*)
 							configs[i].config);
 					context->feature_vsync->vsync = true;
 				}
@@ -675,21 +675,21 @@ void globox_win_helpers_features_init(
 			}
 			default:
 			{
-				globox_error_throw(context, error, GLOBOX_ERROR_FEATURE_INVALID);
+				globuf_error_throw(context, error, GLOBUF_ERROR_FEATURE_INVALID);
 				return;
 			}
 		}
 	}
 }
 
-void globox_win_helpers_set_state(
-	struct globox* context,
+void globuf_win_helpers_set_state(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	switch (context->feature_state->state)
 	{
-		case GLOBOX_STATE_MINIMIZED:
+		case GLOBUF_STATE_MINIMIZED:
 		{
 			SendMessage(
 				platform->event_handle,
@@ -698,7 +698,7 @@ void globox_win_helpers_set_state(
 				0);
 			break;
 		}
-		case GLOBOX_STATE_MAXIMIZED:
+		case GLOBUF_STATE_MAXIMIZED:
 		{
 			SendMessage(
 				platform->event_handle,
@@ -707,7 +707,7 @@ void globox_win_helpers_set_state(
 				0);
 			break;
 		}
-		case GLOBOX_STATE_FULLSCREEN:
+		case GLOBUF_STATE_FULLSCREEN:
 		{
 			SendMessage(
 				platform->event_handle,
@@ -727,10 +727,10 @@ void globox_win_helpers_set_state(
 		}
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-LPWSTR globox_win_helpers_utf8_to_wchar(const char* string)
+LPWSTR globuf_win_helpers_utf8_to_wchar(const char* string)
 {
 	int codepoints =
 		MultiByteToWideChar(
@@ -773,18 +773,18 @@ LPWSTR globox_win_helpers_utf8_to_wchar(const char* string)
 	return buf;
 }
 
-HICON globox_win_helpers_bitmap_to_icon(
-	struct globox* context,
+HICON globuf_win_helpers_bitmap_to_icon(
+	struct globuf* context,
 	struct win_platform* platform,
 	BITMAP* bmp,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	size_t buf_len = (sizeof (uint32_t)) * bmp->bmWidth * bmp->bmHeight;
 	uint32_t* buf = malloc(buf_len);
 
 	if (buf == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_ALLOC);
+		globuf_error_throw(context, error, GLOBUF_ERROR_ALLOC);
 		return NULL;
 	}
 
@@ -793,7 +793,7 @@ HICON globox_win_helpers_bitmap_to_icon(
 
 	if (mask == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_MASK_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_BMP_MASK_CREATE);
 		free(buf);
 		return NULL;
 	}
@@ -802,7 +802,7 @@ HICON globox_win_helpers_bitmap_to_icon(
 
 	if (color == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BMP_COLOR_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_BMP_COLOR_CREATE);
 		free(buf);
 		return NULL;
 	}
@@ -821,7 +821,7 @@ HICON globox_win_helpers_bitmap_to_icon(
 
 	if (icon == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_CREATE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_ICON_CREATE);
 		return NULL;
 	}
 
@@ -831,7 +831,7 @@ HICON globox_win_helpers_bitmap_to_icon(
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_OBJECT_DELETE);
 		return NULL;
 	}
 
@@ -839,20 +839,20 @@ HICON globox_win_helpers_bitmap_to_icon(
 
 	if (ok == 0)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_OBJECT_DELETE);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_OBJECT_DELETE);
 		return NULL;
 	}
 
 	return icon;
 }
 
-void globox_win_helpers_save_window_state(
-	struct globox* context,
+void globuf_win_helpers_save_window_state(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	// save window state if relevant
-	if (context->feature_state->state == GLOBOX_STATE_REGULAR)
+	if (context->feature_state->state == GLOBUF_STATE_REGULAR)
 	{
 		BOOL ok =
 			GetWindowPlacement(
@@ -861,15 +861,15 @@ void globox_win_helpers_save_window_state(
 
 		if (ok == 0)
 		{
-			globox_error_throw(
+			globuf_error_throw(
 				context,
 				error,
-				GLOBOX_ERROR_WIN_PLACEMENT_GET);
+				GLOBUF_ERROR_WIN_PLACEMENT_GET);
 		}
 	}
 }
 
-enum win_dpi_api globox_win_helpers_set_dpi_awareness()
+enum win_dpi_api globuf_win_helpers_set_dpi_awareness()
 {
 	// try the Windows 10 API, v2 (available since the "creators update")
 	BOOL ok;
@@ -914,27 +914,27 @@ enum win_dpi_api globox_win_helpers_set_dpi_awareness()
 	return WIN_DPI_API_NONE;
 }
 
-void globox_win_helpers_set_title(
-	struct globox* context,
+void globuf_win_helpers_set_title(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	platform->win_name =
-		globox_win_helpers_utf8_to_wchar(context->feature_title->title);
+		globuf_win_helpers_utf8_to_wchar(context->feature_title->title);
 
 	if (platform->win_name == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_NAME_SET);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_NAME_SET);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_helpers_set_icon(
-	struct globox* context,
+void globuf_win_helpers_set_icon(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
 	BITMAP pixmap_32 =
 	{
@@ -948,16 +948,16 @@ void globox_win_helpers_set_icon(
 	};
 
 	platform->icon_32 =
-		globox_win_helpers_bitmap_to_icon(context, platform, &pixmap_32, error);
+		globuf_win_helpers_bitmap_to_icon(context, platform, &pixmap_32, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	if (platform->icon_32 == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_SMALL);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_ICON_SMALL);
 		return;
 	}
 
@@ -973,54 +973,54 @@ void globox_win_helpers_set_icon(
 	};
 
 	platform->icon_64 =
-		globox_win_helpers_bitmap_to_icon(context, platform, &pixmap_64, error);
+		globuf_win_helpers_bitmap_to_icon(context, platform, &pixmap_64, error);
 
-	if (globox_error_get_code(error) != GLOBOX_ERROR_OK)
+	if (globuf_error_get_code(error) != GLOBUF_ERROR_OK)
 	{
 		return;
 	}
 
 	if (platform->icon_64 == NULL)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_ICON_BIG);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_ICON_BIG);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_helpers_set_frame(
-	struct globox* context,
+void globuf_win_helpers_set_frame(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_helpers_set_background(
-	struct globox* context,
+void globuf_win_helpers_set_background(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	if (context->feature_background->background == GLOBOX_BACKGROUND_BLURRED)
+	if (context->feature_background->background == GLOBUF_BACKGROUND_BLURRED)
 	{
-		globox_error_throw(context, error, GLOBOX_ERROR_WIN_BACKGROUND_BLUR);
+		globuf_error_throw(context, error, GLOBUF_ERROR_WIN_BACKGROUND_BLUR);
 		return;
 	}
 
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-void globox_win_helpers_set_vsync(
-	struct globox* context,
+void globuf_win_helpers_set_vsync(
+	struct globuf* context,
 	struct win_platform* platform,
-	struct globox_error_info* error)
+	struct globuf_error_info* error)
 {
-	globox_error_ok(error);
+	globuf_error_ok(error);
 }
 
-#ifdef GLOBOX_ERROR_HELPER_WIN
-void globox_win_helpers_win32_error_log()
+#ifdef GLOBUF_ERROR_HELPER_WIN
+void globuf_win_helpers_win32_error_log()
 {
 	DWORD error;
 	LPVOID message;

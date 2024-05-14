@@ -1,7 +1,7 @@
 build
 inc
 make/output
-globox_bin_v*
+globuf_bin_v*
 infer_*
 res/angle
 res/objconv
@@ -13,7 +13,7 @@ res/infer
 res/*.tar.xz
 res/*.zip
 ci/*/log
-ci/globox_image_appkit_osxcross/scripts/sdk
+ci/globuf_image_appkit_osxcross/scripts/sdk
 valgrind.log
 drmemory.log
 log
