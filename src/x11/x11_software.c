@@ -37,6 +37,8 @@ void globuf_x11_software_init(
 
 	// initialize values that can be initialized explicitly
 	backend->shared_pixmaps = false;
+	backend->buffer_ptr = NULL;
+	backend->buffer_len = 0;
 
 	// open a connection to the X server
 	struct x11_platform* platform = &(backend->platform);
@@ -785,8 +787,63 @@ uint32_t* globuf_buffer_alloc_x11_software(
 	struct globuf_error_info* error)
 {
 	struct x11_software_backend* backend = context->backend_data;
+	struct x11_platform* platform = &(backend->platform);
+
 	uint32_t* argb = NULL;
 	size_t len = 4 * width * height;
+
+	if (len == backend->buffer_len)
+	{
+		return backend->buffer_ptr;
+	}
+
+	if (backend->buffer_ptr != NULL)
+	{
+		if (backend->shared_pixmaps == false)
+		{
+			free(backend->buffer_ptr);
+			backend->buffer_len = 0;
+		}
+		else
+		{
+			xcb_void_cookie_t cookie_shm;
+			xcb_generic_error_t* error_shm;
+
+			cookie_shm =
+				xcb_shm_detach_checked(
+					platform->conn,
+					backend->software_shm.shmseg);
+
+			error_shm =
+				xcb_request_check(
+					platform->conn,
+					cookie_shm);
+
+			backend->buffer_len = 0;
+
+			if (error_shm != NULL)
+			{
+				globuf_error_throw(
+					context,
+					error,
+					GLOBUF_ERROR_X11_SHM_DETACH);
+
+				return NULL;
+			}
+
+			int error_shmdt = shmdt(backend->buffer_ptr);
+
+			if (error_shmdt == -1)
+			{
+				globuf_error_throw(
+					context,
+					error,
+					GLOBUF_ERROR_POSIX_SHMDT);
+
+				return NULL;
+			}
+		}
+	}
 
 	if (backend->shared_pixmaps == false)
 	{
@@ -810,6 +867,8 @@ uint32_t* globuf_buffer_alloc_x11_software(
 		argb = (uint32_t*) backend->software_shm.shmaddr;
 	}
 
+	backend->buffer_ptr = argb;
+	backend->buffer_len = len;
 	globuf_error_ok(error);
 	return argb;
 }
@@ -819,51 +878,6 @@ void globuf_buffer_free_x11_software(
 	uint32_t* buffer,
 	struct globuf_error_info* error)
 {
-	struct x11_software_backend* backend = context->backend_data;
-	struct x11_platform* platform = &(backend->platform);
-
-	if (backend->shared_pixmaps == false)
-	{
-		free(buffer);
-	}
-	else
-	{
-		xcb_void_cookie_t cookie_shm;
-		xcb_generic_error_t* error_shm;
-
-		cookie_shm =
-			xcb_shm_detach_checked(
-				platform->conn,
-				backend->software_shm.shmseg);
-
-		error_shm =
-			xcb_request_check(
-				platform->conn,
-				cookie_shm);
-
-		if (error_shm != NULL)
-		{
-			globuf_error_throw(
-				context,
-				error,
-				GLOBUF_ERROR_X11_SHM_DETACH);
-
-			return;
-		}
-
-		int error_shmdt = shmdt(buffer);
-
-		if (error_shmdt == -1)
-		{
-			globuf_error_throw(
-				context,
-				error,
-				GLOBUF_ERROR_POSIX_SHMDT);
-
-			return;
-		}
-	}
-
 	globuf_error_ok(error);
 }
 

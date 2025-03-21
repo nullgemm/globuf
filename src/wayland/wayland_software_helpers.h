@@ -4,6 +4,7 @@
 #include "include/globuf.h"
 #include "wayland/wayland_common.h"
 
+#include <stdint.h>
 #include <wayland-client.h>
 
 struct wayland_software_backend
@@ -14,11 +15,15 @@ struct wayland_software_backend
 	struct wl_shm* shm;
 	struct wl_buffer* buffer;
 
-	// mmap'd buffer size
+	// mmap'd buffer
 	size_t buffer_len;
+	uint32_t* buffer_ptr;
+	unsigned buffer_width;
+	unsigned buffer_height;
 
 	// wayland buffer listener
 	struct wl_buffer_listener listener_buffer;
+	struct wl_shm_pool* software_pool;
 };
 
 void wayland_helpers_callback_registry_shm(

@@ -45,7 +45,11 @@ void globuf_wayland_software_init(
 	// initialize values that can be initialized explicitly
 	backend->shm = NULL;
 	backend->buffer = NULL;
+	backend->buffer_ptr = NULL;
+	backend->buffer_width = 0;
+	backend->buffer_height = 0;
 	backend->buffer_len = 0;
+	backend->software_pool = NULL;
 
 	// buffer listener
 	struct wl_buffer_listener listener_buffer =
@@ -70,6 +74,23 @@ void globuf_wayland_software_clean(
 
 	// clean the platform
 	globuf_wayland_common_clean(context, platform, error);
+
+	// free old buffer
+	if (backend->buffer_ptr != NULL)
+	{
+		int error_posix = munmap(backend->buffer_ptr, backend->buffer_len);
+		backend->buffer_ptr = NULL;
+		backend->buffer_len = 0;
+		backend->buffer_width = 0;
+		backend->buffer_height = 0;
+
+		if (error_posix < 0)
+		{
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_MUNMAP);
+			free(backend);
+			return;
+		}
+	}
 
 	// free the backend
 	free(backend);
@@ -459,6 +480,72 @@ uint32_t* globuf_buffer_alloc_wayland_software(
 	struct globuf_error_info* error)
 {
 	struct wayland_software_backend* backend = context->backend_data;
+	struct wayland_platform* platform = &(backend->platform);
+	int error_posix;
+
+	// return old buffer if still the right size
+	if ((width == backend->buffer_width) && (height == backend->buffer_height))
+	{
+		// create buffer
+		uint32_t format;
+
+		if (context->feature_background->background == GLOBUF_BACKGROUND_OPAQUE)
+		{
+			format = WL_SHM_FORMAT_XRGB8888;
+		}
+		else
+		{
+			format = WL_SHM_FORMAT_ARGB8888;
+		}
+
+		backend->buffer =
+			wl_shm_pool_create_buffer(
+				backend->software_pool,
+				0,
+				width,
+				height,
+				width * 4,
+				format);
+
+		if (backend->buffer == NULL)
+		{
+			wl_shm_pool_destroy(backend->software_pool);
+			munmap(backend->buffer_ptr, backend->buffer_len);
+			backend->buffer_ptr = NULL;
+			backend->buffer_len = 0;
+			backend->buffer_width = 0;
+			backend->buffer_height = 0;
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_REQUEST);
+			return NULL;
+		}
+
+		return backend->buffer_ptr;
+	}
+
+	// clean old resources
+	if (backend->software_pool != NULL)
+	{
+		wl_shm_pool_destroy(backend->software_pool);
+		backend->software_pool = NULL;
+	}
+
+	// free old buffer
+	if (backend->buffer_ptr != NULL)
+	{
+		error_posix = munmap(backend->buffer_ptr, backend->buffer_len);
+		backend->buffer_ptr = NULL;
+		backend->buffer_len = 0;
+		backend->buffer_width = 0;
+		backend->buffer_height = 0;
+
+		if (error_posix < 0)
+		{
+			globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_MUNMAP);
+			return NULL;
+		}
+	}
+
+	// allocate a new buffer
 	backend->buffer_len = 4 * width * height;
 
 	// create shm - code by sircmpwn
@@ -506,8 +593,6 @@ uint32_t* globuf_buffer_alloc_wayland_software(
 	}
 
 	// allocate shm
-	int error_posix;
-
 	do
 	{
 		error_posix = ftruncate(fd, backend->buffer_len);
@@ -539,19 +624,20 @@ uint32_t* globuf_buffer_alloc_wayland_software(
 	}
 
 	// create memory pool
-	struct wl_shm_pool* software_pool =
+	backend->software_pool =
 		wl_shm_create_pool(
 			backend->shm,
 			fd,
 			backend->buffer_len);
 
-	if (software_pool == NULL)
+	if (backend->software_pool == NULL)
 	{
 		munmap(argb, backend->buffer_len);
-		close(fd);
 		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_REQUEST);
 		return NULL;
 	}
+
+	close(fd);
 
 	// create buffer
 	uint32_t format;
@@ -567,7 +653,7 @@ uint32_t* globuf_buffer_alloc_wayland_software(
 
 	backend->buffer =
 		wl_shm_pool_create_buffer(
-			software_pool,
+			backend->software_pool,
 			0,
 			width,
 			height,
@@ -576,16 +662,16 @@ uint32_t* globuf_buffer_alloc_wayland_software(
 
 	if (backend->buffer == NULL)
 	{
-		wl_shm_pool_destroy(software_pool);
+		wl_shm_pool_destroy(backend->software_pool);
 		munmap(argb, backend->buffer_len);
-		close(fd);
 		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_REQUEST);
 		return NULL;
 	}
 
-	// clean resources
-	wl_shm_pool_destroy(software_pool);
-	close(fd);
+	// save info
+	backend->buffer_ptr = argb;
+	backend->buffer_width = width;
+	backend->buffer_height = height;
 
 	// all good
 	globuf_error_ok(error);
@@ -597,16 +683,6 @@ void globuf_buffer_free_wayland_software(
 	uint32_t* buffer,
 	struct globuf_error_info* error)
 {
-	struct wayland_software_backend* backend = context->backend_data;
-	struct wayland_platform* platform = &(backend->platform);
-	int error_posix = munmap(buffer, backend->buffer_len);
-
-	if (error_posix < 0)
-	{
-		globuf_error_throw(context, error, GLOBUF_ERROR_WAYLAND_MUNMAP);
-		return;
-	}
-
 	globuf_error_ok(error);
 }
 
