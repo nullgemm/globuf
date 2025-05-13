@@ -3,4 +3,7 @@
 
 #include "globuf.h"
 
+void* globuf_get_win_surface(
+	struct globuf* context);
+
 #endif

@@ -1342,3 +1342,11 @@ struct globuf_rect globuf_win_common_get_expose(
 	globuf_error_ok(error);
 	return value;
 }
+
+void* globuf_get_win_surface(
+	struct globuf* context)
+{
+	struct win_platform* platform = context->backend_callbacks.callback(context);
+
+	return (void*) platform->event_handle;
+}
