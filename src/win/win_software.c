@@ -614,7 +614,7 @@ uint32_t* globuf_buffer_alloc_win_software(
 
 	// update bitmap info
 	backend->bmp_info.bmiHeader.biWidth = (LONG) width;
-	backend->bmp_info.bmiHeader.biHeight = (LONG) height;
+	backend->bmp_info.bmiHeader.biHeight = - (LONG) height;
 
 	// get device context
 	HDC device_context = GetDC(platform->event_handle);
