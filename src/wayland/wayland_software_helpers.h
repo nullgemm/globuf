@@ -28,7 +28,7 @@ struct wayland_software_backend
 
 void wayland_helpers_callback_registry_shm(
 	void* data,
-	struct wl_registry* registry,
+	void* registry,
 	uint32_t name,
 	const char* interface,
 	uint32_t version);

@@ -31,7 +31,7 @@ struct wayland_capabilities_handler_node
 {
 	void (*capabilities_handler)(
 		void* data,
-		struct wl_seat* seat,
+		void* seat,
 		uint32_t capabilities);
 	void* capabilities_handler_data;
 	struct wayland_capabilities_handler_node* next;
@@ -41,7 +41,7 @@ struct wayland_registry_handler_node
 {
 	void (*registry_handler)(
 		void* data,
-		struct wl_registry* registry,
+		void* registry,
 		uint32_t name,
 		const char* interface,
 		uint32_t version);
@@ -53,7 +53,7 @@ struct wayland_registry_remover_node
 {
 	void (*registry_remover)(
 		void* data,
-		struct wl_registry* registry,
+		void* registry,
 		uint32_t name);
 	void* registry_remover_data;
 	struct wayland_registry_remover_node* next;
