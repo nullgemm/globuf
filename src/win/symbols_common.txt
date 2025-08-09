@@ -32,3 +32,4 @@ globuf_win_helpers_set_frame
 globuf_win_helpers_set_background
 globuf_win_helpers_set_vsync
 globuf_win_helpers_win32_error_log
+globuf_get_win_surface
