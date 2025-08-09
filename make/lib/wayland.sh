@@ -162,6 +162,12 @@ exit 1
 	;;
 esac
 
+src+=("res/wayland_headers/xdg-shell-protocol.c")
+src+=("res/wayland_headers/xdg-decoration-protocol.c")
+src+=("res/wayland_headers/kde-blur-protocol.c")
+src+=("res/wayland_headers/zwp-relative-pointer-protocol.c")
+src+=("res/wayland_headers/zwp-pointer-constraints-protocol.c")
+
 # save symbols file path
 symbols_file="src/wayland/symbols_$backend.txt"
 
