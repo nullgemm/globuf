@@ -18,6 +18,10 @@
 #define main real_main
 #endif
 
+#if defined(GLOBUF_SHARED)
+#include <dlfcn.h>
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -477,6 +481,8 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globuf_config_backend config = {0};
 
+#if !defined(GLOBUF_SHARED)
+	// initialize statically
 #if defined(GLOBUF_EXAMPLE_X11)
 #if defined(GLOBUF_EXAMPLE_GLX)
 	globuf_prepare_init_x11_glx(&config, &error_early);
@@ -489,6 +495,39 @@ int main(int argc, char** argv)
 	globuf_prepare_init_win_wgl(&config, &error_early);
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 	globuf_prepare_init_wayland_egl(&config, &error_early);
+#endif
+#else
+	// prepare dynamic initializer
+	void* globuf_lib = NULL;
+	void (*globuf_prepare_init)() = NULL;
+
+	char* path_globuf_lib = NULL;
+	char* sym_globuf_init = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11)
+	path_globuf_lib = "./globuf_x11_vulkan.so";
+	#if defined(GLOBUF_EXAMPLE_GLX)
+	sym_globuf_init = "globuf_prepare_init_x11_glx";
+	#elif defined(GLOBUF_EXAMPLE_EGL)
+	sym_globuf_init = "globuf_prepare_init_x11_egl";
+	#endif
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	path_globuf_lib = "./globuf_appkit_vulkan.dylib";
+	sym_globuf_init = "globuf_prepare_init_appkit_vulkan";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	path_globuf_lib = "./globuf_win_vulkan.dll";
+	sym_globuf_init = "globuf_prepare_init_win_vulkan";
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	path_globuf_lib = "./globuf_wayland_vulkan.so";
+	sym_globuf_init = "globuf_prepare_init_wayland_vulkan";
+	#endif
+
+	// load the backend binder symbol straight from a shared object
+	globuf_lib = dlopen(path_globuf_lib, 0);
+	globuf_prepare_init = dlsym(globuf_lib, sym_globuf_init);
+
+	// run the binder to load the remaining function pointers for the target implementation
+	globuf_prepare_init(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
