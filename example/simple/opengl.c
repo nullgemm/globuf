@@ -505,21 +505,22 @@ int main(int argc, char** argv)
 	char* sym_globuf_init = NULL;
 
 	#if defined(GLOBUF_EXAMPLE_X11)
-	path_globuf_lib = "./globuf_x11_vulkan.so";
 	#if defined(GLOBUF_EXAMPLE_GLX)
+	path_globuf_lib = "./globuf_x11_glx.so";
 	sym_globuf_init = "globuf_prepare_init_x11_glx";
 	#elif defined(GLOBUF_EXAMPLE_EGL)
+	path_globuf_lib = "./globuf_x11_egl.so";
 	sym_globuf_init = "globuf_prepare_init_x11_egl";
 	#endif
 	#elif defined(GLOBUF_EXAMPLE_APPKIT)
-	path_globuf_lib = "./globuf_appkit_vulkan.dylib";
-	sym_globuf_init = "globuf_prepare_init_appkit_vulkan";
+	path_globuf_lib = "./globuf_appkit_egl.dylib";
+	sym_globuf_init = "globuf_prepare_init_appkit_egl";
 	#elif defined(GLOBUF_EXAMPLE_WIN)
-	path_globuf_lib = "./globuf_win_vulkan.dll";
-	sym_globuf_init = "globuf_prepare_init_win_vulkan";
+	path_globuf_lib = "./globuf_win_wgl.dll";
+	sym_globuf_init = "globuf_prepare_init_win_wgl";
 	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
-	path_globuf_lib = "./globuf_wayland_vulkan.so";
-	sym_globuf_init = "globuf_prepare_init_wayland_vulkan";
+	path_globuf_lib = "./globuf_wayland_egl.so";
+	sym_globuf_init = "globuf_prepare_init_wayland_egl";
 	#endif
 
 	// load the backend binder symbol straight from a shared object
