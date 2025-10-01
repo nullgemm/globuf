@@ -7,7 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
-linktype="shared"
+linktype="static"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
