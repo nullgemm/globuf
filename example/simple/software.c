@@ -293,7 +293,7 @@ int main(int argc, char** argv)
 
 	// load the backend binder symbol straight from a shared object
 #if !defined(GLOBUF_EXAMPLE_WIN)
-	void* globuf_lib globuf_lib = dlopen(path_globuf_lib, 0);
+	void* globuf_lib = dlopen(path_globuf_lib, 0);
 	void (*globuf_prepare_init)() = dlsym(globuf_lib, sym_globuf_init);
 #else
 	HMODULE globuf_lib = LoadLibraryExA(path_globuf_lib, NULL, 0);
