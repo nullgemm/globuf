@@ -182,11 +182,7 @@ case $backend in
 		libs+=("\$folder_library/globuf_pe_software.a")
 	;;
 
-	glx)
-		libs+=("\$folder_library/globuf_pe_opengl.a")
-	;;
-
-	egl)
+	wgl)
 		libs+=("\$folder_library/globuf_pe_opengl.a")
 	;;
 

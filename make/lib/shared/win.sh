@@ -9,7 +9,7 @@ backend=$1
 
 function syntax {
 echo "syntax reminder: $0 <backend type>"
-echo "backend types: software, egl, vulkan"
+echo "backend types: software, wgl, vulkan"
 }
 
 # utilitary variables
@@ -33,7 +33,7 @@ case $backend in
 	software)
 	;;
 
-	egl)
+	wgl)
 		link+=("-lopengl32")
 	;;
 

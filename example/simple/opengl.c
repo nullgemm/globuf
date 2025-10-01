@@ -19,7 +19,11 @@
 #endif
 
 #if defined(GLOBUF_SHARED)
+#if !defined(GLOBUF_EXAMPLE_WIN)
 #include <dlfcn.h>
+#else
+#include <libloaderapi.h>
+#endif
 #endif
 
 #include <stdbool.h>
@@ -498,9 +502,6 @@ int main(int argc, char** argv)
 #endif
 #else
 	// prepare dynamic initializer
-	void* globuf_lib = NULL;
-	void (*globuf_prepare_init)() = NULL;
-
 	char* path_globuf_lib = NULL;
 	char* sym_globuf_init = NULL;
 
@@ -524,8 +525,13 @@ int main(int argc, char** argv)
 	#endif
 
 	// load the backend binder symbol straight from a shared object
-	globuf_lib = dlopen(path_globuf_lib, 0);
-	globuf_prepare_init = dlsym(globuf_lib, sym_globuf_init);
+#if !defined(GLOBUF_EXAMPLE_WIN)
+	void* globuf_lib = dlopen(path_globuf_lib, 0);
+	void (*globuf_prepare_init)() = dlsym(globuf_lib, sym_globuf_init);
+#else
+	HMODULE globuf_lib = LoadLibraryExA(path_globuf_lib, NULL, 0);
+	void (*globuf_prepare_init)() = (void(*)()) GetProcAddress(globuf_lib, sym_globuf_init);
+#endif
 
 	// run the binder to load the remaining function pointers for the target implementation
 	globuf_prepare_init(&config, &error_early);
