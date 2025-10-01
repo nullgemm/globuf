@@ -8,6 +8,7 @@ cd ../../..
 build=$1
 backend=$2
 toolchain=$3
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
@@ -31,7 +32,7 @@ name="globuf_example_simple_appkit"
 src+=("example/helpers/appkit.m")
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -133,14 +134,12 @@ case $backend in
 	software)
 ninja_file=example_simple_appkit_software.ninja
 src+=("example/simple/software.c")
-libs+=("\$folder_library/globuf_macho_software_$toolchain.a")
 	;;
 
 	egl)
 ninja_file=example_simple_appkit_egl.ninja
 src+=("example/simple/opengl.c")
 obj+=("\$folder_objects/res/shaders/gles2/shaders.o")
-libs+=("\$folder_library/globuf_macho_opengl_$toolchain.a")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
 flags+=("-Ires/angle/include")
 ldflags+=("-Lres/angle/libs")
@@ -153,7 +152,6 @@ ninja_file=example_simple_appkit_vulkan.ninja
 src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globuf_macho_vulkan_$toolchain.a")
 flags+=("-Ires/moltenvk/include")
 ldflags+=("-Lres/moltenvk/libs")
 ldflags+=("-lc++")
@@ -202,10 +200,41 @@ name+="_$lib_suffix"
 ldlibs+=("-lpthread")
 cmd="open -n \$name.app"
 
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
+		libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
+	;;
+esac
+
+case $backend in
+	software)
+		libs+=("\$folder_library/globuf_macho_software_$toolchain.a")
+	;;
+
+	egl)
+		libs+=("\$folder_library/globuf_macho_opengl_$toolchain.a")
+	;;
+
+	vulkan)
+		libs+=("\$folder_library/globuf_macho_vulkan_$toolchain.a")
+	;;
+esac
+
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
-libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
-libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
 libs+=("\$folder_library/globuf_macho_$lib_suffix.a")
 
 # default target
