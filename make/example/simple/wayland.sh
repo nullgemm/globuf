@@ -7,6 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -32,7 +33,7 @@ ld="gcc"
 as="as"
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -139,7 +140,6 @@ case $backend in
 	software)
 ninja_file=example_simple_wayland_software.ninja
 src+=("example/simple/software.c")
-libs+=("\$folder_library/globuf_elf_software.a")
 	;;
 
 	egl)
@@ -149,7 +149,6 @@ link+=("egl")
 link+=("glesv2")
 link+=("wayland-egl")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globuf_elf_opengl.a")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
 	;;
 
@@ -159,7 +158,6 @@ src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globuf_elf_vulkan.a")
 	;;
 
 	*)
@@ -172,10 +170,45 @@ esac
 link+=("wayland-client")
 ldlibs+=("-lpthread")
 
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
+		libs+=("\$folder_library/wayland/$name_lib""_common.a")
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
+	;;
+esac
+
+case $backend in
+	software)
+		libs+=("\$folder_library/globuf_elf_software.a")
+	;;
+
+	glx)
+		libs+=("\$folder_library/globuf_elf_opengl.a")
+	;;
+
+	egl)
+		libs+=("\$folder_library/globuf_elf_opengl.a")
+	;;
+
+	vulkan)
+		libs+=("\$folder_library/globuf_elf_vulkan.a")
+	;;
+esac
+
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
-libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
-libs+=("\$folder_library/wayland/$name_lib""_common.a")
 libs+=("\$folder_library/globuf_elf.a")
 
 # default target
