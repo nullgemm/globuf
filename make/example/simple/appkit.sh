@@ -8,7 +8,7 @@ cd ../../..
 build=$1
 backend=$2
 toolchain=$3
-linktype="shared"
+linktype="static"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
