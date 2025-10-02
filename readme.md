@@ -267,4 +267,4 @@ as well as composition, deadkeys...
 
 
 ## Special thanks
-Nathan J. for being amazing.
+My eternal gratitude goes to Nathan J. for his unfailing support.
