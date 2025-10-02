@@ -1,6 +1,7 @@
 #include "globuf.h"
 #include "globuf_software.h"
 
+#if !defined(GLOBUF_SHARED)
 #if defined(GLOBUF_EXAMPLE_X11)
 #include "globuf_x11_software.h"
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
@@ -9,6 +10,7 @@
 #include "globuf_win_software.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 #include "globuf_wayland_software.h"
+#endif
 #endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT

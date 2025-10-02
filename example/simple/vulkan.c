@@ -1,6 +1,7 @@
 #include "globuf.h"
 #include "vulkan_helpers.h"
 
+#if !defined(GLOBUF_SHARED)
 #if defined(GLOBUF_EXAMPLE_X11)
 #include "globuf_x11_vulkan.h"
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
@@ -9,6 +10,7 @@
 #include "globuf_win_vulkan.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 #include "globuf_wayland_vulkan.h"
+#endif
 #endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT

@@ -1,5 +1,7 @@
 #include "globuf.h"
+#include "globuf_opengl.h"
 
+#if !defined(GLOBUF_SHARED)
 #if defined(GLOBUF_EXAMPLE_X11)
 #if defined(GLOBUF_EXAMPLE_GLX)
 	#include "globuf_x11_glx.h"
@@ -12,6 +14,7 @@
 #include "globuf_win_wgl.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 #include "globuf_wayland_egl.h"
+#endif
 #endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT
