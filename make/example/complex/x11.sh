@@ -7,6 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -32,7 +33,7 @@ ld="gcc"
 as="as"
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -138,32 +139,19 @@ case $backend in
 	software)
 ninja_file=example_complex_x11_software.ninja
 src+=("example/complex/software.c")
-link+=("xcb-shm")
-link+=("xcb-randr")
-link+=("xcb-render")
-libs+=("\$folder_library/globuf_elf_software.a")
 	;;
 
 	glx)
 ninja_file=example_complex_x11_glx.ninja
 src+=("example/complex/opengl.c")
-link+=("gl")
-link+=("glesv2")
-link+=("x11")
-link+=("x11-xcb")
-link+=("xrender")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globuf_elf_opengl.a")
 defines+=("-DGLOBUF_EXAMPLE_GLX")
 	;;
 
 	egl)
 ninja_file=example_complex_x11_egl.ninja
 src+=("example/complex/opengl.c")
-link+=("egl")
-link+=("glesv2")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
-libs+=("\$folder_library/globuf_elf_opengl.a")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
 	;;
 
@@ -171,10 +159,7 @@ defines+=("-DGLOBUF_EXAMPLE_EGL")
 ninja_file=example_complex_x11_vulkan.ninja
 src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
-link+=("vulkan")
-link+=("xcb-render")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
-libs+=("\$folder_library/globuf_elf_vulkan.a")
 	;;
 
 	*)
@@ -199,11 +184,58 @@ link+=("xkbcommon")
 link+=("xkbcommon-x11")
 ldlibs+=("-lpthread")
 
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/x11/$name_lib""_$backend.a")
+		libs+=("\$folder_library/x11/$name_lib""_common.a")
+
+		case $backend in
+			software)
+				link+=("xcb-shm")
+				link+=("xcb-randr")
+				link+=("xcb-render")
+				libs+=("\$folder_library/globuf_elf_software.a")
+			;;
+
+			glx)
+				link+=("gl")
+				link+=("glesv2")
+				link+=("x11")
+				link+=("x11-xcb")
+				link+=("xrender")
+				libs+=("\$folder_library/globuf_elf_opengl.a")
+			;;
+
+			egl)
+				link+=("egl")
+				link+=("glesv2")
+				libs+=("\$folder_library/globuf_elf_opengl.a")
+			;;
+
+			vulkan)
+				link+=("vulkan")
+				link+=("xcb-render")
+				libs+=("\$folder_library/globuf_elf_vulkan.a")
+			;;
+		esac
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
+	;;
+esac
+
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
-libs+=("\$folder_library/x11/$name_lib""_$backend.a")
-libs+=("\$folder_library/x11/$name_lib""_common.a")
 libs+=("\$folder_library/globuf_elf.a")
 libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")

@@ -4,6 +4,7 @@
 #include "dpishit.h"
 #include "willis.h"
 
+#if 1// OR !defined(GLOBUF_SHARED)
 #if defined(GLOBUF_EXAMPLE_X11)
 #include "globuf_x11_software.h"
 #include "cursoryx_x11.h"
@@ -25,9 +26,18 @@
 #include "dpishit_wayland.h"
 #include "willis_wayland.h"
 #endif
+#endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT
 #define main real_main
+#endif
+
+#if defined(GLOBUF_SHARED)
+#if !defined(GLOBUF_EXAMPLE_WIN)
+#include <dlfcn.h>
+#else
+#include <libloaderapi.h>
+#endif
 #endif
 
 #include <stdbool.h>
@@ -579,6 +589,8 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globuf_config_backend config = {0};
 
+#if !defined(GLOBUF_SHARED)
+	// initialize statically
 #if defined(GLOBUF_EXAMPLE_X11)
 	globuf_prepare_init_x11_software(&config, &error_early);
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
@@ -595,6 +607,37 @@ int main(int argc, char** argv)
 		" on this platform, but the text in RAM really is valid.\n\n");
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 	globuf_prepare_init_wayland_software(&config, &error_early);
+#endif
+#else
+	// prepare dynamic initializer
+	char* path_globuf_lib = NULL;
+	char* sym_globuf_init = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11)
+	path_globuf_lib = "./globuf_x11_software.so";
+	sym_globuf_init = "globuf_prepare_init_x11_software";
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	path_globuf_lib = "./globuf_appkit_software.dylib";
+	sym_globuf_init = "globuf_prepare_init_appkit_software";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	path_globuf_lib = "./globuf_win_software.dll";
+	sym_globuf_init = "globuf_prepare_init_win_software";
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	path_globuf_lib = "./globuf_wayland_software.so";
+	sym_globuf_init = "globuf_prepare_init_wayland_software";
+	#endif
+
+	// load the backend binder symbol straight from a shared object
+#if !defined(GLOBUF_EXAMPLE_WIN)
+	void* globuf_lib = dlopen(path_globuf_lib, 0);
+	void (*globuf_prepare_init)() = dlsym(globuf_lib, sym_globuf_init);
+#else
+	HMODULE globuf_lib = LoadLibraryExA(path_globuf_lib, NULL, 0);
+	void (*globuf_prepare_init)() = (void(*)()) GetProcAddress(globuf_lib, sym_globuf_init);
+#endif
+
+	// run the binder to load the remaining function pointers for the target implementation
+	globuf_prepare_init(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
