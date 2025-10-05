@@ -7,6 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -31,7 +32,7 @@ cc="x86_64-w64-mingw32-gcc"
 ld="x86_64-w64-mingw32-gcc"
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -136,6 +137,7 @@ case $backend in
 ninja_file=example_complex_win_software.ninja
 src+=("example/complex/software.c")
 libs+=("\$folder_library/globuf_pe_software.a")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	wgl)
@@ -144,7 +146,6 @@ src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 libs+=("\$folder_library/globuf_pe_opengl.a")
 defines+=("-DGLOBUF_EXAMPLE_WGL")
-ldlibs+=("-lopengl32")
 	;;
 
 	vulkan)
@@ -153,7 +154,7 @@ src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globuf_pe_vulkan.a")
-ldlibs+=("-lvulkan-1")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 	;;
 
 	*)
@@ -163,11 +164,45 @@ exit 1
 	;;
 esac
 
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/win/$name_lib""_$backend.a")
+		libs+=("\$folder_library/win/$name_lib""_common.a")
+
+		case $backend in
+			software)
+			;;
+
+			wgl)
+				ldlibs+=("-lopengl32")
+			;;
+
+			vulkan)
+				ldlibs+=("-lvulkan-1")
+			;;
+		esac
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+		defines+=("-DCURSORYX_SHARED")
+		defines+=("-DWILLIS_SHARED")
+		defines+=("-DDPISHIT_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
+	;;
+esac
+
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
-libs+=("\$folder_library/win/$name_lib""_$backend.a")
-libs+=("\$folder_library/win/$name_lib""_common.a")
 libs+=("\$folder_library/globuf_pe.a")
 libs+=("res/cursoryx/lib/cursoryx/win/cursoryx_win.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_pe.a")

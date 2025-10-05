@@ -18,7 +18,7 @@ if [ -z "$build_type" ]; then
 fi
 
 if [ -z "$build_platform" ]; then
-	build_platform=x11
+	build_platform=win
 fi
 
 if [ -z "$build_backend" ]; then
