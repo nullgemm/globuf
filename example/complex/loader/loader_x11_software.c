@@ -9,6 +9,7 @@
 #include <xcb/xcb.h>
 
 // pointers implementation
+#if defined(GLOBUF_EXAMPLE_X11)
 xcb_connection_t* (*globuf_get_x11_conn)(struct globuf* context);
 xcb_window_t (*globuf_get_x11_window)(struct globuf* context);
 xcb_window_t (*globuf_get_x11_root)(struct globuf* context);
@@ -17,6 +18,10 @@ xcb_screen_t* (*globuf_get_x11_screen)(struct globuf* context);
 void (*globuf_prepare_init_x11_software)(
 	struct globuf_config_backend* config,
 	struct globuf_error_info* error);
+#elif defined(GLOBUF_EXAMPLE_APPKIT)
+#elif defined(GLOBUF_EXAMPLE_WIN)
+#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+#endif
 
 // symbol table
 struct link
@@ -25,13 +30,19 @@ struct link
 	char* sym;
 };
 
-static struct link table[5] =
+static struct link table[] =
 {
+#if defined(GLOBUF_EXAMPLE_X11)
 	{(void(**)()) &globuf_get_x11_conn, "globuf_get_x11_conn"},
 	{(void(**)()) &globuf_get_x11_window, "globuf_get_x11_window"},
 	{(void(**)()) &globuf_get_x11_root, "globuf_get_x11_root"},
 	{(void(**)()) &globuf_get_x11_screen, "globuf_get_x11_screen"},
 	{(void(**)()) &globuf_prepare_init_x11_software, "globuf_prepare_init_x11_software"},
+#elif defined(GLOBUF_EXAMPLE_APPKIT)
+#elif defined(GLOBUF_EXAMPLE_WIN)
+#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+#endif
+	{NULL, NULL},
 };
 
 // loader implementation
@@ -52,7 +63,7 @@ bool globuf_loader_x11_software(
 
 	size_t i = 0;
 
-	while (i < 5)
+	while ((table[i].func != NULL) && (table[i].sym != NULL))
 	{
 		void(*lol)() = dlsym(globuf_lib, table[i].sym);
 
