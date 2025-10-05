@@ -1,32 +1,41 @@
 #include "globuf.h"
+#include "globuf_opengl.h"
 #include "cursoryx.h"
 #include "dpishit.h"
 #include "willis.h"
 
-#if defined(GLOBUF_EXAMPLE_X11)
-#if defined(GLOBUF_EXAMPLE_GLX)
-	#include "globuf_x11_glx.h"
-#elif defined(GLOBUF_EXAMPLE_EGL)
-	#include "globuf_x11_egl.h"
-#endif
-	#include "cursoryx_x11.h"
-	#include "dpishit_x11.h"
-	#include "willis_x11.h"
+#if defined(GLOBUF_SHARED)
+#include "dynamic_loader.h"
+#elif defined(GLOBUF_EXAMPLE_X11)
+	#if defined(GLOBUF_EXAMPLE_GLX)
+#include "globuf_x11_glx.h"
+	#elif defined(GLOBUF_EXAMPLE_EGL)
+#include "globuf_x11_egl.h"
+	#endif
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
-	#include "globuf_appkit_egl.h"
-	#include "cursoryx_appkit.h"
-	#include "dpishit_appkit.h"
-	#include "willis_appkit.h"
+#include "globuf_appkit_egl.h"
 #elif defined(GLOBUF_EXAMPLE_WIN)
-	#include "globuf_win_wgl.h"
-	#include "cursoryx_win.h"
-	#include "dpishit_win.h"
-	#include "willis_win.h"
+#include "globuf_win_wgl.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
-	#include "globuf_wayland_egl.h"
-	#include "cursoryx_wayland.h"
-	#include "dpishit_wayland.h"
-	#include "willis_wayland.h"
+#include "globuf_wayland_egl.h"
+#endif
+
+#if defined(GLOBUF_EXAMPLE_X11)
+#include "cursoryx_x11.h"
+#include "dpishit_x11.h"
+#include "willis_x11.h"
+#elif defined(GLOBUF_EXAMPLE_APPKIT)
+#include "cursoryx_appkit.h"
+#include "dpishit_appkit.h"
+#include "willis_appkit.h"
+#elif defined(GLOBUF_EXAMPLE_WIN)
+#include "cursoryx_win.h"
+#include "dpishit_win.h"
+#include "willis_win.h"
+#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+#include "cursoryx_wayland.h"
+#include "dpishit_wayland.h"
+#include "willis_wayland.h"
 #endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT
@@ -804,6 +813,63 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globuf_config_backend config = {0};
 
+#if defined(GLOBUF_SHARED)
+	// Load the function pointer setter from a shared object,
+	// along with platform-specific symbols (when applicable).
+	char* lib_globuf = NULL;
+	char* lib_cursoryx = NULL;
+	char* lib_willis = NULL;
+	char* lib_dpishit = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11)
+		#if defined(GLOBUF_EXAMPLE_GLX)
+	lib_globuf = "./globuf_x11_glx.so";
+		#elif defined(GLOBUF_EXAMPLE_EGL)
+	lib_globuf = "./globuf_x11_egl.so";
+		#endif
+	lib_cursoryx = "./cursoryx_x11.so";
+	lib_willis = "./willis_x11.so";
+	lib_dpishit = "./dpishit_x11.so";
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	lib_globuf = "./globuf_wayland_egl.so";
+	lib_cursoryx = "./cursoryx_wayland.so";
+	lib_willis = "./willis_wayland.so";
+	lib_dpishit = "./dpishit_wayland.so";
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	lib_globuf = "./globuf_appkit_egl.dylib";
+	lib_cursoryx = "./cursoryx_appkit.dylib";
+	lib_willis = "./willis_appkit.dylib";
+	lib_dpishit = "./dpishit_appkit.dylib";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	lib_globuf = "./globuf_win_wgl.dll";
+	lib_cursoryx = "./cursoryx_win.dll";
+	lib_willis = "./willis_win.dll";
+	lib_dpishit = "./dpishit_win.dll";
+	#endif
+
+	if (!dynamic_loader_globuf(lib_globuf))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_cursoryx(lib_cursoryx))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_willis(lib_willis))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_dpishit(lib_dpishit))
+	{
+		return 1;
+	}
+#endif
+
+	// Execute the function pointer setter to bind a backend
+	// to the common globuf abstraction exposed in universal code.
 #if defined(GLOBUF_EXAMPLE_X11)
 #if defined(GLOBUF_EXAMPLE_GLX)
 	globuf_prepare_init_x11_glx(&config, &error_early);

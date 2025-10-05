@@ -154,6 +154,8 @@ ninja_file=example_complex_wayland_egl.ninja
 src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 libs+=("\$folder_library/globuf_elf_opengl.a")
+link+=("egl")
+link+=("glesv2")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
 	;;
 
@@ -179,14 +181,15 @@ case $linktype in
 		flags+=("-pedantic")
 		libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
 		libs+=("\$folder_library/wayland/$name_lib""_common.a")
+		libs+=("res/cursoryx/lib/cursoryx/wayland/cursoryx_wayland.a")
+		libs+=("res/dpishit/lib/dpishit/wayland/dpishit_wayland.a")
+		libs+=("res/willis/lib/willis/wayland/willis_wayland.a")
 
 		case $backend in
 			software)
 			;;
 
 			egl)
-				link+=("egl")
-				link+=("glesv2")
 				link+=("wayland-egl")
 			;;
 
@@ -220,11 +223,8 @@ ldlibs+=("-lpthread")
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
 libs+=("\$folder_library/globuf_elf.a")
-libs+=("res/cursoryx/lib/cursoryx/wayland/cursoryx_wayland.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")
-libs+=("res/dpishit/lib/dpishit/wayland/dpishit_wayland.a")
 libs+=("res/dpishit/lib/dpishit/dpishit_elf.a")
-libs+=("res/willis/lib/willis/wayland/willis_wayland.a")
 libs+=("res/willis/lib/willis/willis_elf.a")
 
 # default target

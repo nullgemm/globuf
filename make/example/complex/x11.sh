@@ -149,6 +149,7 @@ src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBUF_EXAMPLE_GLX")
 libs+=("\$folder_library/globuf_elf_opengl.a")
+link+=("gl")
 	;;
 
 	egl)
@@ -157,6 +158,8 @@ src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
 libs+=("\$folder_library/globuf_elf_opengl.a")
+link+=("egl")
+link+=("glesv2")
 	;;
 
 	vulkan)
@@ -196,6 +199,9 @@ case $linktype in
 		flags+=("-pedantic")
 		libs+=("\$folder_library/x11/$name_lib""_$backend.a")
 		libs+=("\$folder_library/x11/$name_lib""_common.a")
+		libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
+		libs+=("res/dpishit/lib/dpishit/x11/dpishit_x11.a")
+		libs+=("res/willis/lib/willis/x11/willis_x11.a")
 
 		case $backend in
 			software)
@@ -205,16 +211,10 @@ case $linktype in
 			;;
 
 			glx)
-				link+=("gl")
 				link+=("glesv2")
 				link+=("x11")
 				link+=("x11-xcb")
 				link+=("xrender")
-			;;
-
-			egl)
-				link+=("egl")
-				link+=("glesv2")
 			;;
 
 			vulkan)
@@ -243,11 +243,8 @@ esac
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
 libs+=("\$folder_library/globuf_elf.a")
-libs+=("res/cursoryx/lib/cursoryx/x11/cursoryx_x11.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")
-libs+=("res/dpishit/lib/dpishit/x11/dpishit_x11.a")
 libs+=("res/dpishit/lib/dpishit/dpishit_elf.a")
-libs+=("res/willis/lib/willis/x11/willis_x11.a")
 libs+=("res/willis/lib/willis/willis_elf.a")
 
 # default target
