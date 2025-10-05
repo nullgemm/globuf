@@ -139,6 +139,7 @@ case $backend in
 	software)
 ninja_file=example_complex_x11_software.ninja
 src+=("example/complex/software.c")
+libs+=("\$folder_library/globuf_elf_software.a")
 	;;
 
 	glx)
@@ -146,6 +147,7 @@ ninja_file=example_complex_x11_glx.ninja
 src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBUF_EXAMPLE_GLX")
+libs+=("\$folder_library/globuf_elf_opengl.a")
 	;;
 
 	egl)
@@ -153,6 +155,7 @@ ninja_file=example_complex_x11_egl.ninja
 src+=("example/complex/opengl.c")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
+libs+=("\$folder_library/globuf_elf_opengl.a")
 	;;
 
 	vulkan)
@@ -160,6 +163,7 @@ ninja_file=example_complex_x11_vulkan.ninja
 src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+libs+=("\$folder_library/globuf_elf_vulkan.a")
 	;;
 
 	*)
@@ -196,7 +200,6 @@ case $linktype in
 				link+=("xcb-shm")
 				link+=("xcb-randr")
 				link+=("xcb-render")
-				libs+=("\$folder_library/globuf_elf_software.a")
 			;;
 
 			glx)
@@ -205,25 +208,23 @@ case $linktype in
 				link+=("x11")
 				link+=("x11-xcb")
 				link+=("xrender")
-				libs+=("\$folder_library/globuf_elf_opengl.a")
 			;;
 
 			egl)
 				link+=("egl")
 				link+=("glesv2")
-				libs+=("\$folder_library/globuf_elf_opengl.a")
 			;;
 
 			vulkan)
 				link+=("vulkan")
 				link+=("xcb-render")
-				libs+=("\$folder_library/globuf_elf_vulkan.a")
 			;;
 		esac
 	;;
 
 	shared)
 		defines+=("-DGLOBUF_SHARED")
+		src+=("example/complex/loader/loader_x11_software.c")
 	;;
 
 	*)
