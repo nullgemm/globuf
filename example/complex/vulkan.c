@@ -1,26 +1,35 @@
 #include "globuf.h"
+#include "globuf_vulkan.h"
 #include "vulkan_helpers.h"
 #include "cursoryx.h"
 #include "dpishit.h"
 #include "willis.h"
 
-#if defined(GLOBUF_EXAMPLE_X11)
+#if defined(GLOBUF_SHARED)
+#include "dynamic_loader.h"
+#elif defined(GLOBUF_EXAMPLE_X11)
 #include "globuf_x11_vulkan.h"
+#elif defined(GLOBUF_EXAMPLE_APPKIT)
+#include "globuf_appkit_vulkan.h"
+#elif defined(GLOBUF_EXAMPLE_WIN)
+#include "globuf_win_vulkan.h"
+#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+#include "globuf_wayland_vulkan.h"
+#endif
+
+#if defined(GLOBUF_EXAMPLE_X11)
 #include "cursoryx_x11.h"
 #include "dpishit_x11.h"
 #include "willis_x11.h"
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
-#include "globuf_appkit_vulkan.h"
 #include "cursoryx_appkit.h"
 #include "dpishit_appkit.h"
 #include "willis_appkit.h"
 #elif defined(GLOBUF_EXAMPLE_WIN)
-#include "globuf_win_vulkan.h"
 #include "cursoryx_win.h"
 #include "dpishit_win.h"
 #include "willis_win.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
-#include "globuf_wayland_vulkan.h"
 #include "cursoryx_wayland.h"
 #include "dpishit_wayland.h"
 #include "willis_wayland.h"
@@ -550,6 +559,59 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globuf_config_backend config = {0};
 
+#if defined(GLOBUF_SHARED)
+	// Load the function pointer setter from a shared object,
+	// along with platform-specific symbols (when applicable).
+	char* lib_globuf = NULL;
+	char* lib_cursoryx = NULL;
+	char* lib_willis = NULL;
+	char* lib_dpishit = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11)
+	lib_globuf = "./globuf_x11_vulkan.so";
+	lib_cursoryx = "./cursoryx_x11.so";
+	lib_willis = "./willis_x11.so";
+	lib_dpishit = "./dpishit_x11.so";
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	lib_globuf = "./globuf_wayland_vulkan.so";
+	lib_cursoryx = "./cursoryx_wayland.so";
+	lib_willis = "./willis_wayland.so";
+	lib_dpishit = "./dpishit_wayland.so";
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	lib_globuf = "./globuf_appkit_vulkan.dylib";
+	lib_cursoryx = "./cursoryx_appkit.dylib";
+	lib_willis = "./willis_appkit.dylib";
+	lib_dpishit = "./dpishit_appkit.dylib";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	lib_globuf = "./globuf_win_vulkan.dll";
+	lib_cursoryx = "./cursoryx_win.dll";
+	lib_willis = "./willis_win.dll";
+	lib_dpishit = "./dpishit_win.dll";
+	#endif
+
+	if (!dynamic_loader_globuf(lib_globuf))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_cursoryx(lib_cursoryx))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_willis(lib_willis))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_dpishit(lib_dpishit))
+	{
+		return 1;
+	}
+#endif
+
+	// Execute the function pointer setter to bind a backend
+	// to the common globuf abstraction exposed in universal code.
 #if defined(GLOBUF_EXAMPLE_X11)
 	globuf_prepare_init_x11_vulkan(&config, &error_early);
 #elif defined(GLOBUF_EXAMPLE_APPKIT)

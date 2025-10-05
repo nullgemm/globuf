@@ -166,6 +166,7 @@ src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globuf_elf_vulkan.a")
 defines+=("-DGLOBUF_EXAMPLE_VULKAN")
+link+=("vulkan")
 	;;
 
 	*)
@@ -194,7 +195,6 @@ case $linktype in
 			;;
 
 			vulkan)
-				link+=("vulkan")
 			;;
 		esac
 	;;
