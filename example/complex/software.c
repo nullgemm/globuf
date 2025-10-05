@@ -1,5 +1,4 @@
 #include "globuf.h"
-
 #include "globuf_software.h"
 #include "cursoryx.h"
 #include "dpishit.h"
@@ -596,11 +595,16 @@ int main(int argc, char** argv)
 	char* lib_willis = NULL;
 	char* lib_dpishit = NULL;
 
-	#if defined(GLOBUF_EXAMPLE_X11) || defined(GLOBUF_EXAMPLE_WAYLAND)
+	#if defined(GLOBUF_EXAMPLE_X11)
 	lib_globuf = "./globuf_x11_software.so";
 	lib_cursoryx = "./cursoryx_x11.so";
 	lib_willis = "./willis_x11.so";
 	lib_dpishit = "./dpishit_x11.so";
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	lib_globuf = "./globuf_wayland_software.so";
+	lib_cursoryx = "./cursoryx_wayland.so";
+	lib_willis = "./willis_wayland.so";
+	lib_dpishit = "./dpishit_wayland.so";
 	#elif defined(GLOBUF_EXAMPLE_APPKIT)
 	lib_globuf = "./globuf_appkit_software.dylib";
 	lib_cursoryx = "./cursoryx_appkit.dylib";
