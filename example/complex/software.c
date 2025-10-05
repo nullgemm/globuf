@@ -40,14 +40,6 @@
 #define main real_main
 #endif
 
-#if defined(GLOBUF_SHARED)
-#if !defined(GLOBUF_EXAMPLE_WIN)
-#include <dlfcn.h>
-#else
-#include <libloaderapi.h>
-#endif
-#endif
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -598,13 +590,26 @@ int main(int argc, char** argv)
 	struct globuf_config_backend config = {0};
 
 #if defined(GLOBUF_SHARED)
-	if (!dynamic_loader("./globuf_x11_software.so", RTLD_NOW))
+	// Load the function pointer setter from a shared object,
+	// along with platform-specific symbols (when applicable).
+	char* lib = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11) || defined(GLOBUF_EXAMPLE_WAYLAND)
+	lib = "./globuf_x11_software.so";
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	lib = "./globuf_appkit_software.dylib";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	lib = "./globuf_win_software.dll";
+	#endif
+
+	if (!dynamic_loader(lib))
 	{
 		return 1;
 	}
 #endif
 
-	// initialize statically
+	// Execute the function pointer setter to bind a backend
+	// to the common globuf abstraction exposed in universal code.
 #if defined(GLOBUF_EXAMPLE_X11)
 	globuf_prepare_init_x11_software(&config, &error_early);
 #elif defined(GLOBUF_EXAMPLE_APPKIT)

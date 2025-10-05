@@ -3,10 +3,18 @@
 #include "globuf.h"
 #include "dynamic_loader.h"
 
+#if !defined(GLOBUF_EXAMPLE_WIN)
 #include <dlfcn.h>
+#else
+#include <libloaderapi.h>
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
+
+#if defined(GLOBUF_EXAMPLE_X11)
 #include <xcb/xcb.h>
+#endif
 
 // pointers declaration
 #if defined(GLOBUF_EXAMPLE_X11)
@@ -164,17 +172,21 @@ static struct link table[] =
 };
 
 // loader implementation
-bool dynamic_loader(
-	char* path_globuf_lib,
-	int options)
+bool dynamic_loader(char* path_globuf_lib)
 {
-	void* globuf_lib = dlopen(path_globuf_lib, options);
+#if !defined(GLOBUF_EXAMPLE_WIN)
+	void* globuf_lib = dlopen(path_globuf_lib, RTLD_NOW);
+#else
+	HMODULE globuf_lib = LoadLibraryExA(path_globuf_lib, NULL, 0);
+#endif
 
 	if (globuf_lib == NULL)
 	{
 #ifndef GLOBUF_ERROR_SKIP
 		fprintf(stderr, "could not load object %s\n", path_globuf_lib);
+#if !defined(GLOBUF_EXAMPLE_WIN)
 		fprintf(stderr, "dlopen error: %s\n", dlerror());
+#endif
 #endif
 		return false;
 	}
@@ -183,13 +195,19 @@ bool dynamic_loader(
 
 	while ((table[i].func != NULL) && (table[i].sym != NULL))
 	{
+#if !defined(GLOBUF_EXAMPLE_WIN)
 		void(*lol)() = dlsym(globuf_lib, table[i].sym);
+#else
+		void(*lol)() = (void(*)()) GetProcAddress(globuf_lib, table[i].sym);
+#endif
 
 		if (lol == NULL)
 		{
 #ifndef GLOBUF_ERROR_SKIP
 			fprintf(stderr, "could not load symbol %s in object %s\n", table[i].sym, path_globuf_lib);
+#if !defined(GLOBUF_EXAMPLE_WIN)
 			fprintf(stderr, "dlsym error: %s\n", dlerror());
+#endif
 #endif
 			return false;
 		}

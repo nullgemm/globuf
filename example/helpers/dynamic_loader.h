@@ -109,9 +109,7 @@ extern void (*globuf_prepare_init_wayland_vulkan)(
 #endif
 
 // loader declaration
-bool dynamic_loader(
-	char* path_globuf_lib,
-	int options);
+bool dynamic_loader(char* path_globuf_lib);
 
 #endif
 #endif
