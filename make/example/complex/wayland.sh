@@ -7,6 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -32,7 +33,7 @@ ld="gcc"
 as="as"
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -145,14 +146,12 @@ case $backend in
 ninja_file=example_complex_wayland_software.ninja
 src+=("example/complex/software.c")
 libs+=("\$folder_library/globuf_elf_software.a")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	egl)
 ninja_file=example_complex_wayland_egl.ninja
 src+=("example/complex/opengl.c")
-link+=("egl")
-link+=("glesv2")
-link+=("wayland-egl")
 obj+=("\$folder_objects/res/shaders/gl1/shaders.o")
 libs+=("\$folder_library/globuf_elf_opengl.a")
 defines+=("-DGLOBUF_EXAMPLE_EGL")
@@ -162,15 +161,53 @@ defines+=("-DGLOBUF_EXAMPLE_EGL")
 ninja_file=example_complex_wayland_vulkan.ninja
 src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
-link+=("vulkan")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globuf_elf_vulkan.a")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 	;;
 
 	*)
 echo "invalid backend"
 syntax
 exit 1
+	;;
+esac
+
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
+		libs+=("\$folder_library/wayland/$name_lib""_common.a")
+
+		case $backend in
+			software)
+			;;
+
+			egl)
+				link+=("egl")
+				link+=("glesv2")
+				link+=("wayland-egl")
+			;;
+
+			vulkan)
+				link+=("vulkan")
+			;;
+		esac
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+		defines+=("-DCURSORYX_SHARED")
+		defines+=("-DWILLIS_SHARED")
+		defines+=("-DDPISHIT_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
 	;;
 esac
 
@@ -182,8 +219,6 @@ ldlibs+=("-lpthread")
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
-libs+=("\$folder_library/wayland/$name_lib""_$backend.a")
-libs+=("\$folder_library/wayland/$name_lib""_common.a")
 libs+=("\$folder_library/globuf_elf.a")
 libs+=("res/cursoryx/lib/cursoryx/wayland/cursoryx_wayland.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_elf.a")
