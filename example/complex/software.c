@@ -29,7 +29,7 @@
 #endif
 #else
 #if defined(GLOBUF_EXAMPLE_X11)
-#include "loader/loader_x11_software.h"
+#include "dynamic_loader.h"
 #include "cursoryx_x11.h"
 #include "dpishit_x11.h"
 #include "willis_x11.h"
@@ -598,7 +598,10 @@ int main(int argc, char** argv)
 	struct globuf_config_backend config = {0};
 
 #if defined(GLOBUF_SHARED)
-	globuf_loader_x11_software("./globuf_x11_software.so", RTLD_NOW);
+	if (!dynamic_loader("./globuf_x11_software.so", RTLD_NOW))
+	{
+		return 1;
+	}
 #endif
 
 	// initialize statically

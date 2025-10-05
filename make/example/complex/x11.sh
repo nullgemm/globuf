@@ -139,6 +139,7 @@ case $backend in
 	software)
 ninja_file=example_complex_x11_software.ninja
 src+=("example/complex/software.c")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 libs+=("\$folder_library/globuf_elf_software.a")
 	;;
 
@@ -163,6 +164,7 @@ ninja_file=example_complex_x11_vulkan.ninja
 src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 libs+=("\$folder_library/globuf_elf_vulkan.a")
 	;;
 
@@ -224,7 +226,7 @@ case $linktype in
 
 	shared)
 		defines+=("-DGLOBUF_SHARED")
-		src+=("example/complex/loader/loader_x11_software.c")
+		src+=("example/helpers/dynamic_loader.c")
 	;;
 
 	*)
