@@ -26,7 +26,7 @@ if [ -z "$build_backend" ]; then
 fi
 
 if [ -z "$build_example" ]; then
-	build_example=simple
+	build_example=complex
 fi
 
 if [ -z "$build_toolchain" ]; then

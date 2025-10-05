@@ -5,35 +5,34 @@
 #include "dpishit.h"
 #include "willis.h"
 
-#if !defined(GLOBUF_SHARED)
-#if defined(GLOBUF_EXAMPLE_X11)
+#if defined(GLOBUF_SHARED)
+#include "dynamic_loader.h"
+#elif defined(GLOBUF_EXAMPLE_X11)
 #include "globuf_x11_software.h"
+#elif defined(GLOBUF_EXAMPLE_APPKIT)
+#include "globuf_appkit_software.h"
+#elif defined(GLOBUF_EXAMPLE_WIN)
+#include "globuf_win_software.h"
+#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+#include "globuf_wayland_software.h"
+#endif
+
+#if defined(GLOBUF_EXAMPLE_X11)
 #include "cursoryx_x11.h"
 #include "dpishit_x11.h"
 #include "willis_x11.h"
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
-#include "globuf_appkit_software.h"
 #include "cursoryx_appkit.h"
 #include "dpishit_appkit.h"
 #include "willis_appkit.h"
 #elif defined(GLOBUF_EXAMPLE_WIN)
-#include "globuf_win_software.h"
 #include "cursoryx_win.h"
 #include "dpishit_win.h"
 #include "willis_win.h"
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
-#include "globuf_wayland_software.h"
 #include "cursoryx_wayland.h"
 #include "dpishit_wayland.h"
 #include "willis_wayland.h"
-#endif
-#else
-#if defined(GLOBUF_EXAMPLE_X11)
-#include "dynamic_loader.h"
-#include "cursoryx_x11.h"
-#include "dpishit_x11.h"
-#include "willis_x11.h"
-#endif
 #endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT
@@ -592,17 +591,44 @@ int main(int argc, char** argv)
 #if defined(GLOBUF_SHARED)
 	// Load the function pointer setter from a shared object,
 	// along with platform-specific symbols (when applicable).
-	char* lib = NULL;
+	char* lib_globuf = NULL;
+	char* lib_cursoryx = NULL;
+	char* lib_willis = NULL;
+	char* lib_dpishit = NULL;
 
 	#if defined(GLOBUF_EXAMPLE_X11) || defined(GLOBUF_EXAMPLE_WAYLAND)
-	lib = "./globuf_x11_software.so";
+	lib_globuf = "./globuf_x11_software.so";
+	lib_cursoryx = "./cursoryx_x11.so";
+	lib_willis = "./willis_x11.so";
+	lib_dpishit = "./dpishit_x11.so";
 	#elif defined(GLOBUF_EXAMPLE_APPKIT)
-	lib = "./globuf_appkit_software.dylib";
+	lib_globuf = "./globuf_appkit_software.dylib";
+	lib_cursoryx = "./cursoryx_appkit.dylib";
+	lib_willis = "./willis_appkit.dylib";
+	lib_dpishit = "./dpishit_appkit.dylib";
 	#elif defined(GLOBUF_EXAMPLE_WIN)
-	lib = "./globuf_win_software.dll";
+	lib_globuf = "./globuf_win_software.dll";
+	lib_cursoryx = "./cursoryx_win.dll";
+	lib_willis = "./willis_win.dll";
+	lib_dpishit = "./dpishit_win.dll";
 	#endif
 
-	if (!dynamic_loader(lib))
+	if (!dynamic_loader_globuf(lib_globuf))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_cursoryx(lib_cursoryx))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_willis(lib_willis))
+	{
+		return 1;
+	}
+
+	if (!dynamic_loader_dpishit(lib_dpishit))
 	{
 		return 1;
 	}

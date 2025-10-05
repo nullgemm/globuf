@@ -226,6 +226,9 @@ case $linktype in
 
 	shared)
 		defines+=("-DGLOBUF_SHARED")
+		defines+=("-DCURSORYX_SHARED")
+		defines+=("-DWILLIS_SHARED")
+		defines+=("-DDPISHIT_SHARED")
 		src+=("example/helpers/dynamic_loader.c")
 	;;
 
