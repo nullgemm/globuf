@@ -8,6 +8,7 @@ cd ../../..
 build=$1
 backend=$2
 toolchain=$3
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type> <target toolchain type>"
@@ -30,7 +31,7 @@ name="globuf_example_complex_appkit"
 src+=("example/helpers/appkit.m")
 
 # compiler flags
-flags+=("-std=c99" "-pedantic")
+flags+=("-std=c99")
 flags+=("-Wall" "-Wextra" "-Werror=vla" "-Werror")
 flags+=("-Wformat")
 flags+=("-Wformat-security")
@@ -136,6 +137,7 @@ case $backend in
 ninja_file=example_complex_appkit_software.ninja
 src+=("example/complex/software.c")
 libs+=("\$folder_library/globuf_macho_software_$toolchain.a")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	egl)
@@ -156,6 +158,7 @@ src+=("example/complex/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
 libs+=("\$folder_library/globuf_macho_vulkan_$toolchain.a")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 flags+=("-Ires/moltenvk/include")
 ldflags+=("-Lres/moltenvk/libs")
 ldflags+=("-lc++")
@@ -200,6 +203,43 @@ exit 1
 	;;
 esac
 
+# handle shared variant
+case $linktype in
+	static)
+		flags+=("-pedantic")
+		libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
+		libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
+		libs+=("res/cursoryx/lib/cursoryx/appkit/cursoryx_appkit_$lib_suffix.a")
+		libs+=("res/dpishit/lib/dpishit/appkit/dpishit_appkit_$lib_suffix.a")
+		libs+=("res/willis/lib/willis/appkit/willis_appkit_$lib_suffix.a")
+
+		case $backend in
+			software)
+			;;
+
+			egl)
+			;;
+
+			vulkan)
+			;;
+		esac
+	;;
+
+	shared)
+		defines+=("-DGLOBUF_SHARED")
+		defines+=("-DCURSORYX_SHARED")
+		defines+=("-DWILLIS_SHARED")
+		defines+=("-DDPISHIT_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
+	;;
+
+	*)
+		echo "invalid build type"
+		syntax
+		exit 1
+	;;
+esac
+
 name+="_$lib_suffix"
 ldlibs+=("-lpthread")
 cmd="open -n \$name.app"
@@ -207,14 +247,9 @@ cmd="open -n \$name.app"
 # additional object files
 obj+=("\$folder_objects/res/icon/iconpix.o")
 obj+=("\$folder_objects/res/cursor/cursorpix.o")
-libs+=("\$folder_library/appkit/$name_lib""_$backend""_$lib_suffix.a")
-libs+=("\$folder_library/appkit/$name_lib""_common_$lib_suffix.a")
 libs+=("\$folder_library/globuf_macho_$lib_suffix.a")
-libs+=("res/cursoryx/lib/cursoryx/appkit/cursoryx_appkit_$lib_suffix.a")
 libs+=("res/cursoryx/lib/cursoryx/cursoryx_macho_$lib_suffix.a")
-libs+=("res/dpishit/lib/dpishit/appkit/dpishit_appkit_$lib_suffix.a")
 libs+=("res/dpishit/lib/dpishit/dpishit_macho_$lib_suffix.a")
-libs+=("res/willis/lib/willis/appkit/willis_appkit_$lib_suffix.a")
 libs+=("res/willis/lib/willis/willis_macho_$lib_suffix.a")
 
 # default target

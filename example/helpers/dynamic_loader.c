@@ -156,10 +156,10 @@ static struct link table_globuf[] =
 	{(void(**)()) &globuf_prepare_init_x11_vulkan, "globuf_prepare_init_x11_vulkan"},
 	#endif
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
-	{(void(**)()) &globuf_appkit_egl_get_scale, "globuf_appkit_egl_get_scale"},
 	#if defined(GLOBUF_EXAMPLE_SOFTWARE)
 	{(void(**)()) &globuf_prepare_init_appkit_software, "globuf_prepare_init_appkit_software"},
 	#elif defined(GLOBUF_EXAMPLE_EGL)
+	{(void(**)()) &globuf_appkit_egl_get_scale, "globuf_appkit_egl_get_scale"},
 	{(void(**)()) &globuf_prepare_init_appkit_egl, "globuf_prepare_init_appkit_egl"},
 	#elif defined(GLOBUF_EXAMPLE_VULKAN)
 	{(void(**)()) &globuf_prepare_init_appkit_vulkan, "globuf_prepare_init_appkit_vulkan"},
