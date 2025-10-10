@@ -7,7 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
-linktype="static"
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -139,6 +139,7 @@ src+=("example/simple/software.c")
 link+=("xcb-shm")
 link+=("xcb-randr")
 link+=("xcb-render")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	glx)
@@ -169,6 +170,7 @@ src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
 link+=("xcb-render")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 	;;
 
 	*)
@@ -192,7 +194,11 @@ case $linktype in
 	;;
 
 	shared)
+		flags+=("-Ires/cursoryx/include")
+		flags+=("-Ires/dpishit/include")
+		flags+=("-Ires/willis/include")
 		defines+=("-DGLOBUF_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
 	;;
 
 	*)

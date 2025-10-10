@@ -7,7 +7,7 @@ cd ../../..
 # params
 build=$1
 backend=$2
-linktype="static"
+linktype="shared"
 
 function syntax {
 echo "syntax reminder: $0 <build type> <backend type>"
@@ -140,6 +140,7 @@ case $backend in
 	software)
 ninja_file=example_simple_wayland_software.ninja
 src+=("example/simple/software.c")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	egl)
@@ -158,6 +159,7 @@ src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 link+=("vulkan")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 	;;
 
 	*)
@@ -179,7 +181,11 @@ case $linktype in
 	;;
 
 	shared)
+		flags+=("-Ires/cursoryx/include")
+		flags+=("-Ires/dpishit/include")
+		flags+=("-Ires/willis/include")
 		defines+=("-DGLOBUF_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
 	;;
 
 	*)

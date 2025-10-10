@@ -134,6 +134,7 @@ case $backend in
 	software)
 ninja_file=example_simple_appkit_software.ninja
 src+=("example/simple/software.c")
+defines+=("-DGLOBUF_EXAMPLE_SOFTWARE")
 	;;
 
 	egl)
@@ -152,6 +153,7 @@ ninja_file=example_simple_appkit_vulkan.ninja
 src+=("example/simple/vulkan.c")
 src+=("example/helpers/vulkan_helpers.c")
 obj+=("\$folder_objects/res/shaders/vk1/shaders.o")
+defines+=("-DGLOBUF_EXAMPLE_VULKAN")
 flags+=("-Ires/moltenvk/include")
 ldflags+=("-Lres/moltenvk/libs")
 ldflags+=("-lc++")
@@ -209,7 +211,11 @@ case $linktype in
 	;;
 
 	shared)
+		flags+=("-Ires/cursoryx/include")
+		flags+=("-Ires/dpishit/include")
+		flags+=("-Ires/willis/include")
 		defines+=("-DGLOBUF_SHARED")
+		src+=("example/helpers/dynamic_loader.c")
 	;;
 
 	*)

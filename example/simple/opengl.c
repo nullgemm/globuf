@@ -1,13 +1,14 @@
 #include "globuf.h"
 #include "globuf_opengl.h"
 
-#if !defined(GLOBUF_SHARED)
-#if defined(GLOBUF_EXAMPLE_X11)
-#if defined(GLOBUF_EXAMPLE_GLX)
-	#include "globuf_x11_glx.h"
-#elif defined(GLOBUF_EXAMPLE_EGL)
-	#include "globuf_x11_egl.h"
-#endif
+#if defined(GLOBUF_SHARED)
+#include "dynamic_loader.h"
+#elif defined(GLOBUF_EXAMPLE_X11)
+	#if defined(GLOBUF_EXAMPLE_GLX)
+#include "globuf_x11_glx.h"
+	#elif defined(GLOBUF_EXAMPLE_EGL)
+#include "globuf_x11_egl.h"
+	#endif
 #elif defined(GLOBUF_EXAMPLE_APPKIT)
 #include "globuf_appkit_egl.h"
 #elif defined(GLOBUF_EXAMPLE_WIN)
@@ -15,18 +16,9 @@
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 #include "globuf_wayland_egl.h"
 #endif
-#endif
 
 #ifdef GLOBUF_EXAMPLE_APPKIT
 #define main real_main
-#endif
-
-#if defined(GLOBUF_SHARED)
-#if !defined(GLOBUF_EXAMPLE_WIN)
-#include <dlfcn.h>
-#else
-#include <libloaderapi.h>
-#endif
 #endif
 
 #include <stdbool.h>
@@ -488,8 +480,33 @@ int main(int argc, char** argv)
 	// prepare function pointers
 	struct globuf_config_backend config = {0};
 
-#if !defined(GLOBUF_SHARED)
-	// initialize statically
+#if defined(GLOBUF_SHARED)
+	// Load the function pointer setter from a shared object,
+	// along with platform-specific symbols (when applicable).
+	char* lib_globuf = NULL;
+
+	#if defined(GLOBUF_EXAMPLE_X11)
+		#if defined(GLOBUF_EXAMPLE_GLX)
+	lib_globuf = "./globuf_x11_glx.so";
+		#elif defined(GLOBUF_EXAMPLE_EGL)
+	lib_globuf = "./globuf_x11_egl.so";
+		#endif
+	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
+	lib_globuf = "./globuf_wayland_egl.so";
+	#elif defined(GLOBUF_EXAMPLE_APPKIT)
+	lib_globuf = "./globuf_appkit_egl.dylib";
+	#elif defined(GLOBUF_EXAMPLE_WIN)
+	lib_globuf = "./globuf_win_wgl.dll";
+	#endif
+
+	if (!dynamic_loader_globuf(lib_globuf))
+	{
+		return 1;
+	}
+#endif
+
+	// Execute the function pointer setter to bind a backend
+	// to the common globuf abstraction exposed in universal code.
 #if defined(GLOBUF_EXAMPLE_X11)
 #if defined(GLOBUF_EXAMPLE_GLX)
 	globuf_prepare_init_x11_glx(&config, &error_early);
@@ -502,42 +519,6 @@ int main(int argc, char** argv)
 	globuf_prepare_init_win_wgl(&config, &error_early);
 #elif defined(GLOBUF_EXAMPLE_WAYLAND)
 	globuf_prepare_init_wayland_egl(&config, &error_early);
-#endif
-#else
-	// prepare dynamic initializer
-	char* path_globuf_lib = NULL;
-	char* sym_globuf_init = NULL;
-
-	#if defined(GLOBUF_EXAMPLE_X11)
-	#if defined(GLOBUF_EXAMPLE_GLX)
-	path_globuf_lib = "./globuf_x11_glx.so";
-	sym_globuf_init = "globuf_prepare_init_x11_glx";
-	#elif defined(GLOBUF_EXAMPLE_EGL)
-	path_globuf_lib = "./globuf_x11_egl.so";
-	sym_globuf_init = "globuf_prepare_init_x11_egl";
-	#endif
-	#elif defined(GLOBUF_EXAMPLE_APPKIT)
-	path_globuf_lib = "./globuf_appkit_egl.dylib";
-	sym_globuf_init = "globuf_prepare_init_appkit_egl";
-	#elif defined(GLOBUF_EXAMPLE_WIN)
-	path_globuf_lib = "./globuf_win_wgl.dll";
-	sym_globuf_init = "globuf_prepare_init_win_wgl";
-	#elif defined(GLOBUF_EXAMPLE_WAYLAND)
-	path_globuf_lib = "./globuf_wayland_egl.so";
-	sym_globuf_init = "globuf_prepare_init_wayland_egl";
-	#endif
-
-	// load the backend binder symbol straight from a shared object
-#if !defined(GLOBUF_EXAMPLE_WIN)
-	void* globuf_lib = dlopen(path_globuf_lib, RTLD_NOW);
-	void (*globuf_prepare_init)() = dlsym(globuf_lib, sym_globuf_init);
-#else
-	HMODULE globuf_lib = LoadLibraryExA(path_globuf_lib, NULL, 0);
-	void (*globuf_prepare_init)() = (void(*)()) GetProcAddress(globuf_lib, sym_globuf_init);
-#endif
-
-	// run the binder to load the remaining function pointers for the target implementation
-	globuf_prepare_init(&config, &error_early);
 #endif
 
 	// set function pointers and perform basic init
